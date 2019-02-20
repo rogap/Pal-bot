@@ -359,8 +359,10 @@ client.on('message', mess => {
 					let lastAnswerText = answerText;
 					for (let i = 0; i < vk_messages.length; i++) {
 						const vk = vk_messages[i];
-						answerText += `Диалог с **${obj_profiles[vk.peer_id].first_name} ${obj_profiles[vk.peer_id].last_name}**, сообщение написано: ` + 
-							`**${obj_profiles[vk.from_id].first_name} ${obj_profiles[vk.from_id].last_name}** в **${getDate(vk.date)}**, *текст сообщения:* **${vk.text}**\n`;
+						const fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
+						answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vk.peer_id].first_name} ` + 
+							`${obj_profiles[vk.peer_id].last_name}:** ${vk.text}\n`;
+
 						if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
 						lastAnswerText = answerText; // сохраняем
 					}

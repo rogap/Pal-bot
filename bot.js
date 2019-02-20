@@ -395,7 +395,7 @@ function repText(text) { // удаляем & из строки
 
 function getDate(d) { // получаем нужный вид даты
 	d *= 1000;
-	return new Date(d).toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'});
+	return new Date(d).toLocaleString("ru", {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
 }
 
 function addListLastMess(mess) {

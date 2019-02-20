@@ -6,9 +6,8 @@
   "scripts": {
     "start": "node bot.js"
   },
-  "requires": true,
   "dependencies": {
     "discord.js": "11.4.2",
-    "request": "2.81.0",
+    "request": "2.81.0"
   }
 }

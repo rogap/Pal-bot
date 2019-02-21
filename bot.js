@@ -286,8 +286,11 @@ client.on('message', mess => {
 		let text = mess.content.slice(5).trim();
 		let to = text.indexOf(' ');
 		if (to == -1) too = text.length;
-		const id = text.slice(0, to).trim();
+		let id = Math.floor(text.slice(0, to).trim()); // приводим в норм вид
 
+		const type_id = id < 0 ? "chat_id" : "user_id"; // позволяет отправлять сообщение в группы
+		if (id < 0) id *= -1; // делаем id правильным
+		id += ''; // для replace
 		if (id != id.replace( /[^0-9]/, '' )) return addBotMess(mess.reply('Не корректный id.'), mess.channel.guild.id);
 
 		let text2 = repText(text.slice(text.indexOf(' ') + 1)).trim();
@@ -298,7 +301,7 @@ client.on('message', mess => {
 		if (!addListLastMess(text2)) return addBotMess(mess.reply('Такое сообщение уже было отправленно.'), mess.channel.guild.id);
 
 		const randomIDVK = (Math.random() * 1000000000000).toFixed(0);
-		const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&user_id=${id}&message=${text2}&v=5.92&access_token=`;
+		const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text2}&v=5.92&access_token=`;
 		const fetch = require('snekfetch');
 
 		sendVkListMembers.push(mess.author.id); // добавляем в список временно забаненых

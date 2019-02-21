@@ -3,6 +3,7 @@ const client = new Client();
 
 client.on('ready', () => {
 	console.log('I am ready!');
+	client.user.setGame('!помощь');
 	// client.channels.get('505374650730283010').sendMessage('Юля кукареку!');
 	// message.member.setMute(true, 'It needed to be done');
 });

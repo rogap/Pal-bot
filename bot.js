@@ -1,4 +1,3 @@
-
 const { Client, Attachment, RichEmbed, snekfetch } = require('discord.js');
 const client = new Client();
 
@@ -328,11 +327,13 @@ client.on('message', mess => {
 			return addBotMess(mess.reply('Возможно делать запросы только 1 раз в минуту.'), mess.channel.guild.id);
 		}
 		function getLactMessId(callback) { // получает id последнего сообщения вк, передавая его в callback
-			const url = `https://api.vk.com/method/messages.searchConversations?count=1&v=5.92&access_token=`;
+			//const url = `https://api.vk.com/method/messages.searchConversations?count=1&v=5.92&access_token=`;
+			const url = `https://api.vk.com/method/messages.getConversations?count=1&filter=all&v=5.92&access_token=`;
 			const fetch = require('snekfetch');
 			fetch.get(encodeURI(`${url + vkToken}`))
 			.then((r) => {
-				callback(r.body.response.items[0].last_message_id);
+				//callback(r.body.response.items[0].last_message_id);
+				callback(r.body.response.items[0].last_message.id);
 			});
 		}
 		function lastMessVK(messID) {
@@ -368,8 +369,8 @@ client.on('message', mess => {
 							answerText += `(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
 						} else {
 							const fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
-							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vk.peer_id].first_name} ` + 
-								`${obj_profiles[vk.peer_id].last_name}:** ${vk.text}\n`;
+							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vk.from_id].first_name} ` + 
+								`${obj_profiles[vk.from_id].last_name}:** ${vk.text}\n`;
 						}
 						if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
 						lastAnswerText = answerText; // сохраняем
@@ -543,6 +544,7 @@ adminListId = ['510112915907543042', '244114707676397569']; // список id �
 const vkToken = process.env.VK_TOKEN;
 
 // --- GLOBAL --- //
+
 
 client.login(process.env.BOT_TOKEN);
 

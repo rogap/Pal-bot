@@ -368,9 +368,13 @@ client.on('message', mess => {
 							console.log(`(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`);
 							answerText += `(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
 						} else {
-							const fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
-							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vk.from_id].first_name} ` + 
-								`${obj_profiles[vk.from_id].last_name}:** ${vk.text}\n`;
+							let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
+
+							if ((vk.peer_id + '').indexOf('200000000') != -1) fromTo = `[Группа ${(vk.peer_id + '').slice(9)}] От`;
+							const vkID = (vk.peer_id + '').indexOf('200000000') != -1 ? vk.from_id : vk.peer_id;
+
+							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
+								`${obj_profiles[vkID].last_name}:** ${vk.text}\n`;
 						}
 						if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
 						lastAnswerText = answerText; // сохраняем

@@ -360,10 +360,14 @@ client.on('message', mess => {
 					let lastAnswerText = answerText;
 					for (let i = 0; i < vk_messages.length; i++) {
 						const vk = vk_messages[i];
-						const fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
-						answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vk.peer_id].first_name} ` + 
-							`${obj_profiles[vk.peer_id].last_name}:** ${vk.text}\n`;
-
+						if (vk.action != undefined) { // события в группах
+							console.log(`(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`);
+							answerText += `(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
+						} else {
+							const fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
+							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vk.peer_id].first_name} ` + 
+								`${obj_profiles[vk.peer_id].last_name}:** ${vk.text}\n`;
+						}
 						if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
 						lastAnswerText = answerText; // сохраняем
 					}

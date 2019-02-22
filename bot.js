@@ -374,7 +374,7 @@ client.on('message', mess => {
 							const vkID = (vk.peer_id + '').indexOf('200000000') != -1 ? vk.from_id : vk.peer_id;
 
 							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
-								`${obj_profiles[vkID].last_name}:** ${vk.text}\n`;
+								`${obj_profiles[vkID].last_name}:** ${dellHppt(vk.text)}\n`;
 						}
 						if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
 						lastAnswerText = answerText; // сохраняем
@@ -507,6 +507,14 @@ function getRandomItemArry(arr) {
 	return arr[rand];
 }
 
+function dellHppt(text) { // вырезает все http:// и https://
+	let text2 = text.replace(/(https:\/\/)/, '');
+	if (text == text2) {
+		text2 = text.replace(/(http:\/\/)/, '');
+		return text == text2 ? text2 : dellHppt(text2);
+	}
+	return dellHppt(text2);
+}
 
 
 // --- GLOBAL --- //

@@ -11,6 +11,7 @@ client.on('ready', () => {
 
 
 client.on('message', (mess) => {
+	if (!mess.guild) return; // если смс в лс то выход
 	if (mess.content.indexOf('!стата ') == 0) {
 		const name = mess.content.slice(7).trim();
 		if (name != name.replace( /[^A-zА-я0-9]/, '' )) {
@@ -203,7 +204,8 @@ function getRole(name) {
 
 
 
-client.on('message', mess => {
+client.on('message', (mess) => {
+	if (!mess.guild) return; // если смс в лс то выход
 	if (mess.content == '!песа, дай лапку') {
 		if (dogsSaysWaitMembers.find(function(el){return el == mess.author.id;})) { // проверяем вышло ли время
 			// если время не вышло то предупреждаем

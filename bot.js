@@ -289,7 +289,7 @@ client.on('message', (mess) => {
 		if (to == -1) too = text.length;
 		let id = Math.floor(text.slice(0, to).trim()); // приводим в норм вид
 
-		const type_id = id < -99999 ? "chat_id" : "user_id"; // позволяет отправлять сообщение в группы
+		const type_id = (id > -99999 && id < 0) ? "chat_id" : "user_id"; // позволяет отправлять сообщение в группы
 		if (id < 0) id *= -1; // делаем id правильным
 		id += ''; // для replace
 		if (id != id.replace( /[^0-9]/, '' )) return addBotMess(mess.reply('Не корректный id.'), mess.channel.guild.id);

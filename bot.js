@@ -350,7 +350,9 @@ client.on('message', (mess) => {
 				} else if (r.body.response != undefined && r.body.error == undefined) { // если ошибки нет
 					const vk_messages = r.body.response.items;
 					const vk_profiles = r.body.response.profiles;
+					const vk_groop = r.body.response.groups; // для групп
 					const obj_profiles = {};
+					const obj_groups = {};
 					for (let i = 0; i < vk_profiles.length; i++) {
 						if (obj_profiles[vk_profiles[i].id] == undefined) obj_profiles[vk_profiles[i].id] = {};
 						obj_profiles[vk_profiles[i].id].id = vk_profiles[i].id;
@@ -359,24 +361,36 @@ client.on('message', (mess) => {
 						obj_profiles[vk_profiles[i].id].sex = vk_profiles[i].sex;
 						obj_profiles[vk_profiles[i].id].online = vk_profiles[i].online;
 					}
-					vk_messages[0].from_id; // от кого, id
-					vk_messages[0].peer_id; // тип с кем диалог
-					vk_messages[0].text; // текст сообщения
+					if (vk_groop) { // для групп
+						for (let i = 0; i < vk_groop.length; i++) {
+							if (obj_groups[vk_groop[i].id] == undefined) obj_groups[vk_groop[i].id] = {};
+							obj_groups[vk_groop[i].id].id = vk_groop[i].id;
+							obj_groups[vk_groop[i].id].name = vk_groop[i].name;
+							obj_groups[vk_groop[i].id].type = vk_groop[i].type;
+							obj_groups[vk_groop[i].id].screen_name = vk_groop[i].screen_name; // ссылка
+						}
+					}
 					let answerText = ``;
 					let lastAnswerText = answerText;
 					for (let i = 0; i < vk_messages.length; i++) {
 						const vk = vk_messages[i];
-						if (vk.action != undefined) { // события в группах
-							console.log(`(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`);
-							answerText += `(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
-						} else {
+						if (vk.peer_id < 0) { // если диалог с группой (не беседа)
 							let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
+							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_groups[(vk.peer_id + '').slice(1)].name} ` + 
+								`:** ${dellHppt(vk.text)}\n`;
+						} else {
+							if (vk.action != undefined) { // события в группах
+								console.log(`(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`);
+								answerText += `(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
+							} else {
+								let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
 
-							if ((vk.peer_id + '').indexOf('200000000') != -1) fromTo = `[Группа ${(vk.peer_id + '').slice(9)}]`;
-							const vkID = (vk.peer_id + '').indexOf('200000000') != -1 ? vk.from_id : vk.peer_id;
+								if ((vk.peer_id + '').indexOf('200000000') != -1) fromTo = `[Группа ${(vk.peer_id + '').slice(9)}]`;
+								const vkID = (vk.peer_id + '').indexOf('200000000') != -1 ? vk.from_id : vk.peer_id;
 
-							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
-								`${obj_profiles[vkID].last_name}:** ${dellHppt(vk.text)}\n`;
+								answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
+									`${obj_profiles[vkID].last_name}:** ${dellHppt(vk.text)}\n`;
+							}
 						}
 						if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
 						lastAnswerText = answerText; // сохраняем

@@ -581,6 +581,8 @@ const botMess = {}; // храним сообщения тут (по их id)
 
 
 client.on('message', (mess) => { // првоеряем сообщения на команды
+	if (!mess.guild) return; // если смс в лс то выход
+	
 	const cont = mess.content.trim();
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
 		if ( (mess.content == el && !default_comands[el].params) || // нет параметров и сообщение целиком равно нужному

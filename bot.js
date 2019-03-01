@@ -316,6 +316,7 @@ function DC_online(m) { // !онлайн
 	idle = 0, // желтый
 	online = 0; // зеленый
 	for (let i = 0; i < membersArr.length; i++) {
+		if (membersArr[i].user.bot) continue; // если бот то пропускаем
 		switch (membersArr[i].presence.status) {
 			case 'dnd': dnd++;break;
 			case 'idle': idle++;break;
@@ -328,9 +329,9 @@ function DC_online(m) { // !онлайн
 			} else {game[membersArr[i].presence.game] = 1;}
 		}
 	}
-	m.reply(`**Всего: ${membersArr.length}** ${getTextUsers(membersArr.length)}, **Оффлайн: ${offline}**, **Онлайн: ` + 
-		`${dnd + idle + online}**, из них **${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**` + 
-		`${listGame(game)}`);
+	global_func.addBotMess(m.reply(`**Всего: ${membersArr.length}** ${getTextUsers(membersArr.length)}, **Оффлайн:` + 
+		` ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **${online} В сети, ${idle} Не активен, ${dnd} ` + 
+		`Не беспокоить.**${listGame(game)}`), m.channel.guild.id, botMess);
 }
 
 // приложения ->
@@ -580,9 +581,9 @@ const botMess = {}; // храним сообщения тут (по их id)
 
 
 
-client.on('message', (mess) => { // првоеряем сообщения на команды
+client.on('message', (mess) => { // проверяем сообщения на команды
 	if (!mess.guild) return; // если смс в лс то выход
-	
+
 	const cont = mess.content.trim();
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
 		if ( (mess.content == el && !default_comands[el].params) || // нет параметров и сообщение целиком равно нужному

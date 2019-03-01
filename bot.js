@@ -314,9 +314,10 @@ function DC_online(m) { // !онлайн
 	offline = 0,
 	dnd = 0, // красный
 	idle = 0, // желтый
-	online = 0; // зеленый
+	online = 0, // зеленый
+	bot = 0; // сколько ботов
 	for (let i = 0; i < membersArr.length; i++) {
-		if (membersArr[i].user.bot) continue; // если бот то пропускаем
+		if (membersArr[i].user.bot) {bot++; continue;} // если бот то пропускаем
 		switch (membersArr[i].presence.status) {
 			case 'dnd': dnd++;break;
 			case 'idle': idle++;break;
@@ -329,12 +330,23 @@ function DC_online(m) { // !онлайн
 			} else {game[membersArr[i].presence.game] = 1;}
 		}
 	}
-	global_func.addBotMess(m.reply(`**Всего: ${membersArr.length}** ${getTextUsers(membersArr.length)}, **Оффлайн:` + 
-		` ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **${online} В сети, ${idle} Не активен, ${dnd} ` + 
-		`Не беспокоить.**${listGame(game)}`), m.channel.guild.id, botMess);
+	global_func.addBotMess(m.reply(`**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
+		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
+		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`), m.channel.guild.id, botMess);
 }
 
 // приложения ->
+
+function getTextBots(num) { // склоняем слово
+	let n = (num + '').slice(-1) * 1;
+	if (n == 1) {
+		return 'бот';
+	} else if (n > 1 && n < 5) {
+		return 'бота';
+	} else {
+		return 'ботов';
+	}
+}
 
 function getTextUsers(num) { // правильно склоняет слово
 	let n = (num + '').slice(-1) * 1; // берем последнюю цифру

@@ -6,7 +6,7 @@ const global_func = require('./global-func.js'); // импортируем гл�
 
 client.on('ready', () => {
 	console.log('I am ready!');
-	client.user.setGame('!помощь');
+	//client.user.setGame('!помощь');
 });
 
 

@@ -99,8 +99,7 @@ function DC_stats(m) { // !стата
 		const kda = getKDABP(json.champions);
 
 		const embed = new RichEmbed()
-		.setAuthor('Больше информации', 'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg', 
-			`http://playpaladins.online/#/search/profile/${name}?page=1`)
+		.setAuthor('Больше информации', m.author.avatarURL, `http://playpaladins.online/#/search/profile/${name}?page=1`)
 		.setFooter('Информация взята с сайта playpaladins.online', 
 			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
 
@@ -251,8 +250,7 @@ function DC_game(m) { // !игры
 		const matches = r.body.matches;
 
 		const embed = new RichEmbed()
-		.setAuthor('Больше информации', 'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg', 
-			`http://playpaladins.online/#/search/profile/${name}?page=1`)
+		.setAuthor('Больше информации', m.author.avatarURL, `http://playpaladins.online/#/search/profile/${name}?page=1`)
 		.setFooter('Информация взята с сайта playpaladins.online', 
 			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
 		.setTitle(`Матчи ${matches[0].playerName}:`)

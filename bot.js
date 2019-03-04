@@ -75,7 +75,7 @@ function DC_help(m) { // !помощь
 		});
 		helps_text += `\n**${el + params}** - ${default_comands[el].info};`;
 	});
-	global_func.addBotMess(m.reply(helps_text), m.channel.guild.id, botMess);
+	global_func.addBotMess(m.channel.send(helps_text), m.channel.guild.id, botMess);
 }
 
 /* <--- !помощь <--- */

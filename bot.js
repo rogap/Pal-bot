@@ -290,7 +290,7 @@ function DC_dog_says(m) { // !песа, дай лапку
 	}
 	const says = global_func.getRandomItemArry(dogsSays);
 	const embed = new RichEmbed()
-	.setDescription(says)
+	.setDescription(`${m.author.username}, ${says}`)
 	.setColor(0xC846A0);
 
 	if (says == 'Держи ^^' || says == 'милашке даю лапку') {
@@ -308,7 +308,7 @@ function DC_dog_says(m) { // !песа, дай лапку
 	}, timer);
 }
 const dogsSaysWaitMembers = []; // список id людей которые ожидают, не разрешено писать команду
-const dogsSays = ['Держи ^^', 'eng plz', 'хуяпку', 'Hello?', 'По ебалу тебе лапкой', 'милашке даю лапку'];
+const dogsSays = ['Держи ^^', 'eng pls', 'хуяпку', 'Hello?', 'По ебалу тебе лапкой', 'милашке даю лапку'];
 
 /* <--- !песа, дай лапку <--- */
 

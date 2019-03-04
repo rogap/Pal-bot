@@ -99,8 +99,13 @@ function DC_stats(m) { // !стата
 		const kda = getKDABP(json.champions);
 
 		const embed = new RichEmbed()
+		.setAuthor('Больше информации', 'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg', 
+			`http://playpaladins.online/#/search/profile/${name}?page=1`)
+		.setFooter('Информация взята с сайта playpaladins.online', 
+			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
+
 		.setTitle(`Стата для: ${json.main.Name}`)
-		.setColor(0xFF0000)
+		.setColor(0x0Bd2d2)
 		.setDescription(`**Роль:** ${kda.p}, **Персонаж:** ${kda.b}, **КДА:** ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`)
 		.addField(`Часы на уронах`, secToMin(kda.dmg), true)
 		.addField(`Часы на хилах`, secToMin(kda.heal), true)
@@ -246,8 +251,12 @@ function DC_game(m) { // !игры
 		const matches = r.body.matches;
 
 		const embed = new RichEmbed()
+		.setAuthor('Больше информации', 'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg', 
+			`http://playpaladins.online/#/search/profile/${name}?page=1`)
+		.setFooter('Информация взята с сайта playpaladins.online', 
+			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
 		.setTitle(`Матчи ${matches[0].playerName}:`)
-		.setColor(0xFF0000);
+		.setColor(0x0Bd2d2);
 
 		if (matchNum > matches.length - 1) matchNum = matches.length - 1; // что бы не брать больше 10 и того что есть
 		embed.addField(`Килы`, matches[matchNum].Kills, true)
@@ -280,19 +289,18 @@ function DC_dog_says(m) { // !песа, дай лапку
 		return global_func.addBotMess(m.reply('Песа устал, ему нужно минутку отдохнуть...'), m.channel.guild.id, botMess);
 	}
 	const says = global_func.getRandomItemArry(dogsSays);
+	const embed = new RichEmbed()
+	.setDescription(says)
+	.setColor(0xC846A0);
+
 	if (says == 'Держи ^^' || says == 'милашке даю лапку') {
-		global_func.addBotMess(m.reply(says, {
-			embed: {
-				thumbnail: {
-		      	url: 'https://st.depositphotos.com/1766930/4697/i/950/depositphotos_46971905-stock-photo-dogs-paw-and-mans-hand.jpg'
-		      }
-		   }
-		}), m.channel.guild.id, botMess);
+		embed.setThumbnail('https://st.depositphotos.com/1766930/4697/i/950/depositphotos_46971905-stock-photo-dogs-paw-and-mans-hand.jpg');
+		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
 	} else {
-		global_func.addBotMess(m.reply(says), m.channel.guild.id, botMess);
+		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
 	}
 	dogsSaysWaitMembers.push(m.author.id); // добавляем во временный бан (ожидание)
-	const timer = (global_func.isAdmin(m.author.id)) ? 1000 * 10 : 1000 * 60; // время ожидания (мне 10 сек)
+	const timer = (global_func.isAdmin(m.author.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 10 сек)
 	setTimeout(() => { // через минуту удаляем пользователя из бана
 		dogsSaysWaitMembers.find((el, i, arr) => {
 			if (el == m.author.id) arr.splice(i, 1);

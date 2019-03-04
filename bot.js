@@ -338,9 +338,13 @@ function DC_online(m) { // !онлайн
 			} else {game[membersArr[i].presence.game] = 1;}
 		}
 	}
-	global_func.addBotMess(m.reply(`**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
+	const says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
-		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`), m.channel.guild.id, botMess);
+		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
+	const embed = new RichEmbed()
+	.setDescription(says)
+	.setColor(0xF4771A);
+	global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
 }
 
 // приложения ->

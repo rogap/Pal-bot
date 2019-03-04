@@ -275,7 +275,7 @@ function DC_game(m) { // !игры
 /* <--- !песа, дай лапку <--- */
 
 function DC_dog_says(m) { // !песа, дай лапку
-	if (dogsSaysWaitMembers.find(function(el){return el == mess.author.id;})) { // проверяем вышло ли время
+	if (dogsSaysWaitMembers.find(function(el){return el == m.author.id;})) { // проверяем вышло ли время
 		// если время не вышло то предупреждаем
 		return global_func.addBotMess(m.reply('Песа устал, ему нужно минутку отдохнуть...'), m.channel.guild.id, botMess);
 	}

@@ -699,8 +699,8 @@ client.on('ready', () => {
 	console.log('I am ready!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
 	//PLAYING STREAMING LISTENING WATCHING
-	const intFunc = () => {sendUsersInfo(getUsersInfo());};
-	timeout_interval(intFunc, 1000*60*5);
+	//const intFunc = () => {sendUsersInfo(getUsersInfo());};
+	//timeout_interval(intFunc, 1000*60*5);
 });
 
 

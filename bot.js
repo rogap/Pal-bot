@@ -4,11 +4,6 @@ const client = new Client();
 const global_func = require('./global-func.js'); // импортируем глобальные функции
 
 
-client.on('ready', () => {
-	console.log('I am ready!');
-	client.user.setActivity('!помощь', { type: 'WATCHING' });
-});
-
 
 
 const default_comands = { // стандартные команды для всех каналов
@@ -61,7 +56,6 @@ const default_comands = { // стандартные команды для все
 	}
 }
 default_comands['!хелпа'] = default_comands['!хелп'] = default_comands['!помощь']; // клонируем
-
 
 
 /* ---> !помощь ---> */
@@ -604,7 +598,13 @@ const botMess = {}; // храним сообщения тут (по их id)
 
 
 client.on('message', (mess) => { // проверяем сообщения на команды
+	const chId = mess.channel.guild.id; // id канала
+	if (watching_guilds.indexOf(chId + '') != -1) { // счетчик сообщений
+		if (!messCounter[mess.author.id]) messCounter[mess.author.id] = 0;
+		messCounter[mess.author.id]++;
+	}
 	if (!mess.guild) return; // если смс в лс то выход
+	//if (mess.guild) return; // если смс НЕ В ЛС то выход
 
 	const cont = mess.content.trim();
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
@@ -614,7 +614,6 @@ client.on('message', (mess) => { // проверяем сообщения на �
 		}
 	});
 	const exportsComands = require('./guild-and-comand.js').guild_comand; // загружаем уникальные команды серверов
-	const chId = mess.channel.guild.id; // id канала
 	if (exportsComands[chId]) { // если есть команды для этого канала
 		exportsComands[chId].list.forEach((el) => { // идем и првоеряем команды на совпадения
 			if ( (mess.content == el && !exportsComands[chId][el].params) || 
@@ -627,7 +626,87 @@ client.on('message', (mess) => { // проверяем сообщения на �
 
 
 
+
+
+
+const messCounter = {}; // счетчик отправленных смс
+const watching_guilds = ['505374650730283008']; // сервера за которыми наблюдать
+
+
+function getUsersInfo() { // возвращает массив обьектов с информацией о пользователях (повторяющихся)
+	const users = [];
+	const time = +new Date();
+	for (let j = 0; j < watching_guilds.length; j++) {
+		const usersArr = client.guilds.get(watching_guilds[j]).members.array(); // список людей на канале
+		for(let i = 0; i < usersArr.length; i++) {
+			if (usersArr[i].user.bot) continue; // если бот то пропускаем
+			const uArr = usersArr[i];
+			const game = uArr.presence.game || {name: null};
+			users.push({
+				id: uArr.user.id,
+				body: {
+					time,
+					online: uArr.presence.status,
+					id: watching_guilds[j],
+					name: `${uArr.user.username}#${uArr.user.discriminator}`,
+					game: game.name,
+					channel: uArr.voiceChannelID || null,
+					mess: messCounter[uArr.user.id] || 0
+				}
+			});
+			messCounter[uArr.user.id] = 0; // сбарсываем
+		}
+	}
+	return users;
+}
+
+
+/* sendUsersInfo - отправляет собранную информацию на сохранение в бд
+ * @users - массив обьектов с инфой о всех собранных юзерах, Структура:
+ *		[{}, {id: user_id, body: {'~вся инфа о юзерах~'}, {}, ...]
+*/
+function sendUsersInfo(users) {
+	const fetch = require('snekfetch');
+	const object_info = {users_id: [], token: dbToken};
+
+	let count = 0;
+	for (let i = 0; i < users.length; i++) { // добавляем собранную инфу о самих пользователях
+		if (object_info.users_id[users[i].id]) continue; // если уже есть то пропускаем
+		count++;
+		object_info.users_id.push(users[i].id); // добавляем в массив со списком юзеров
+		object_info[users[i].id] = users[i].body; // добавляем основную инфу по ключу-юзеру_ид
+	}
+	object_info.count = count; // записываем кол-во юзеров
+
+	fetch.post(url_site)
+	.send(object_info)
+	.then( (res) => {
+		console.log(res.text);
+	} );
+}
+
+
+function timeout_interval(func, time) { // альтернатива setInterval
+	setTimeout( () => {
+		func(); // выполняем функцию
+		timeout_interval(func, time); // запускаем заново
+	}, time );
+}
+
+
+
+client.on('ready', () => {
+	console.log('I am ready!');
+	client.user.setActivity('!помощь', { type: 'WATCHING' });
+	//PLAYING STREAMING LISTENING WATCHING
+	const intFunc = () => {sendUsersInfo(getUsersInfo());};
+	timeout_interval(intFunc, 1000*60*5);
+});
+
+
+
+
 const vkToken = process.env.VK_TOKEN;
 client.login(process.env.BOT_TOKEN);
-
-
+const dbToken = process.env.DB_TOKEN;
+const url_site = process.env.URL_SITE;

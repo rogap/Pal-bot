@@ -635,13 +635,16 @@ const watching_guilds = ['365821017957859329', '550655034610941952']; // сер�
 
 function getUsersInfo() { // возвращает массив обьектов с информацией о пользователях (повторяющихся)
 	const users = [];
+	const user_list = []; // список добавленных пользователей
 	const time = +new Date();
 	for (let j = 0; j < watching_guilds.length; j++) {
 		const usersArr = client.guilds.get(watching_guilds[j]).members.array(); // список людей на канале
 		for(let i = 0; i < usersArr.length; i++) {
 			if (usersArr[i].user.bot) continue; // если бот то пропускаем
 			const uArr = usersArr[i];
+			if (user_list.indexOf(uArr.user.id + '') != -1) continue; // если есть то пропускаем
 			const game = uArr.presence.game || {name: null};
+			const countMess = messCounter[uArr.user.id] || 0;
 			users.push({
 				id: uArr.user.id,
 				body: {
@@ -651,9 +654,10 @@ function getUsersInfo() { // возвращает массив обьектов 
 					name: `${uArr.user.username}#${uArr.user.discriminator}`,
 					game: game.name,
 					channel: uArr.voiceChannelID || null,
-					mess: messCounter[uArr.user.id] || 0
+					mess: countMess
 				}
 			});
+			user_list.push(uArr.user.id);
 			messCounter[uArr.user.id] = 0; // сбарсываем
 		}
 	}
@@ -699,8 +703,8 @@ client.on('ready', () => {
 	console.log('I am ready!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
 	//PLAYING STREAMING LISTENING WATCHING
-	//const intFunc = () => {sendUsersInfo(getUsersInfo());};
-	//timeout_interval(intFunc, 1000*60*5);
+	const intFunc = () => {sendUsersInfo(getUsersInfo());};
+	timeout_interval(intFunc, 1000*60*5);
 });
 
 

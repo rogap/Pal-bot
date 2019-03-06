@@ -630,7 +630,7 @@ client.on('message', (mess) => { // проверяем сообщения на �
 
 
 const messCounter = {}; // счетчик отправленных смс
-const watching_guilds = ['505374650730283008', '365821017957859329', '550655034610941952']; // сервера за которыми наблюдать
+const watching_guilds = ['365821017957859329', '505374650730283008', '550655034610941952']; // сервера за которыми наблюдать
 
 function collection_users_info() { // собирает инфу о всех юзерах в установленных каналах
 	const object_info = {count: 0, users_list: [], token: dbToken};
@@ -663,7 +663,6 @@ function collection_users_info() { // собирает инфу о всех юз
 					mess: countMess
 				}
 			} else { // если пользователь уже есть то проверим некоторые значения
-				if (uArr.presence.status == 'offline' && !uArr.voiceChannelID && !countMess && !game.name) continue;
 				const oi = object_info[uId];
 				oi.guilds.push(watching_guilds[i]); // добавляем список каналов
 				if (!oi.channel) oi.channel = uArr.voiceChannelID || null; // проверяем другие каналы

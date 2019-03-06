@@ -646,6 +646,7 @@ function collection_users_info() { // собирает инфу о всех юз
 			if (!object_info[uId]) { // если пользователя нет
 				const game = uArr.presence.game || {name: null};
 				const countMess = messCounter[uId] || 0;
+				messCounter[uId] = 0;
 
 				// если не проявляет активности ваще то смысла записывать нет
 				if (uArr.presence.status == 'offline' && !uArr.voiceChannelID && !countMess && !game.name) continue;
@@ -662,6 +663,7 @@ function collection_users_info() { // собирает инфу о всех юз
 					mess: countMess
 				}
 			} else { // если пользователь уже есть то проверим некоторые значения
+				if (uArr.presence.status == 'offline' && !uArr.voiceChannelID && !countMess && !game.name) continue;
 				const oi = object_info[uId];
 				oi.guilds.push(watching_guilds[i]); // добавляем список каналов
 				if (!oi.channel) oi.channel = uArr.voiceChannelID || null; // проверяем другие каналы

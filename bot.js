@@ -630,38 +630,42 @@ client.on('message', (mess) => { // проверяем сообщения на �
 
 
 const messCounter = {}; // счетчик отправленных смс
-const watching_guilds = ['365821017957859329', '550655034610941952']; // сервера за которыми наблюдать
+const watching_guilds = ['505374650730283008', '365821017957859329', '550655034610941952']; // сервера за которыми наблюдать
 
+function collection_users_info() { // собирает инфу о всех юзерах в установленных каналах
+	const object_info = {count: 0, users_list: [], token: dbToken};
+	const time = +new Date(); // время сбора инфы
 
-function getUsersInfo() { // возвращает массив обьектов с информацией о пользователях (повторяющихся)
-	const users = [];
-	const user_list = []; // список добавленных пользователей
-	const time = +new Date();
-	for (let j = 0; j < watching_guilds.length; j++) {
-		const usersArr = client.guilds.get(watching_guilds[j]).members.array(); // список людей на канале
-		for(let i = 0; i < usersArr.length; i++) {
-			if (usersArr[i].user.bot) continue; // если бот то пропускаем
-			const uArr = usersArr[i];
-			if (user_list.indexOf(uArr.user.id + '') != -1) continue; // если есть то пропускаем
-			const game = uArr.presence.game || {name: null};
-			const countMess = messCounter[uArr.user.id] || 0;
-			users.push({
-				id: uArr.user.id,
-				body: {
+	for (let i = 0; i < watching_guilds.length; i++) {
+		const usersArr = client.guilds.get(watching_guilds[i]).members.array(); // список людей на канале
+
+		for (let j = 0; j < usersArr.length; j++) {
+			const uArr = usersArr[j]; // содержин информацию о текущем пользователе
+			if (uArr.user.bot) continue; // если бот то пропускаем
+			const uId = uArr.user.id + '';
+			if (!object_info[uId]) { // если пользователя нет
+				const game = uArr.presence.game || {name: null};
+				const countMess = messCounter[uId] || 0;
+				object_info.users_list.push(uId); // добавляем пользователя в список
+
+				object_info[uId] = { // записываем данные
 					time,
 					online: uArr.presence.status,
-					id: watching_guilds[j],
+					guilds: [watching_guilds[i]],
 					name: `${uArr.user.username}#${uArr.user.discriminator}`,
 					game: game.name,
 					channel: uArr.voiceChannelID || null,
 					mess: countMess
 				}
-			});
-			user_list.push(uArr.user.id);
-			messCounter[uArr.user.id] = 0; // сбарсываем
+			} else { // если пользователь уже есть то проверим некоторые значения
+				const oi = object_info[uId];
+				oi.guilds.push(watching_guilds[i]); // добавляем список каналов
+				if (!oi.channel) oi.channel = uArr.voiceChannelID || null; // проверяем другие каналы
+			}
 		}
 	}
-	return users;
+	object_info.count = object_info.users_list.length;
+	return object_info;
 }
 
 
@@ -670,20 +674,9 @@ function getUsersInfo() { // возвращает массив обьектов 
  *		[{}, {id: user_id, body: {'~вся инфа о юзерах~'}, {}, ...]
 */
 function sendUsersInfo(users) {
-	const fetch = require('snekfetch');
-	const object_info = {users_id: [], token: dbToken};
-
-	let count = 0;
-	for (let i = 0; i < users.length; i++) { // добавляем собранную инфу о самих пользователях
-		if (object_info.users_id[users[i].id]) continue; // если уже есть то пропускаем
-		count++;
-		object_info.users_id.push(users[i].id); // добавляем в массив со списком юзеров
-		object_info[users[i].id] = users[i].body; // добавляем основную инфу по ключу-юзеру_ид
-	}
-	object_info.count = count; // записываем кол-во юзеров
-
-	fetch.post(url_site)
-	.send(object_info)
+	const fetch = require('snekfetch')
+	.post(url_site)
+	.send(users)
 	.then( (res) => {
 		console.log(res.text);
 	} );

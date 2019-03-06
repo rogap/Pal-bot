@@ -646,6 +646,10 @@ function collection_users_info() { // собирает инфу о всех юз
 			if (!object_info[uId]) { // если пользователя нет
 				const game = uArr.presence.game || {name: null};
 				const countMess = messCounter[uId] || 0;
+
+				// если не проявляет активности ваще то смысла записывать нет
+				if (uArr.presence.status == 'offline' && !uArr.voiceChannelID && !mess && !game) continue;
+
 				object_info.users_list.push(uId); // добавляем пользователя в список
 
 				object_info[uId] = { // записываем данные

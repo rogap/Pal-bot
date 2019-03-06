@@ -700,7 +700,7 @@ client.on('ready', () => {
 	console.log('I am ready!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
 	//PLAYING STREAMING LISTENING WATCHING
-	const intFunc = () => {sendUsersInfo(getUsersInfo());};
+	const intFunc = () => {sendUsersInfo(collection_users_info());};
 	timeout_interval(intFunc, 1000*60*5);
 });
 

@@ -656,7 +656,7 @@ function collection_users_info() { // собирает инфу о всех юз
 				object_info[uId] = { // записываем данные
 					time,
 					online: uArr.presence.status,
-					guilds: [watching_guilds[i]],
+					guilds: getGuildsUser(uId),
 					name: `${uArr.user.username}#${uArr.user.discriminator}`,
 					game: game.name,
 					channel: uArr.voiceChannelID || null,
@@ -664,13 +664,25 @@ function collection_users_info() { // собирает инфу о всех юз
 				}
 			} else { // если пользователь уже есть то проверим некоторые значения
 				const oi = object_info[uId];
-				oi.guilds.push(watching_guilds[i]); // добавляем список каналов
 				if (!oi.channel) oi.channel = uArr.voiceChannelID || null; // проверяем другие каналы
 			}
 		}
 	}
 	object_info.count = object_info.users_list.length;
 	return object_info;
+}
+
+
+function getGuildsUser(user_id) { // возвращает список гильдий в котором есть пользователь
+	const list = [];
+	for (let i = 0; i < watching_guilds.length; i++) {
+		const id = watching_guilds[i]; // id канала
+		const usersArr = client.guilds.get(id).members.array();
+		for (let j = 0; j < usersArr.length; j++) {
+			if (usersArr[j].user.id == user_id) list.push(id);
+		}
+	}
+	return list;
 }
 
 

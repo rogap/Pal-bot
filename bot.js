@@ -722,7 +722,7 @@ function timeout_interval(func, time) { // альтернатива setInterval
 
 client.on('ready', () => {
 	console.log('I am ready!');
-	client.channels.get('553489897944645647').sendMessage('Я запустился!');
+	client.channels.get('553489897944645647').send('Я запустился!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
 	//PLAYING STREAMING LISTENING WATCHING
 	const intFunc = () => {sendUsersInfo(collection_users_info());};

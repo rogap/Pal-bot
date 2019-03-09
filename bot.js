@@ -108,7 +108,7 @@ function DC_stats(m) { // !стата
 		.setFooter('Информация взята с сайта playpaladins.online', 
 			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
 
-		.setTitle(`Стата для: ${json.main.Name}`)
+		.setTitle(`Последний вход ${json.main.Name}: ${json.main.Last_Login_Datetime}`)
 		.setColor(0x0Bd2d2)
 		.setDescription(`**Роль:** ${kda.p}, **Персонаж:** ${kda.b}, **КДА:** ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`)
 		.addField(`Часы на уронах`, secToMin(kda.dmg), true)
@@ -254,6 +254,8 @@ function DC_game(m) { // !игры
 	.then((r) => {
 		const matches = r.body.matches;
 
+		if (matchNum > matches.length - 1) matchNum = matches.length - 1; // что бы не брать больше 10 и того что есть
+
 		const embed = new RichEmbed()
 		.setAuthor('Больше информации', m.author.avatarURL, `http://playpaladins.online/#/search/profile/${name}?page=1`)
 		.setFooter('Информация взята с сайта playpaladins.online', 
@@ -261,7 +263,6 @@ function DC_game(m) { // !игры
 		.setTitle(`Матчи ${matches[0].playerName}:`)
 		.setColor(0x0Bd2d2);
 
-		if (matchNum > matches.length - 1) matchNum = matches.length - 1; // что бы не брать больше 10 и того что есть
 		embed.addField(`Килы`, matches[matchNum].Kills, true)
 		.addField(`Смерти`, matches[matchNum].Deaths, true)
 		.addField(`Ассисты`, matches[matchNum].Assists, true)
@@ -272,6 +273,7 @@ function DC_game(m) { // !игры
 		.addField(`Персонаж`, matches[matchNum].Champion, true)
 		.addField(`Карта`, matches[matchNum].Map_Game, true)
 		.addField(`Кредиты`, matches[matchNum].Gold, true)
+		.addField(`Время у цели`, matches[matchNum].Objective_Assists, true)
 		.addField(`id матча`, matches[matchNum].Match, true)
 		.addField(`Урон`, matches[matchNum].Damage, true);
 		if (matches[matchNum].Damage_Mitigated) embed.addField(`Защита`, matches[matchNum].Damage_Mitigated, true);

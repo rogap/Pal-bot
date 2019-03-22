@@ -611,13 +611,14 @@ const botMess = {}; // храним сообщения тут (по их id)
 
 
 client.on('message', (mess) => { // проверяем сообщения на команды
+	if (!mess.guild) return; // если смс в лс то выход
+	//if (mess.guild) return; // если смс НЕ В ЛС то выход
+	
 	const chId = mess.channel.guild.id; // id канала
 	if (watching_guilds.indexOf(chId + '') != -1) { // счетчик сообщений
 		if (!messCounter[mess.author.id]) messCounter[mess.author.id] = 0;
 		messCounter[mess.author.id]++;
 	}
-	if (!mess.guild) return; // если смс в лс то выход
-	//if (mess.guild) return; // если смс НЕ В ЛС то выход
 
 	const cont = mess.content.trim();
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды

@@ -1,9 +1,19 @@
-const { Client, Attachment, RichEmbed, snekfetch } = require('discord.js');
+const { Client, Attachment, RichEmbed} = require('discord.js');
 const client = new Client();
+const request = require('request');
 
 const global_func = require('./global-func.js'); // импортируем глобальные функции
 
-
+// делает запросы на сайт
+function getSite(params={method: "GET", json: false}, callback, func_err=(err, par)=>{console.log(err, par);}) {
+   request(params, function (error, response, body){
+      if (error) {
+         func_err(error, params);
+      } else {
+         callback(response, body);
+      }
+   });
+}
 
 
 const default_comands = { // стандартные команды для всех каналов
@@ -56,7 +66,9 @@ const default_comands = { // стандартные команды для все
 	},
 	'!инфо': {
 		func: (m) => {
-			const embed = new RichEmbed().setColor(0x6D44BA).setDescription("**discord:** daniil#4337");
+			const embed = new RichEmbed()
+			.setColor(0x6D44BA)
+			.setDescription("**discord:** daniil#4337");
 			global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
 		},
 		info: "Выводит способ связи с создателем",
@@ -94,9 +106,7 @@ function DC_stats(m) { // !стата
 	if (name != name.replace( /[^A-zА-я0-9]/, '' )) {
 		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
 	}
-	const fetch = require('snekfetch');
-	fetch.get(encodeURI(`http://www.playpaladins.online/api/profile/pc/${name}`))
-	.then((r) => {
+	getSite({url: `http://www.playpaladins.online/api/profile/pc/${name}`, json: true}, (r) => {
 		const json = r.body;
 
 		if (json.message == 'OK') return global_func.addBotMess(m.reply(`Ошибка, игрок "${name}" не найден`), 
@@ -249,9 +259,7 @@ function DC_game(m) { // !игры
 	if (isNaN(matchNum)) { // должен быть числом
 		return global_func.addBotMess(m.reply('Не корректный запрос'), m.channel.guild.id, botMess);
 	}
-	const fetch = require('snekfetch');
-	fetch.get(encodeURI(`http://playpaladins.online/api/profile/pc/${name}/matches?page=1`))
-	.then((r) => {
+	getSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, json: true}, (r) => {
 		const matches = r.body.matches;
 
 		if (matchNum > matches.length - 1) matchNum = matches.length - 1; // что бы не брать больше 10 и того что есть
@@ -260,7 +268,7 @@ function DC_game(m) { // !игры
 		.setAuthor('Больше информации', m.author.avatarURL, `http://playpaladins.online/#/search/profile/${name}?page=1`)
 		.setFooter('Информация взята с сайта playpaladins.online', 
 			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
-		.setTitle(`Матчи ${matches[0].playerName}:`)
+		.setTitle(`Матч ${matches[matchNum].playerName} сыгран: ${matches[matchNum].Match_Time}`)
 		.setColor(0x0Bd2d2);
 
 		embed.addField(`Килы`, matches[matchNum].Kills, true)
@@ -422,7 +430,6 @@ function DC_sms(m) { // !смс
 
 	const randomIDVK = (Math.random() * 1000000000000).toFixed(0);
 	const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text2}&v=5.92&access_token=`;
-	const fetch = require('snekfetch');
 
 	sendVkListMembers.push(m.author.id); // добавляем в список временно забаненых
 	const timer = (global_func.isAdmin(m.author.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
@@ -432,8 +439,7 @@ function DC_sms(m) { // !смс
 		});
 	}, timer);
 
-	fetch.get(encodeURI(`${url + vkToken}`))
-	.then((r) => {
+	getSite({url: `${url + vkToken}`, json: true}, (r) => {
 		if (r.body.error != undefined && r.body.response == undefined) { // если ошибка
 			return global_func.addBotMess(m.reply('Ошибка, возможно не корректный id или закрыт лс (чс).'), 
 				m.channel.guild.id, botMess);
@@ -501,10 +507,7 @@ function get_vk_messages(m) { // !переписка
 	function getLactMessId(callback) { // получает id последнего сообщения вк, передавая его в callback
 		//const url = `https://api.vk.com/method/messages.searchConversations?count=1&v=5.92&access_token=`;
 		const url = `https://api.vk.com/method/messages.getConversations?count=1&filter=all&v=5.92&access_token=`;
-		const fetch = require('snekfetch');
-		fetch.get(encodeURI(`${url + vkToken}`))
-		.then((r) => {
-			//callback(r.body.response.items[0].last_message_id);
+		getSite({url: `${url + vkToken}`, json: true}, (r) => {
 			callback(r.body.response.items[0].last_message.id);
 		});
 	}
@@ -512,9 +515,7 @@ function get_vk_messages(m) { // !переписка
 		massMessID = [];
 		for (let i = 0; i < 10; i++ ) {massMessID.push(messID - i);}
 		const url = `https://api.vk.com/method/messages.getById?message_ids=${massMessID + ''}&extended=1&v=5.92&access_token=`;
-		const fetch = require('snekfetch');
-		fetch.get(encodeURI(`${url + vkToken}`))
-		.then((r) => {
+		getSite({url: `${url + vkToken}`, json: true}, (r) => {
 			if (r.body.error != undefined && r.body.response == undefined) { // если ошибка
 				return global_func.addBotMess(m.reply('Похоже сообщений нет...'), m.channel.guild.id, botMess);
 			} else if (r.body.response != undefined && r.body.error == undefined) { // если ошибки нет
@@ -705,12 +706,9 @@ function getGuildsUser(user_id) { // возвращает список гиль�
  *		[{}, {id: user_id, body: {'~вся инфа о юзерах~'}, {}, ...]
 */
 function sendUsersInfo(users) {
-	const fetch = require('snekfetch')
-	.post(url_site)
-	.send(users)
-	.then( (res) => {
-		console.log(res.text);
-	} );
+	getSite({url: url_site, method: "POST", body: JSON.stringify(users)}, (res) => {
+		console.log(res.body);
+	});
 }
 
 
@@ -720,6 +718,7 @@ function timeout_interval(func, time) { // альтернатива setInterval
 		timeout_interval(func, time); // запускаем заново
 	}, time );
 }
+
 
 
 

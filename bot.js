@@ -68,7 +68,7 @@ const default_comands = { // стандартные команды для все
 		func: (m) => {
 			const embed = new RichEmbed()
 			.setColor(0x6D44BA)
-			.setDescription("**discord:** daniil#4337");
+			.setDescription("**discord:** https://discord.gg/nM9Xr6D");
 			global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
 		},
 		info: "Выводит способ связи с создателем",

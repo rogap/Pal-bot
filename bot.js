@@ -6,6 +6,7 @@ const global_func = require('./global-func.js'); // импортируем гл�
 
 // делает запросы на сайт
 function getSite(params={method: "GET", json: false}, callback, func_err=(err, par)=>{console.log(err, par);}) {
+   params.url = encodeURI(params.url); // кодируем в url
    request(params, function (error, response, body){
       if (error) {
          func_err(error, params);
@@ -428,7 +429,6 @@ function DC_sms(m) { // !смс
 	if (!addListLastMess(text2)) return global_func.addBotMess(m.reply('Такое сообщение уже было отправленно.'), 
 		m.channel.guild.id, botMess);
 
-	text2 = encodeURI(text2); // кодируем в url вид
 	const randomIDVK = (Math.random() * 1000000000000).toFixed(0);
 	const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text2}&v=5.92&access_token=`;
 

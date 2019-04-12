@@ -428,6 +428,7 @@ function DC_sms(m) { // !смс
 	if (!addListLastMess(text2)) return global_func.addBotMess(m.reply('Такое сообщение уже было отправленно.'), 
 		m.channel.guild.id, botMess);
 
+	text2 = encodeURI(text2); // кодируем в url вид
 	const randomIDVK = (Math.random() * 1000000000000).toFixed(0);
 	const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text2}&v=5.92&access_token=`;
 

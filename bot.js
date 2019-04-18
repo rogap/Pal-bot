@@ -121,6 +121,7 @@ function DC_stats(m) { // !стата
 
 		.setTitle(`Последний вход ${json.main.Name}: ${json.main.Last_Login_Datetime}`)
 		.setColor(0x0Bd2d2)
+		.setThumbnail(`https://playpaladins.online/images/Divisions/${json.main.Tier_RankedKBM}.png`)
 		.setDescription(`**Роль:** ${kda.p}, **Персонаж:** ${kda.b}, **КДА:** ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`)
 		.addField(`Часы на уронах`, secToMin(kda.dmg), true)
 		.addField(`Часы на хилах`, secToMin(kda.heal), true)

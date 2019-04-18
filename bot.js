@@ -656,6 +656,7 @@ function collection_users_info() { // собирает инфу о всех юз
 	const time = +new Date(); // время сбора инфы
 
 	for (let i = 0; i < watching_guilds.length; i++) {
+		if (!client.guilds.get(watching_guilds[i])) continue; // пропускаем если канала нет
 		const usersArr = client.guilds.get(watching_guilds[i]).members.array(); // список людей на канале
 
 		for (let j = 0; j < usersArr.length; j++) {
@@ -696,6 +697,7 @@ function getGuildsUser(user_id) { // возвращает список гиль�
 	const list = [];
 	for (let i = 0; i < watching_guilds.length; i++) {
 		const id = watching_guilds[i]; // id канала
+		if (!client.guilds.get(id)) continue; // пропускаем ненайденные каналы
 		const usersArr = client.guilds.get(id).members.array();
 		for (let j = 0; j < usersArr.length; j++) {
 			if (usersArr[j].user.id == user_id) list.push(id);

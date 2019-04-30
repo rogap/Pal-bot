@@ -18,7 +18,7 @@ function getSite(params={method: "GET", json: false}, callback, func_err=(err, p
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', '!переписка'],
+	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!ss', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', '!переписка'],
 	comands: ['!помощь', '!инфо', '!стата', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', '!переписка'],
 	'!помощь': {
 		func: DC_help,
@@ -27,7 +27,7 @@ const default_comands = { // стандартные команды для все
 	},
 	'!стата': {
 		func: DC_stats,
-		info: "выводит статистику указанного аккаунта",
+		info: "выводит статистику указанного аккаунта, можно **!ss**",
 		comand: '!стата',
 		params: ['имя']
 	},
@@ -77,6 +77,7 @@ const default_comands = { // стандартные команды для все
 	}
 }
 default_comands['!хелпа'] = default_comands['!хелп'] = default_comands['!помощь']; // клонируем
+default_comands['!ss'] = default_comands['!стата'];
 
 
 /* ---> !помощь ---> */
@@ -103,7 +104,8 @@ function DC_help(m) { // !помощь
 /* ---> !стата ---> */
 
 function DC_stats(m) { // !стата
-	const name = m.content.slice(7).trim();
+	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
+	const name = m.content.slice(indexSpace).trim();
 	if (name != name.replace( /[^A-zА-я0-9]/, '' )) {
 		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
 	}

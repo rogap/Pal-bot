@@ -5,7 +5,7 @@ const request = require('request');
 const global_func = require('./global-func.js'); // импортируем глобальные функции
 
 const { url_site, dbToken, tokenDiscord, vkToken } = (require('./config.js')).cfg;
-const require_stats = (require('./stats.js')).stats(client, dbToken, url_site, getUsersStats);
+const require_stats = (require('./stats.js')).stats(client, dbToken, url_site);
 const getUsersStats = require_stats.getUsersStats;
 
 // делает запросы на сайт

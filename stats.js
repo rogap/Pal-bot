@@ -15,7 +15,7 @@ function FIRST_usersUpdate(watching_guilds) {
       token: dbToken,
       type: 'users'
    }
-   let all_user = 0;
+   let all_user = 0; // считает даже повторяющихся !!! важно ПОМНИТЬ
    for (let [key, guild] of client.guilds) { // перебор каналов
       if (!watching_guilds[guild.id]) continue; // пропускаем guild если наблюдение за ним выключенно
 
@@ -88,7 +88,7 @@ function getUsersStats(watching_guilds) {
       token: dbToken,
       type: 'stats'
    }
-   let all_user = 0;
+   let all_user = 0; // считает даже повторяющихся !!! важно ПОМНИТЬ
    for (let [key, guild] of client.guilds) { // перебор каналов
       if (!watching_guilds[guild.id]) continue; // пропускаем guild если наблюдение за ним выключенно
 

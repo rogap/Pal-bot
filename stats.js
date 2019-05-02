@@ -3,6 +3,81 @@
 
 
 
+
+
+function FIRST_usersUpdate(watching_guilds) {
+   console.log('Начался ПЕРВЫЙ сбор информаций users...');
+   const start_date = new Date();
+
+   const object_info = {
+      count: 0,
+      users_list: [],
+      token: dbToken,
+      type: 'users'
+   }
+   let all_user = 0;
+   for (let [key, guild] of client.guilds) { // перебор каналов
+      if (!watching_guilds[guild.id]) continue; // пропускаем guild если наблюдение за ним выключенно
+
+      for (let [key2, user2] of guild.members) { // перебор юзеров
+         const user = user2.user;
+         const game = user.presence.game || {name: '', type: ''};
+         const mess = messCounter[user.id] || '';
+
+         if (!object_info[user.id]) { // если пользователь не записан
+            all_user++;
+            object_info.users_list.push(user.id); // добавляем в список
+
+            object_info[user.id] = {
+               username: user.username,
+               discriminator: user.discriminator,
+               avatar: user.avatar,
+               createdAt: user.createdAt
+            }
+         }
+      }
+   }
+   object_info.count = object_info.users_list.length;
+   messCounter = {}; // обнуляем все записи о сообщениях
+   const logText = `ПЕРВЫЙ сбор users занял: ${new Date() - start_date}мс. ` + 
+      `Всего: ${all_user}, активных: ${object_info.count}.`;
+   console.log(logText);
+   console.log('Отправляем данные на сервер...\n');
+   return object_info;
+}
+
+
+
+// записывает элементарные данные о гильдии в БД guilds всегда (вроде можно использовать стандартную функцию)
+function FIRST_guildUpdate(newGuild) {
+   const guildsDate = { // инфомрация об измененном сервере
+      count: 1,
+      guilds_list: [newGuild.id],
+      token: dbToken,
+      type: 'guilds'
+   }
+   guildsDate[newGuild.id] = {
+      name: newGuild.name,
+      icon: newGuild.icon,
+      ownerID: newGuild.ownerID,
+      createdAt: newGuild.createdAt
+   }
+   const start_date = new Date();
+   getSite({method: "POST", url: url_site, form: guildsDate}, (res) => {
+      const answerGuilds = JSON.parse(res.body);
+      let resultText = answerGuilds.status == "OK" ? 
+         `-- Type: GUILDS. Oтвет УСПЕШНО пришел за ${new Date() - start_date}мс.\n` :
+         `-- Type: GUILDS. Oтвет НЕ УДАЧНО пришел за ${new Date() - start_date}мс.\n`;
+      console.log(resultText);
+   });
+}
+
+
+
+
+
+
+
 function getUsersStats(watching_guilds) {
    console.log('Начался сбор информации users...');
    const start_date = new Date();
@@ -187,7 +262,9 @@ function setClient(cl, dbT, urS){
 		startGuildMemberAddAndRemove,
 		startGuildUpdate,
 		startUserUpdate,
-		startMessageStats
+		startMessageStats,
+      FIRST_usersUpdate,
+      FIRST_guildUpdate
 		// экспортируемые функции писать СУДА!!!
 	}
 }

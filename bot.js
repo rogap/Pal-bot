@@ -742,8 +742,8 @@ client.on('ready', () => {
 	client.channels.get('553489897944645647').send('Я запустился!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
 	//PLAYING STREAMING LISTENING WATCHING
-	const intFunc = () => {sendUsersInfo(collection_users_info());};
-	timeout_interval(intFunc, 1000*60*5);
+	// const intFunc = () => {sendUsersInfo(collection_users_info());};
+	// timeout_interval(intFunc, 1000*60*5);
 
 	timeout_interval(() => { // отсылаем запрос на сайт
 		const start_date = new Date();

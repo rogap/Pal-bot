@@ -741,20 +741,33 @@ client.on('ready', () => {
 	console.log('I am ready!');
 	client.channels.get('553489897944645647').send('Я запустился!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
-	//PLAYING STREAMING LISTENING WATCHING
-	// const intFunc = () => {sendUsersInfo(collection_users_info());};
-	// timeout_interval(intFunc, 1000*60*5);
+	
+	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
+      const answerSettings = JSON.parse(res.body);
+      if (answerSettings.status == "OK") {
+         console.log('Настройки успешно загружены.\n');
+         // поидее все действия нужно начинать после загрузки настроек
 
-	timeout_interval(() => { // отсылаем запрос на сайт
-		const start_date = new Date();
-		getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings)}, (res) => {
-			const answerStats = JSON.parse(res.body);
-			let resultText = answerStats.status == "OK" ? 
-				`== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
-				`== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.\n`;
-			console.log(resultText);
-		});
-	}, 300000);
+
+         require_stats.startGuildUpdate();
+         require_stats.startUserUpdate();
+         require_stats.startMessageStats(answerSettings); // сбор смс статистики
+
+         timeout_interval(() => { // отсылаем запрос на сайт
+            const start_date = new Date();
+            getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings)}, (res) => {
+               const answerStats = JSON.parse(res.body);
+               let resultText = answerStats.status == "OK" ? 
+                  `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
+                  `== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.\n`;
+               console.log(resultText);
+            });
+         }, 300000);
+
+      } else {
+         console.log(status.error);
+      }
+   });
 });
 
 

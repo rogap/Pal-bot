@@ -741,14 +741,13 @@ client.on('ready', () => {
 	console.log('I am ready!');
 	client.channels.get('553489897944645647').send('Я запустился!');
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
-	
+
+
 	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
       const answerSettings = JSON.parse(res.body);
       if (answerSettings.status == "OK") {
          console.log('Настройки успешно загружены.\n');
          // поидее все действия нужно начинать после загрузки настроек
-
-
          require_stats.startGuildUpdate();
          require_stats.startUserUpdate();
          require_stats.startMessageStats(answerSettings); // сбор смс статистики

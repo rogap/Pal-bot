@@ -4,10 +4,15 @@ const request = require('request');
 
 const global_func = require('./global-func.js'); // импортируем глобальные функции
 
+const { url_site, dbToken, tokenDiscord, vkToken } = (require('./config.js')).cfg;
+const require_stats = (require('./stats.js')).stats(client, dbToken, url_site, getUsersStats);
+const getUsersStats = require_stats.getUsersStats;
+
 // делает запросы на сайт
-function getSite(params={method: "GET", json: false}, callback, func_err=(err, par)=>{console.log(err, par);}) {
+function getSite(params, callback, func_err) {
    params.url = encodeURI(params.url); // кодируем в url
-   request(params, function (error, response, body){
+   const sendData = params.method == "POST" ? request.post : request.get;
+   sendData(params, function (error, response, body){
       if (error) {
          func_err(error, params);
       } else {
@@ -739,12 +744,25 @@ client.on('ready', () => {
 	//PLAYING STREAMING LISTENING WATCHING
 	const intFunc = () => {sendUsersInfo(collection_users_info());};
 	timeout_interval(intFunc, 1000*60*5);
+
+	timeout_interval(() => { // отсылаем запрос на сайт
+		const start_date = new Date();
+		getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings)}, (res) => {
+			const answerStats = JSON.parse(res.body);
+			let resultText = answerStats.status == "OK" ? 
+				`== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
+				`== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.\n`;
+			console.log(resultText);
+		});
+	}, 300000);
 });
 
 
 
 
-const vkToken = process.env.VK_TOKEN;
-client.login(process.env.BOT_TOKEN);
-const dbToken = process.env.DB_TOKEN;
-const url_site = process.env.URL_SITE;
+client.login(tokenDiscord);
+
+// const vkToken = process.env.VK_TOKEN;
+// client.login(process.env.BOT_TOKEN);
+// const dbToken = process.env.DB_TOKEN;
+// const url_site = process.env.URL_SITE;

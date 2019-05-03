@@ -168,29 +168,27 @@ function stopUsersStats() {runningUsersStats = false;}
 
 function startUsersHidden(watching_guilds) { // сбор невидимок
    client.on("presenceUpdate", (oldMember, newMember) => {
-      for (let [key, guild] of client.guilds) { // перебор каналов
-         if (!watching_guilds[guild.id]) continue; // пропускаем guild если наблюдение за ним выключенно
-         //if (JSON.stringify(oldMember.presence.game) !== JSON.stringify(newMember.presence.game)) return;
-         const newStatus = newMember.presence.status;
-         const oldStatus = oldMember.presence.status;
-         if (oldStatus == "offline" && newStatus == "offline") { // записываем только выходы и невидимки
-            const uId = newMember.user.id;
-            if (!messCounter[uId]) messCounter[uId] = {};
-            if (!messCounter[uId].status) messCounter[uId].status = [];
-            checkSpammStats(newMember.user, () => {messCounter[uId].status.push(newStatus);}, 
-               oldStatus, newStatus); // фильтруем...
-            // запись статуса нужна что бы иметь возможность отследить историю онлайна
-         }
+      const guildId = newMember.guild.id;
+      if (!watching_guilds[guildId]) continue; // пропускаем guild если наблюдение за ним выключенно
+      //if (JSON.stringify(oldMember.presence.game) !== JSON.stringify(newMember.presence.game)) return;
+      const newStatus = newMember.presence.status;
+      const oldStatus = oldMember.presence.status;
+      if (oldStatus == "offline" && newStatus == "offline") { // записываем только выходы и невидимки
+         const uId = newMember.user.id;
+         if (!messCounter[uId]) messCounter[uId] = {};
+         if (!messCounter[uId].status) messCounter[uId].status = [];
+         checkSpammStats(newMember.user, () => {messCounter[uId].status.push(newStatus);}); // фильтруем
+         // запись статуса нужна что бы иметь возможность отследить историю онлайна
       }
    });
 }
 const tempStats = {}; // список заблокированных
-function checkSpammStats(user, func, oldS, newS) {
+function checkSpammStats(user, func) {
    const id = user.id;
    if (tempStats[id]) return; // если записан то выход
    tempStats[id] = true; // блокируем временно
    func(); // выполняем функцию 1 раз
-   console.log(`Замечен анонимус - ${id}, ${user.username}, ${oldS}, ${newS}`);
+   console.log(`Замечен анонимус - ${id}, ${user.username}`);
    setTimeout(() => {delete tempStats[id];}, 200); // очищаем через время
 }
 

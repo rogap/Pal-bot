@@ -324,7 +324,7 @@ function DC_dog_says(m) { // !песа, дай лапку
 		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
 	}
 	dogsSaysWaitMembers.push(m.author.id); // добавляем во временный бан (ожидание)
-	const timer = (global_func.isAdmin(m.author.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 10 сек)
+	const timer = (global_func.isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 10 сек)
 	setTimeout(() => { // через минуту удаляем пользователя из бана
 		dogsSaysWaitMembers.find((el, i, arr) => {
 			if (el == m.author.id) arr.splice(i, 1);
@@ -443,7 +443,7 @@ function DC_sms(m) { // !смс
 	const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text2}&v=5.92&access_token=`;
 
 	sendVkListMembers.push(m.author.id); // добавляем в список временно забаненых
-	const timer = (global_func.isAdmin(m.author.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
+	const timer = (global_func.isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
 	setTimeout(() => { // через минуту удаляем пользователя из бана
 		sendVkListMembers.find((el, i, arr) => {
 			if (el == m.author.id) arr.splice(i, 1);
@@ -585,7 +585,7 @@ function get_vk_messages(m) { // !переписка
 		});
 	}
 	checkVkListMembers.push(m.author.id); // добавляем в список временно забаненых
-	const timer = (global_func.isAdmin(m.author.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
+	const timer = (global_func.isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
 	setTimeout(() => { // через минуту удаляем пользователя из бана
 		checkVkListMembers.find((el, i, arr) => {
 			if (el == m.author.id) arr.splice(i, 1);

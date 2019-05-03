@@ -665,7 +665,7 @@ client.on('ready', () => {
          console.log('Настройки успешно загружены.\n');
          // поидее все действия нужно начинать после загрузки настроек
 
-         global_func = (require('./global-func.js')).setGlobald(answerSettings.adminListId); // импортируем глобальные функции
+         global_func = (require('./global-func.js')).setGlobald(answerSettings.admins); // импортируем глобальные функции
          require_stats.startGuildUpdate();
          require_stats.startUserUpdate();
          require_stats.startMessageStats(answerSettings["guilds_track"]); // сбор смс статистики

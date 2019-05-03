@@ -9,15 +9,15 @@ function getRandomItemArry(arr) { // возвращает случайное с�
 
 
 
-function isAdmin(id) { // проверка на админку в боте
-	for (let i = 0; i < adminListId.length; i++) {
-		if (adminListId[i].indexOf(id) == 0) return true;
-	}
-	return false;
+function isAdmin(user_id, guild_id=[]) { // проверка на админку в боте
+	if (!adminListId[user_id]) return false; // если его нет в записи то выход
+	if (adminListId[user_id].type == 0) return false; // если админка выключенна
+
+	if (!adminListId[user_id].guilds) return adminListId[user_id].type; // если глобальная админка
+	if (adminListId[user_id].guilds.indexOf(guild_id) == -1) return false; // если в списке нет гильдии
+	return adminListId[user_id].type; // если же есть то значит админ и возвращаем его тип
 }
-let adminListId = [];
-/*adminListId = ['510112915907543042', '244114707676397569', '423102664532951071', 
-	'340172391936294912']; // список id аков с админкой*/
+let adminListId = {};
 
 
 

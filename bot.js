@@ -689,7 +689,7 @@ function startBot() { // старт бота (делается 1 раз при �
    require_stats.startUserUpdate();
    require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
    require_stats.startUsersStats(ALL_SETTINGS.guildsTrack); // запуск сбора информации о юзерах
-   require_stats.startUsersHidden();
+   require_stats.startUsersHidden(ALL_SETTINGS.guildsTrack);
 
    BOT_STARTED = true; // разрешаем обрабатывать сообщения
 }

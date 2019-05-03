@@ -169,7 +169,7 @@ function stopUsersStats() {runningUsersStats = false;}
 function startUsersHidden(watching_guilds) { // сбор невидимок
    client.on("presenceUpdate", (oldMember, newMember) => {
       const guildId = newMember.guild.id;
-      if (!watching_guilds[guildId]) continue; // пропускаем guild если наблюдение за ним выключенно
+      if (!watching_guilds[guildId]) return; // пропускаем guild если наблюдение за ним выключенно
       //if (JSON.stringify(oldMember.presence.game) !== JSON.stringify(newMember.presence.game)) return;
       const newStatus = newMember.presence.status;
       const oldStatus = oldMember.presence.status;

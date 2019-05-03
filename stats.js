@@ -137,6 +137,36 @@ function getUsersStats(watching_guilds) {
 
 
 
+function timeout_interval(func, time) { // альтернатива setInterval
+   let timeout = setTimeout( () => {
+      func(); // выполняем функцию
+      timeout = timeout_interval(func, time); // запускаем заново
+   }, time);
+   return timeout;
+}
+
+
+
+let runningUsersStats = true; // заботает
+function startUsersStats(guildsTrack) { // запуск сбора информации о юзерах
+   const timeout = timeout_interval(() => { // отсылаем запрос на сайт (статистику)
+      if (!runningUsersStats) clearTimeout(timeout);// если выключен то удаляем все
+
+      const start_date = new Date();
+      getSite({method: "POST", url: url_site, form: getUsersStats(guildsTrack)}, (res) => {
+         const answerStats = JSON.parse(res.body);
+         let resultText = answerStats.status == "OK" ? 
+            `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
+            `== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.\n`;
+         console.log(resultText);
+      });
+   }, 300000);
+}
+
+function stopUsersStats() {
+   runningUsersStats = false;
+}
+
 
 
 
@@ -163,10 +193,12 @@ function getSite(params, callback, func_err) {
 }
 
 
+let runningMessageStats = true;
 let messCounter = {} // счетчик сообщений по серверам (гильдиям)
 // guildId обьект-список настроек (id серверов на которых идет запись)
 function startMessageStats(guildId) { // запуск сбора статистики сообщений
 	client.on('message', (mess) => {
+      if (!runningMessageStats) return; // типо выключаем это событие
 		if (!mess.guild) return; // если смс в лс то выход
 		const gID = mess.channel.guild.id;
 		const aID = mess.author.id;
@@ -175,6 +207,10 @@ function startMessageStats(guildId) { // запуск сбора статист�
 		if (!messCounter[aID][gID]) messCounter[aID][gID] = {count: 0}
 		messCounter[aID][gID].count++;
 	});
+}
+
+function stopMessageStats() {
+   runningMessageStats = false;
 }
 
 
@@ -258,11 +294,14 @@ function setClient(cl, dbT, urS){
 	dbToken = dbT;
 	url_site = urS;
 	return { // то что будет возвращено экспортом в итоге
-		getUsersStats,
+		getUsersStats, // не убираем, пусть будет для откладки и тестов
+      startUsersStats,
+      stopUsersStats,
 		startGuildMemberAddAndRemove,
 		startGuildUpdate,
 		startUserUpdate,
 		startMessageStats,
+      stopMessageStats,
       FIRST_usersUpdate,
       FIRST_guildUpdate
 		// экспортируемые функции писать СУДА!!!

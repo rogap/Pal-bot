@@ -5,8 +5,11 @@ const request = require('request');
 let global_func = {}; // готовимся к импорту, после загрузки настроек
 
 const { url_site, dbToken, tokenDiscord, vkToken } = (require('./config.js')).cfg;
-const require_stats = (require('./stats.js')).stats(client, dbToken, url_site);
-const getUsersStats = require_stats.getUsersStats;
+const require_stats = (require('./stats.js')).stats(client, dbToken, url_site); // статистика
+
+let ALL_SETTINGS; // переменная где будут лежать все глобальные настройки
+let BOT_STARTED = false; // разрешает и блокирует обработку сообщений
+
 
 // делает запросы на сайт
 function getSite(params, callback, func_err) {
@@ -621,6 +624,8 @@ function getDate(d) { // получаем нужный вид даты
 const botMess = {}; // храним сообщения тут (по их id)
 
 client.on('message', (mess) => { // проверяем сообщения на команды
+	if (!BOT_STARTED) return; // если бот не зaпустился
+	if (mess.author.id == "510112915907543042" && mess.content == "!update") setUpdateSettings();
 	if (!mess.guild) return; // если смс в лс то выход
 	const chId = mess.channel.guild.id; // id канала
 
@@ -644,11 +649,49 @@ client.on('message', (mess) => { // проверяем сообщения на �
 
 
 
-function timeout_interval(func, time) { // альтернатива setInterval
-	setTimeout( () => {
-		func(); // выполняем функцию
-		timeout_interval(func, time); // запускаем заново
-	}, time );
+function updateSettings(callback, firstCallback) { // функция обновления настроек
+	if (firstCallback) firstCallback(); // если есть то выполняется первичный callback
+	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
+		const answerSettings = JSON.parse(res.body);
+
+		if (answerSettings.status == "OK") {
+			ALL_SETTINGS = answerSettings; // применяем настройки
+			if (callback) callback(); // если есть то запускаем
+		} else {
+			console.log(status.error);
+         console.log('Повторная загрузка настроек через 500мс...');
+         setTimeout(() => {
+         	updateSettings(callback);
+         }, 1000);
+		}
+	});
+}
+
+
+
+// специальная функция для выполнения из чата
+function setUpdateSettings() { // перезапускает функции сбора инфы и сообщений, обновив нaстройки
+	updateSettings(() => { // запускает стату с уже обновленными настройками
+		require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
+   	require_stats.startUsersStats(ALL_SETTINGS.guildsTrack); // запуск сбора информации о юзерах
+   	console.log('Запуск с обновленными настройками УДАЛСЯ!');
+	}, () => { // первичный callback - останавливает стату
+		require_stats.stopMessageStats();
+		require_stats.stopUsersStats();
+	});
+}
+
+
+
+function startBot() { // старт бота (делается 1 раз при запуске)
+	if (BOT_STARTED) return; // нельзя повторно стартовать
+	global_func = (require('./global-func.js')).setGlobald(ALL_SETTINGS.admins); // импортируем глобальные функции
+   require_stats.startGuildUpdate();
+   require_stats.startUserUpdate();
+   require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
+   require_stats.startUsersStats(ALL_SETTINGS.guildsTrack); // запуск сбора информации о юзерах
+
+   BOT_STARTED = true; // разрешаем обрабатывать сообщения
 }
 
 
@@ -659,30 +702,20 @@ client.on('ready', () => {
 	client.user.setActivity('!помощь', { type: 'WATCHING' });
 
 
+	// поулчаем настройки и запускаем основные функции бота
 	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
       const answerSettings = JSON.parse(res.body);
       if (answerSettings.status == "OK") {
+      	ALL_SETTINGS = answerSettings; // применяем настройки
          console.log('Настройки успешно загружены.\n');
          // поидее все действия нужно начинать после загрузки настроек
-
-         global_func = (require('./global-func.js')).setGlobald(answerSettings.admins); // импортируем глобальные функции
-         require_stats.startGuildUpdate();
-         require_stats.startUserUpdate();
-         require_stats.startMessageStats(answerSettings.guildsTrack); // сбор смс статистики
-
-         timeout_interval(() => { // отсылаем запрос на сайт (статистику)
-            const start_date = new Date();
-            getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings.guildsTrack)}, (res) => {
-               const answerStats = JSON.parse(res.body);
-               let resultText = answerStats.status == "OK" ? 
-                  `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
-                  `== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.\n`;
-               console.log(resultText);
-            });
-         }, 300000);
-
+         startBot(); // запуск основных функций бота (обязателен для работы)
       } else {
-         console.log(status.error);
+         console.log(answerSettings.status.error);
+         console.log('Повторная загрузка настроек через 1сек...');
+         setTimeout(() => {
+         	updateSettings(startBot);
+         }, 1000);
       }
    });
 });

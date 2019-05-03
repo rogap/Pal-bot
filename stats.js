@@ -166,18 +166,21 @@ function stopUsersStats() {runningUsersStats = false;}
 
 
 
-function startUsersHidden() { // сбор невидимок
+function startUsersHidden(watching_guilds) { // сбор невидимок
    client.on("presenceUpdate", (oldMember, newMember) => {
-      //if (JSON.stringify(oldMember.presence.game) !== JSON.stringify(newMember.presence.game)) return;
-      const newStatus = newMember.presence.status;
-      const oldStatus = oldMember.presence.status;
-      if (oldStatus == "offline" && newStatus == "offline") { // записываем только выходы и невидимки
-         const uId = newMember.user.id;
-         if (!messCounter[uId]) messCounter[uId] = {}
-         if (!messCounter[uId].status) messCounter[uId].status = [];
-         checkSpammStats(newMember.user, () => {messCounter[uId].status.push(newStatus);}, 
-            oldStatus, newStatus); // фильтруем...
-         // запись статуса нужна что бы иметь возможность отследить историю онлайна
+      for (let [key, guild] of client.guilds) { // перебор каналов
+         if (!watching_guilds[guild.id]) continue; // пропускаем guild если наблюдение за ним выключенно
+         //if (JSON.stringify(oldMember.presence.game) !== JSON.stringify(newMember.presence.game)) return;
+         const newStatus = newMember.presence.status;
+         const oldStatus = oldMember.presence.status;
+         if (oldStatus == "offline" && newStatus == "offline") { // записываем только выходы и невидимки
+            const uId = newMember.user.id;
+            if (!messCounter[uId]) messCounter[uId] = {};
+            if (!messCounter[uId].status) messCounter[uId].status = [];
+            checkSpammStats(newMember.user, () => {messCounter[uId].status.push(newStatus);}, 
+               oldStatus, newStatus); // фильтруем...
+            // запись статуса нужна что бы иметь возможность отследить историю онлайна
+         }
       }
    });
 }

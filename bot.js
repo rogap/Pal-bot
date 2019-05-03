@@ -668,11 +668,11 @@ client.on('ready', () => {
          global_func = (require('./global-func.js')).setGlobald(answerSettings.admins); // импортируем глобальные функции
          require_stats.startGuildUpdate();
          require_stats.startUserUpdate();
-         require_stats.startMessageStats(answerSettings["guilds_track"]); // сбор смс статистики
+         require_stats.startMessageStats(answerSettings.guildsTrack); // сбор смс статистики
 
          timeout_interval(() => { // отсылаем запрос на сайт (статистику)
             const start_date = new Date();
-            getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings["guilds_track"])}, (res) => {
+            getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings.guildsTrack)}, (res) => {
                const answerStats = JSON.parse(res.body);
                let resultText = answerStats.status == "OK" ? 
                   `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 

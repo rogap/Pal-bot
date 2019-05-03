@@ -2,7 +2,7 @@ const { Client, Attachment, RichEmbed} = require('discord.js');
 const client = new Client();
 const request = require('request');
 
-const global_func = require('./global-func.js'); // импортируем глобальные функции
+let global_func = {}; // готовимся к импорту, после загрузки настроек
 
 const { url_site, dbToken, tokenDiscord, vkToken } = (require('./config.js')).cfg;
 const require_stats = (require('./stats.js')).stats(client, dbToken, url_site);
@@ -23,8 +23,10 @@ function getSite(params, callback, func_err) {
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!ss', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', '!переписка'],
-	comands: ['!помощь', '!инфо', '!стата', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', '!переписка'],
+	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!ss', '!игры', '!песа, дай лапку', '!онлайн', 
+		'!очистить', '!смс', '!переписка'], // для проверки в сообщении
+	comands: ['!помощь', '!инфо', '!стата', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', 
+		'!переписка'], // для вывода в !хелп
 	'!помощь': {
 		func: DC_help,
 		info: "выводит этот список (так же можно **!хелп** или **!хелпа**)",
@@ -618,17 +620,9 @@ function getDate(d) { // получаем нужный вид даты
 
 const botMess = {}; // храним сообщения тут (по их id)
 
-
-
 client.on('message', (mess) => { // проверяем сообщения на команды
 	if (!mess.guild) return; // если смс в лс то выход
-	//if (mess.guild) return; // если смс НЕ В ЛС то выход
-	
 	const chId = mess.channel.guild.id; // id канала
-	if (watching_guilds.indexOf(chId + '') != -1) { // счетчик сообщений
-		if (!messCounter[mess.author.id]) messCounter[mess.author.id] = 0;
-		messCounter[mess.author.id]++;
-	}
 
 	const cont = mess.content.trim();
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
@@ -650,90 +644,12 @@ client.on('message', (mess) => { // проверяем сообщения на �
 
 
 
-
-
-
-const messCounter = {}; // счетчик отправленных смс
-// сервера за которыми наблюдать
-const watching_guilds = ['365821017957859329', '505374650730283008', '550655034610941952', 
-	'394876997479956482', '347335773345021952', '552367411467124739', '226322710844801024', 
-	'511241270413361176', '328601206610198539', '413725906146689026', '560001613645873162',
-	'324903227923496960'];
-
-function collection_users_info() { // собирает инфу о всех юзерах в установленных каналах
-	const object_info = {count: 0, users_list: [], token: dbToken};
-	const time = +new Date(); // время сбора инфы
-
-	for (let i = 0; i < watching_guilds.length; i++) {
-		if (!client.guilds.get(watching_guilds[i])) continue; // пропускаем если канала нет
-		const usersArr = client.guilds.get(watching_guilds[i]).members.array(); // список людей на канале
-
-		for (let j = 0; j < usersArr.length; j++) {
-			const uArr = usersArr[j]; // содержин информацию о текущем пользователе
-			if (uArr.user.bot) continue; // если бот то пропускаем
-			const uId = uArr.user.id + '';
-			if (!object_info[uId]) { // если пользователя нет
-				const game = uArr.presence.game || {name: null};
-				const countMess = messCounter[uId] || 0;
-				messCounter[uId] = 0;
-
-				// если не проявляет активности ваще то смысла записывать нет
-				if (uArr.presence.status == 'offline' && !uArr.voiceChannelID && !countMess && !game.name) continue;
-
-				object_info.users_list.push(uId); // добавляем пользователя в список
-
-				object_info[uId] = { // записываем данные
-					time,
-					online: uArr.presence.status,
-					guilds: getGuildsUser(uId),
-					name: `${uArr.user.username}#${uArr.user.discriminator}`,
-					game: game.name,
-					channel: uArr.voiceChannelID || null,
-					mess: countMess
-				}
-			} else { // если пользователь уже есть то проверим некоторые значения
-				const oi = object_info[uId];
-				if (!oi.channel) oi.channel = uArr.voiceChannelID || null; // проверяем другие каналы
-			}
-		}
-	}
-	object_info.count = object_info.users_list.length;
-	return object_info;
-}
-
-
-function getGuildsUser(user_id) { // возвращает список гильдий в котором есть пользователь
-	const list = [];
-	for (let i = 0; i < watching_guilds.length; i++) {
-		const id = watching_guilds[i]; // id канала
-		if (!client.guilds.get(id)) continue; // пропускаем ненайденные каналы
-		const usersArr = client.guilds.get(id).members.array();
-		for (let j = 0; j < usersArr.length; j++) {
-			if (usersArr[j].user.id == user_id) list.push(id);
-		}
-	}
-	return list;
-}
-
-
-/* sendUsersInfo - отправляет собранную информацию на сохранение в бд
- * @users - массив обьектов с инфой о всех собранных юзерах, Структура:
- *		[{}, {id: user_id, body: {'~вся инфа о юзерах~'}, {}, ...]
-*/
-function sendUsersInfo(users) {
-	getSite({url: url_site, method: "POST", body: JSON.stringify(users)}, (res) => {
-		console.log(res.body);
-	});
-}
-
-
 function timeout_interval(func, time) { // альтернатива setInterval
 	setTimeout( () => {
 		func(); // выполняем функцию
 		timeout_interval(func, time); // запускаем заново
 	}, time );
 }
-
 
 
 
@@ -748,13 +664,15 @@ client.on('ready', () => {
       if (answerSettings.status == "OK") {
          console.log('Настройки успешно загружены.\n');
          // поидее все действия нужно начинать после загрузки настроек
+
+         global_func = (require('./global-func.js')).setGlobald(answerSettings.adminListId); // импортируем глобальные функции
          require_stats.startGuildUpdate();
          require_stats.startUserUpdate();
-         require_stats.startMessageStats(answerSettings); // сбор смс статистики
+         require_stats.startMessageStats(answerSettings["guilds_track"]); // сбор смс статистики
 
-         timeout_interval(() => { // отсылаем запрос на сайт
+         timeout_interval(() => { // отсылаем запрос на сайт (статистику)
             const start_date = new Date();
-            getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings)}, (res) => {
+            getSite({method: "POST", url: url_site, form: getUsersStats(answerSettings["guilds_track"])}, (res) => {
                const answerStats = JSON.parse(res.body);
                let resultText = answerStats.status == "OK" ? 
                   `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
@@ -771,10 +689,6 @@ client.on('ready', () => {
 
 
 
-
 client.login(tokenDiscord);
 
-// const vkToken = process.env.VK_TOKEN;
-// client.login(process.env.BOT_TOKEN);
-// const dbToken = process.env.DB_TOKEN;
-// const url_site = process.env.URL_SITE;
+

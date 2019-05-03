@@ -669,7 +669,7 @@ function updateSettings(callback, firstCallback) { // функция обнов�
 
 
 
-// специальная функция для выполнения из чата
+// специальная функция для выполнения из чата !!! не работает! - криво ! не удаляет прошлое !
 function setUpdateSettings() { // перезапускает функции сбора инфы и сообщений, обновив нaстройки
 	updateSettings(() => { // запускает стату с уже обновленными настройками
 		require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
@@ -685,11 +685,11 @@ function setUpdateSettings() { // перезапускает функции сб
 
 function startBot() { // старт бота (делается 1 раз при запуске)
 	if (BOT_STARTED) return; // нельзя повторно стартовать
-	global_func = (require('./global-func.js')).setGlobald(ALL_SETTINGS.admins); // импортируем глобальные функции
    require_stats.startGuildUpdate();
    require_stats.startUserUpdate();
    require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
    require_stats.startUsersStats(ALL_SETTINGS.guildsTrack); // запуск сбора информации о юзерах
+   require_stats.startUsersHidden();
 
    BOT_STARTED = true; // разрешаем обрабатывать сообщения
 }
@@ -709,6 +709,8 @@ client.on('ready', () => {
       	ALL_SETTINGS = answerSettings; // применяем настройки
          console.log('Настройки успешно загружены.\n');
          // поидее все действия нужно начинать после загрузки настроек
+         // импортируем глобальные функции ->
+			global_func = (require('./global-func.js')).setGlobald(ALL_SETTINGS.admins);
          startBot(); // запуск основных функций бота (обязателен для работы)
       } else {
          console.log(answerSettings.status.error);

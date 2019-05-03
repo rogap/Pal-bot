@@ -162,12 +162,34 @@ function startUsersStats(guildsTrack) { // запуск сбора информ�
       });
    }, 300000);
 }
+function stopUsersStats() {runningUsersStats = false;}
 
-function stopUsersStats() {
-   runningUsersStats = false;
+
+
+function startUsersHidden() { // сбор невидимок
+   client.on("presenceUpdate", (oldMember, newMember) => {
+      //if (JSON.stringify(oldMember.presence.game) !== JSON.stringify(newMember.presence.game)) return;
+      const newStatus = newMember.presence.status;
+      const oldStatus = oldMember.presence.status;
+      if (oldStatus == "offline" && newStatus == "offline") { // записываем только выходы и невидимки
+         const uId = newMember.user.id;
+         if (!messCounter[uId]) messCounter[uId] = {}
+         if (!messCounter[uId].status) messCounter[uId].status = [];
+         checkSpammStats(newMember.user, () => {messCounter[uId].status.push(newStatus);}, 
+            oldStatus, newStatus); // фильтруем...
+         // запись статуса нужна что бы иметь возможность отследить историю онлайна
+      }
+   });
 }
-
-
+const tempStats = {}; // список заблокированных
+function checkSpammStats(user, func, oldS, newS) {
+   const id = user.id;
+   if (tempStats[id]) return; // если записан то выход
+   tempStats[id] = true; // блокируем временно
+   func(); // выполняем функцию 1 раз
+   console.log(`Замечен анонимус - ${id}, ${user.username}, ${oldS}, ${newS}`);
+   setTimeout(() => {delete tempStats[id];}, 200); // очищаем через время
+}
 
 
 
@@ -177,6 +199,7 @@ function getChannelsById(id) { // получаем обьект канала п�
    }
    return null;
 }
+
 
 
 // делает запросы на сайт
@@ -191,6 +214,7 @@ function getSite(params, callback, func_err) {
       }
    });
 }
+
 
 
 let runningMessageStats = true;
@@ -208,10 +232,7 @@ function startMessageStats(guildId) { // запуск сбора статист�
 		messCounter[aID][gID].count++;
 	});
 }
-
-function stopMessageStats() {
-   runningMessageStats = false;
-}
+function stopMessageStats() {runningMessageStats = false;}
 
 
 function startGuildUpdate() {
@@ -303,7 +324,8 @@ function setClient(cl, dbT, urS){
 		startMessageStats,
       stopMessageStats,
       FIRST_usersUpdate,
-      FIRST_guildUpdate
+      FIRST_guildUpdate,
+      startUsersHidden
 		// экспортируемые функции писать СУДА!!!
 	}
 }

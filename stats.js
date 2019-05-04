@@ -165,6 +165,7 @@ function startUsersStats(guildsTrack) { // запуск сбора информ�
             answerStats.gets.forEach((userId, index) => {
                setTimeout(() => { // рассредатачиваем на каждые 50 мс
                   userUpdateFunc(null, client.users.get(userId));
+                  console.log(`Запрошенный ${userId} - записн.`);
                }, 50 * index);
             });
          }

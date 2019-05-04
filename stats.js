@@ -156,9 +156,19 @@ function startUsersStats(guildsTrack) { // запуск сбора информ�
       getSite({method: "POST", url: url_site, form: getUsersStats(guildsTrack)}, (res) => {
          const answerStats = JSON.parse(res.body);
          let resultText = answerStats.status == "OK" ? 
-            `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.\n` : 
-            `== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.\n`;
-         console.log(resultText);
+            `== Type: STATS. Oтвет УСПЕШНО пришел за ${(new Date() - start_date) / 1000}сек.` : 
+            `== Type: STATS. Oтвет НЕ УДАЧНО пришел за ${(new Date() - start_date) / 1000}сек.`;
+
+         let needText = "";
+         if (answerStats.gets) { // если запрос на получение данных
+            needText = "++ Запрос на запись новых пользователей";
+            answerStats.gets.forEach((userId, index) => {
+               setTimeout(() => { // рассредатачиваем на каждые 50 мс
+                  userUpdateFunc(null, client.users.get(userId));
+               }, 50 * index);
+            });
+         }
+         console.log(`${resultText} ${needText}\n`);
       });
    }, 300000);
 }
@@ -261,30 +271,34 @@ function startGuildUpdate() {
    });
 }
 
+
+
 function startUserUpdate() {
-   client.on('userUpdate', (oldUser, newUser) => { // изменения пользователей
-      const usersDate = { // инфомрация об измененном пользователе
-         count: 1,
-         users_list: [newUser.id],
-         token: dbToken,
-         type: 'users'
-      }
-      usersDate[newUser.id] = {
-         username: newUser.username,
-         discriminator: newUser.discriminator,
-         avatar: newUser.avatar,
-         createdAt: newUser.createdAt
-      }
-      const start_date = new Date();
-      getSite({method: "POST", url: url_site, form: usersDate}, (res) => {
-      	const answerUsers = JSON.parse(res.body);
-      	let resultText = answerUsers.status == "OK" ? 
-      		`-- Type: USERS. Oтвет УСПЕШНО пришел за ${new Date() - start_date}мс.\n` : 
-      		`-- Type: USERS. Oтвет НЕ УДАЧНО пришел за ${new Date() - start_date}мс.\n`;
-         console.log(resultText);
-      });
+   client.on('userUpdate', userUpdateFunc); // изменения пользователей
+}
+function userUpdateFunc(oldUser, newUser) { // отправка запроса
+   const usersDate = { // инфомрация об измененном пользователе
+      count: 1,
+      users_list: [newUser.id],
+      token: dbToken,
+      type: 'users'
+   }
+   usersDate[newUser.id] = {
+      username: newUser.username,
+      discriminator: newUser.discriminator,
+      avatar: newUser.avatar,
+      createdAt: newUser.createdAt
+   }
+   const start_date = new Date();
+   getSite({method: "POST", url: url_site, form: usersDate}, (res) => {
+      const answerUsers = JSON.parse(res.body);
+      let resultText = answerUsers.status == "OK" ? 
+         `-- Type: USERS. Oтвет УСПЕШНО пришел за ${new Date() - start_date}мс.\n` : 
+         `-- Type: USERS. Oтвет НЕ УДАЧНО пришел за ${new Date() - start_date}мс.\n`;
+      console.log(resultText);
    });
 }
+
 
 
 function startGuildMemberAddAndRemove() {

@@ -294,9 +294,9 @@ function userUpdateFunc(oldUser, newUser) { // отправка запроса
    getSite({method: "POST", url: url_site, form: usersDate}, (res) => {
       const answerUsers = JSON.parse(res.body);
       let resultText = answerUsers.status == "OK" ? 
-         `-- Type: USERS. Oтвет УСПЕШНО пришел за ${new Date() - start_date}мс.\n` : 
-         `-- Type: USERS. Oтвет НЕ УДАЧНО пришел за ${new Date() - start_date}мс.\n`;
-      console.log(resultText);
+         `-- Type: USERS. Oтвет УСПЕШНО пришел за ${new Date() - start_date}мс.` : 
+         `-- Type: USERS. Oтвет НЕ УДАЧНО пришел за ${new Date() - start_date}мс.`;
+      console.log(`${resultText} id: ${newUser.id}.\n`);
    });
 }
 

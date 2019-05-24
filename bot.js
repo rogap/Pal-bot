@@ -125,7 +125,7 @@ function DC_stats(m) { // !стата
 		if (json.message == 'OK') return global_func.addBotMess(m.reply(`Ошибка, игрок "${name}" не найден`), 
 			m.channel.guild.id, botMess);
 		if (!json.champions || !json.main) return global_func.addBotMess(m.reply(`Ошибка, возможно у игрока \
-			"${name}" скрыт профиль`), m.channel.guild.id, botMess);
+"${name}" скрыт профиль`), m.channel.guild.id, botMess);
 		const kda = getKDABP(json.champions);
 
 		const embed = new RichEmbed()
@@ -276,9 +276,9 @@ function DC_game(m) { // !игры
 		return global_func.addBotMess(m.reply('Не корректный запрос'), m.channel.guild.id, botMess);
 	}
 	getSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, json: true}, (r) => {
-		if (!json.champions || !json.main) return global_func.addBotMess(m.reply(`Ошибка, возможно у игрока \
-			"${name}" скрыт профиль`), m.channel.guild.id, botMess);
 		const matches = r.body.matches;
+		if (!matches) return global_func.addBotMess(m.reply(`Ошибка, матчи "${name}" не найденыю`), 
+			m.channel.guild.id, botMess);
 
 		if (matchNum > matches.length - 1) matchNum = matches.length - 1; // что бы не брать больше 10 и того что есть
 

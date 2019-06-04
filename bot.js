@@ -1,6 +1,8 @@
-const { Client, Attachment, RichEmbed} = require('discord.js');
+const {Client, Attachment, RichEmbed} = require('discord.js');
 const client = new Client();
 const request = require('request');
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs');
 
 let global_func = {}; // готовимся к импорту, после загрузки настроек
 
@@ -22,6 +24,14 @@ function getSite(params, callback, func_err) {
          callback(response, body);
       }
    });
+}
+
+
+// проверяем права пользователя на указаном канале
+function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) {
+	return client.channels.get(clannel).permissionsFor(user).has(permission);
+	// ATTACH_FILES SEND_MESSAGES EMBED_LINKS
+	// проверка прав перед отправкой сообщения
 }
 
 
@@ -119,42 +129,160 @@ function DC_stats(m) { // !стата
 	if (name != name.replace( /[^A-zА-я0-9]/, '' )) {
 		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
 	}
+
+	// проверяем права
+	if (!checkPermission(m.channel.id, ['ATTACH_FILES', 'SEND_MESSAGES']))
+		return global_func.addBotMess(m.reply('Нет прав на отправку файлов/скриншотов.'), 
+			m.channel.guild.id, botMess);
+
 	getSite({url: `http://www.playpaladins.online/api/profile/pc/${name}`, json: true}, (r) => {
 		const json = r.body;
+		const main = json.main;
 
 		if (json.message == 'OK') return global_func.addBotMess(m.reply(`Ошибка, игрок "${name}" не найден`), 
 			m.channel.guild.id, botMess);
 		if (!json.champions || !json.main) return global_func.addBotMess(m.reply(`Ошибка, возможно у игрока \
 "${name}" скрыт профиль`), m.channel.guild.id, botMess);
+		
 		const kda = getKDABP(json.champions);
+		const totalTime = kda.dmg + kda.flank + kda.tank + kda.heal;
+		const dmgDeg = 360 * (kda.dmg / totalTime);
+		const flankDeg = 360 * (kda.flank / totalTime);
+		const tankDeg = 360 * (kda.tank / totalTime);
+		const healDeg = 360 * (kda.heal / totalTime);
+		const ranckNum = main.Tier_RankedKBM;
+		const RankedKBM = main.RankedKBM;
 
-		const embed = new RichEmbed()
-		.setAuthor('Больше информации', m.author.avatarURL, `http://playpaladins.online/#/search/profile/${name}?page=1`)
-		.setFooter('Информация взята с сайта playpaladins.online', 
-			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
+		// data загружаемой картинки ранга
+		const imgUrl = `https://playpaladins.online/images/Divisions/${ranckNum}.png`;
+		const imgWidth = 192;
+		const imgHeight = ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
 
-		.setTitle(`Последний вход ${json.main.Name}: ${json.main.Last_Login_Datetime}`)
-		.setColor(0x0Bd2d2)
-		.setThumbnail(`https://playpaladins.online/images/Divisions/${json.main.Tier_RankedKBM}.png`)
-		.setDescription(`**Роль:** ${kda.p}, **Персонаж:** ${kda.b}, **КДА:** ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`)
-		.addField(`Часы на уронах`, secToMin(kda.dmg), true)
-		.addField(`Часы на хилах`, secToMin(kda.heal), true)
-		.addField(`Часы на флангах`, secToMin(kda.flank), true)
-		.addField(`Часы на танках`, secToMin(kda.tank), true)
-		.addField(`Всего килов`, kda.k, true)
-		.addField(`Всего смертей`, kda.d, true)
-		.addField(`Всего ассистов`, kda.a, true)
-		.addField(`Всего побед`, json.main.Wins, true)
-		.addField(`Всего поражений`, json.main.Losses, true)
-		.addField(`lvl`, json.main.Level, true)
-		.addField(`Создан`, json.main.Created_Datetime, true)
-		.addField(`Сыграно часов`, json.main.HoursPlayed, true)
-		.addField(`Ранк`, getRanck(json.main.Tier_RankedKBM), true)
-		.addField(`OT`, json.main.RankedKBM.Points, true)
-		.addField(`Побед`, json.main.RankedKBM.Wins, true)
-		.addField(`Поражений`, json.main.RankedKBM.Losses, true);
+		// canvas...
+		const canvas = createCanvas(750, 310);
+		const ctx = canvas.getContext('2d');
+		ctx.fillStyle = "#ffffff";
+		ctx.fillRect(0, 0, 750, 310);
+		ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
 
-		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
+		// рисуем инфу ->
+		ctx.fillStyle = "#000000";
+		ctx.fillText(`${main.Name} (${main.Region})`, 10 + imgWidth / 2, 20);
+		ctx.fillText(`Уровень: ${main.Level}`, 10 + imgWidth / 2, 40);
+		ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + imgWidth / 2, 60);
+		ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + imgWidth / 2, 80);
+		ctx.fillText(`Последний вход: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 100);
+		ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 120);
+		//
+		ctx.fillText(`ВСЕГО:`, 50, 150);
+		ctx.fillText(`Убийства: ${kda.k}`, 10, 170);
+		ctx.fillText(`Смерти: ${kda.d}`, 10, 190);
+		ctx.fillText(`Ассисты: ${kda.a}`, 10, 210);
+		ctx.fillText(`Победы: ${main.Wins}`, 10, 230);
+		ctx.fillText(`Поражения: ${main.Losses}`, 10, 250);
+		ctx.fillText(`Винрейт: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 270);
+		//
+		ctx.fillText(`РАНКЕД:`, 250, 150);
+		ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 170);
+		ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 190);
+		ctx.fillText(`Ранг: ${getRanck(main.Tier_RankedKBM)}`, 200, 210);
+		ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 230);
+		if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 250);
+		//
+		ctx.fillStyle = "#00CCFF";
+		ctx.font = 'bold 14px Georgia';
+		ctx.fillText(`Информация взята с playpaladins.online`, 30, 300);
+		ctx.font = 'bold 16px Georgia';
+
+		// рисуем диаграмму ->
+		ctx.fillStyle = "#000000";
+		ctx.fillText("Роли:", 540, 20);
+		ctx.fillText(`Урон - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
+		ctx.fillText(`Танк - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
+		ctx.fillText(`Фланг - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
+		ctx.fillText(`Хилл - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
+		drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
+		drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
+		drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
+		drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
+		ctx.fillStyle = "#9966FF";
+		ctx.fillRect(580, 40, 15, 15);
+		ctx.fillStyle = "#3399CC";
+		ctx.fillRect(580, 62, 15, 15);
+		ctx.fillStyle = "#FF6600";
+		ctx.fillRect(580, 84, 15, 15);
+		ctx.fillStyle = "#33CC00";
+		ctx.fillRect(580, 106, 15, 15);
+
+		// любимые чемпионы ->
+		ctx.fillStyle = "#000000";
+		ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 480, 160);
+		//
+		ctx.fillStyle = "#006600";
+		ctx.fillText(kda.b[0].Rank, 439, 250);
+		ctx.fillText(kda.b[1].Rank, 499, 250);
+		ctx.fillText(kda.b[2].Rank, 559, 250);
+		ctx.fillText(kda.b[3].Rank, 619, 250);
+		ctx.fillText(kda.b[4].Rank, 679, 250);
+		//
+		ctx.fillStyle = "#CC6600";
+		ctx.fillText(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2), 437, 270);
+		ctx.fillText(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2), 497, 270);
+		ctx.fillText(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2), 557, 270);
+		ctx.fillText(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2), 617, 270);
+		ctx.fillText(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2), 677, 270);
+		//
+		ctx.fillStyle = "#003399";
+		ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290);
+		ctx.fillText(`${getWinrate(kda.b[1].Wins, kda.b[1].Losses)}%`, 497, 290);
+		ctx.fillText(`${getWinrate(kda.b[2].Wins, kda.b[2].Losses)}%`, 557, 290);
+		ctx.fillText(`${getWinrate(kda.b[3].Wins, kda.b[3].Losses)}%`, 617, 290);
+		ctx.fillText(`${getWinrate(kda.b[4].Wins, kda.b[4].Losses)}%`, 677, 290);
+
+		let uCount = 0;
+		let urlChampWidth = 430;
+		let urlChamp = `champions/${fixText(kda.b[uCount].champion)}.jpg`;
+		loadImage(urlChamp)
+		.then(LoadBestChamp);
+
+		function LoadBestChamp(img) { // загружаем картинку
+			ctx.drawImage(img, urlChampWidth, 180, 50, 50);
+			if (++uCount > 4) { // конец
+				// загружаем рамку звания ->
+				loadImage(imgUrl)
+				.then((img) => { // изображение загрузилось - рисуем
+					ctx.drawImage(img, 0, 0, imgWidth / 2, imgHeight / 2);
+					endLoadImg(canvas);
+				}).catch((err) => { // изображение не загрузилось (возможно он без ранга)
+					endLoadImg(canvas);
+				});
+				return;
+			} // иначе
+			urlChampWidth += 60;
+			const name = fixText(kda.b[uCount].champion);
+			urlChamp = `champions/${name}.jpg`;
+			loadImage(urlChamp)
+			.then(LoadBestChamp);
+		}
+
+		function endLoadImg(canvas) { // после удачной или не удачной загрузки
+			saveCanvas(canvas, 'daaaaa.png', (name) => {
+				console.log(`File ${name} was created.`);
+				m.channel.send({ // отправляем картинку
+					files: [{
+						attachment: name,
+						name
+					}]
+				}).then(() => { // удаляем локальный файл по окончанию отправки
+					console.log('отправилось, удаляем локальный файл...');
+					fs.unlink(name, (err) => {
+						if (err) throw err;
+						console.log('Лоакальный файл удален.');
+					});
+				}); // записываем историю смс
+			});
+		}
+		//
 	});
 }
 
@@ -202,29 +330,61 @@ function getRanck(n) { // переводит цифры в ранг
 	}
 }
 
+function getWinrate(wins, loses) {
+	return (wins / (loses + wins) * 100).toFixed(0);
+}
+
+function getRadians(degrees) {
+	return (Math.PI / 180) * degrees;
+}
+
+function drawPieSlice(ctx, centerX, centerY, radius, startAngle, endAngle, color) {
+	ctx.fillStyle = color;
+	ctx.beginPath();
+	ctx.moveTo(centerX, centerY);
+	ctx.arc(centerX, centerY, radius, getRadians(startAngle), getRadians(endAngle));
+	ctx.closePath();
+	ctx.fill();
+}
+
+function saveCanvas(canvas, name, callback) {
+	const out = fs.createWriteStream(name);
+	const stream = canvas.createPNGStream();
+	stream.pipe(out);
+	out.on('finish', () => {
+		callback(name);
+	});
+}
+
+function fixText(text) { // фиксит текст под правильный запрос для картинки чемпиона
+	while (true) {
+		const sh = text.indexOf('\'');
+		if (sh != -1) text = text.slice(0, sh) + '-' + text.slice(sh + 1);
+		const space = text.indexOf(' ');
+		if (space == -1) break;
+		text = text.slice(0, space) + '-' + text.slice(space + 1);
+	}
+	return text.toLowerCase();
+}
+
 function getKDABP(champions) { // kill, death, assist, больеш всего времени - чемпион, больше всего времени - роль
 	let kills = 0,
 		assists = 0,
 		deaths = 0,
-		best = '',
+		//best = '',
 		bestMinutes = 0,
 		role = {
 			heal: 0,
 			dmg: 0,
 			tank: 0,
 			flank: 0
-		},
-		bigs = 0,
-		bigsRole = '';
+		};
 
 	for (let i = 0; i < champions.length; i++) {
 		kills += champions[i].Kills;
 		assists += champions[i].Assists;
 		deaths += champions[i].Deaths;
-		if (bestMinutes < champions[i].Minutes) {
-			best = champions[i].champion;
-			bestMinutes = champions[i].Minutes;
-		}
+		champions.sort((a, b) => b.Minutes - a.Minutes); // сортируем
 		switch (getRole(champions[i].champion)) {
 			case 'dmg': role.dmg += champions[i].Minutes;break;
 			case 'flank': role.flank += champions[i].Minutes;break;
@@ -232,18 +392,16 @@ function getKDABP(champions) { // kill, death, assist, больеш всего �
 			case 'tank': role.tank += champions[i].Minutes;break;
 		}
 	}
-	for (let key in role) {
-		if (role[key] > bigs) {bigs = role[key]; bigsRole = key;}
-	}
-	return {k: kills, d: deaths, a: assists, b: best, p: bigsRole, 
+	const best = [champions[0], champions[1], champions[2], champions[3], champions[4]]; // 5 лучших
+	return {k: kills, d: deaths, a: assists, b: best, //p: bigsRole, 
 		dmg: role.dmg, flank: role.flank, heal: role.heal, tank: role.tank}
 }
 
 function getRole(name) { // основываясь на имени персонажа возвращает его роль
 	let heals = ["Mal'Damba", "Ying", "Grover", "Jenos", "Grohk", "Pip", "Seris", "Furia", ],
-		dmgs = ["Lian", "Cassie", "Drogoz", "Strix", "Viktor", "Sha Lin", "Bomb King", "Kinessa", "Tyra", "Vivian", "Willo", "Dredge"],
-		flanks = ["Androxus", "Buck", "Zhin", "Evie", "Koga", "Talus", "Maeve", "Skye", "Lex", ],
-		tanks = ["Makoa", "Fernando", "Ruckus", "Barik", "Ash", "Khan", "Torvald", "Inara", "Terminus", "Moji"];
+		dmgs = ["Lian", "Cassie", "Drogoz", "Strix", "Viktor", "Sha Lin", "Bomb King", "Kinessa", "Tyra", "Vivian", "Willo", "Dredge", "Imani"],
+		flanks = ["Androxus", "Buck", "Zhin", "Evie", "Koga", "Talus", "Maeve", "Skye", "Lex", "Moji"],
+		tanks = ["Makoa", "Fernando", "Ruckus", "Barik", "Ash", "Khan", "Torvald", "Inara", "Terminus", "Atlas"];
 
 	if (heals.find(function(e) {if (e == name) return true;})) return 'heal';
 	if (dmgs.find(function(e) {if (e == name) return true;})) return 'dmg';

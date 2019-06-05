@@ -197,26 +197,24 @@ function DC_stats(m) { // !стата
 		// рисуем диаграмму ->
 		const second = tankDeg + dmgDeg;
 		const third = flankDeg + dmgDeg + tankDeg;
-		if (0 < dmgDeg && dmgDeg < second && second < third && third < 360) {
-			ctx.fillStyle = "#000000";
-			ctx.fillText("Роли:", 540, 20);
-			ctx.fillText(`Урон - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
-			ctx.fillText(`Танк - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
-			ctx.fillText(`Фланг - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
-			ctx.fillText(`Хилл - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
-			drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
-			drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
-			drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
-			drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
-			ctx.fillStyle = "#9966FF";
-			ctx.fillRect(580, 40, 15, 15);
-			ctx.fillStyle = "#3399CC";
-			ctx.fillRect(580, 62, 15, 15);
-			ctx.fillStyle = "#FF6600";
-			ctx.fillRect(580, 84, 15, 15);
-			ctx.fillStyle = "#33CC00";
-			ctx.fillRect(580, 106, 15, 15);
-		}
+		ctx.fillStyle = "#000000";
+		ctx.fillText("Роли:", 540, 20);
+		ctx.fillText(`Урон - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
+		ctx.fillText(`Танк - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
+		ctx.fillText(`Фланг - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
+		ctx.fillText(`Хилл - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
+		if (0 < dmgDeg) drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
+		if (dmgDeg < second) drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
+		if (second < third) drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
+		if (third < 360) drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
+		ctx.fillStyle = "#9966FF";
+		ctx.fillRect(580, 40, 15, 15);
+		ctx.fillStyle = "#3399CC";
+		ctx.fillRect(580, 62, 15, 15);
+		ctx.fillStyle = "#FF6600";
+		ctx.fillRect(580, 84, 15, 15);
+		ctx.fillStyle = "#33CC00";
+		ctx.fillRect(580, 106, 15, 15);
 			
 
 		// любимые чемпионы ->
@@ -231,11 +229,11 @@ function DC_stats(m) { // !стата
 		if (kda.b[4]) ctx.fillText(kda.b[4].Rank, 679, 250);
 		//
 		ctx.fillStyle = "#CC6600";
-		if (kda.b[0]) ctx.fillText(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2), 437, 270);
-		if (kda.b[1]) ctx.fillText(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2), 497, 270);
-		if (kda.b[2]) ctx.fillText(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2), 557, 270);
-		if (kda.b[3]) ctx.fillText(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2), 617, 270);
-		if (kda.b[4]) ctx.fillText(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2), 677, 270);
+		if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2)), 437, 270);
+		if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2)), 497, 270);
+		if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2)), 557, 270);
+		if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2)), 617, 270);
+		if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2)), 677, 270);
 		//
 		ctx.fillStyle = "#003399";
 		if (kda.b[0]) ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290);
@@ -340,6 +338,8 @@ function getRanck(n) { // переводит цифры в ранг
 }
 
 function getWinrate(wins, loses) {
+	if (!wins) return 0;
+	if (!loses) return 100;
 	return (wins / (loses + wins) * 100).toFixed(0);
 }
 

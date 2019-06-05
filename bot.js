@@ -126,7 +126,7 @@ function DC_help(m) { // !помощь
 function DC_stats(m) { // !стата
 	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
 	const name = m.content.slice(indexSpace).trim();
-	if (name != name.replace( /[^A-zА-я0-9]/, '' )) {
+	if (name != name.replace( /[^A-zА-я0-9]/, '' ) || name.length < 4) {
 		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
 	}
 

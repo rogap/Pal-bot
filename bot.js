@@ -337,6 +337,11 @@ function getRanck(n) { // переводит цифры в ранг
 	}
 }
 
+function fixNaN(num) {
+	if (isNaN(num)) return 0;
+	return num;
+}
+
 function getWinrate(wins, loses) {
 	if (!wins) return 0;
 	if (!loses) return 100;

@@ -6,7 +6,7 @@ const fs = require('fs');
 
 let global_func = {}; // готовимся к импорту, после загрузки настроек
 
-const { url_site, dbToken, tokenDiscord, vkToken } = (require('./config.js')).cfg;
+const { url_site, dbToken, tokenDiscord, vkToken } = (require('./configs.js')).cfg;
 const require_stats = (require('./stats.js')).stats(client, dbToken, url_site); // статистика
 
 let ALL_SETTINGS; // переменная где будут лежать все глобальные настройки

@@ -273,7 +273,7 @@ function DC_stats(m) { // !стата
 		}
 
 		function endLoadImg(canvas) { // после удачной или не удачной загрузки
-			saveCanvas(canvas, `name.png`, (name) => {
+			saveCanvas(canvas, `${name}.png`, (name) => {
 				console.log(`File ${name} was created.`);
 				m.channel.send({ // отправляем картинку
 					files: [{

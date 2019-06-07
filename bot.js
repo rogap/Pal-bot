@@ -256,8 +256,8 @@ function DC_stats(m) { // !стата
 			} // иначе
 			urlChampWidth += 60;
 			if (!kda.b[uCount]) return endFunc();
-			const name = fixText(kda.b[uCount].champion);
-			urlChamp = `champions/${name}.jpg`;
+			const championsName = fixText(kda.b[uCount].champion);
+			urlChamp = `champions/${championsName}.jpg`;
 			loadImage(urlChamp)
 			.then(LoadBestChamp);
 		}
@@ -273,7 +273,8 @@ function DC_stats(m) { // !стата
 		}
 
 		function endLoadImg(canvas) { // после удачной или не удачной загрузки
-			saveCanvas(canvas, `${name}.png`, (name) => {
+			const imgName = name + (Math.random() * 1000000 ^ 0);
+			saveCanvas(canvas, `${imgName}.png`, (name) => {
 				console.log(`File ${name} was created.`);
 				m.channel.send({ // отправляем картинку
 					files: [{
@@ -283,7 +284,7 @@ function DC_stats(m) { // !стата
 				}).then(() => { // удаляем локальный файл по окончанию отправки
 					console.log('отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
-						if (err) throw err;
+						if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`);
 						console.log('Лоакальный файл удален.');
 					});
 				}); // записываем историю смс

@@ -126,7 +126,9 @@ function DC_help(m) { // !помощь
 function DC_stats(m) { // !стата
 	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
 	const name = m.content.slice(indexSpace).trim();
-	if (name != name.replace( /[^A-zА-я0-9]/, '' ) || name.length < 4) {
+	//if (name != name.replace( /[^A-zА-я0-9]/, '' ) || name.length < 4) {
+	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+			name.length > 20 || name.length < 4) {
 		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
 	}
 
@@ -285,7 +287,7 @@ function DC_stats(m) { // !стата
 					console.log('отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log('Лоакальный файл удален.');
+						console.log(`Лоакальный файл ${name} удален.`);
 					});
 				}); // записываем историю смс
 			});

@@ -818,8 +818,8 @@ client.on('message', (mess) => { // проверяем сообщения на �
 	const chId = mess.channel.guild.id; // id канала
 
 	const cont = mess.content.trim();
-	if (!checkPermission(mess.channel.id, 'SEND_MESSAGES')) return; // смс писать нельзя - выходим
-	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
+	//if (!checkPermission(mess.channel.id, 'SEND_MESSAGES')) return; // смс писать нельзя - выходим
+	console.log(checkPermission(mess.channel.id, 'SEND_MESSAGES'));	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
 		if ( (mess.content == el && !default_comands[el].params) || // нет параметров и сообщение целиком равно нужному
 			(cont.indexOf(el) == 0 && default_comands[el].params) ) { // команда в начале и есть параметры
 			return default_comands[el].func(mess); // выполняем функцию если найдена команда

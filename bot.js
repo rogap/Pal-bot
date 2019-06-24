@@ -553,7 +553,6 @@ function DC_online(m) { // !онлайн
 	let says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
-	console.log(says.length);
 	if (says.length >= 1800) {
 		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n\r${says}`;
 		says = says.slice(0, 1800) + "...";

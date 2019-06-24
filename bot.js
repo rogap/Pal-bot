@@ -99,7 +99,7 @@ const default_comands = { // стандартные команды для все
 	'!инфо': {
 		func: (m) => {
 			const text = 'Пиши в лс, как только освобожусь - отвечу.';
-			global_func.addBotMess(m.channel.reply(text), m.channel.guild.id, botMess);
+			global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess);
 		},
 		info: "Выводит способ связи с создателем",
 		comand: '!инфо'
@@ -120,7 +120,7 @@ function DC_help(m) { // !помощь
 		});
 		helps_text += `\n**${el + params}** - ${default_comands[el].info};`;
 	});
-	global_func.addBotMess(m.channel.reply(helps_text), m.channel.guild.id, botMess);
+	global_func.addBotMess(m.reply(helps_text), m.channel.guild.id, botMess);
 }
 
 /* <--- !помощь <--- */
@@ -553,7 +553,7 @@ function DC_online(m) { // !онлайн
 	const says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
-	global_func.addBotMess(m.channel.reply(says), m.channel.guild.id, botMess);
+	global_func.addBotMess(m.reply(says), m.channel.guild.id, botMess);
 }
 
 // приложения ->

@@ -550,9 +550,13 @@ function DC_online(m) { // !онлайн
 			} else {game[membersArr[i].presence.game] = 1;}
 		}
 	}
-	const says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
+	дуе says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
+	if (says.length >= 2000) {
+		says = '**(Слишком длинное смс - инфа обрезана!!!)**' + says;
+		says.length = 1999;
+	}
 	global_func.addBotMess(m.reply(says), m.channel.guild.id, botMess);
 }
 

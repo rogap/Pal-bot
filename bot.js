@@ -550,7 +550,7 @@ function DC_online(m) { // !онлайн
 			} else {game[membersArr[i].presence.game] = 1;}
 		}
 	}
-	дуе says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
+	let says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
 	if (says.length >= 2000) {

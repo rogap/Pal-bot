@@ -555,8 +555,8 @@ function DC_online(m) { // !онлайн
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
 	console.log(says.length);
 	if (says.length >= 1800) {
-		says = '**(Слишком длинное смс - инфа обрезана!!!)**' + says;
-		says = says.slice(0, 1800);
+		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n\r${says}`;
+		says = says.slice(0, 1800) + "...";
 	}
 	global_func.addBotMess(m.reply(says), m.channel.guild.id, botMess);
 }

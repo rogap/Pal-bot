@@ -13,6 +13,17 @@ let ALL_SETTINGS; // переменная где будут лежать все 
 let BOT_STARTED = false; // разрешает и блокирует обработку сообщений
 
 
+process.on('uncaughtException', (err) => { // ловит ошибку и записывает в дискорде
+	const client = new Client();
+	const mess = `Ошибка: ${err.stack}.`;
+	client.login(tokenDiscord).then(() => {
+		sendChannel(client, '553489897944645647', err.stack).then(() => {
+			throw err;
+		});
+	});
+});
+
+
 // делает запросы на сайт
 function getSite(params, callback, func_err) {
    params.url = encodeURI(params.url); // кодируем в url
@@ -87,10 +98,8 @@ const default_comands = { // стандартные команды для все
 	},
 	'!инфо': {
 		func: (m) => {
-			const embed = new RichEmbed()
-			.setColor(0x6D44BA)
-			.setDescription("**discord:** https://discord.gg/nM9Xr6D");
-			global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
+			const text = 'Пиши в лс, как только освобожусь - отвечу.';
+			global_func.addBotMess(m.channel.reply(text), m.channel.guild.id, botMess);
 		},
 		info: "Выводит способ связи с создателем",
 		comand: '!инфо'
@@ -809,6 +818,7 @@ client.on('message', (mess) => { // проверяем сообщения на �
 	const chId = mess.channel.guild.id; // id канала
 
 	const cont = mess.content.trim();
+	if (!checkPermission(mess.channel.id, 'SEND_MESSAGES')) return; // смс писать нельзя - выходим
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
 		if ( (mess.content == el && !default_comands[el].params) || // нет параметров и сообщение целиком равно нужному
 			(cont.indexOf(el) == 0 && default_comands[el].params) ) { // команда в начале и есть параметры

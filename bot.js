@@ -47,9 +47,9 @@ function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) 
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!ss', '!игры', '!песа, дай лапку', '!онлайн', 
+	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!ss', '!онлайн', 
 		'!очистить', '!смс', '!переписка'], // для проверки в сообщении
-	comands: ['!помощь', '!инфо', '!стата', '!игры', '!песа, дай лапку', '!онлайн', '!очистить', '!смс', 
+	comands: ['!помощь', '!инфо', '!стата', '!онлайн', '!очистить', '!смс', 
 		'!переписка'], // для вывода в !хелп
 	'!помощь': {
 		func: DC_help,
@@ -62,17 +62,17 @@ const default_comands = { // стандартные команды для все
 		comand: '!стата',
 		params: ['имя']
 	},
-	'!игры': {
+	/*'!игры': {
 		func: DC_game,
 		info: "выводит последнюю ИЛИ указанную по счету ЧИСЛО игру (0 - последняя игра, максимум 9)",
 		comand: '!игры',
 		params: ['имя', 'id']
-	},
-	'!песа, дай лапку': {
+	},*/
+	/*'!песа, дай лапку': {
 		func: DC_dog_says,
 		info: "рандомно дает лапку или посылает куда по дальше (раз в минуту)",
 		comand: '!песа, дай лапку'
-	},
+	},*/
 	'!онлайн': {
 		func: DC_online,
 		info: "выводит статистику пользователей по онлайну и играм",
@@ -120,10 +120,7 @@ function DC_help(m) { // !помощь
 		});
 		helps_text += `\n**${el + params}** - ${default_comands[el].info};`;
 	});
-	const embed = new RichEmbed()
-	.setColor(0x86C539)
-	.setDescription(helps_text);
-	global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
+	global_func.addBotMess(m.channel.reply(helps_text), m.channel.guild.id, botMess);
 }
 
 /* <--- !помощь <--- */
@@ -556,10 +553,7 @@ function DC_online(m) { // !онлайн
 	const says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
-	const embed = new RichEmbed()
-	.setDescription(says)
-	.setColor(0xF4771A);
-	global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
+	global_func.addBotMess(m.channel.reply(says), m.channel.guild.id, botMess);
 }
 
 // приложения ->
@@ -818,7 +812,6 @@ client.on('message', (mess) => { // проверяем сообщения на �
 	const chId = mess.channel.guild.id; // id канала
 
 	const cont = mess.content.trim();
-	console.log(!checkPermission(mess.channel.id, 'SEND_MESSAGES'));
 	if (!checkPermission(mess.channel.id, 'SEND_MESSAGES')) return; // смс писать нельзя - выходим
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
 		if ( (mess.content == el && !default_comands[el].params) || // нет параметров и сообщение целиком равно нужному

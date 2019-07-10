@@ -13,7 +13,7 @@ let ALL_SETTINGS; // переменная где будут лежать все 
 let BOT_STARTED = false; // разрешает и блокирует обработку сообщений
 
 
-process.on('uncaughtException', (err) => { // ловит ошибку и записывает в дискорде
+/*process.on('uncaughtException', (err) => { // ловит ошибку и записывает в дискорде
 	const client = new Client();
 	const mess = `Ошибка: ${err.stack}.`;
 	client.login(tokenDiscord).then(() => {
@@ -21,7 +21,7 @@ process.on('uncaughtException', (err) => { // ловит ошибку и зап�
 			throw err;
 		});
 	});
-});
+});*/
 
 
 // делает запросы на сайт
@@ -555,7 +555,7 @@ function DC_online(m) { // !онлайн
 		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
 	if (says.length >= 1800) {
 		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n${says}`;
-		says = says.slice(0, 1800) + "...";
+		says = says.slice(0, 1800) + " ...";
 	}
 	global_func.addBotMess(m.reply(says), m.channel.guild.id, botMess);
 }

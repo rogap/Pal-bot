@@ -167,39 +167,41 @@ function DC_stats(m) { // !стата
 		const imgHeight = ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
 
 		// canvas...
-		const canvas = createCanvas(750, 310);
+		const canvas = createCanvas(750, 330);
 		const ctx = canvas.getContext('2d');
 		ctx.fillStyle = "#ffffff";
-		ctx.fillRect(0, 0, 750, 310);
+		ctx.fillRect(0, 0, 750, 300);
+		ctx.fillStyle = "#000000";
+		ctx.fillRect(0, 300, 750, 330);
 		ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
 
 		// рисуем инфу ->
-		ctx.fillStyle = "#000000";
 		ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + imgWidth / 2, 20);
-		ctx.fillText(`Уровень: ${main.Level}`, 10 + imgWidth / 2, 40);
-		ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + imgWidth / 2, 60);
-		ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + imgWidth / 2, 80);
-		ctx.fillText(`Последний вход: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 100);
-		ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 120);
+		ctx.fillText(`Steam: ${main.Name}`, 10 + imgWidth / 2, 40);
+		ctx.fillText(`Уровень: ${main.Level}`, 10 + imgWidth / 2, 60);
+		ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + imgWidth / 2, 80);
+		ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + imgWidth / 2, 100);
+		ctx.fillText(`Последний вход: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 120);
+		ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 140);
 		//
-		ctx.fillText(`ВСЕГО:`, 50, 150);
-		ctx.fillText(`Убийства: ${kda.k}`, 10, 170);
-		ctx.fillText(`Смерти: ${kda.d}`, 10, 190);
-		ctx.fillText(`Ассисты: ${kda.a}`, 10, 210);
-		ctx.fillText(`Победы: ${main.Wins}`, 10, 230);
-		ctx.fillText(`Поражения: ${main.Losses}`, 10, 250);
-		ctx.fillText(`Винрейт: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 270);
+		ctx.fillText(`ВСЕГО:`, 50, 170);
+		ctx.fillText(`Убийства: ${kda.k}`, 10, 190);
+		ctx.fillText(`Смерти: ${kda.d}`, 10, 210);
+		ctx.fillText(`Ассисты: ${kda.a}`, 10, 230);
+		ctx.fillText(`Победы: ${main.Wins}`, 10, 250);
+		ctx.fillText(`Поражения: ${main.Losses}`, 10, 270);
+		ctx.fillText(`Винрейт: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290);
 		//
-		ctx.fillText(`РАНКЕД:`, 250, 150);
-		ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 170);
-		ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 190);
-		ctx.fillText(`Ранг: ${getRanck(main.Tier_RankedKBM)}`, 200, 210);
-		ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 230);
-		if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 250);
+		ctx.fillText(`РАНКЕД:`, 250, 170);
+		ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 190);
+		ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 210);
+		ctx.fillText(`Ранг: ${getRanck(main.Tier_RankedKBM)}`, 200, 230);
+		ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 250);
+		if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 270);
 		//
 		ctx.fillStyle = "#00CCFF";
 		ctx.font = 'bold 14px Georgia';
-		ctx.fillText(`Информация взята с playpaladins.online`, 30, 300);
+		ctx.fillText(`Информация взята с playpaladins.online`, 210, 320);
 		ctx.font = 'bold 16px Georgia';
 
 		// рисуем диаграмму ->

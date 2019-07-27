@@ -175,7 +175,7 @@ function DC_stats(m) { // !стата
 
 		// рисуем инфу ->
 		ctx.fillStyle = "#000000";
-		ctx.fillText(`${main.Name} (${main.Region})`, 10 + imgWidth / 2, 20);
+		ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + imgWidth / 2, 20);
 		ctx.fillText(`Уровень: ${main.Level}`, 10 + imgWidth / 2, 40);
 		ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + imgWidth / 2, 60);
 		ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + imgWidth / 2, 80);

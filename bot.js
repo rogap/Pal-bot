@@ -172,12 +172,12 @@ function DC_statsEng(m) {
 		const imgHeight = ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
 
 		// canvas...
-		const canvas = createCanvas(750, 330);
+		const canvas = createCanvas(760, 330);
 		const ctx = canvas.getContext('2d');
 		ctx.fillStyle = "#ffffff";
-		ctx.fillRect(0, 0, 750, 300);
+		ctx.fillRect(0, 0, 760, 300);
 		ctx.fillStyle = "#000000";
-		ctx.fillRect(0, 300, 750, 330);
+		ctx.fillRect(0, 300, 760, 330);
 		ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
 
 		// рисуем инфу ->
@@ -349,12 +349,12 @@ function DC_stats(m) { // !стата
 		const imgHeight = ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
 
 		// canvas...
-		const canvas = createCanvas(750, 330);
+		const canvas = createCanvas(760, 330);
 		const ctx = canvas.getContext('2d');
 		ctx.fillStyle = "#ffffff";
-		ctx.fillRect(0, 0, 750, 300);
+		ctx.fillRect(0, 0, 760, 300);
 		ctx.fillStyle = "#000000";
-		ctx.fillRect(0, 300, 750, 330);
+		ctx.fillRect(0, 300, 760, 330);
 		ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
 
 		// рисуем инфу ->

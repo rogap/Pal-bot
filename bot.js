@@ -201,7 +201,7 @@ function DC_statsEng(m) {
 		ctx.fillText(`Wins: ${RankedKBM.Wins}`, 200, 190);
 		ctx.fillText(`Losses: ${RankedKBM.Losses}`, 200, 210);
 		let myRank = getRanck(main.Tier_RankedKBM);
-		myRank = myRank == 'Калибровка' ? 'Calibration' : myRank;
+		myRank = myRank == 'Калибровка' ? 'Qualification' : myRank;
 		ctx.fillText(`Rank: ${myRank}`, 200, 230);
 		ctx.fillText(`TP: ${RankedKBM.Points}`, 200, 250);
 		if (RankedKBM.Rank) ctx.fillText(`Position: ${RankedKBM.Rank}`, 200, 270);

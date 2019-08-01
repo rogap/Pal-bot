@@ -163,7 +163,7 @@ function DC_viki_ru(m) {
 	getSite({url, json: true}, (r) => {
 		const respText = r.body[2][0];
 		const restUrl = r.body[3][0];
-		if (!respText && restUrl)
+		if (!respText && !restUrl)
 			return global_func.addBotMess(m.reply('Ошибка в тексте запроса. (^2)'), m.channel.guild.id, botMess);
 		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`;
 		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess);
@@ -186,7 +186,7 @@ function DC_viki_en(m) {
 	getSite({url, json: true}, (r) => {
 		const respText = r.body[2][0];
 		const restUrl = r.body[3][0];
-		if (!respText && restUrl)
+		if (!respText && !restUrl)
 			return global_func.addBotMess(m.reply('Error in request text (^2).'), m.channel.guild.id, botMess);
 		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`;
 		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess);

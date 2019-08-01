@@ -47,14 +47,26 @@ function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) 
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь', '!хелпа', '!хелп', '!инфо', '!стата', '!ss', '!es', '!онлайн', 
+	list: ['!помощь', '!хелпа', '!хелп', '!вики', '!viki', '!инфо', '!стата', '!ss', '!es', '!онлайн', 
 		'!очистить', '!смс', '!переписка'], // для проверки в сообщении
-	comands: ['!помощь', '!инфо', '!стата', '!es', '!онлайн', '!очистить', '!смс', 
+	comands: ['!помощь', '!вики', '!viki', '!инфо', '!стата', '!es', '!онлайн', '!очистить', '!смс', 
 		'!переписка'], // для вывода в !хелп
 	'!помощь': {
 		func: DC_help,
 		info: "выводит этот список (так же можно **!хелп** или **!хелпа**)",
 		comand: '!помощь'
+	},
+	'!вики': {
+		func: DC_viki_ru,
+		info: "Осуществляет поиск в **Википедии**",
+		comand: '!вики',
+		params: ['текст']
+	},
+	'!viki': {
+		func: DC_viki_en,
+		info: "Performs a search on **Wikipedia**",
+		comand: '!viki',
+		params: ['text']
 	},
 	'!стата': {
 		func: DC_stats,
@@ -130,6 +142,56 @@ function DC_help(m) { // !помощь
 }
 
 /* <--- !помощь <--- */
+
+
+
+/* ---> !вики ---> */
+
+function DC_viki_ru(m) {
+	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
+	const text = m.content.slice(indexSpace).trim();
+	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`;
+
+	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+			text.length > 20 || text.length < 4) {
+		return global_func.addBotMess(m.reply('Ошибка в тексте запроса.'), m.channel.guild.id, botMess);
+	}
+
+	// проверяем права
+	if (!checkPermission(m.channel.id, 'SEND_MESSAGES')) return; // нет возможности написать смс
+
+	getSite({url, json: true}, (r) => {
+		const respText = r.body[2][0];
+		if (!respText)
+			return global_func.addBotMess(m.reply('Ошибка в тексте запроса. (^2)'), m.channel.guild.id, botMess);
+		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${r.body[3][0]}>**`;
+		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess);
+	});
+}
+
+function DC_viki_en(m) {
+	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
+	const text = m.content.slice(indexSpace).trim();
+	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`;
+
+	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+			text.length > 20 || text.length < 4) {
+		return global_func.addBotMess(m.reply('Error in request text.'), m.channel.guild.id, botMess);
+	}
+
+	// проверяем права
+	if (!checkPermission(m.channel.id, 'SEND_MESSAGES')) return; // нет возможности написать смс
+
+	getSite({url, json: true}, (r) => {
+		const respText = r.body[2][0];
+		if (!respText)
+			return global_func.addBotMess(m.reply('Error in request text (^2).'), m.channel.guild.id, botMess);
+		const returnText = `\r\n>>> ${respText}\r\n**More: <${r.body[3][0]}>**`;
+		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess);
+	});
+}
+
+/* <--- !вики <--- */
 
 
 
@@ -302,7 +364,7 @@ function DC_statsEng(m) {
 					console.log('[en] отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`[en] Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log(`[en] Лоакальный файл ${name} удален.`);
+						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.id}`);
 					});
 				}); // записываем историю смс
 			});
@@ -477,7 +539,7 @@ function DC_stats(m) { // !стата
 					console.log('отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log(`Лоакальный файл ${name} удален.`);
+						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.id}`);
 					});
 				}); // записываем историю смс
 			});

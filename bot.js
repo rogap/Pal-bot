@@ -366,7 +366,7 @@ function DC_statsEng(m) {
 					console.log('[en] отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`[en] Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.id}`);
+						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.id}`);
 					});
 				}); // записываем историю смс
 			});
@@ -541,7 +541,7 @@ function DC_stats(m) { // !стата
 					console.log('отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.id}`);
+						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.id}`);
 					});
 				}); // записываем историю смс
 			});

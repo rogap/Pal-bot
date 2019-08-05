@@ -199,9 +199,11 @@ function DC_viki_en(m) {
 
 /* ---> !стата ---> */
 function DC_statsEng(m) {
-	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
-	const name = m.content.slice(indexSpace).trim();
-	//if (name != name.replace( /[^A-zА-я0-9]/, '' ) || name.length < 4) {
+	const content = m.content;
+	// ищем где заканчивается команда
+	const indexSpace = content.indexOf(' ') == -1 ? content.length : content.indexOf(' ')
+	let name = content.slice(indexSpace).trim();
+	if (!name) name = (m.member.nickname || '').trim();
 	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			name.length > 20 || name.length < 4) {
 		return global_func.addBotMess(m.reply('Error in the name.'), m.channel.guild.id, botMess);
@@ -366,7 +368,7 @@ function DC_statsEng(m) {
 					console.log('[en] отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`[en] Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.id}`);
+						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.name}`);
 					});
 				}); // записываем историю смс
 			});
@@ -376,9 +378,11 @@ function DC_statsEng(m) {
 }
 
 function DC_stats(m) { // !стата
-	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
-	const name = m.content.slice(indexSpace).trim();
-	//if (name != name.replace( /[^A-zА-я0-9]/, '' ) || name.length < 4) {
+	const content = m.content;
+	// ищем где заканчивается команда
+	const indexSpace = content.indexOf(' ') == -1 ? content.length : content.indexOf(' ')
+	let name = content.slice(indexSpace).trim();
+	if (!name) name = (m.member.nickname || '').trim();
 	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			name.length > 20 || name.length < 4) {
 		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
@@ -531,17 +535,17 @@ function DC_stats(m) { // !стата
 		function endLoadImg(canvas) { // после удачной или не удачной загрузки
 			const imgName = name + (Math.random() * 1000000 ^ 0);
 			saveCanvas(canvas, `${imgName}.png`, (name) => {
-				console.log(`File ${name} was created.`);
+				console.log(`[ru] File ${name} was created.`);
 				m.channel.send({ // отправляем картинку
 					files: [{
 						attachment: name,
 						name
 					}]
 				}).then(() => { // удаляем локальный файл по окончанию отправки
-					console.log('отправилось, удаляем локальный файл...');
+					console.log('[ru] отправилось, удаляем локальный файл...');
 					fs.unlink(name, (err) => {
 						if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`);
-						console.log(`[en] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.id}`);
+						console.log(`[ru] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.name}`);
 					});
 				}); // записываем историю смс
 			});

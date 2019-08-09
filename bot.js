@@ -240,91 +240,104 @@ function DC_statsEng(m) {
 		// canvas...
 		const canvas = createCanvas(760, 330);
 		const ctx = canvas.getContext('2d');
-		ctx.fillStyle = "#ffffff";
-		ctx.fillRect(0, 0, 760, 300);
-		ctx.fillStyle = "#000000";
-		ctx.fillRect(0, 300, 760, 330);
-		ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
 
-		// рисуем инфу ->
-		ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + imgWidth / 2, 20);
-		ctx.fillText(`Steam: ${main.Name}`, 10 + imgWidth / 2, 40);
-		ctx.fillText(`Lvl: ${main.Level}`, 10 + imgWidth / 2, 60);
-		ctx.fillText(`Created: ${main.Created_Datetime}`, 10 + imgWidth / 2, 80);
-		ctx.fillText(`Played ${main.HoursPlayed} hours`, 10 + imgWidth / 2, 100);
-		ctx.fillText(`Last login: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 120);
-		ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 140);
-		//
-		ctx.fillText(`TOTAL:`, 50, 170);
-		ctx.fillText(`Kills: ${kda.k}`, 10, 190);
-		ctx.fillText(`Deaths: ${kda.d}`, 10, 210);
-		ctx.fillText(`Assists: ${kda.a}`, 10, 230);
-		ctx.fillText(`Wins: ${main.Wins}`, 10, 250);
-		ctx.fillText(`Losses: ${main.Losses}`, 10, 270);
-		ctx.fillText(`Winrate: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290);
-		//
-		ctx.fillText(`RANKED:`, 250, 170);
-		ctx.fillText(`Wins: ${RankedKBM.Wins}`, 200, 190);
-		ctx.fillText(`Losses: ${RankedKBM.Losses}`, 200, 210);
-		let myRank = getRanck(main.Tier_RankedKBM);
-		myRank = myRank == 'Калибровка' ? 'Qualification' : myRank;
-		ctx.fillText(`Rank: ${myRank}`, 200, 230);
-		ctx.fillText(`TP: ${RankedKBM.Points}`, 200, 250);
-		if (RankedKBM.Rank) ctx.fillText(`Position: ${RankedKBM.Rank}`, 200, 270);
-		//
-		ctx.fillStyle = "#00CCFF";
-		ctx.font = 'bold 14px Georgia';
-		ctx.fillText(`Info taken from playpaladins.online`, 210, 320);
-		ctx.font = 'bold 16px Georgia';
+		// загружаем глобальный фон для статы
+		const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон
+		loadImage(`stats-img/stats-background-${randBackground}.jpg`)
+		.then((img) => {
+			ctx.drawImage(img, 0, 0, 760, 300);
+			goNext()
+		})
+		.catch((e) => {
+			console.log(`Ошибка загрузки фона...\r\n${e}`)
+		})
 
-		// рисуем диаграмму ->
-		const second = tankDeg + dmgDeg;
-		const third = flankDeg + dmgDeg + tankDeg;
-		ctx.fillStyle = "#000000";
-		ctx.fillText("Roles:", 540, 20);
-		ctx.fillText(`Damage - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
-		ctx.fillText(`Tank - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
-		ctx.fillText(`flank - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
-		ctx.fillText(`Heal - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
-		if (0 < dmgDeg) drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
-		if (dmgDeg < second) drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
-		if (second < third) drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
-		if (third < 360) drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
-		ctx.fillStyle = "#9966FF";
-		ctx.fillRect(580, 40, 15, 15);
-		ctx.fillStyle = "#3399CC";
-		ctx.fillRect(580, 62, 15, 15);
-		ctx.fillStyle = "#FF6600";
-		ctx.fillRect(580, 84, 15, 15);
-		ctx.fillStyle = "#33CC00";
-		ctx.fillRect(580, 106, 15, 15);
-			
+		function goNext() { // пишем текст после загрузки фона
+			ctx.fillStyle = "#000000";
+			ctx.fillRect(0, 300, 760, 330);
+			ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
+			ctx.fillStyle = "#dddddd";
+			// рисуем инфу ->
+			ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + imgWidth / 2, 20);
+			ctx.fillText(`Steam: ${main.Name}`, 10 + imgWidth / 2, 40);
+			ctx.fillText(`Lvl: ${main.Level}`, 10 + imgWidth / 2, 60);
+			ctx.fillText(`Created: ${main.Created_Datetime}`, 10 + imgWidth / 2, 80);
+			ctx.fillText(`Played ${main.HoursPlayed} hours`, 10 + imgWidth / 2, 100);
+			ctx.fillText(`Last login: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 120);
+			ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 140);
+			//
+			ctx.fillText(`TOTAL:`, 50, 170);
+			ctx.fillText(`Kills: ${kda.k}`, 10, 190);
+			ctx.fillText(`Deaths: ${kda.d}`, 10, 210);
+			ctx.fillText(`Assists: ${kda.a}`, 10, 230);
+			ctx.fillText(`Wins: ${main.Wins}`, 10, 250);
+			ctx.fillText(`Losses: ${main.Losses}`, 10, 270);
+			ctx.fillText(`Winrate: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290);
+			//
+			ctx.fillText(`RANKED:`, 250, 170);
+			ctx.fillText(`Wins: ${RankedKBM.Wins}`, 200, 190);
+			ctx.fillText(`Losses: ${RankedKBM.Losses}`, 200, 210);
+			let myRank = getRanck(main.Tier_RankedKBM);
+			myRank = myRank == 'Калибровка' ? 'Qualification' : myRank;
+			ctx.fillText(`Rank: ${myRank}`, 200, 230);
+			ctx.fillText(`TP: ${RankedKBM.Points}`, 200, 250);
+			if (RankedKBM.Rank) ctx.fillText(`Position: ${RankedKBM.Rank}`, 200, 270);
+			//
+			ctx.fillStyle = "#00CCFF";
+			ctx.font = 'bold 14px Georgia';
+			ctx.fillText(`Info taken from playpaladins.online`, 210, 320);
+			ctx.font = 'bold 16px Georgia';
 
-		// любимые чемпионы ->
-		ctx.fillStyle = "#000000";
-		ctx.fillText("FAVORITE CHAMPIONS:", 480, 160);
-		//
-		ctx.fillStyle = "#006600";
-		if (kda.b[0]) ctx.fillText(kda.b[0].Rank, 439, 250);
-		if (kda.b[1]) ctx.fillText(kda.b[1].Rank, 499, 250);
-		if (kda.b[2]) ctx.fillText(kda.b[2].Rank, 559, 250);
-		if (kda.b[3]) ctx.fillText(kda.b[3].Rank, 619, 250);
-		if (kda.b[4]) ctx.fillText(kda.b[4].Rank, 679, 250);
-		//
-		ctx.fillStyle = "#CC6600";
-		if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2)), 437, 270);
-		if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2)), 497, 270);
-		if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2)), 557, 270);
-		if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2)), 617, 270);
-		if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2)), 677, 270);
-		//
-		ctx.fillStyle = "#003399";
-		if (kda.b[0]) ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290);
-		if (kda.b[1]) ctx.fillText(`${getWinrate(kda.b[1].Wins, kda.b[1].Losses)}%`, 497, 290);
-		if (kda.b[2]) ctx.fillText(`${getWinrate(kda.b[2].Wins, kda.b[2].Losses)}%`, 557, 290);
-		if (kda.b[3]) ctx.fillText(`${getWinrate(kda.b[3].Wins, kda.b[3].Losses)}%`, 617, 290);
-		if (kda.b[4]) ctx.fillText(`${getWinrate(kda.b[4].Wins, kda.b[4].Losses)}%`, 677, 290);
+			// рисуем диаграмму ->
+			const second = tankDeg + dmgDeg;
+			const third = flankDeg + dmgDeg + tankDeg;
+			ctx.fillStyle = "#dddddd";
+			ctx.fillText("Roles:", 540, 20);
+			ctx.fillText(`Damage - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
+			ctx.fillText(`Tank - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
+			ctx.fillText(`flank - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
+			ctx.fillText(`Heal - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
+			if (0 < dmgDeg) drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
+			if (dmgDeg < second) drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
+			if (second < third) drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
+			if (third < 360) drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
+			ctx.fillStyle = "#9966FF";
+			ctx.fillRect(580, 40, 15, 15);
+			ctx.fillStyle = "#3399CC";
+			ctx.fillRect(580, 62, 15, 15);
+			ctx.fillStyle = "#FF6600";
+			ctx.fillRect(580, 84, 15, 15);
+			ctx.fillStyle = "#33CC00";
+			ctx.fillRect(580, 106, 15, 15);
+				
 
+			// любимые чемпионы ->
+			ctx.fillStyle = "#dddddd";
+			ctx.fillText("FAVORITE CHAMPIONS:", 480, 160);
+			//
+			ctx.fillStyle = "#009900";
+			if (kda.b[0]) ctx.fillText(kda.b[0].Rank, 439, 250);
+			if (kda.b[1]) ctx.fillText(kda.b[1].Rank, 499, 250);
+			if (kda.b[2]) ctx.fillText(kda.b[2].Rank, 559, 250);
+			if (kda.b[3]) ctx.fillText(kda.b[3].Rank, 619, 250);
+			if (kda.b[4]) ctx.fillText(kda.b[4].Rank, 679, 250);
+			//
+			ctx.fillStyle = "#CC6600";
+			if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2)), 437, 270);
+			if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2)), 497, 270);
+			if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2)), 557, 270);
+			if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2)), 617, 270);
+			if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2)), 677, 270);
+			//
+			ctx.fillStyle = "#0088bb";
+			if (kda.b[0]) ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290);
+			if (kda.b[1]) ctx.fillText(`${getWinrate(kda.b[1].Wins, kda.b[1].Losses)}%`, 497, 290);
+			if (kda.b[2]) ctx.fillText(`${getWinrate(kda.b[2].Wins, kda.b[2].Losses)}%`, 557, 290);
+			if (kda.b[3]) ctx.fillText(`${getWinrate(kda.b[3].Wins, kda.b[3].Losses)}%`, 617, 290);
+			if (kda.b[4]) ctx.fillText(`${getWinrate(kda.b[4].Wins, kda.b[4].Losses)}%`, 677, 290);
+		}
+
+		// загружаем другие изображения
 		let uCount = 0;
 		let urlChampWidth = 430;
 		let urlChamp = `champions/${fixText(kda.b[uCount].champion)}.jpg`;
@@ -419,89 +432,103 @@ function DC_stats(m) { // !стата
 		// canvas...
 		const canvas = createCanvas(760, 330);
 		const ctx = canvas.getContext('2d');
-		ctx.fillStyle = "#ffffff";
-		ctx.fillRect(0, 0, 760, 300);
-		ctx.fillStyle = "#000000";
-		ctx.fillRect(0, 300, 760, 330);
-		ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
+		
+		// загружаем глобальный фон для статы
+		const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон
+		loadImage(`stats-img/stats-background-${randBackground}.jpg`)
+		.then((img) => {
+			ctx.drawImage(img, 0, 0, 760, 300);
+			goNext()
+		})
+		.catch((e) => {
+			console.log(`Ошибка загрузки фона...\r\n${e}`)
+		})
 
-		// рисуем инфу ->
-		ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + imgWidth / 2, 20);
-		ctx.fillText(`Steam: ${main.Name}`, 10 + imgWidth / 2, 40);
-		ctx.fillText(`Уровень: ${main.Level}`, 10 + imgWidth / 2, 60);
-		ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + imgWidth / 2, 80);
-		ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + imgWidth / 2, 100);
-		ctx.fillText(`Последний вход: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 120);
-		ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 140);
-		//
-		ctx.fillText(`ВСЕГО:`, 50, 170);
-		ctx.fillText(`Убийства: ${kda.k}`, 10, 190);
-		ctx.fillText(`Смерти: ${kda.d}`, 10, 210);
-		ctx.fillText(`Ассисты: ${kda.a}`, 10, 230);
-		ctx.fillText(`Победы: ${main.Wins}`, 10, 250);
-		ctx.fillText(`Поражения: ${main.Losses}`, 10, 270);
-		ctx.fillText(`Винрейт: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290);
-		//
-		ctx.fillText(`РАНКЕД:`, 250, 170);
-		ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 190);
-		ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 210);
-		ctx.fillText(`Ранг: ${getRanck(main.Tier_RankedKBM)}`, 200, 230);
-		ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 250);
-		if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 270);
-		//
-		ctx.fillStyle = "#00CCFF";
-		ctx.font = 'bold 14px Georgia';
-		ctx.fillText(`Информация взята с playpaladins.online`, 210, 320);
-		ctx.font = 'bold 16px Georgia';
+		function goNext() { // пишем текст после загрузки фона
+			ctx.fillStyle = "#000000";
+			ctx.fillRect(0, 300, 760, 330);
+			ctx.font = 'bold 16px Georgia'; // Franklin Gothic Medium
+			ctx.fillStyle = "#dddddd";
 
-		// рисуем диаграмму ->
-		const second = tankDeg + dmgDeg;
-		const third = flankDeg + dmgDeg + tankDeg;
-		ctx.fillStyle = "#000000";
-		ctx.fillText("Роли:", 540, 20);
-		ctx.fillText(`Урон - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
-		ctx.fillText(`Танк - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
-		ctx.fillText(`Фланг - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
-		ctx.fillText(`Хилл - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
-		if (0 < dmgDeg) drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
-		if (dmgDeg < second) drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
-		if (second < third) drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
-		if (third < 360) drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
-		ctx.fillStyle = "#9966FF";
-		ctx.fillRect(580, 40, 15, 15);
-		ctx.fillStyle = "#3399CC";
-		ctx.fillRect(580, 62, 15, 15);
-		ctx.fillStyle = "#FF6600";
-		ctx.fillRect(580, 84, 15, 15);
-		ctx.fillStyle = "#33CC00";
-		ctx.fillRect(580, 106, 15, 15);
-			
+			// рисуем инфу ->
+			ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + imgWidth / 2, 20);
+			ctx.fillText(`Steam: ${main.Name}`, 10 + imgWidth / 2, 40);
+			ctx.fillText(`Уровень: ${main.Level}`, 10 + imgWidth / 2, 60);
+			ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + imgWidth / 2, 80);
+			ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + imgWidth / 2, 100);
+			ctx.fillText(`Последний вход: ${main.Last_Login_Datetime}`, 10 + imgWidth / 2, 120);
+			ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + imgWidth / 2, 140);
+			//
+			ctx.fillText(`ВСЕГО:`, 50, 170);
+			ctx.fillText(`Убийств: ${kda.k}`, 10, 190);
+			ctx.fillText(`Смертей: ${kda.d}`, 10, 210);
+			ctx.fillText(`Ассистов: ${kda.a}`, 10, 230);
+			ctx.fillText(`Побед: ${main.Wins}`, 10, 250);
+			ctx.fillText(`Поражений: ${main.Losses}`, 10, 270);
+			ctx.fillText(`Винрейт: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290);
+			//
+			ctx.fillText(`РАНКЕД:`, 250, 170);
+			ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 190);
+			ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 210);
+			ctx.fillText(`Ранг: ${getRanck(main.Tier_RankedKBM)}`, 200, 230);
+			ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 250);
+			if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 270);
+			//
+			ctx.fillStyle = "#00CCFF";
+			ctx.font = 'bold 14px Georgia';
+			ctx.fillText(`Информация взята с playpaladins.online`, 210, 320);
+			ctx.font = 'bold 16px Georgia';
 
-		// любимые чемпионы ->
-		ctx.fillStyle = "#000000";
-		ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 480, 160);
-		//
-		ctx.fillStyle = "#006600";
-		if (kda.b[0]) ctx.fillText(kda.b[0].Rank, 439, 250);
-		if (kda.b[1]) ctx.fillText(kda.b[1].Rank, 499, 250);
-		if (kda.b[2]) ctx.fillText(kda.b[2].Rank, 559, 250);
-		if (kda.b[3]) ctx.fillText(kda.b[3].Rank, 619, 250);
-		if (kda.b[4]) ctx.fillText(kda.b[4].Rank, 679, 250);
-		//
-		ctx.fillStyle = "#CC6600";
-		if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2)), 437, 270);
-		if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2)), 497, 270);
-		if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2)), 557, 270);
-		if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2)), 617, 270);
-		if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2)), 677, 270);
-		//
-		ctx.fillStyle = "#003399";
-		if (kda.b[0]) ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290);
-		if (kda.b[1]) ctx.fillText(`${getWinrate(kda.b[1].Wins, kda.b[1].Losses)}%`, 497, 290);
-		if (kda.b[2]) ctx.fillText(`${getWinrate(kda.b[2].Wins, kda.b[2].Losses)}%`, 557, 290);
-		if (kda.b[3]) ctx.fillText(`${getWinrate(kda.b[3].Wins, kda.b[3].Losses)}%`, 617, 290);
-		if (kda.b[4]) ctx.fillText(`${getWinrate(kda.b[4].Wins, kda.b[4].Losses)}%`, 677, 290);
+			// рисуем диаграмму ->
+			const second = tankDeg + dmgDeg;
+			const third = flankDeg + dmgDeg + tankDeg;
+			ctx.fillStyle = "#dddddd";
+			ctx.fillText("Роли:", 540, 20);
+			ctx.fillText(`Урон - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
+			ctx.fillText(`Танк - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
+			ctx.fillText(`Фланг - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
+			ctx.fillText(`Хилл - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
+			if (0 < dmgDeg) drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF");
+			if (dmgDeg < second) drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC");
+			if (second < third) drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600");
+			if (third < 360) drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00");
+			ctx.fillStyle = "#9966FF";
+			ctx.fillRect(580, 40, 15, 15);
+			ctx.fillStyle = "#3399CC";
+			ctx.fillRect(580, 62, 15, 15);
+			ctx.fillStyle = "#FF6600";
+			ctx.fillRect(580, 84, 15, 15);
+			ctx.fillStyle = "#33CC00";
+			ctx.fillRect(580, 106, 15, 15);
+				
 
+			// любимые чемпионы ->
+			ctx.fillStyle = "#dddddd";
+			ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 480, 160);
+			//
+			ctx.fillStyle = "#009900";
+			if (kda.b[0]) ctx.fillText(kda.b[0].Rank, 439, 250);
+			if (kda.b[1]) ctx.fillText(kda.b[1].Rank, 499, 250);
+			if (kda.b[2]) ctx.fillText(kda.b[2].Rank, 559, 250);
+			if (kda.b[3]) ctx.fillText(kda.b[3].Rank, 619, 250);
+			if (kda.b[4]) ctx.fillText(kda.b[4].Rank, 679, 250);
+			//
+			ctx.fillStyle = "#CC6600";
+			if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2)), 437, 270);
+			if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2)), 497, 270);
+			if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2)), 557, 270);
+			if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2)), 617, 270);
+			if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2)), 677, 270);
+			//
+			ctx.fillStyle = "#0088bb";
+			if (kda.b[0]) ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290);
+			if (kda.b[1]) ctx.fillText(`${getWinrate(kda.b[1].Wins, kda.b[1].Losses)}%`, 497, 290);
+			if (kda.b[2]) ctx.fillText(`${getWinrate(kda.b[2].Wins, kda.b[2].Losses)}%`, 557, 290);
+			if (kda.b[3]) ctx.fillText(`${getWinrate(kda.b[3].Wins, kda.b[3].Losses)}%`, 617, 290);
+			if (kda.b[4]) ctx.fillText(`${getWinrate(kda.b[4].Wins, kda.b[4].Losses)}%`, 677, 290);
+		}
+
+		// загружаем другие изображения
 		let uCount = 0;
 		let urlChampWidth = 430;
 		let urlChamp = `champions/${fixText(kda.b[uCount].champion)}.jpg`;

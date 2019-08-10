@@ -235,7 +235,7 @@ function DC_statsEng(m) {
 		// data загружаемой картинки ранга
 		const imgUrl = ranckNum ? `https://playpaladins.online/images/Divisions/${ranckNum}.png` : 'no-rank.png';
 		const imgWidth = 192;
-		const imgHeight = ranckNum == 0 ? 232 : ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
+		const imgHeight = ranckNum == 0 ? 224 : ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
 
 		// canvas...
 		const canvas = createCanvas(760, 330);
@@ -427,7 +427,7 @@ function DC_stats(m) { // !стата
 		// data загружаемой картинки ранга
 		const imgUrl = ranckNum ? `https://playpaladins.online/images/Divisions/${ranckNum}.png` : 'no-rank.png';
 		const imgWidth = 192;
-		const imgHeight = ranckNum == 0 ? 232 : ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
+		const imgHeight = ranckNum == 0 ? 224 : ranckNum == 27 ? 241 : ranckNum == 26 ? 221 : 192;
 
 		// canvas...
 		const canvas = createCanvas(760, 330);

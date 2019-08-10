@@ -38,6 +38,12 @@ function getSite(params, callback, func_err) {
 }
 
 
+function getDateStats(d) {
+	return new Date(d).toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric', 
+		hour: 'numeric', minute: 'numeric', timeZone: "UTC", hour12: false})
+}
+
+
 // проверяем права пользователя на указаном канале
 function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) {
 	return client.channels.get(clannel).permissionsFor(user).has(permission);
@@ -369,9 +375,9 @@ function textEn(ctx, main, kda, width, totalTime) {
 	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20);
 	ctx.fillText(`Steam: ${main.Name}`, 10 + width / 2, 40);
 	ctx.fillText(`Lvl: ${main.Level}`, 10 + width / 2, 60);
-	ctx.fillText(`Created: ${main.Created_Datetime}`, 10 + width / 2, 80);
+	ctx.fillText(`Created: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80);
 	ctx.fillText(`Played ${main.HoursPlayed} hours`, 10 + width / 2, 100);
-	ctx.fillText(`Last login: ${main.Last_Login_Datetime}`, 10 + width / 2, 120);
+	ctx.fillText(`Last login: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120);
 	ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + width / 2, 140);
 
 	ctx.fillText(`TOTAL:`, 50, 170);
@@ -414,9 +420,9 @@ function textRu(ctx, main, kda, width, totalTime) {
 	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20)
 	ctx.fillText(`Steam: ${main.Name}`, 10 + width / 2, 40)
 	ctx.fillText(`Уровень: ${main.Level}`, 10 + width / 2, 60)
-	ctx.fillText(`Создан: ${main.Created_Datetime}`, 10 + width / 2, 80)
+	ctx.fillText(`Создан: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80)
 	ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + width / 2, 100)
-	ctx.fillText(`Последний вход: ${main.Last_Login_Datetime}`, 10 + width / 2, 120)
+	ctx.fillText(`Последний вход: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120)
 	ctx.fillText(`KDA: ${( (kda.k + kda.a / 2) / kda.d).toFixed(2)}`, 10 + width / 2, 140)
 
 	ctx.fillText(`ВСЕГО:`, 50, 170)
@@ -939,18 +945,18 @@ function get_vk_messages(m) { // !переписка
 					const vk = vk_messages[i];
 					if (vk.peer_id < 0) { // если диалог с группой (не беседа)
 						let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
-						answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_groups[(vk.peer_id + '').slice(1)].name} ` + 
+						answerText += `(${getDateVK(vk.date)}) **${fromTo} - ${obj_groups[(vk.peer_id + '').slice(1)].name} ` + 
 							`:** ${dellHppt(vk.text)}\n`;
 					} else {
 						if (vk.action != undefined) { // события в группах
-							answerText += `(${getDate(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
+							answerText += `(${getDateVK(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
 						} else {
 							let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
 
 							if ((vk.peer_id + '').indexOf('200000000') != -1) fromTo = `[Группа ${(vk.peer_id + '').slice(9)}]`;
 							const vkID = (vk.peer_id + '').indexOf('200000000') != -1 ? vk.from_id : vk.peer_id;
 
-							answerText += `(${getDate(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
+							answerText += `(${getDateVK(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
 								`${obj_profiles[vkID].last_name}:** ${dellHppt(vk.text)}\n`;
 						}
 					}
@@ -988,7 +994,7 @@ function dellHppt(text) { // вырезает все http:// и https://
 
 const checkVkListMembers = []; // список id людей которые отправили уже смс в вк
 
-function getDate(d) { // получаем нужный вид даты
+function getDateVK(d) { // получаем нужный вид даты
 	d *= 1000;
 	return new Date(d).toLocaleString("ru", {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
 }

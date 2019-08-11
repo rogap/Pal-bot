@@ -352,7 +352,7 @@ function sendStats(canvas, name, m, lang, content="") { // после удачн
 				name
 			}]
 		}).then(() => { // удаляем локальный файл по окончанию отправки
-			console.log('[${lang}] отправилось, удаляем локальный файл...')
+			console.log(`[${lang}] отправилось, удаляем локальный файл...`)
 			fs.unlink(name, (err) => {
 				if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`)
 				console.log(`[${lang}] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.name}`)

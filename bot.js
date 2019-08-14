@@ -25,10 +25,10 @@ let BOT_STARTED = false; // разрешает и блокирует обраб�
 
 
 // делает запросы на сайт
-function getSite(params, callback, func_err) {
+function getSite(params, callback=()=>{}, func_err=()=>{}) {
    params.url = encodeURI(params.url); // кодируем в url
    const sendData = params.method == "POST" ? request.post : request.get;
-   sendData(params, function (error, response, body){
+   sendData(params, function (error, response, body) {
       if (error) {
          func_err(error, params);
       } else {

@@ -708,23 +708,24 @@ function getHistory(lang, m, name, r) {
 
 
 	// canvas...
-	const canvas = createCanvas(1130, 590)
+	const imgWidth = 1150
+	const canvas = createCanvas(imgWidth, 590)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 15px Georgia'
 
 	// точки Х начала рисования меню и его эллементов
-	const positionMenu = [70, 220, 330, 410, 530, 630, 680, 780, 860, 940, 1050]
+	const positionMenu = [70, 220, 330, 410, 540, 640, 690, 790, 870, 950, 1060]
 
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 0, 1140, 30)
-	ctx.fillRect(0, 560, 1140, 590)
+	ctx.fillRect(0, 0, imgWidth, 30)
+	ctx.fillRect(0, 560, imgWidth, 590)
 	ctx.fillStyle = "#dddddd"
 
 	// загружаем случайный глобальный фон для статы
 	const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
 	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
 	.then((img) => {
-		ctx.drawImage(img, 0, 30, 1140, 530)
+		ctx.drawImage(img, 0, 30, imgWidth, 530)
 		// рисуем эллементы (то что неизменно от языка)
 		drawItemsHistory(ctx, matches, positionMenu)
 
@@ -856,13 +857,12 @@ function textHistoryEn(ctx, matches, pos) {
 
 		const getQueue = item.Queue
 		const queue = getQueue == "Siege Training" ? "Siege (B)" : 
-			getQueue == "Onslaught" ? "Onslaught" : 
 			getQueue == "Onslaught Training" ? "Onslaught (B)" : 
 			getQueue == "Team Deathmatch" ? "Deathmatch" : 
 			getQueue == "Team Deathmatch Training" ? "Deathmatch (B)" : getQueue
 
 		ctx.fillText(`${item.Win_Status}`, pos[1], 52 * i + 60) // сатус
-		ctx.fillText(`${item.Queue}`, pos[3], 52 * i + 60) // тип
+		ctx.fillText(`${queue}`, pos[3], 52 * i + 60) // тип
 	}
 }
 

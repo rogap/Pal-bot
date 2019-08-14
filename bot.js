@@ -751,7 +751,7 @@ function drawItemsHistory(ctx, matches) {
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
-		const kda = ((item.Kills + item.Assists / 2) / item.Deaths).toFixed(2)
+		const kda = ((item.Kills + item.Assists / 2) / (item.Deaths || 1)).toFixed(2)
 
 		ctx.fillStyle = "#dddddd"
 		ctx.fillText(`${ getDateStats(item.Match_Time) }`, 70, 52 * i + 60)
@@ -801,7 +801,6 @@ function textHistoryRu(ctx, matches) {
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
-		const kda = ((item.Kills + item.Assists / 2) / item.Deaths).toFixed(2)
 
 		const getStats = item.Win_Status
 		const status = getStats == "Win" ? "Победа" : getStats == "Loss" ? "Поражение" : "-"
@@ -844,7 +843,6 @@ function textHistoryEn(ctx, matches) {
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
-		const kda = ((item.Kills + item.Assists / 2) / item.Deaths).toFixed(2)
 
 		ctx.fillText(`${item.Win_Status}`, 220, 52 * i + 60) // сатус
 		ctx.fillText(`${item.Queue}`, 410, 52 * i + 60) // тип

@@ -855,13 +855,18 @@ function textHistoryEn(ctx, matches, pos) {
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
 
+		const getStats = item.Win_Status
+		const statusColor = getStats == "Win" ? "#00bb00" : "#bb0000"
+
 		const getQueue = item.Queue
 		const queue = getQueue == "Siege Training" ? "Siege (B)" : 
 			getQueue == "Onslaught Training" ? "Onslaught (B)" : 
 			getQueue == "Team Deathmatch" ? "Deathmatch" : 
 			getQueue == "Team Deathmatch Training" ? "Deathmatch (B)" : getQueue
 
+		ctx.fillStyle = statusColor
 		ctx.fillText(`${item.Win_Status}`, pos[1], 52 * i + 60) // сатус
+		ctx.fillStyle = "#dddddd"
 		ctx.fillText(`${queue}`, pos[3], 52 * i + 60) // тип
 	}
 }

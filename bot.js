@@ -90,13 +90,13 @@ const default_comands = { // стандартные команды для все
 		func: DC_history,
 		info: "отображает последние 10 матчей из истории указанного игрока",
 		comand: '!история',
-		params: ['имя', 'id']
+		params: ['имя']
 	},
 	'!history': {
 		func: DC_history,
 		info: "displays the last 10 matches from the history of the specified player",
 		comand: '!history',
-		params: ['имя', 'id']
+		params: ['имя']
 	},
 	/*'!песа, дай лапку': {
 		func: DC_dog_says,

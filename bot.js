@@ -722,12 +722,12 @@ function getHistory(lang, m, name, r) {
 	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
 	.then((img) => {
 		ctx.drawImage(img, 0, 30, 1090, 530)
-		// рисуем эллементы (то что неизменно от языка)
-		drawItemsHistory(ctx, matches)
+			// рисуем эллементы (то что неизменно от языка)
+			drawItemsHistory(ctx, matches)
 
-		// получаем функцию нужного текста и рисуем текст
-		const drawText = lang == "ru" ? textHistoryRu : textHistoryEn
-		drawText(ctx, matches)
+			// получаем функцию нужного текста и рисуем текст
+			const drawText = lang == "ru" ? textHistoryRu : textHistoryEn
+			drawText(ctx, matches)
 	}).catch((e) => {
 		console.log(`Ошибка загрузки фона...\r\n${e}`)
 	})

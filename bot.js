@@ -710,7 +710,7 @@ function getHistory(lang, m, name, r) {
 	// canvas...
 	const canvas = createCanvas(1090, 590)
 	const ctx = canvas.getContext('2d')
-	ctx.font = 'bold 16px Georgia'
+	ctx.font = 'bold 15px Georgia'
 
 	ctx.fillStyle = "#000000"
 	ctx.fillRect(0, 560, 1090, 590)
@@ -779,7 +779,7 @@ function textHistoryRu(ctx, matches) {
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
 	ctx.fillText(`Информация взята с playpaladins.online`, 545, 580)
-	ctx.font = 'bold 16px Georgia'
+	ctx.font = 'bold 15px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
 
@@ -822,7 +822,7 @@ function textHistoryEn(ctx, matches) {
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
 	ctx.fillText(`Info taken from playpaladins.online`, 545, 580)
-	ctx.font = 'bold 16px Georgia'
+	ctx.font = 'bold 15px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
 

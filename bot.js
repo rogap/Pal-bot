@@ -720,7 +720,7 @@ function getHistory(lang, m, name, r) {
 	const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
 	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
 	.then((img) => {
-		ctx.drawImage(img, 0, 0, 1090, 560)
+		ctx.drawImage(img, 0, 30, 1090, 560)
 			// рисуем эллементы (то что неизменно от языка)
 			drawItemsHistory(ctx, matches)
 
@@ -747,6 +747,9 @@ function getHistory(lang, m, name, r) {
 
 
 function drawItemsHistory(ctx, matches) {
+	ctx.fillStyle = "000000"
+	ctx.fillRect(0, 0, 1090, 30)
+
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]

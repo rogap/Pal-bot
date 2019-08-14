@@ -708,26 +708,26 @@ function getHistory(lang, m, name, r) {
 
 
 	// canvas...
-	const canvas = createCanvas(1090, 590)
+	const canvas = createCanvas(1110, 590)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 15px Georgia'
 
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 0, 1090, 30)
-	ctx.fillRect(0, 560, 1090, 590)
+	ctx.fillRect(0, 0, 1110, 30)
+	ctx.fillRect(0, 560, 1110, 590)
 	ctx.fillStyle = "#dddddd"
 
 	// загружаем случайный глобальный фон для статы
 	const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
 	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
 	.then((img) => {
-		ctx.drawImage(img, 0, 30, 1090, 530)
-			// рисуем эллементы (то что неизменно от языка)
-			drawItemsHistory(ctx, matches)
+		ctx.drawImage(img, 0, 30, 1110, 530)
+		// рисуем эллементы (то что неизменно от языка)
+		drawItemsHistory(ctx, matches)
 
-			// получаем функцию нужного текста и рисуем текст
-			const drawText = lang == "ru" ? textHistoryRu : textHistoryEn
-			drawText(ctx, matches)
+		// получаем функцию нужного текста и рисуем текст
+		const drawText = lang == "ru" ? textHistoryRu : textHistoryEn
+		drawText(ctx, matches)
 	}).catch((e) => {
 		console.log(`Ошибка загрузки фона...\r\n${e}`)
 	})
@@ -760,17 +760,17 @@ function drawItemsHistory(ctx, matches) {
 		ctx.fillText(`${ secToMin(item.Time_In_Match_Seconds) }`, 330, 52 * i + 60)
 		ctx.fillStyle = "#dddddd"
 		// тип пропускаем
-		ctx.fillText(`${item.Match}`, 490, 52 * i + 60) // id
+		ctx.fillText(`${item.Match}`, 510, 52 * i + 60) // id
 		ctx.fillStyle = "#CC6600"
-		ctx.fillText(`${kda}`, 590, 52 * i + 60)
+		ctx.fillText(`${kda}`, 610, 52 * i + 60)
 		ctx.fillStyle = "#9966FF"
-		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, 640, 52 * i + 60)
+		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, 660, 52 * i + 60)
 		ctx.fillStyle = "#dddddd"
-		ctx.fillText(`${item.Damage}`, 740, 52 * i + 60)
-		ctx.fillText(`${item.Damage_Mitigated}`, 820, 52 * i + 60)
-		ctx.fillText(`${item.Healing}`, 900, 52 * i + 60)
+		ctx.fillText(`${item.Damage}`, 760, 52 * i + 60)
+		ctx.fillText(`${item.Damage_Mitigated}`, 840, 52 * i + 60)
+		ctx.fillText(`${item.Healing}`, 920, 52 * i + 60)
 		ctx.fillStyle = "#CC6600"
-		ctx.fillText(`${item.Gold}`, 1000, 52 * i + 60)
+		ctx.fillText(`${item.Gold}`, 1020, 52 * i + 60)
 	}
 }
 
@@ -789,13 +789,13 @@ function textHistoryRu(ctx, matches) {
 	ctx.fillText(`Статус`, 220, 20)
 	ctx.fillText(`Время`, 330, 20)
 	ctx.fillText(`Режим`, 410, 20)
-	ctx.fillText(`id матча`, 490, 20)
-	ctx.fillText(`КДА`, 590, 20)
-	ctx.fillText(`Детально`, 640, 20)
-	ctx.fillText(`Урон`, 740, 20)
-	ctx.fillText(`Защита`, 820, 20)
-	ctx.fillText(`Исцеление`, 900, 20)
-	ctx.fillText(`Кредиты`, 1000, 20)
+	ctx.fillText(`id матча`, 510, 20)
+	ctx.fillText(`КДА`, 610, 20)
+	ctx.fillText(`Детально`, 660, 20)
+	ctx.fillText(`Урон`, 760, 20)
+	ctx.fillText(`Защита`, 840, 20)
+	ctx.fillText(`Исцеление`, 920, 20)
+	ctx.fillText(`Кредиты`, 1020, 20)
 
 	// цикл с писаниной о инфе
 	const len = matches.length
@@ -807,7 +807,9 @@ function textHistoryRu(ctx, matches) {
 		const statusColor = status == "Победа" ? "#00bb00" : "#bb0000"
 
 		const getQueue = item.Queue
-		const queue = getQueue == "Siege" ? "Осада" : getQueue == "Ranked" ? "Ранкед" : getQueue
+		const queue = getQueue == "Siege" ? "Осада" : getQueue == "Ranked" ? "Ранкед" : 
+			getQueue == "Onslaught Training" ? "Натиск" : getQueue == "Team Deathmatch" ? 
+			"Насмерть" : getQueue
 
 		ctx.fillStyle = statusColor
 		ctx.fillText(`${status}`, 220, 52 * i + 60) // сатус
@@ -831,18 +833,22 @@ function textHistoryEn(ctx, matches) {
 	ctx.fillText(`Status`, 220, 20)
 	ctx.fillText(`Time`, 330, 20)
 	ctx.fillText(`Mode`, 410, 20)
-	ctx.fillText(`Match id`, 490, 20)
-	ctx.fillText(`KDA`, 590, 20)
-	ctx.fillText(`Detailed`, 640, 20)
-	ctx.fillText(`Damage`, 740, 20)
-	ctx.fillText(`Defense`, 820, 20)
-	ctx.fillText(`Healing`, 900, 20)
-	ctx.fillText(`Credits`, 1000, 20)
+	ctx.fillText(`Match id`, 510, 20)
+	ctx.fillText(`KDA`, 610, 20)
+	ctx.fillText(`Detailed`, 660, 20)
+	ctx.fillText(`Damage`, 760, 20)
+	ctx.fillText(`Defense`, 840, 20)
+	ctx.fillText(`Healing`, 920, 20)
+	ctx.fillText(`Credits`, 1020, 20)
 
 	// цикл с писаниной о инфе
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
+
+		const getQueue = item.Queue
+		const queue = getQueue == "Onslaught Training" ? "Training" : getQueue == "Team Deathmatch" ? 
+			"Deathmatch" : getQueue
 
 		ctx.fillText(`${item.Win_Status}`, 220, 52 * i + 60) // сатус
 		ctx.fillText(`${item.Queue}`, 410, 52 * i + 60) // тип

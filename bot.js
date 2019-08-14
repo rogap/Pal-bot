@@ -747,7 +747,7 @@ function getHistory(lang, m, name, r) {
 
 
 function drawItemsHistory(ctx, matches) {
-	ctx.fillStyle = "000000"
+	ctx.fillStyle = "#000000"
 	ctx.fillRect(0, 0, 1090, 30)
 
 	const len = matches.length

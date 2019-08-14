@@ -708,26 +708,29 @@ function getHistory(lang, m, name, r) {
 
 
 	// canvas...
-	const canvas = createCanvas(1110, 590)
+	const canvas = createCanvas(1130, 590)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 15px Georgia'
 
+	// точки Х начала рисования меню и его эллементов
+	const positionMenu = [70, 220, 330, 410, 530, 630, 680, 780, 860, 940, 1050]
+
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 0, 1110, 30)
-	ctx.fillRect(0, 560, 1110, 590)
+	ctx.fillRect(0, 0, 1140, 30)
+	ctx.fillRect(0, 560, 1140, 590)
 	ctx.fillStyle = "#dddddd"
 
 	// загружаем случайный глобальный фон для статы
 	const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
 	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
 	.then((img) => {
-		ctx.drawImage(img, 0, 30, 1110, 530)
+		ctx.drawImage(img, 0, 30, 1140, 530)
 		// рисуем эллементы (то что неизменно от языка)
-		drawItemsHistory(ctx, matches)
+		drawItemsHistory(ctx, matches, positionMenu)
 
 		// получаем функцию нужного текста и рисуем текст
 		const drawText = lang == "ru" ? textHistoryRu : textHistoryEn
-		drawText(ctx, matches)
+		drawText(ctx, matches, positionMenu)
 	}).catch((e) => {
 		console.log(`Ошибка загрузки фона...\r\n${e}`)
 	})
@@ -747,35 +750,35 @@ function getHistory(lang, m, name, r) {
 }
 
 
-function drawItemsHistory(ctx, matches) {
+function drawItemsHistory(ctx, matches, pos) {
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
 		const kda = ((item.Kills + item.Assists / 2) / (item.Deaths || 1)).toFixed(2)
 
 		ctx.fillStyle = "#dddddd"
-		ctx.fillText(`${ getDateStats(item.Match_Time) }`, 70, 52 * i + 60)
-		// сатус пропускаем
+		ctx.fillText(`${ getDateStats(item.Match_Time) }`, pos[0], 52 * i + 60)
+		// сатус пропускаем pos[1]
 		ctx.fillStyle = "#0088bb"
-		ctx.fillText(`${ secToMin(item.Time_In_Match_Seconds) }`, 330, 52 * i + 60)
+		ctx.fillText(`${ secToMin(item.Time_In_Match_Seconds) }`, pos[2], 52 * i + 60)
 		ctx.fillStyle = "#dddddd"
-		// тип пропускаем
-		ctx.fillText(`${item.Match}`, 510, 52 * i + 60) // id
+		// тип пропускаем pos[3]
+		ctx.fillText(`${item.Match}`, pos[4], 52 * i + 60) // id
 		ctx.fillStyle = "#CC6600"
-		ctx.fillText(`${kda}`, 610, 52 * i + 60)
+		ctx.fillText(`${kda}`, pos[5], 52 * i + 60)
 		ctx.fillStyle = "#9966FF"
-		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, 660, 52 * i + 60)
+		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, pos[6], 52 * i + 60)
 		ctx.fillStyle = "#dddddd"
-		ctx.fillText(`${item.Damage}`, 760, 52 * i + 60)
-		ctx.fillText(`${item.Damage_Mitigated}`, 840, 52 * i + 60)
-		ctx.fillText(`${item.Healing}`, 920, 52 * i + 60)
+		ctx.fillText(`${item.Damage}`, pos[7], 52 * i + 60)
+		ctx.fillText(`${item.Damage_Mitigated}`, pos[8], 52 * i + 60)
+		ctx.fillText(`${item.Healing}`, pos[9], 52 * i + 60)
 		ctx.fillStyle = "#CC6600"
-		ctx.fillText(`${item.Gold}`, 1020, 52 * i + 60)
+		ctx.fillText(`${item.Gold}`, pos[10], 52 * i + 60)
 	}
 }
 
 
-function textHistoryRu(ctx, matches) {
+function textHistoryRu(ctx, matches, pos) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
@@ -785,17 +788,17 @@ function textHistoryRu(ctx, matches) {
 	ctx.textAlign = "start"
 
 	// рисуем таблицу для инфы
-	ctx.fillText(`Когда`, 70, 20)
-	ctx.fillText(`Статус`, 220, 20)
-	ctx.fillText(`Время`, 330, 20)
-	ctx.fillText(`Режим`, 410, 20)
-	ctx.fillText(`id матча`, 510, 20)
-	ctx.fillText(`КДА`, 610, 20)
-	ctx.fillText(`Детально`, 660, 20)
-	ctx.fillText(`Урон`, 760, 20)
-	ctx.fillText(`Защита`, 840, 20)
-	ctx.fillText(`Исцеление`, 920, 20)
-	ctx.fillText(`Кредиты`, 1020, 20)
+	ctx.fillText(`Когда`, pos[0], 20)
+	ctx.fillText(`Статус`, pos[1], 20)
+	ctx.fillText(`Время`, pos[2], 20)
+	ctx.fillText(`Режим`, pos[3], 20)
+	ctx.fillText(`id матча`, pos[4], 20)
+	ctx.fillText(`КДА`, pos[5], 20)
+	ctx.fillText(`Детально`, pos[6], 20)
+	ctx.fillText(`Урон`, pos[7], 20)
+	ctx.fillText(`Защита`, pos[8], 20)
+	ctx.fillText(`Исцеление`, pos[9], 20)
+	ctx.fillText(`Кредиты`, pos[10], 20)
 
 	// цикл с писаниной о инфе
 	const len = matches.length
@@ -807,19 +810,24 @@ function textHistoryRu(ctx, matches) {
 		const statusColor = status == "Победа" ? "#00bb00" : "#bb0000"
 
 		const getQueue = item.Queue
-		const queue = getQueue == "Siege" ? "Осада" : getQueue == "Ranked" ? "Ранкед" : 
-			getQueue == "Onslaught Training" ? "Натиск" : getQueue == "Team Deathmatch" ? 
-			"Насмерть" : getQueue
+		const queue = getQueue == "Siege" ? "Осада" : 
+			getQueue == "Siege Training" ? "Осада (Б)" : 
+			getQueue == "Ranked" ? "Ранкед" : 
+			getQueue == "Onslaught" ? "Натиск" : 
+			getQueue == "Onslaught Training" ? "Натиск (Б)" : 
+			getQueue == "Team Deathmatch" ? "Насмерть" : 
+			getQueue == "Team Deathmatch Training" ? "Насмерть (Б)" : 
+			getQueue == "Test Maps" ? "Тестовые" : getQueue
 
 		ctx.fillStyle = statusColor
-		ctx.fillText(`${status}`, 220, 52 * i + 60) // сатус
+		ctx.fillText(`${status}`, pos[1], 52 * i + 60) // сатус
 		ctx.fillStyle = "#dddddd"
-		ctx.fillText(`${queue}`, 410, 52 * i + 60) // Режим
+		ctx.fillText(`${queue}`, pos[3], 52 * i + 60) // Режим
 	}
 }
 
 
-function textHistoryEn(ctx, matches) {
+function textHistoryEn(ctx, matches, pos) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
@@ -829,17 +837,17 @@ function textHistoryEn(ctx, matches) {
 	ctx.textAlign = "start"
 
 	// рисуем таблицу для инфы
-	ctx.fillText(`When`, 70, 20)
-	ctx.fillText(`Status`, 220, 20)
-	ctx.fillText(`Time`, 330, 20)
-	ctx.fillText(`Mode`, 410, 20)
-	ctx.fillText(`Match id`, 510, 20)
-	ctx.fillText(`KDA`, 610, 20)
-	ctx.fillText(`Detailed`, 660, 20)
-	ctx.fillText(`Damage`, 760, 20)
-	ctx.fillText(`Defense`, 840, 20)
-	ctx.fillText(`Healing`, 920, 20)
-	ctx.fillText(`Credits`, 1020, 20)
+	ctx.fillText(`When`, pos[0], 20)
+	ctx.fillText(`Status`, pos[1], 20)
+	ctx.fillText(`Time`, pos[2], 20)
+	ctx.fillText(`Mode`, pos[3], 20)
+	ctx.fillText(`Match id`, pos[4], 20)
+	ctx.fillText(`KDA`, pos[5], 20)
+	ctx.fillText(`Detailed`, pos[6], 20)
+	ctx.fillText(`Damage`, pos[7], 20)
+	ctx.fillText(`Defense`, pos[8], 20)
+	ctx.fillText(`Healing`, pos[9], 20)
+	ctx.fillText(`Credits`, pos[10], 20)
 
 	// цикл с писаниной о инфе
 	const len = matches.length
@@ -847,11 +855,14 @@ function textHistoryEn(ctx, matches) {
 		const item = matches[i]
 
 		const getQueue = item.Queue
-		const queue = getQueue == "Onslaught Training" ? "Training" : getQueue == "Team Deathmatch" ? 
-			"Deathmatch" : getQueue
+		const queue = getQueue == "Siege Training" ? "Siege (B)" : 
+			getQueue == "Onslaught" ? "Onslaught" : 
+			getQueue == "Onslaught Training" ? "Onslaught (B)" : 
+			getQueue == "Team Deathmatch" ? "Deathmatch" : 
+			getQueue == "Team Deathmatch Training" ? "Deathmatch (B)" : getQueue
 
-		ctx.fillText(`${item.Win_Status}`, 220, 52 * i + 60) // сатус
-		ctx.fillText(`${item.Queue}`, 410, 52 * i + 60) // тип
+		ctx.fillText(`${item.Win_Status}`, pos[1], 52 * i + 60) // сатус
+		ctx.fillText(`${item.Queue}`, pos[3], 52 * i + 60) // тип
 	}
 }
 

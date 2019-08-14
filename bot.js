@@ -846,7 +846,7 @@ function textHistoryEn(ctx, matches, pos) {
 	ctx.fillText(`KDA`, pos[5], 20)
 	ctx.fillText(`Detailed`, pos[6], 20)
 	ctx.fillText(`Damage`, pos[7], 20)
-	ctx.fillText(`Defense`, pos[8], 20)
+	ctx.fillText(`Shielding`, pos[8], 20)
 	ctx.fillText(`Healing`, pos[9], 20)
 	ctx.fillText(`Credits`, pos[10], 20)
 

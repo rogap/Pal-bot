@@ -789,7 +789,7 @@ function textHistoryRu(ctx, matches, pos) {
 	ctx.textAlign = "start"
 
 	// рисуем таблицу для инфы
-	ctx.fillText(`Когда`, pos[0], 20)
+	ctx.fillText(`Дата`, pos[0], 20)
 	ctx.fillText(`Статус`, pos[1], 20)
 	ctx.fillText(`Время`, pos[2], 20)
 	ctx.fillText(`Режим`, pos[3], 20)
@@ -838,7 +838,7 @@ function textHistoryEn(ctx, matches, pos) {
 	ctx.textAlign = "start"
 
 	// рисуем таблицу для инфы
-	ctx.fillText(`When`, pos[0], 20)
+	ctx.fillText(`Date`, pos[0], 20)
 	ctx.fillText(`Status`, pos[1], 20)
 	ctx.fillText(`Time`, pos[2], 20)
 	ctx.fillText(`Mode`, pos[3], 20)

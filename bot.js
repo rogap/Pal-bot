@@ -1338,3 +1338,8 @@ client.on('ready', () => {
 client.login(tokenDiscord);
 
 
+
+socket.on("error", (err) => {
+   console.log("Ошибка! ")
+   console.log(err.stack)
+})

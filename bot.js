@@ -53,10 +53,10 @@ function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) 
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь', '!хелпа', '!хелп', '!вики', '!viki', '!инфо', '!стата', '!ss', '!es', '!онлайн', 
-		'!очистить', '!смс', '!переписка'], // для проверки в сообщении
-	comands: ['!помощь', '!вики', '!viki', '!инфо', '!стата', '!es', '!онлайн', '!очистить', '!смс', 
-		'!переписка'], // для вывода в !хелп
+	list: ['!помощь','!хелпа', '!хелп', '!вики', '!viki', '!инфо', '!стата', '!ss', '!es', '!история', 
+		'!history', '!онлайн', '!очистить', '!смс', '!переписка'], // для проверки в сообщении
+	comands: ['!помощь', '!вики', '!viki', '!инфо', '!стата', '!es', '!история', '!history', '!онлайн', 
+		'!очистить', '!смс', '!переписка'], // для вывода в !хелп
 	'!помощь': {
 		func: DC_help,
 		info: "выводит этот список (так же можно **!хелп** или **!хелпа**)",
@@ -86,12 +86,18 @@ const default_comands = { // стандартные команды для все
 		comand: '!es',
 		params: ['name']
 	},
-	/*'!игры': {
-		func: DC_game,
-		info: "выводит последнюю ИЛИ указанную по счету ЧИСЛО игру (0 - последняя игра, максимум 9)",
-		comand: '!игры',
+	'!история': {
+		func: DC_history,
+		info: "отображает последние 10 матчей из истории указанного игрока",
+		comand: '!история',
 		params: ['имя', 'id']
-	},*/
+	},
+	'!history': {
+		func: DC_history,
+		info: "displays the last 10 matches from the history of the specified player",
+		comand: '!history',
+		params: ['имя', 'id']
+	},
 	/*'!песа, дай лапку': {
 		func: DC_dog_says,
 		info: "рандомно дает лапку или посылает куда по дальше (раз в минуту)",
@@ -155,47 +161,47 @@ function DC_help(m) { // !помощь
 
 function DC_viki_ru(m) {
 	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
-	const text = m.content.slice(indexSpace).trim();
-	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`;
+	const text = m.content.slice(indexSpace).trim()
+	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
 
 	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			text.length > 20 || text.length < 4) {
-		return global_func.addBotMess(m.reply('Ошибка в тексте запроса.'), m.channel.guild.id, botMess);
+		return global_func.addBotMess(m.reply('Ошибка в тексте запроса.'), m.channel.guild.id, botMess)
 	}
 
 	// проверяем права
 	if (!checkPermission(m.channel.id, 'SEND_MESSAGES')) return; // нет возможности написать смс
 
 	getSite({url, json: true}, (r) => {
-		const respText = r.body[2][0];
-		const restUrl = r.body[3][0];
+		const respText = r.body[2][0]
+		const restUrl = r.body[3][0]
 		if (!respText && !restUrl)
-			return global_func.addBotMess(m.reply('Ошибка в тексте запроса. (^2)'), m.channel.guild.id, botMess);
-		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`;
-		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess);
+			return global_func.addBotMess(m.reply('Ошибка в тексте запроса. (^2)'), m.channel.guild.id, botMess)
+		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`
+		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess)
 	});
 }
 
 function DC_viki_en(m) {
-	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
-	const text = m.content.slice(indexSpace).trim();
-	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`;
+	const indexSpace = m.content.indexOf(' ') // ищем где заканчивается команда
+	const text = m.content.slice(indexSpace).trim()
+	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
 
 	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			text.length > 20 || text.length < 4) {
-		return global_func.addBotMess(m.reply('Error in request text.'), m.channel.guild.id, botMess);
+		return global_func.addBotMess(m.reply('Error in request text.'), m.channel.guild.id, botMess)
 	}
 
 	// проверяем права
 	if (!checkPermission(m.channel.id, 'SEND_MESSAGES')) return; // нет возможности написать смс
 
 	getSite({url, json: true}, (r) => {
-		const respText = r.body[2][0];
-		const restUrl = r.body[3][0];
+		const respText = r.body[2][0]
+		const restUrl = r.body[3][0]
 		if (!respText && !restUrl)
-			return global_func.addBotMess(m.reply('Error in request text (^2).'), m.channel.guild.id, botMess);
-		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`;
-		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess);
+			return global_func.addBotMess(m.reply('Error in request text (^2).'), m.channel.guild.id, botMess)
+		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`
+		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess)
 	});
 }
 
@@ -283,8 +289,8 @@ function getStats(lang, m, name, r) {
 	const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
 	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
 	.then((img) => {
-		ctx.drawImage(img, 0, 0, 760, 300);
-			// рисуем эллементы и диаграмму
+		ctx.drawImage(img, 0, 0, 760, 300)
+			// рисуем эллементы (неизменные) и диаграмму
 			drawItems(ctx, kda, totalTime)
 
 			// получаем функцию нужного текста и рисуем текст
@@ -294,7 +300,7 @@ function getStats(lang, m, name, r) {
 		console.log(`Ошибка загрузки фона...\r\n${e}`)
 	})
 
-	// поулчаем список первых 5-ти чемпионов
+	// получаем список первых 5-ти чемпионов
 	let champList = []
 	kda.b.forEach((item, index) => {
 		champList.push( fixText(item.champion) )
@@ -365,11 +371,13 @@ function sendStats(canvas, name, m, lang, content="") { // после удачн
 function textEn(ctx, main, kda, width, totalTime) {
 	const RankedKBM = main.RankedKBM
 
+	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Info taken from playpaladins.online`, 210, 320);
+	ctx.fillText(`Info taken from playpaladins.online`, 380, 320);
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
+	ctx.textAlign = "start"
 
 	// рисуем инфу ->
 	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20);
@@ -410,11 +418,13 @@ function textEn(ctx, main, kda, width, totalTime) {
 function textRu(ctx, main, kda, width, totalTime) {
 	const RankedKBM = main.RankedKBM
 
+	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с playpaladins.online`, 210, 320)
+	ctx.fillText(`Информация взята с playpaladins.online`, 380, 320)
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
+	ctx.textAlign = "start"
 
 	// рисуем инфу
 	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20)
@@ -636,58 +646,253 @@ function getRole(name) { // основываясь на имени персон�
 
 
 
-/* ---> !игры ---> */
+/* ---> !история ---> */
 
-function DC_game(m) { // !игры
-	let text = m.content.slice(6).trim();
-	let too = text.indexOf(' ');
-	if (too == -1) too = text.length;
-	const name = text.slice(0, too).trim();
-	if (name != name.replace( /[^A-zА-я0-9]/, '' )) {
-		return global_func.addBotMess(m.reply('Ошибка в имени.'), m.channel.guild.id, botMess);
+function DC_history(m) { // !история
+	const content = m.content
+
+	// ищем где заканчивается команда
+	const indexEnd = content.indexOf(' ') == -1 ? content.length : content.indexOf(' ')
+
+	// поулчаем название команды
+	const comand = content.slice(1, indexEnd)
+
+	// определяем нужный язык для статистики
+	const lang = comand == "history" ? "en" : comand == "история" ? "ru" : ""
+
+	// проверяем права на отправку сообщений и скринов
+	if (!checkPermission(m.channel.id, ['ATTACH_FILES'])) {
+		// если нельзя отправлять смс то просто выходим
+		if (!checkPermission(m.channel.id, ['SEND_MESSAGES'])) return
+		const errText = lang == "ru" ? 
+			"Нет прав на отправку файлов/скриншотов." : "No rights to send files / screenshots."
+		return global_func.addBotMess(m.reply(errText), 
+			m.channel.guild.id, botMess)
 	}
-	let text2 = text.slice(text.indexOf(' ') + 1).trim();
-	let to = text2.indexOf(' ');
-	if (to == -1) to = text2.length;
-	let matchNum = Math.floor(text2.slice().trim()) || 0;
-	if (matchNum < 0) matchNum = 0;
-	if (isNaN(matchNum)) { // должен быть числом
-		return global_func.addBotMess(m.reply('Не корректный запрос'), m.channel.guild.id, botMess);
+
+
+	// получаем параметр команды
+	let name = content.slice(indexEnd).trim()
+	// если имя не указано то берем имя пользователя с канала
+	if (!name) name = (m.member.nickname || '').trim()
+	// проверяем на валидность
+	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+			name.length > 20 || name.length < 4) {
+		const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
+		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
 	}
-	getSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, json: true}, (r) => {
-		const matches = r.body.matches;
-		if (!matches) return global_func.addBotMess(m.reply(`Ошибка, матчи "${name}" не найденыю`), 
-			m.channel.guild.id, botMess);
 
-		if (matchNum > matches.length - 1) matchNum = matches.length - 1; // что бы не брать больше 10 и того что есть
-
-		const embed = new RichEmbed()
-		.setAuthor('Больше информации', m.author.avatarURL, `http://playpaladins.online/#/search/profile/${name}?page=1`)
-		.setFooter('Информация взята с сайта playpaladins.online', 
-			'https://pbs.twimg.com/profile_images/817813239308414977/sWUcji8Y_80x80.jpg')
-		.setTitle(`Матч ${matches[matchNum].playerName} сыгран: ${matches[matchNum].Match_Time}`)
-		.setColor(0x0Bd2d2);
-
-		embed.addField(`Килы`, matches[matchNum].Kills, true)
-		.addField(`Смерти`, matches[matchNum].Deaths, true)
-		.addField(`Ассисты`, matches[matchNum].Assists, true)
-		.addField(`Тип`, matches[matchNum].Queue, true)
-		//.addField(`Время минуты`, matches[matchNum].Minutes, true)
-		.addField(`Минут`, secToMin(matches[matchNum].Time_In_Match_Seconds), true)
-		.addField(`Статус`, matches[matchNum].Win_Status, true)
-		.addField(`Персонаж`, matches[matchNum].Champion, true)
-		.addField(`Карта`, matches[matchNum].Map_Game, true)
-		.addField(`Кредиты`, matches[matchNum].Gold, true)
-		.addField(`Время у цели`, matches[matchNum].Objective_Assists, true)
-		.addField(`id матча`, matches[matchNum].Match, true)
-		.addField(`Урон`, matches[matchNum].Damage, true);
-		if (matches[matchNum].Damage_Mitigated) embed.addField(`Защита`, matches[matchNum].Damage_Mitigated, true);
-		if (matches[matchNum].Healing) embed.addField(`Исцеление`, matches[matchNum].Healing, true);
-		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
-	});
+	// привязываем параметры к функции
+	const funcGetHistory = getHistory.bind(null, lang, m, name)
+	// отправляем запрос на статистику
+	getSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, 
+		json: true}, funcGetHistory)
 }
 
-/* <--- !игры <--- */
+
+function getHistory(lang, m, name, r) {
+	const json = r.body
+	//const main = json.matches // main больше нет
+	const matches = r.body.matches;
+
+
+	// если нет данных вообще, то профиль скрыт либо хз
+	const playerHidden = lang == "ru" ? `Ошибка, игрок не найден или у игрока "${name}" скрыт профиль` : 
+		`Error, player not found or player "${name}" has a profile hidden`
+	if (!matches && !json.totalMatches) return global_func.addBotMess(m.reply(playerHidden), 
+		m.channel.guild.id, botMess)
+
+
+	if (!matches) return global_func.addBotMess(m.reply(`Ошибка, матчи "${name}" не найденыю`), 
+		m.channel.guild.id, botMess); // исправить... !!!!!!!!!!!
+
+
+	// canvas...
+	const canvas = createCanvas(1090, 590)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 16px Georgia'
+
+	ctx.fillStyle = "#000000"
+	ctx.fillRect(0, 560, 1090, 590)
+	ctx.fillStyle = "#dddddd"
+
+	// загружаем случайный глобальный фон для статы
+	const randBackground = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
+	loadImage(`stats-img/stats-background-${randBackground}.jpg`)
+	.then((img) => {
+		ctx.drawImage(img, 0, 0, 1090, 560)
+			// рисуем эллементы (то что неизменно от языка)
+			drawItemsHistory(ctx, matches)
+
+			// получаем функцию нужного текста и рисуем текст
+			const drawText = lang == "ru" ? textHistoryRu : textHistoryEn
+			drawText(ctx, matches)
+	}).catch((e) => {
+		console.log(`Ошибка загрузки фона...\r\n${e}`)
+	})
+
+	// получаем до 10 картинок персонажей с истории
+	let champList = []
+	matches.forEach((item, index) => {
+		champList.push( fixText(item.Champion) )
+	})
+
+	// загружаем картинки полученных персонажей
+	loadChampionsHistory(ctx, champList)
+	.then(() => {
+		// отправляем картинку на сервер (смс)
+		sendStatsHistory(canvas, name, m, lang)
+	})
+}
+
+
+function drawItemsHistory(ctx, matches) {
+	const len = matches.length
+	for (let i = 0; i < len; i++) {
+		const item = matches[i]
+		const kda = ((item.Kills + item.Assists / 2) / item.Deaths).toFixed(2)
+
+		ctx.fillStyle = "#dddddd"
+		ctx.fillText(`${ getDateStats(item.Match_Time) }`, 70, 52 * i + 60)
+		// сатус пропускаем
+		ctx.fillStyle = "#0088bb"
+		ctx.fillText(`${ secToMin(item.Time_In_Match_Seconds) }`, 330, 52 * i + 60)
+		ctx.fillStyle = "#dddddd"
+		// тип пропускаем
+		ctx.fillText(`${item.Match}`, 490, 52 * i + 60) // id
+		ctx.fillStyle = "#CC6600"
+		ctx.fillText(`${kda}`, 590, 52 * i + 60)
+		ctx.fillStyle = "#9966FF"
+		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, 640, 52 * i + 60)
+		ctx.fillStyle = "#dddddd"
+		ctx.fillText(`${item.Damage}`, 740, 52 * i + 60)
+		ctx.fillText(`${item.Damage_Mitigated}`, 820, 52 * i + 60)
+		ctx.fillText(`${item.Healing}`, 900, 52 * i + 60)
+		ctx.fillStyle = "#CC6600"
+		ctx.fillText(`${item.Gold}`, 1000, 52 * i + 60)
+	}
+}
+
+
+function textHistoryRu(ctx, matches) {
+	ctx.textAlign = "center"
+	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
+	ctx.fillStyle = "#00CCFF"
+	ctx.fillText(`Информация взята с playpaladins.online`, 545, 580)
+	ctx.font = 'bold 16px Georgia'
+	ctx.fillStyle = "#dddddd"
+	ctx.textAlign = "start"
+
+	// рисуем таблицу для инфы
+	ctx.fillText(`Когда`, 70, 20)
+	ctx.fillText(`Статус`, 220, 20)
+	ctx.fillText(`Время`, 330, 20)
+	ctx.fillText(`Режим`, 410, 20)
+	ctx.fillText(`id матча`, 490, 20)
+	ctx.fillText(`КДА`, 590, 20)
+	ctx.fillText(`Детально`, 640, 20)
+	ctx.fillText(`Урон`, 740, 20)
+	ctx.fillText(`Защита`, 820, 20)
+	ctx.fillText(`Исцеление`, 900, 20)
+	ctx.fillText(`Кредиты`, 1000, 20)
+
+	// цикл с писаниной о инфе
+	const len = matches.length
+	for (let i = 0; i < len; i++) {
+		const item = matches[i]
+		const kda = ((item.Kills + item.Assists / 2) / item.Deaths).toFixed(2)
+
+		const getStats = item.Win_Status
+		const status = getStats == "Win" ? "Победа" : getStats == "Loss" ? "Поражение" : "-"
+		const statusColor = status == "Победа" ? "#00bb00" : "#bb0000"
+
+		const getQueue = item.Queue
+		const queue = getQueue == "Siege" ? "Осада" : getQueue == "Ranked" ? "Ранкед" : getQueue
+
+		ctx.fillStyle = statusColor
+		ctx.fillText(`${status}`, 220, 52 * i + 60) // сатус
+		ctx.fillStyle = "#dddddd"
+		ctx.fillText(`${queue}`, 410, 52 * i + 60) // Режим
+	}
+}
+
+
+function textHistoryEn(ctx, matches) {
+	ctx.textAlign = "center"
+	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
+	ctx.fillStyle = "#00CCFF"
+	ctx.fillText(`Info taken from playpaladins.online`, 545, 580)
+	ctx.font = 'bold 16px Georgia'
+	ctx.fillStyle = "#dddddd"
+	ctx.textAlign = "start"
+
+	// рисуем таблицу для инфы
+	ctx.fillText(`When`, 70, 20)
+	ctx.fillText(`Status`, 220, 20)
+	ctx.fillText(`Time`, 330, 20)
+	ctx.fillText(`Mode`, 410, 20)
+	ctx.fillText(`Match id`, 490, 20)
+	ctx.fillText(`KDA`, 590, 20)
+	ctx.fillText(`Detailed`, 640, 20)
+	ctx.fillText(`Damage`, 740, 20)
+	ctx.fillText(`Defense`, 820, 20)
+	ctx.fillText(`Healing`, 900, 20)
+	ctx.fillText(`Credits`, 1000, 20)
+
+	// цикл с писаниной о инфе
+	const len = matches.length
+	for (let i = 0; i < len; i++) {
+		const item = matches[i]
+		const kda = ((item.Kills + item.Assists / 2) / item.Deaths).toFixed(2)
+
+		ctx.fillText(`${item.Win_Status}`, 220, 52 * i + 60) // сатус
+		ctx.fillText(`${item.Queue}`, 410, 52 * i + 60) // тип
+	}
+}
+
+
+function loadChampionsHistory(ctx, list) {
+	let positiony = 30
+
+	for (let i = 0;; i++) {
+		const name = list[i]
+		const urlChamp = `champions/${name}.jpg`
+
+		const load = loadImage(urlChamp)
+		const endLoad = load.then((img) => {
+			const y = positiony + 52 * i
+			ctx.drawImage(img, 10, y, 50, 50)
+		}).catch((e) => {
+			console.log(`Ошибка загрузки лучших персонажей:\r\n${e}`)
+		})
+
+		if (i >= list.length - 1) return endLoad
+
+	}
+}
+
+
+function sendStatsHistory(canvas, name, m, lang, content="") { // после удачной или не удачной загрузки
+	const imgName = name + (Math.random() * 1000000 ^ 0)
+	saveCanvas(canvas, `${imgName}.png`, (name) => {
+		console.log(`[${lang}] File ${name} was created.`)
+		m.channel.send(content, { // отправляем картинку
+			files: [{
+				attachment: name,
+				name
+			}]
+		}).then(() => { // удаляем локальный файл по окончанию отправки
+			console.log(`[${lang}] отправилось, удаляем локальный файл...`)
+			fs.unlink(name, (err) => {
+				if (err) return console.log(`Ошибка удаления файла ${name}.\r\n${err}`)
+				console.log(`[${lang}] Лоакальный файл ${name} удален, гильдия: ${m.channel.guild.name}`)
+			})
+		}) // записываем историю смс
+	})
+}
+
+
+/* <--- !история <--- */
 
 
 

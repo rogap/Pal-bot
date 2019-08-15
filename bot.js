@@ -708,13 +708,13 @@ function getHistory(lang, m, name, r) {
 
 
 	// canvas...
-	const imgWidth = 1150
+	const imgWidth = 1160
 	const canvas = createCanvas(imgWidth, 590)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 15px Georgia'
 
 	// точки Х начала рисования меню и его эллементов
-	const positionMenu = [70, 220, 330, 410, 540, 640, 690, 790, 870, 950, 1060]
+	const positionMenu = [70, 220, 330, 410, 540, 640, 690, 790, 870, 960, 1070]
 
 	ctx.fillStyle = "#000000"
 	ctx.fillRect(0, 0, imgWidth, 30)
@@ -1338,8 +1338,3 @@ client.on('ready', () => {
 client.login(tokenDiscord);
 
 
-
-// socket.on("error", (err) => {
-//    console.log("Ошибка! ")
-//    console.log(err.stack)
-// })

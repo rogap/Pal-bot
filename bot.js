@@ -350,6 +350,8 @@ function DC_stats(m) { // !стата !ss !es
 
 	   	nextStep()
 		})
+	} else {
+		nextStep()
 	}
 
 
@@ -801,6 +803,8 @@ function DC_history(m) { // !история
 
 	   	nextStep()
 		})
+	} else {
+		nextStep()
 	}
 
 

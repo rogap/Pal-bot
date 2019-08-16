@@ -53,9 +53,9 @@ function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) 
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь','!хелпа', '!хелп', '!вики', '!viki', '!инфо', '!стата', '!ss', '!es', '!история', 
+	list: ['!помощь','!хелпа', '!хелп', '!вики', '!viki', '!me', '!инфо', '!стата', '!ss', '!es', '!история', 
 		'!history', '!онлайн', '!очистить', '!смс', '!переписка'], // для проверки в сообщении
-	comands: ['!помощь', '!вики', '!viki', '!инфо', '!стата', '!es', '!история', '!history', '!онлайн', 
+	comands: ['!помощь', '!вики', '!viki', '!me', '!инфо', '!стата', '!es', '!история', '!history', '!онлайн', 
 		'!очистить', '!смс', '!переписка'], // для вывода в !хелп
 	'!помощь': {
 		func: DC_help,
@@ -73,6 +73,12 @@ const default_comands = { // стандартные команды для все
 		info: "Performs a search on **Wikipedia**",
 		comand: '!viki',
 		params: ['text']
+	},
+	'!me': {
+		func: DC_me,
+		info: "Позволяет запомнить и использовать указанный никнейм для команд бота (можно писать просто !ss)",
+		comand: '!me',
+		params: ['имя']
 	},
 	'!стата': {
 		func: DC_stats,
@@ -209,7 +215,100 @@ function DC_viki_en(m) {
 
 
 
+/* ---> !me ---> */
+
+function DC_me(m) {
+	const content = m.content
+
+	// ищем где заканчивается команда
+	const indexEnd = content.indexOf(' ') == -1 ? content.length : content.indexOf(' ')
+
+	// поулчаем название команды
+	const comand = content.slice(1, indexEnd)
+
+	// получаем параметр команды
+	let name = content.slice(indexEnd).trim()
+
+
+	if (!name) return showMyName(m) // показываем имя или сообщаем что оно не записано
+
+
+	// проверяем на валидность
+	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+			name.length > 20 || name.length < 4) {
+		const errText = "Ошибка в имени. / Error in the name."
+		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+	}
+
+
+	// записываем никнейм
+	const params = paramsBotMe(m.author.id, name)
+	getSite(params, (res) => {
+      const answerMe = JSON.parse(res.body)
+
+      if (answerMe.status == "OK") {
+         console.log('set_bot_me успешно записан.\n')
+         const text = `Ваш ник успешно записан!`
+         return global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+      } else {
+         console.log(answerMe)
+         console.log(`Неудачная загрузка set_bot_me для ${name}`)
+         const text = `Произошла ошибка, попробуйте снова и сообщите боту в личку об этом.`
+         return global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+      }
+   })
+}
+
+
+/**
+ * Выводит в чат сохраненный ник командой !me
+ */
+function showMyName(m) {
+	const params = paramsBotMe(m.author.id)
+	getSite(params, (res) => {
+	   const answerMe = JSON.parse(res.body)
+
+	   if (answerMe.status == "OK") {
+	      console.log('get_bot_me успешно выдан.\n')
+	      const paladinsName = answerMe.paladins_name
+
+	      if (!paladinsName) { // если ник не назначен
+	      	const text = `У вас не назначен ник. Воспользуйтесь командой **!me [ваш ник]**`
+	      	return global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+	      }
+
+	      //const getsName = Buffer.from(paladinsName, 'base64').toString('UTF-8')
+	      const text = `Ваш сохраненный ник: **"${paladinsName}"**`
+	      global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+	   } else {
+	      console.log(answerMe)
+	      console.log(`Неудачная загрузка get_bot_me для ${name}`)
+	      const text = `Произошла ошибка, попробуйте снова и сообщите боту в личку об этом.`
+	      global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+	   }
+	})
+}
+
+function paramsBotMe(id, name) { // бытро формирует обьект с парамметрами
+	const obj = {
+		method: "POST", 
+		url: url_site, 
+		form: {
+			token: dbToken, 
+			type: name ? 'set_bot_me' : 'get_bot_me', 
+			user_id: id
+		}
+	}
+	if (name) obj.form.username = name
+	return obj
+}
+
+/* <--- !me <--- */
+
+
+
 /* ---> !стата ---> */
+
 function DC_stats(m) { // !стата !ss !es
 	const content = m.content
 
@@ -233,25 +332,45 @@ function DC_stats(m) { // !стата !ss !es
 	}
 
 
+	let settings = {} // настройки показа и скрытия статы аккаунта
 	// получаем параметр команды
 	let name = content.slice(indexEnd).trim()
-	// если имя не указано то берем имя пользователя с канала
-	if (!name) name = (m.member.nickname || '').trim()
-	// проверяем на валидность
-	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
-			name.length > 20 || name.length < 4) {
-		const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
-		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+	if (!name) { // если имя не указано то пробуем загрузить
+		const params = paramsBotMe(m.author.id)
+		getSite(params, (res) => {
+			const answerMe = JSON.parse(res.body)
+
+	   	if (answerMe.status == "OK") { // применяем настройки и имя
+	   		name = answerMe.paladins_name
+	   		settings.hidden_name = answerMe.hidden_name
+	   		settings.hidden_steam = answerMe.hidden_steam
+	   		settings.hidden_rank = answerMe.hidden_rank
+	   	}
+	   	// если имя все равно пустое то берем имя пользователя с канала
+	   	if (!name) name = (m.member.nickname || '').trim()
+
+	   	nextStep()
+		})
 	}
 
-	// привязываем параметры к функции
-	const funcGetStats = getStats.bind(null, lang, m, name)
-	// отправляем запрос на статистику
-	getSite({url: `http://www.playpaladins.online/api/profile/pc/${name}`, json: true}, funcGetStats)
+
+	function nextStep() {
+		// проверяем на валидность
+		if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+				name.length > 20 || name.length < 4) {
+			const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
+			return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+		}
+
+		// привязываем параметры к функции
+		const funcGetStats = getStats.bind(null, lang, m, name, settings)
+		// отправляем запрос на статистику
+		getSite({url: `http://www.playpaladins.online/api/profile/pc/${name}`, json: true}, funcGetStats)
+	}
 }
 
 
-function getStats(lang, m, name, r) {
+function getStats(lang, m, name, settings, r) {
 	const json = r.body
 	const main = json.main
 	//const name = main.hz_player_name
@@ -673,27 +792,41 @@ function DC_history(m) { // !история
 
 	// получаем параметр команды
 	let name = content.slice(indexEnd).trim()
-	// если имя не указано то берем имя пользователя с канала
-	if (!name) name = (m.member.nickname || '').trim()
-	// проверяем на валидность
-	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
-			name.length > 20 || name.length < 4) {
-		const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
-		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+	if (!name) { // если имя не указано то пробуем загрузить
+		const params = paramsBotMe(m.author.id)
+		getSite(params, (res) => {
+			const answerMe = JSON.parse(res.body)
+
+	   	if (answerMe.status == "OK") name = answerMe.paladins_name
+	   	// если имя все равно пустое то берем имя пользователя с канала
+	   	if (!name) name = (m.member.nickname || '').trim()
+
+	   	nextStep()
+		})
 	}
 
-	// привязываем параметры к функции
-	const funcGetHistory = getHistory.bind(null, lang, m, name)
-	// отправляем запрос на статистику
-	getSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, 
-		json: true}, funcGetHistory)
+
+	function nextStep() {
+		// проверяем на валидность
+		if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+				name.length > 20 || name.length < 4) {
+			const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
+			return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+		}
+
+		// привязываем параметры к функции
+		const funcGetHistory = getHistory.bind(null, lang, m, name)
+		// отправляем запрос на статистику
+		getSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, 
+			json: true}, funcGetHistory)
+	}
 }
 
 
 function getHistory(lang, m, name, r) {
 	const json = r.body
 	//const main = json.matches // main больше нет
-	const matches = r.body.matches;
+	const matches = r.body.matches
 
 
 	// если нет данных вообще, то профиль скрыт либо хз

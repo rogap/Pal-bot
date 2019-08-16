@@ -327,8 +327,7 @@ function DC_stats(m) { // !стата !ss !es
 		if (!checkPermission(m.channel.id, ['SEND_MESSAGES'])) return
 		const errText = lang == "ru" ? 
 			"Нет прав на отправку файлов/скриншотов." : "No rights to send files / screenshots."
-		return global_func.addBotMess(m.reply(errText), 
-			m.channel.guild.id, botMess)
+		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
 	}
 
 
@@ -785,8 +784,7 @@ function DC_history(m) { // !история
 		if (!checkPermission(m.channel.id, ['SEND_MESSAGES'])) return
 		const errText = lang == "ru" ? 
 			"Нет прав на отправку файлов/скриншотов." : "No rights to send files / screenshots."
-		return global_func.addBotMess(m.reply(errText), 
-			m.channel.guild.id, botMess)
+		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
 	}
 
 

@@ -335,7 +335,7 @@ function DC_stats(m) { // !стата !ss !es
 	let settings = {} // настройки показа и скрытия статы аккаунта
 	// получаем параметр команды
 	let name = content.slice(indexEnd).trim()
-	if (!name) { // если имя не указано то пробуем загрузить
+	if (!name || name == "me") { // если имя не указано то пробуем загрузить
 		const params = paramsBotMe(m.author.id)
 		getSite(params, (res) => {
 			const answerMe = JSON.parse(res.body)
@@ -792,7 +792,7 @@ function DC_history(m) { // !история
 
 	// получаем параметр команды
 	let name = content.slice(indexEnd).trim()
-	if (!name) { // если имя не указано то пробуем загрузить
+	if (!name || name == "me") { // если имя не указано то пробуем загрузить
 		const params = paramsBotMe(m.author.id)
 		getSite(params, (res) => {
 			const answerMe = JSON.parse(res.body)

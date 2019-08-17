@@ -7,10 +7,14 @@ const fs = require('fs');
 let global_func = {}; // готовимся к импорту, после загрузки настроек
 
 const { url_site, dbToken, tokenDiscord, vkToken } = (require('./configs.js')).cfg;
-const require_stats = (require('./stats.js')).stats(client, dbToken, url_site); // статистика
 
 let ALL_SETTINGS; // переменная где будут лежать все глобальные настройки
 let BOT_STARTED = false; // разрешает и блокирует обработку сообщений
+
+
+
+/* ---> вспомогательные функции общего назначения ---> */
+
 
 
 /*process.on('uncaughtException', (err) => { // ловит ошибку и записывает в дискорде
@@ -22,6 +26,26 @@ let BOT_STARTED = false; // разрешает и блокирует обраб�
 		});
 	});
 });*/
+
+
+
+function getRandomItemArry(arr) { // возвращает случайное содержимое из массива
+	const rand = Math.floor(Math.random() * arr.length);
+	return arr[rand];
+}
+
+
+
+function isAdmin(user_id, guild_id=[]) { // проверка на админку в боте
+	const adminListId = ALL_SETTINGS.admins
+	if (!adminListId[user_id]) return false; // если его нет в записи то выход
+	if (adminListId[user_id].type == 0) return false; // если админка выключенна
+
+	if (!adminListId[user_id].guilds) return adminListId[user_id].type; // если глобальная админка
+	if (adminListId[user_id].guilds.indexOf(guild_id) == -1) return false; // если в списке нет гильдии
+	return adminListId[user_id].type; // если же есть то значит админ и возвращаем его тип
+}
+
 
 
 // делает запросы на сайт
@@ -38,25 +62,28 @@ function getSite(params, callback=()=>{}, func_err=()=>{}) {
 }
 
 
+
 function getDateStats(d) {
 	return new Date(d).toLocaleString("ru", {year: 'numeric', month: 'numeric', day: 'numeric', 
 		hour: 'numeric', minute: 'numeric', timeZone: "UTC", hour12: false})
 }
 
 
+
 // проверяем права пользователя на указаном канале
 function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) {
 	return client.channels.get(clannel).permissionsFor(user).has(permission);
 	// ATTACH_FILES SEND_MESSAGES EMBED_LINKS
+	// https://discord.js.org/#/docs/main/stable/class/Permissions?scrollTo=s-FLAGS
 	// проверка прав перед отправкой сообщения
 }
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь','!хелпа', '!хелп', '!вики', '!viki', '!me', '!инфо', '!стата', '!ss', '!es', '!история', 
-		'!history', '!онлайн', '!очистить', '!смс', '!переписка'], // для проверки в сообщении
-	comands: ['!помощь', '!вики', '!viki', '!me', '!инфо', '!стата', '!es', '!история', '!history', '!онлайн', 
-		'!очистить', '!смс', '!переписка'], // для вывода в !хелп
+	list: ['!помощь','!хелпа', '!хелп', '!вики', '!viki', '!инфо', '!me', '!стата', '!ss', '!es', '!история', 
+		'!history', '!онлайн', '!смс', '!переписка'], // для проверки в сообщении
+	comands: ['!помощь', '!вики', '!viki', '!инфо', '!me', '!стата', '!es', '!история', '!history', '!онлайн', 
+		'!смс', '!переписка'], // для вывода в !хелп
 	'!помощь': {
 		func: DC_help,
 		info: "выводит этот список (так же можно **!хелп** или **!хелпа**)",
@@ -114,13 +141,6 @@ const default_comands = { // стандартные команды для все
 		info: "выводит статистику пользователей по онлайну и играм",
 		comand: '!онлайн'
 	},
-	'!очистить': {
-		func: function(m) {
-			global_func.delleteBotMess(m.channel.guild.id, botMess); // удаляем сообщения бота
-		},
-		info: "удаляет все сообщения бота (за его последний запуск)",
-		comand: '!очистить'
-	},
 	'!смс': {
 		func: DC_sms,
 		info: "отправляет сообщение в вк указанному id",
@@ -135,7 +155,7 @@ const default_comands = { // стандартные команды для все
 	'!инфо': {
 		func: (m) => {
 			const text = 'Пиши в лс, как только освобожусь - отвечу.';
-			global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess);
+			m.reply(text)
 		},
 		info: "Выводит способ связи с создателем",
 		comand: '!инфо'
@@ -143,6 +163,7 @@ const default_comands = { // стандартные команды для все
 }
 default_comands['!хелпа'] = default_comands['!хелп'] = default_comands['!помощь']; // клонируем
 default_comands['!ss'] = default_comands['!стата'];
+
 
 
 /* ---> !помощь ---> */
@@ -156,7 +177,7 @@ function DC_help(m) { // !помощь
 		});
 		helps_text += `\n**${el + params}** - ${default_comands[el].info};`;
 	});
-	global_func.addBotMess(m.reply(helps_text), m.channel.guild.id, botMess);
+	m.reply(helps_text)
 }
 
 /* <--- !помощь <--- */
@@ -172,7 +193,7 @@ function DC_viki_ru(m) {
 
 	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			text.length > 20 || text.length < 4) {
-		return global_func.addBotMess(m.reply('Ошибка в тексте запроса.'), m.channel.guild.id, botMess)
+		return m.reply('Ошибка в тексте запроса.')
 	}
 
 	// проверяем права
@@ -182,9 +203,9 @@ function DC_viki_ru(m) {
 		const respText = r.body[2][0]
 		const restUrl = r.body[3][0]
 		if (!respText && !restUrl)
-			return global_func.addBotMess(m.reply('Ошибка в тексте запроса. (^2)'), m.channel.guild.id, botMess)
+			return m.reply('Ошибка в тексте запроса. (^2)')
 		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`
-		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess)
+		m.reply(returnText)
 	});
 }
 
@@ -195,7 +216,7 @@ function DC_viki_en(m) {
 
 	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			text.length > 20 || text.length < 4) {
-		return global_func.addBotMess(m.reply('Error in request text.'), m.channel.guild.id, botMess)
+		return m.reply('Error in request text.')
 	}
 
 	// проверяем права
@@ -205,9 +226,9 @@ function DC_viki_en(m) {
 		const respText = r.body[2][0]
 		const restUrl = r.body[3][0]
 		if (!respText && !restUrl)
-			return global_func.addBotMess(m.reply('Error in request text (^2).'), m.channel.guild.id, botMess)
+			return m.reply('Error in request text (^2).')
 		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`
-		global_func.addBotMess(m.reply(returnText), m.channel.guild.id, botMess)
+		m.reply(returnText)
 	});
 }
 
@@ -237,7 +258,7 @@ function DC_me(m) {
 	if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			name.length > 20 || name.length < 4) {
 		const errText = "Ошибка в имени. / Error in the name."
-		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+		return m.reply(errText)
 	}
 
 
@@ -249,12 +270,12 @@ function DC_me(m) {
       if (answerMe.status == "OK") {
          console.log('set_bot_me успешно записан.\n')
          const text = `Ваш ник успешно записан!`
-         return global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+         return m.reply(text)
       } else {
          console.log(answerMe)
          console.log(`Неудачная загрузка set_bot_me для ${name}`)
          const text = `Произошла ошибка, попробуйте снова и сообщите боту в личку об этом.`
-         return global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+         return m.reply(text)
       }
    })
 }
@@ -274,17 +295,17 @@ function showMyName(m) {
 
 	      if (!paladinsName) { // если ник не назначен
 	      	const text = `У вас не назначен ник. Воспользуйтесь командой **!me [ваш ник]**`
-	      	return global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+	      	return m.reply(text)
 	      }
 
 	      //const getsName = Buffer.from(paladinsName, 'base64').toString('UTF-8')
 	      const text = `Ваш сохраненный ник: **"${paladinsName}"**`
-	      global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+	      m.reply(text)
 	   } else {
 	      console.log(answerMe)
 	      console.log(`Неудачная загрузка get_bot_me для ${name}`)
 	      const text = `Произошла ошибка, попробуйте снова и сообщите боту в личку об этом.`
-	      global_func.addBotMess(m.reply(text), m.channel.guild.id, botMess)
+	      m.reply(text)
 	   }
 	})
 }
@@ -327,7 +348,7 @@ function DC_stats(m) { // !стата !ss !es
 		if (!checkPermission(m.channel.id, ['SEND_MESSAGES'])) return
 		const errText = lang == "ru" ? 
 			"Нет прав на отправку файлов/скриншотов." : "No rights to send files / screenshots."
-		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+		return m.reply(errText)
 	}
 
 
@@ -360,7 +381,7 @@ function DC_stats(m) { // !стата !ss !es
 		if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 				name.length > 20 || name.length < 4) {
 			const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
-			return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+			return m.reply(errText)
 		}
 
 		// привязываем параметры к функции
@@ -380,14 +401,12 @@ function getStats(lang, m, name, settings, r) {
 	// у плейпаладинса так...
 	const playerNotFound = lang == "ru" ? 
 		`Ошибка, игрок "${name}" не найден` : `Error, player "${name}" not found`
-	if (json.message) return global_func.addBotMess(m.reply(playerNotFound), 
-			m.channel.guild.id, botMess)
+	if (json.message) return m.reply(playerNotFound)
 
 	// если нет данных вообще, то профиль скрыт либо хз
 	const playerHidden = lang == "ru" ? `Ошибка, возможно у игрока "${name}" скрыт профиль` : 
 		`Error, maybe player "${name}" has profile hidden`
-	if (!json.champions || !json.main) return global_func.addBotMess(m.reply(playerHidden), 
-		m.channel.guild.id, botMess)
+	if (!json.champions || !json.main) return m.reply(playerHidden)
 
 
 	// получаем кда и данные для диаграммы
@@ -786,7 +805,7 @@ function DC_history(m) { // !история
 		if (!checkPermission(m.channel.id, ['SEND_MESSAGES'])) return
 		const errText = lang == "ru" ? 
 			"Нет прав на отправку файлов/скриншотов." : "No rights to send files / screenshots."
-		return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+		return m.reply(errText)
 	}
 
 
@@ -813,7 +832,7 @@ function DC_history(m) { // !история
 		if (name != name.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 				name.length > 20 || name.length < 4) {
 			const errText = lang == "ru" ? "Ошибка в имени." : "Error in the name."
-			return global_func.addBotMess(m.reply(errText), m.channel.guild.id, botMess)
+			return m.reply(errText)
 		}
 
 		// привязываем параметры к функции
@@ -834,12 +853,10 @@ function getHistory(lang, m, name, r) {
 	// если нет данных вообще, то профиль скрыт либо хз
 	const playerHidden = lang == "ru" ? `Ошибка, игрок не найден или у игрока "${name}" скрыт профиль` : 
 		`Error, player not found or player "${name}" has a profile hidden`
-	if (!matches && !json.totalMatches) return global_func.addBotMess(m.reply(playerHidden), 
-		m.channel.guild.id, botMess)
+	if (!matches && !json.totalMatches) return m.reply(playerHidden)
 
 
-	if (!matches) return global_func.addBotMess(m.reply(`Ошибка, матчи "${name}" не найденыю`), 
-		m.channel.guild.id, botMess); // исправить... !!!!!!!!!!!
+	if (!matches) return m.reply(`Ошибка, матчи "${name}" не найденыю`) // исправить... !!!!!!!!!!!
 
 
 	// canvas...
@@ -1052,39 +1069,6 @@ function sendStatsHistory(canvas, name, m, lang, content="") { // после у�
 
 
 
-/* <--- !песа, дай лапку <--- */
-
-function DC_dog_says(m) { // !песа, дай лапку
-	if (dogsSaysWaitMembers.find(function(el){return el == m.author.id;})) { // проверяем вышло ли время
-		// если время не вышло то предупреждаем
-		return global_func.addBotMess(m.reply('Песа устал, ему нужно минутку отдохнуть...'), m.channel.guild.id, botMess);
-	}
-	const says = global_func.getRandomItemArry(dogsSays);
-	const embed = new RichEmbed()
-	.setDescription(`${m.author.username}, ${says}`)
-	.setColor(0xC846A0);
-
-	if (says == 'Держи ^^' || says == 'милашке даю лапку') {
-		embed.setThumbnail('https://st.depositphotos.com/1766930/4697/i/950/depositphotos_46971905-stock-photo-dogs-paw-and-mans-hand.jpg');
-		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
-	} else {
-		global_func.addBotMess(m.channel.send(embed), m.channel.guild.id, botMess);
-	}
-	dogsSaysWaitMembers.push(m.author.id); // добавляем во временный бан (ожидание)
-	const timer = (global_func.isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 10 сек)
-	setTimeout(() => { // через минуту удаляем пользователя из бана
-		dogsSaysWaitMembers.find((el, i, arr) => {
-			if (el == m.author.id) arr.splice(i, 1);
-		});
-	}, timer);
-}
-const dogsSaysWaitMembers = []; // список id людей которые ожидают, не разрешено писать команду
-const dogsSays = ['Держи ^^', 'eng pls', 'хуяпку', 'Hello?', 'По ебалу тебе лапкой', 'милашке даю лапку'];
-
-/* <--- !песа, дай лапку <--- */
-
-
-
 /* ---> !онлайн ---> */
 
 function DC_online(m) { // !онлайн
@@ -1116,7 +1100,7 @@ function DC_online(m) { // !онлайн
 		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n${says}`;
 		says = says.slice(0, 1800) + " ...";
 	}
-	global_func.addBotMess(m.reply(says), m.channel.guild.id, botMess);
+	m.reply(says)
 }
 
 // приложения ->
@@ -1163,8 +1147,7 @@ function listGame(obj) { // принимает обьект с играми и �
 function DC_sms(m) { // !смс
 	if (sendVkListMembers.find(function(el){return el == m.author.id;})) { // проверяем вышло ли время
 		// если время не вышло то предупреждаем
-		return global_func.addBotMess(m.reply('Возможно отправлять только 1 сообщение в минуту.'), 
-			m.channel.guild.id, botMess);
+		return m.reply('Возможно отправлять только 1 сообщение в минуту.')
 	}
 	let text = m.content.slice(5).trim();
 	let to = text.indexOf(' ');
@@ -1174,24 +1157,20 @@ function DC_sms(m) { // !смс
 	const type_id = (id > -99999 && id < 0) ? "chat_id" : "user_id"; // позволяет отправлять сообщение в группы
 	if (id < 0) id *= -1; // делаем id правильным
 	id += ''; // для replace
-	if (id != id.replace( /[^0-9]/, '' )) return global_func.addBotMess(m.reply('Не корректный id.'), 
-		m.channel.guild.id, botMess);
+	if (id != id.replace( /[^0-9]/, '' )) return m.reply('Не корректный id.')
 
 	let text2 = repText(text.slice(text.indexOf(' ') + 1)).trim();
-	if (!validMessVk(text2)) return global_func.addBotMess(m.reply('Недопустимые слова в сообщении.'), 
-		m.channel.guild.id, botMess);
-	if (text == text2) return global_func.addBotMess(m.reply('Не задан текст сообщения.'), m.channel.guild.id, botMess);
-	if (text2.length == 0 || text2.length >= 500) return global_func.addBotMess(m.reply('Сообщение пустое или \
-		слишком длинное.'), m.channel.guild.id, botMess);
+	if (!validMessVk(text2)) return m.reply('Недопустимые слова в сообщении.')
+	if (text == text2) return m.reply('Не задан текст сообщения.')
+	if (text2.length == 0 || text2.length >= 500) return m.reply('Сообщение пустое или слишком длинное.')
 
-	if (!addListLastMess(text2)) return global_func.addBotMess(m.reply('Такое сообщение уже было отправленно.'), 
-		m.channel.guild.id, botMess);
+	if (!addListLastMess(text2)) return m.reply('Такое сообщение уже было отправленно.')
 
 	const randomIDVK = (Math.random() * 1000000000000).toFixed(0);
 	const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text2}&v=5.92&access_token=`;
 
 	sendVkListMembers.push(m.author.id); // добавляем в список временно забаненых
-	const timer = (global_func.isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
+	const timer = (isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
 	setTimeout(() => { // через минуту удаляем пользователя из бана
 		sendVkListMembers.find((el, i, arr) => {
 			if (el == m.author.id) arr.splice(i, 1);
@@ -1200,13 +1179,11 @@ function DC_sms(m) { // !смс
 
 	getSite({url: `${url + vkToken}`, json: true}, (r) => {
 		if (r.body.error != undefined && r.body.response == undefined) { // если ошибка
-			return global_func.addBotMess(m.reply('Ошибка, возможно не корректный id или закрыт лс (чс).'), 
-				m.channel.guild.id, botMess);
+			return m.reply('Ошибка, возможно не корректный id или закрыт лс (чс).')
 		} else if (r.body.response != undefined && r.body.error == undefined) { // если отправилось
-			return global_func.addBotMess(m.reply('Сообщение успешно отправленно.'), m.channel.guild.id, botMess);
+			return m.reply('Сообщение успешно отправленно.')
 		} else { // непонятно че
-			return global_func.addBotMess(m.reply('Неизвестная ошибка, поидее это никак не может выполнится.'), 
-				m.channel.guild.id, botMess);
+			return m.reply('Неизвестная ошибка, поидее это никак не может выполнится.')
 		}
 	});
 }
@@ -1261,7 +1238,7 @@ listInvalidMess = ["электронных стимуляций", "зарабо�
 function get_vk_messages(m) { // !переписка
 	if (checkVkListMembers.find(function(el){return el == m.author.id;})) { // проверяем вышло ли время
 		// если время не вышло то предупреждаем
-		return global_func.addBotMess(m.reply('Возможно делать запросы только 1 раз в минуту.'), m.channel.guild.id, botMess);
+		return m.reply('Возможно делать запросы только 1 раз в минуту.')
 	}
 	function getLactMessId(callback) { // получает id последнего сообщения вк, передавая его в callback
 		//const url = `https://api.vk.com/method/messages.searchConversations?count=1&v=5.92&access_token=`;
@@ -1276,7 +1253,7 @@ function get_vk_messages(m) { // !переписка
 		const url = `https://api.vk.com/method/messages.getById?message_ids=${massMessID + ''}&extended=1&v=5.92&access_token=`;
 		getSite({url: `${url + vkToken}`, json: true}, (r) => {
 			if (r.body.error != undefined && r.body.response == undefined) { // если ошибка
-				return global_func.addBotMess(m.reply('Похоже сообщений нет...'), m.channel.guild.id, botMess);
+				return m.reply('Похоже сообщений нет...')
 			} else if (r.body.response != undefined && r.body.error == undefined) { // если ошибки нет
 				const vk_messages = r.body.response.items;
 				const vk_profiles = r.body.response.profiles;
@@ -1325,15 +1302,14 @@ function get_vk_messages(m) { // !переписка
 					lastAnswerText = answerText; // сохраняем
 				}
 				answerText.slice(0, -2); // удаляем перенос строки
-				return global_func.addBotMess(m.reply(answerText), m.channel.guild.id, botMess);
+				return m.reply(answerText)
 			} else { // непонятно че
-				return global_func.addBotMess(m.reply('Неизвестная ошибка, поидее это никак не может выполнится.'), 
-					m.channel.guild.id, botMess);
+				return m.reply('Неизвестная ошибка, поидее это никак не может выполнится.')
 			}
 		});
 	}
 	checkVkListMembers.push(m.author.id); // добавляем в список временно забаненых
-	const timer = (global_func.isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
+	const timer = (isAdmin(m.author.id, m.channel.guild.id)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
 	setTimeout(() => { // через минуту удаляем пользователя из бана
 		checkVkListMembers.find((el, i, arr) => {
 			if (el == m.author.id) arr.splice(i, 1);
@@ -1366,106 +1342,52 @@ function getDateVK(d) { // получаем нужный вид даты
 
 
 
-const botMess = {}; // храним сообщения тут (по их id)
-
 client.on('message', (mess) => { // проверяем сообщения на команды
 	if (!BOT_STARTED) return; // если бот не зaпустился
-	if (mess.author.id == "510112915907543042" && mess.content == "!update") setUpdateSettings();
 	if (!mess.guild) return; // если смс в лс то выход
-	const chId = mess.channel.guild.id; // id канала
-
-	const cont = mess.content.trim();
 	if (!checkPermission(mess.channel.id, 'SEND_MESSAGES')) return; // смс писать нельзя - выходим
+	if (mess.author.id == "510112915907543042" && mess.content == "!update") getSettings()
+
+	const guildId = mess.channel.guild.id // id канала
+	const cont = mess.content.trim()
+
 	default_comands.list.forEach((el) => { // проверяем все дефолтные команды
 		if ( (mess.content == el && !default_comands[el].params) || // нет параметров и сообщение целиком равно нужному
 			(cont.indexOf(el) == 0 && default_comands[el].params) ) { // команда в начале и есть параметры
-			return default_comands[el].func(mess); // выполняем функцию если найдена команда
+			return default_comands[el].func(mess) // выполняем функцию если найдена команда
 		}
-	});
-	const exportsComands = require('./guild-and-comand.js').guild_comand; // загружаем уникальные команды серверов
-	if (exportsComands[chId]) { // если есть команды для этого канала
-		exportsComands[chId].list.forEach((el) => { // идем и првоеряем команды на совпадения
-			if ( (mess.content == el && !exportsComands[chId][el].params) || 
-				(cont.indexOf(el) == 0 && exportsComands[chId][el].params) ) {
-				return exportsComands[chId][el].func(mess, botMess); // выполняем функцию если найдена команда
-			}
-		});
-	}
-});
+	})
+})
 
 
 
-function updateSettings(callback, firstCallback) { // функция обновления настроек
-	if (firstCallback) firstCallback(); // если есть то выполняется первичный callback
+function getSettings() {
 	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
-		const answerSettings = JSON.parse(res.body);
+      const answerSettings = JSON.parse(res.body)
 
-		if (answerSettings.status == "OK") {
-			ALL_SETTINGS = answerSettings; // применяем настройки
-			if (callback) callback(); // если есть то запускаем
-		} else {
-			console.log(status.error);
-         console.log('Повторная загрузка настроек через 500мс...');
+      if (answerSettings.status == "OK") {
+      	ALL_SETTINGS = answerSettings; // применяем настройки
+         console.log('Настройки успешно загружены.\n')
+         // поидее все действия нужно начинать после загрузки настроек
+         BOT_STARTED = true // разрешаем обрабатывать сообщения
+      } else {
+         console.log(answerSettings)
+         console.log('Повторная загрузка настроек через 3сек...')
          setTimeout(() => {
-         	updateSettings(callback);
-         }, 1000);
-		}
-	});
-}
-
-
-
-// специальная функция для выполнения из чата !!! не работает! - криво ! не удаляет прошлое !
-function setUpdateSettings() { // перезапускает функции сбора инфы и сообщений, обновив нaстройки
-	updateSettings(() => { // запускает стату с уже обновленными настройками
-		require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
-   	require_stats.startUsersStats(ALL_SETTINGS.guildsTrack); // запуск сбора информации о юзерах
-   	console.log('Запуск с обновленными настройками УДАЛСЯ!');
-	}, () => { // первичный callback - останавливает стату
-		require_stats.stopMessageStats();
-		require_stats.stopUsersStats();
-	});
-}
-
-
-
-function startBot() { // старт бота (делается 1 раз при запуске)
-	if (BOT_STARTED) return; // нельзя повторно стартовать
-   require_stats.startGuildUpdate();
-   require_stats.startUserUpdate();
-   require_stats.startMessageStats(ALL_SETTINGS.guildsTrack); // сбор смс статистики
-   require_stats.startUsersStats(ALL_SETTINGS.guildsTrack); // запуск сбора информации о юзерах
-   require_stats.startUsersHidden(ALL_SETTINGS.guildsTrack);
-
-   BOT_STARTED = true; // разрешаем обрабатывать сообщения
+         	getSettings(startBot)
+         }, 3000)
+      }
+   })
 }
 
 
 
 client.on('ready', () => {
-	console.log('I am ready!');
-	client.channels.get('553489897944645647').send('Я запустился!');
-	client.user.setActivity('!помощь', { type: 'WATCHING' });
+	console.log('I am ready!')
+	client.channels.get('553489897944645647').send('Я запустился!')
+	client.user.setActivity('!помощь', { type: 'WATCHING' })
 
-
-	// поулчаем настройки и запускаем основные функции бота
-	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
-      const answerSettings = JSON.parse(res.body);
-      if (answerSettings.status == "OK") {
-      	ALL_SETTINGS = answerSettings; // применяем настройки
-         console.log('Настройки успешно загружены.\n');
-         // поидее все действия нужно начинать после загрузки настроек
-         // импортируем глобальные функции ->
-			global_func = (require('./global-func.js')).setGlobald(ALL_SETTINGS.admins);
-         startBot(); // запуск основных функций бота (обязателен для работы)
-      } else {
-         console.log(answerSettings.status.error);
-         console.log('Повторная загрузка настроек через 1сек...');
-         setTimeout(() => {
-         	updateSettings(startBot);
-         }, 1000);
-      }
-   });
+	getSettings()// получаем настройки и запускаем основные функции бота
 });
 
 

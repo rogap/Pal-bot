@@ -80,14 +80,14 @@ function checkPermission(clannel, permission="ADMINISTRATOR", user=client.user) 
 
 
 const default_comands = { // стандартные команды для всех каналов
-	list: ['!помощь','!хелпа', '!хелп', '!вики', '!viki', '!инфо', '!me', '!стата', '!ss', '!es', '!история', 
+	list: ['!hh', '!вики', '!viki', '!инфо', '!me', '!стата', '!ss', '!es', '!история', 
 		'!history', '!онлайн', '!смс', '!переписка'], // для проверки в сообщении
-	comands: ['!помощь', '!вики', '!viki', '!инфо', '!me', '!стата', '!es', '!история', '!history', '!онлайн', 
+	comands: ['!hh', '!вики', '!viki', '!инфо', '!me', '!стата', '!es', '!история', '!history', '!онлайн', 
 		'!смс', '!переписка'], // для вывода в !хелп
-	'!помощь': {
+	'!hh': {
 		func: DC_help,
 		info: "выводит этот список (так же можно **!хелп** или **!хелпа**)",
-		comand: '!помощь'
+		comand: '!hh'
 	},
 	'!вики': {
 		func: DC_viki_ru,
@@ -161,7 +161,6 @@ const default_comands = { // стандартные команды для все
 		comand: '!инфо'
 	}
 }
-default_comands['!хелпа'] = default_comands['!хелп'] = default_comands['!помощь']; // клонируем
 default_comands['!ss'] = default_comands['!стата'];
 
 
@@ -1384,8 +1383,8 @@ function getSettings() {
 
 client.on('ready', () => {
 	console.log('I am ready!')
-	client.channels.get('553489897944645647').send('Я запустился!')
-	client.user.setActivity('!помощь', { type: 'WATCHING' })
+	client.channels.get('612875033651707905').send('Я запустился!')
+	client.user.setActivity('!hh', { type: 'WATCHING' })
 
 	getSettings()// получаем настройки и запускаем основные функции бота
 });

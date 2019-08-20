@@ -1361,6 +1361,7 @@ client.on('message', (mess) => { // проверяем сообщения на �
 
 
 function getSettings() {
+	console.log(`Запрашиваем настройки...`)
 	getSite({method: "POST", url: url_site, form: {token: dbToken, type: 'settings'}}, (res) => {
       const answerSettings = JSON.parse(res.body)
 

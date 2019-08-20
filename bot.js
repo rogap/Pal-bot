@@ -44,7 +44,7 @@ function declension(num, dec1, dec2, dec3) {
 	} else if (n > 1 && n < 5) {
 		return dec2;
 	} else {
-		return str3;
+		return dec3;
 	}
 }
 
@@ -117,7 +117,7 @@ const default_comands = { // стандартные команды для все
 		'!всего', '!смс', '!переписка'], // для вывода в !хелп
 	'!hh': {
 		func: DC_help,
-		info: "выводит этот список (так же можно **!хелп** или **!хелпа**)",
+		info: "Выводит список команд.",
 		comand: '!hh'
 	},
 	'!вики': {

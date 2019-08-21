@@ -233,7 +233,7 @@ function DC_viki_ru(m) {
 	const text = m.content.slice(indexSpace).trim()
 	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
 
-	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+	if (text != text.replace(/["\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			text.length > 20 || text.length < 4) {
 		return m.reply('Ошибка в тексте запроса.')
 	}
@@ -244,8 +244,7 @@ function DC_viki_ru(m) {
 	getSite({url, json: true}, (r) => {
 		const respText = r.body[2][0]
 		const restUrl = r.body[3][0]
-		if (!respText && !restUrl)
-			return m.reply('Ошибка в тексте запроса. (^2)')
+		if (!respText && !restUrl) return m.reply('Ошибка в тексте запроса. (^2)')
 		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`
 		m.reply(returnText)
 	});
@@ -256,7 +255,7 @@ function DC_viki_en(m) {
 	const text = m.content.slice(indexSpace).trim()
 	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
 
-	if (text != text.replace(/[ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+	if (text != text.replace(/["\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
 			text.length > 20 || text.length < 4) {
 		return m.reply('Error in request text.')
 	}
@@ -267,8 +266,7 @@ function DC_viki_en(m) {
 	getSite({url, json: true}, (r) => {
 		const respText = r.body[2][0]
 		const restUrl = r.body[3][0]
-		if (!respText && !restUrl)
-			return m.reply('Error in request text (^2).')
+		if (!respText && !restUrl) return m.reply('Error in request text (^2).')
 		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`
 		m.reply(returnText)
 	});

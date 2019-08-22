@@ -303,7 +303,9 @@ function DC_getAvatar(m) {
 	}
 
 	if (name.indexOf('!') == 0) name = name.slice(1) // удаляем ! у ботов
-	const avatar = client.users.get(name).avatarURL || `У пользователя нет аватара.`
+	const user = client.users.get(name)
+	if (!user) return m.reply(`Не верно указан пользователь ${name} или он не найден.`)
+	const avatar = user.avatarURL || `У пользователя нет аватара.`
 	if (isNumeric(name)) return m.reply(avatar)
 	return m.reply(`Ошибка! Пользователь ${name} не найден.`)
 }

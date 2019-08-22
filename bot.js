@@ -17,18 +17,6 @@ let BOT_STARTED = false; // разрешает и блокирует обраб�
 
 
 
-/*process.on('uncaughtException', (err) => { // ловит ошибку и записывает в дискорде
-	const client = new Client();
-	const mess = `Ошибка: ${err.stack}.`;
-	client.login(tokenDiscord).then(() => {
-		sendChannel(client, '553489897944645647', err.stack).then(() => {
-			throw err;
-		});
-	});
-});*/
-
-
-
 function isNumeric(n) { // првоерка на число
   return !isNaN(parseFloat(n)) && isFinite(n);
 }

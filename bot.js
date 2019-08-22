@@ -231,10 +231,10 @@ function DC_help(m) { // !помощь
 function DC_viki_ru(m) {
 	const indexSpace = m.content.indexOf(' '); // ищем где заканчивается команда
 	const text = m.content.slice(indexSpace).trim()
-	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
+	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&prop=info&format=json&limit=2`
 
 	if (text != text.replace(/[<>\\|@\/\^;{}~]/g,"") || 
-			text.length > 20 || text.length < 4) {
+			text.length > 50 || text.length == 0) {
 		return m.reply('Ошибка в тексте запроса.')
 	}
 
@@ -244,19 +244,20 @@ function DC_viki_ru(m) {
 	getSite({url, json: true}, (r) => {
 		const respText = r.body[2][0]
 		const restUrl = r.body[3][0]
+
 		if (!respText && !restUrl) return m.reply('Ошибка в тексте запроса. (^2)')
 		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`
 		m.reply(returnText)
-	});
+	})
 }
 
 function DC_viki_en(m) {
 	const indexSpace = m.content.indexOf(' ') // ищем где заканчивается команда
 	const text = m.content.slice(indexSpace).trim()
-	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
+	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&prop=info&format=json&limit=2`
 
 	if (text != text.replace(/[<>\\|@\/\^;{}~]/g,"") || 
-			text.length > 20 || text.length < 4) {
+			text.length > 50 || text.length == 0) {
 		return m.reply('Error in request text.')
 	}
 
@@ -266,10 +267,11 @@ function DC_viki_en(m) {
 	getSite({url, json: true}, (r) => {
 		const respText = r.body[2][0]
 		const restUrl = r.body[3][0]
+		
 		if (!respText && !restUrl) return m.reply('Error in request text (^2).')
 		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`
 		m.reply(returnText)
-	});
+	})
 }
 
 /* <--- !вики <--- */

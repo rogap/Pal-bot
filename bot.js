@@ -1496,3 +1496,38 @@ client.on('ready', () => {
 client.login(tokenDiscord);
 
 
+
+
+// логи от паркавы -_-
+
+client.on('guildMemberAdd', (member) => {
+	if (member.guild.id != '614174206044798977') return false
+	const text = `Пользователь **${member.user.tag} (${member.user.id})** зашел на сервер`
+	sendChannel(client, '614071970417475623', text)
+})
+
+client.on('guildMemberRemove', (member) => {
+	if (member.guild.id != '614174206044798977') return false
+	const text = `Пользователь **${member.user.tag} (${member.user.id})** покинул сервер (кикнут)`
+	sendChannel(client, '614071970417475623', text)
+})
+
+client.on('guildBanAdd', (guild, member) => {
+	if (member.guild.id != '614174206044798977') return false
+	const text = `Пользователь **${member.user.tag} (${member.user.id})** был забанен`
+	sendChannel(client, '614071970417475623', text)
+})
+
+client.on('messageDelete', (message) => { // messageDeleteBulk массовое удаление смс
+	if (message.guild.id != '614174206044798977') return false
+	const text = `Сообщение от **${message.author.tag} (${message.author.id})** было удаленоr\r\n` + 
+		`*Текст сообщения:*\r\n${message.content}`
+	sendChannel(client, '614071970417475623', text)
+})
+
+client.on('messageUpdate', (message) => {
+	if (message.guild.id != '614174206044798977') return false
+	const text = `Сообщение от **${message.author.tag} (${message.author.id})** было отредактированно\r\n` + 
+		`*Старый текст сообщения:*\r\n${message.content}`
+	sendChannel(client, '614071970417475623', text)
+})

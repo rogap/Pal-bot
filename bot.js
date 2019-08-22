@@ -233,7 +233,7 @@ function DC_viki_ru(m) {
 	const text = m.content.slice(indexSpace).trim()
 	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
 
-	if (text != text.replace(/["\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+	if (text != text.replace(/[<>\\|@\/\^;{}~]/g,"") || 
 			text.length > 20 || text.length < 4) {
 		return m.reply('Ошибка в тексте запроса.')
 	}
@@ -255,7 +255,7 @@ function DC_viki_en(m) {
 	const text = m.content.slice(indexSpace).trim()
 	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&limit=2&format=json`
 
-	if (text != text.replace(/["\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]/g,"") || 
+	if (text != text.replace(/[<>\\|@\/\^;{}~]/g,"") || 
 			text.length > 20 || text.length < 4) {
 		return m.reply('Error in request text.')
 	}

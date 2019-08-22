@@ -508,6 +508,7 @@ function getStats(lang, m, name, settings, r) {
 	// получаем список первых 5-ти чемпионов
 	let champList = []
 	kda.b.forEach((item, index) => {
+		if (!item) return false
 		champList.push( fixText(item.champion) )
 		if (index >= 4) return
 	})

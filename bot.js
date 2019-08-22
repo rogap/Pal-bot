@@ -597,7 +597,7 @@ function textEn(ctx, main, kda, width, totalTime) {
 	ctx.fillText(`Created: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80);
 	ctx.fillText(`Played ${main.HoursPlayed} hours`, 10 + width / 2, 100);
 	ctx.fillText(`Last login: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120);
-	ctx.fillText(`KDA: ${((kda.k+kda.a/2)/kda.d).toFixed(2)}`, 10 + width / 2, 140);
+	ctx.fillText(`KDA: ${((kda.k + kda.a / 2) / (kda.d + 1)).toFixed(2)}`, 10 + width / 2, 140);
 
 	ctx.fillText(`TOTAL:`, 50, 170);
 	ctx.fillText(`Kills: ${kda.k}`, 10, 190);
@@ -644,7 +644,7 @@ function textRu(ctx, main, kda, width, totalTime) {
 	ctx.fillText(`Создан: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80)
 	ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + width / 2, 100)
 	ctx.fillText(`Последний вход: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120)
-	ctx.fillText(`KDA: ${( (kda.k + kda.a / 2) / kda.d).toFixed(2)}`, 10 + width / 2, 140)
+	ctx.fillText(`KDA: ${( (kda.k + kda.a / 2) / (kda.d + 1)).toFixed(2)}`, 10 + width / 2, 140)
 
 	ctx.fillText(`ВСЕГО:`, 50, 170)
 	ctx.fillText(`Убийств: ${kda.k}`, 10, 190)
@@ -708,11 +708,11 @@ function drawItems(ctx, kda, totalTime) { // рисуем диаграмму и 
 	if (kda.b[4]) ctx.fillText(kda.b[4].Rank, 679, 250)
 
 	ctx.fillStyle = "#CC6600";
-	if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / kda.b[0].Deaths).toFixed(2)), 437, 270)
-	if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / kda.b[1].Deaths).toFixed(2)), 497, 270)
-	if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / kda.b[2].Deaths).toFixed(2)), 557, 270)
-	if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / kda.b[3].Deaths).toFixed(2)), 617, 270)
-	if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / kda.b[4].Deaths).toFixed(2)), 677, 270)
+	if (kda.b[0]) ctx.fillText(fixNaN(((kda.b[0].Kills + kda.b[0].Assists / 2) / (kda.b[0].Deaths + 1)).toFixed(2)), 437, 270)
+	if (kda.b[1]) ctx.fillText(fixNaN(((kda.b[1].Kills + kda.b[1].Assists / 2) / (kda.b[1].Deaths + 1)).toFixed(2)), 497, 270)
+	if (kda.b[2]) ctx.fillText(fixNaN(((kda.b[2].Kills + kda.b[2].Assists / 2) / (kda.b[2].Deaths + 1)).toFixed(2)), 557, 270)
+	if (kda.b[3]) ctx.fillText(fixNaN(((kda.b[3].Kills + kda.b[3].Assists / 2) / (kda.b[3].Deaths + 1)).toFixed(2)), 617, 270)
+	if (kda.b[4]) ctx.fillText(fixNaN(((kda.b[4].Kills + kda.b[4].Assists / 2) / (kda.b[4].Deaths + 1)).toFixed(2)), 677, 270)
 
 	ctx.fillStyle = "#0088bb";
 	if (kda.b[0]) ctx.fillText(`${getWinrate(kda.b[0].Wins, kda.b[0].Losses)}%`, 437, 290)

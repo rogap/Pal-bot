@@ -1497,7 +1497,9 @@ client.login(tokenDiscord);
 
 
 
-
+function sendChannel(cl, id, text) { // отправляет сообщение на указанный id канала
+	return cl.channels.get(id).send(text);
+}
 // логи от паркавы -_-
 
 client.on('guildMemberAdd', (member) => {

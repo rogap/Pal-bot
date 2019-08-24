@@ -1493,6 +1493,25 @@ client.on('ready', () => {
 
 
 
+function sendChannel(cl, id, text) { // отправляет сообщение на указанный id канала
+	return cl.channels.get(id).send(text);
+}
+
+// записываем удаленные смс из лички
+client.on('messageDelete', (message) => { // messageDeleteBulk массовое удаление смс
+	if (message.channel.type != "dm") return false
+	const text = `Сообщение от **${message.author.tag} (${message.author.id})** было удалено\r\n` + 
+		`*Текст сообщения:*\r\n${message.content}`
+	sendChannel(client, '614678700373573641', text)
+})
+client.on('messageUpdate', (message) => {
+	if (message.channel.type != "dm") return false
+	const text = `Сообщение от **${message.author.tag} (${message.author.id})** было отредактированно\r\n` + 
+		`*Старый текст сообщения:*\r\n${message.content}`
+	sendChannel(client, '614678700373573641', text)
+})
+
+
 client.login(tokenDiscord);
 
 

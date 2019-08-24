@@ -600,7 +600,7 @@ function textEn(ctx, main, kda, width, totalTime) {
 	ctx.fillText(`Assists: ${kda.a}`, 10, 230)
 	ctx.fillText(`Wins: ${main.Wins}`, 10, 250)
 	ctx.fillText(`Losses: ${main.Losses}`, 10, 270)
-	ctx.fillText(`Winrate: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290)
+	ctx.fillText(`Winrate: ${fixNaN((main.Wins / (main.Wins + main.Losses) * 100).toFixed(0))}%`, 10, 290)
 
 	ctx.fillText(`RANKED:`, 250, 170)
 	ctx.fillText(`Wins: ${RankedKBM.Wins}`, 200, 190)
@@ -647,7 +647,7 @@ function textRu(ctx, main, kda, width, totalTime) {
 	ctx.fillText(`Ассистов: ${kda.a}`, 10, 230)
 	ctx.fillText(`Побед: ${main.Wins}`, 10, 250)
 	ctx.fillText(`Поражений: ${main.Losses}`, 10, 270)
-	ctx.fillText(`Винрейт: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290)
+	ctx.fillText(`Винрейт: ${fixNaN((main.Wins / (main.Wins + main.Losses) * 100).toFixed(0))}%`, 10, 290)
 
 	ctx.fillText(`РАНКЕД:`, 250, 170)
 	ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 190)

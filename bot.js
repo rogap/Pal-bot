@@ -1493,8 +1493,11 @@ client.on('ready', () => {
 
 
 
-function sendChannel(cl, id, text) { // отправляет сообщение на указанный id канала
-	return cl.channels.get(id).send(text);
+function sendChannel(cl, id, text="test") { // отправляет сообщение на указанный id канала
+	if (!isNumeric(id)) return false
+	const channel = cl.channels.get(id)
+	if (!channel) return false
+	return channel.send(text)
 }
 
 // записываем удаленные смс из лички

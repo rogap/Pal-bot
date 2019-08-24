@@ -974,7 +974,7 @@ function drawItemsHistory(ctx, matches, pos) {
 	const len = matches.length
 	for (let i = 0; i < len; i++) {
 		const item = matches[i]
-		const kda = ((item.Kills + item.Assists / 2) / (item.Deaths || 1)).toFixed(2)
+		const kda = ((item.Kills + item.Assists / 2) / (item.Deaths + 1)).toFixed(2)
 
 		ctx.fillStyle = "#dddddd"
 		ctx.fillText(`${ getDateStats(item.Match_Time) }`, pos[0], 52 * i + 60)

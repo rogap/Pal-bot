@@ -580,44 +580,44 @@ function textEn(ctx, main, kda, width, totalTime) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Info taken from playpaladins.online`, 380, 320);
+	ctx.fillText(`Info taken from playpaladins.online`, 380, 320)
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
 
 	// рисуем инфу ->
-	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20);
-	ctx.fillText(`Steam: ${main.Name}`, 10 + width / 2, 40);
-	ctx.fillText(`Lvl: ${main.Level}`, 10 + width / 2, 60);
-	ctx.fillText(`Created: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80);
-	ctx.fillText(`Played ${main.HoursPlayed} hours`, 10 + width / 2, 100);
-	ctx.fillText(`Last login: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120);
-	ctx.fillText(`KDA: ${((kda.k + kda.a / 2) / (kda.d + 1)).toFixed(2)}`, 10 + width / 2, 140);
+	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20)
+	ctx.fillText(`Steam: ${main.Name}`, 10 + width / 2, 40)
+	ctx.fillText(`Lvl: ${main.Level}`, 10 + width / 2, 60)
+	ctx.fillText(`Created: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80)
+	ctx.fillText(`Played ${main.HoursPlayed} hours`, 10 + width / 2, 100)
+	ctx.fillText(`Last login: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120)
+	ctx.fillText(`KDA: ${((kda.k + kda.a / 2) / (kda.d + 1)).toFixed(2)}`, 10 + width / 2, 140)
 
-	ctx.fillText(`TOTAL:`, 50, 170);
-	ctx.fillText(`Kills: ${kda.k}`, 10, 190);
-	ctx.fillText(`Deaths: ${kda.d}`, 10, 210);
-	ctx.fillText(`Assists: ${kda.a}`, 10, 230);
-	ctx.fillText(`Wins: ${main.Wins}`, 10, 250);
-	ctx.fillText(`Losses: ${main.Losses}`, 10, 270);
-	ctx.fillText(`Winrate: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290);
+	ctx.fillText(`TOTAL:`, 50, 170)
+	ctx.fillText(`Kills: ${kda.k}`, 10, 190)
+	ctx.fillText(`Deaths: ${kda.d}`, 10, 210)
+	ctx.fillText(`Assists: ${kda.a}`, 10, 230)
+	ctx.fillText(`Wins: ${main.Wins}`, 10, 250)
+	ctx.fillText(`Losses: ${main.Losses}`, 10, 270)
+	ctx.fillText(`Winrate: ${(main.Wins / (main.Wins + main.Losses) * 100).toFixed(0)}%`, 10, 290)
 
-	ctx.fillText(`RANKED:`, 250, 170);
-	ctx.fillText(`Wins: ${RankedKBM.Wins}`, 200, 190);
-	ctx.fillText(`Losses: ${RankedKBM.Losses}`, 200, 210);
-	let myRank = getRank(main.Tier_RankedKBM);
-	myRank = myRank == 'Калибровка' ? 'Qualification' : myRank;
-	ctx.fillText(`Rank: ${myRank}`, 200, 230);
-	ctx.fillText(`TP: ${RankedKBM.Points}`, 200, 250);
-	if (RankedKBM.Rank) ctx.fillText(`Position: ${RankedKBM.Rank}`, 200, 270);
+	ctx.fillText(`RANKED:`, 250, 170)
+	ctx.fillText(`Wins: ${RankedKBM.Wins}`, 200, 190)
+	ctx.fillText(`Losses: ${RankedKBM.Losses}`, 200, 210)
+	let myRank = getRank(main.Tier_RankedKBM)
+	myRank = myRank == 'Калибровка' ? 'Qualification' : myRank
+	ctx.fillText(`Rank: ${myRank}`, 200, 230)
+	ctx.fillText(`TP: ${RankedKBM.Points}`, 200, 250)
+	if (RankedKBM.Rank) ctx.fillText(`Position: ${RankedKBM.Rank}`, 200, 270)
 
-	ctx.fillText("FAVORITE CHAMPIONS:", 480, 160);
+	ctx.fillText("FAVORITE CHAMPIONS:", 480, 160)
 
-	ctx.fillText("Roles:", 540, 20);
-	ctx.fillText(`Damage - ${fixNaN((kda.dmg / totalTime * 100).toFixed(2))}%`, 600, 54);
-	ctx.fillText(`Tank - ${fixNaN((kda.tank / totalTime * 100).toFixed(2))}%`, 600, 76);
-	ctx.fillText(`flank - ${fixNaN((kda.flank / totalTime * 100).toFixed(2))}%`, 600, 98);
-	ctx.fillText(`Heal - ${fixNaN((kda.heal / totalTime * 100).toFixed(2))}%`, 600, 120);
+	ctx.fillText("Roles:", 540, 20)
+	ctx.fillText(`Damage - ${fixNaN((kda.dmg / totalTime * 100).toFixed(2))}%`, 600, 54)
+	ctx.fillText(`Tank - ${fixNaN((kda.tank / totalTime * 100).toFixed(2))}%`, 600, 76)
+	ctx.fillText(`flank - ${fixNaN((kda.flank / totalTime * 100).toFixed(2))}%`, 600, 98)
+	ctx.fillText(`Heal - ${fixNaN((kda.heal / totalTime * 100).toFixed(2))}%`, 600, 120)
 }
 
 

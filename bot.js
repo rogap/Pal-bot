@@ -614,10 +614,10 @@ function textEn(ctx, main, kda, width, totalTime) {
 	ctx.fillText("FAVORITE CHAMPIONS:", 480, 160);
 
 	ctx.fillText("Roles:", 540, 20);
-	ctx.fillText(`Damage - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54);
-	ctx.fillText(`Tank - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76);
-	ctx.fillText(`flank - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98);
-	ctx.fillText(`Heal - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120);
+	ctx.fillText(`Damage - ${fixNaN((kda.dmg / totalTime * 100).toFixed(2))}%`, 600, 54);
+	ctx.fillText(`Tank - ${fixNaN((kda.tank / totalTime * 100).toFixed(2))}%`, 600, 76);
+	ctx.fillText(`flank - ${fixNaN((kda.flank / totalTime * 100).toFixed(2))}%`, 600, 98);
+	ctx.fillText(`Heal - ${fixNaN((kda.heal / totalTime * 100).toFixed(2))}%`, 600, 120);
 }
 
 
@@ -659,10 +659,10 @@ function textRu(ctx, main, kda, width, totalTime) {
 	ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 480, 160)
 
 	ctx.fillText("Роли:", 540, 20)
-	ctx.fillText(`Урон - ${(kda.dmg / totalTime * 100).toFixed(2)}%`, 600, 54)
-	ctx.fillText(`Танк - ${(kda.tank / totalTime * 100).toFixed(2)}%`, 600, 76)
-	ctx.fillText(`Фланг - ${(kda.flank / totalTime * 100).toFixed(2)}%`, 600, 98)
-	ctx.fillText(`Хилл - ${(kda.heal / totalTime * 100).toFixed(2)}%`, 600, 120)
+	ctx.fillText(`Урон - ${fixNaN((kda.dmg / totalTime * 100).toFixed(2))}%`, 600, 54)
+	ctx.fillText(`Танк - ${fixNaN((kda.tank / totalTime * 100).toFixed(2))}%`, 600, 76)
+	ctx.fillText(`Фланг - ${fixNaN((kda.flank / totalTime * 100).toFixed(2))}%`, 600, 98)
+	ctx.fillText(`Хилл - ${fixNaN((kda.heal / totalTime * 100).toFixed(2))}%`, 600, 120)
 }
 
 

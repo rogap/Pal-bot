@@ -292,10 +292,10 @@ function DC_getAvatar(m) {
 
 	if (name.indexOf('!') == 0) name = name.slice(1) // удаляем ! у ботов
 	const user = client.users.get(name)
-	if (!user) return m.reply(`Не верно указан пользователь ${name} или он не найден.`)
+	if (!user) return m.reply(`Не верно указан пользователь **${name}** или он не найден.`)
 	const avatar = user.avatarURL || `У пользователя нет аватара.`
 	if (isNumeric(name)) return m.reply(avatar)
-	return m.reply(`Ошибка! Пользователь ${name} не найден.`)
+	return m.reply(`Ошибка! Пользователь **${name}** не найден.`)
 }
 
 /* <--- !аватар <--- */
@@ -1500,8 +1500,11 @@ function sendChannel(cl, id, text) { // отправляет сообщение 
 // записываем удаленные смс из лички
 client.on('messageDelete', (message) => { // messageDeleteBulk массовое удаление смс
 	if (message.channel.type != "dm") return false
-	const text = `Сообщение от **${message.author.tag} (${message.author.id})** было удалено\r\n` + 
-		`*Текст сообщения:*\r\n${message.content}`
+	const textMessage = message.content ? `\r\n*Текст сообщения:*\r\n${message.content}` : ''
+	const atmFirst = message.attachments.first()
+	const attachments = atmFirst ? `\r\nURL: <${atmFirst.proxyURL}>` : ''
+	const text = `Сообщение от **${message.author.tag} (${message.author.id})** было удалено` + 
+		textMessage + attachments
 	sendChannel(client, '614678700373573641', text)
 })
 client.on('messageUpdate', (message) => {

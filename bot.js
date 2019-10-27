@@ -1919,10 +1919,8 @@ function isAdmin(user_id, guild_id=[]) { // очень кривая провер
 // делает запрос на url с параметрами и возвращает промис с результатом
 function sendSite(params) {
 	console.log(params.url)
+	if (!params.url) return new Promise(() => {})
 	params.url = encodeURI(params.url)
-	console.log(params.url)
-	console.log(request.post)
-	console.log(request.get)
 	const send = params.method == "POST" ? request.post : request.get
 	return new Promise((resolve, reject) => {
 		send(params, function (error, response) {
@@ -1940,7 +1938,9 @@ function getSetting() {
 		console.log(config)
 		const url = config.url_site
 		const token = config.dbToken
-		sendSite({method: "POST", url, form: {token, type: 'settings'}})
+		const params = {method: "POST", url, form: {token, type: 'settings'}}
+		console.log(params)
+		sendSite(params)
 		.then(response => {
 			const res = JSON.parse(response.body)
 			if (res.status !== "OK") reject(false)

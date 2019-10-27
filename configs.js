@@ -7,7 +7,7 @@ const tokenDiscord = process.env.BOT_TOKEN;
 const vkToken = process.env.VK_TOKEN;
 
 
-exports.cfg = {
+exports.exports = {
 	vkToken,
 	tokenDiscord,
 	dbToken,

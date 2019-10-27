@@ -1938,7 +1938,7 @@ function getSetting() {
 		console.log(config)
 		const url = config.url_site
 		const token = config.dbToken
-		const params = {method: "POST", url, form: {token, type: 'settings'}}
+		const params = {method: "POST", url: config.url_site, form: {token: config.dbToken, type: 'settings'}}
 		console.log(params)
 		sendSite(params)
 		.then(response => {

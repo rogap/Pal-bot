@@ -1918,7 +1918,11 @@ function isAdmin(user_id, guild_id=[]) { // очень кривая провер
 
 // делает запрос на url с параметрами и возвращает промис с результатом
 function sendSite(params) {
+	console.log(params.url)
 	params.url = encodeURI(params.url)
+	console.log(params.url)
+	console.log(request.post)
+	console.log(request.get)
 	const send = params.method == "POST" ? request.post : request.get
 	return new Promise((resolve, reject) => {
 		send(params, function (error, response) {

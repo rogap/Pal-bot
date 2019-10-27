@@ -1,15 +1,26 @@
 {
-  "name": "Bot",
-  "description": "Best bot",
-  "version": "0.0.0",
+  "name": "Pal-bot",
+  "description": "Paladins Discord Bot",
+  "version": "1.1.1",
+  "homepage": "https://github.com/rogap/pubo",
+  "repository": "github:rogap/pubo",
   "main": "bot.js",
-  "scripts": {
-    "start": "node bot.js"
+  "keywords": [
+    "paladins bot",
+    "paladins",
+    "paladins stats"
+  ],
+  "engines": {
+    "node": ">= 10.16.0",
+    "npm": ">= 6.9.0"
   },
   "dependencies": {
     "discord.js": "11.5.1",
     "canvas": "2.5.0",
-    "fs": "0.0.1-security",
     "request": "2.81.0"
+  },
+  "author": {
+    "url": "webmyself.ru",
+    "discord": "discord.gg/RG9WQtP"
   }
 }

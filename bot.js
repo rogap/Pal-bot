@@ -1937,6 +1937,7 @@ function sendSite(params) {
 // получаем настройки с сайта, вернет промис, когда загрузит настройки -> true or error -> false
 function getSetting() {
 	return new Promise((resolve, reject) => {
+		console.log(config)
 		const url = config.url_site
 		const token = config.dbToken
 		sendSite({method: "POST", url, form: {token, type: 'settings'}})

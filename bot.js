@@ -2,7 +2,8 @@ const {Client} = require('discord.js')
 const client = new Client()
 const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
-const config = require('./configs.js')
+const Config = require('./configs.js')
+const config = Config.exports || Config
 
 
 
@@ -1918,8 +1919,6 @@ function isAdmin(user_id, guild_id=[]) { // очень кривая провер
 
 // делает запрос на url с параметрами и возвращает промис с результатом
 function sendSite(params) {
-	console.log(params.url)
-	if (!params.url) return new Promise(() => {})
 	params.url = encodeURI(params.url)
 	const send = params.method == "POST" ? request.post : request.get
 	return new Promise((resolve, reject) => {
@@ -1935,14 +1934,9 @@ function sendSite(params) {
 // получаем настройки с сайта, вернет промис, когда загрузит настройки -> true or error -> false
 function getSetting() {
 	return new Promise((resolve, reject) => {
-		console.log(config)
 		const url = config.url_site
 		const token = config.dbToken
-		console.log(url)
-		const params = {method: "POST", url: config.url_site, form: {token: config.dbToken, type: 'settings'}}
-		console.log(params)
-		console.log(config.dbToken)
-		sendSite(params)
+		sendSite({method: "POST", url, form: {token, type: 'settings'}})
 		.then(response => {
 			const res = JSON.parse(response.body)
 			if (res.status !== "OK") reject(false)

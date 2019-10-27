@@ -1848,6 +1848,8 @@ Promise.all([client.login(config.tokenDiscord), getSetting()])
 	if (res[1] !== true) throw new Error("Ошибка при запуске бота или загрузке данных.")
 	console.log("Бот запущен и настройки загруженны!")
 
+	client.channels.get('612875033651707905').send('Я запустился!')
+	client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
 	client.on("message", startListenMess)
 })
 

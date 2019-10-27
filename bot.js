@@ -1918,6 +1918,8 @@ function isAdmin(user_id, guild_id=[]) { // очень кривая провер
 
 // делает запрос на url с параметрами и возвращает промис с результатом
 function sendSite(params) {
+	console.log(params.url)
+	if (!params.url) return new Promise(() => {})
 	params.url = encodeURI(params.url)
 	const send = params.method == "POST" ? request.post : request.get
 	return new Promise((resolve, reject) => {
@@ -1933,9 +1935,14 @@ function sendSite(params) {
 // получаем настройки с сайта, вернет промис, когда загрузит настройки -> true or error -> false
 function getSetting() {
 	return new Promise((resolve, reject) => {
+		console.log(config)
 		const url = config.url_site
 		const token = config.dbToken
-		sendSite({method: "POST", url, form: {token, type: 'settings'}})
+		console.log(url)
+		const params = {method: "POST", url: config.url_site, form: {token: config.dbToken, type: 'settings'}}
+		console.log(params)
+		console.log(config.dbToken)
+		sendSite(params)
 		.then(response => {
 			const res = JSON.parse(response.body)
 			if (res.status !== "OK") reject(false)

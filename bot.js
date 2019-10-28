@@ -399,7 +399,7 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	ctx.fillText(`РАНКЕД:`, 250, 170)
 	ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 190)
 	ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 210)
-	ctx.fillText(`Ранг: ${getRankGuru(main.Tier_RankedKBM)}`, 200, 230)
+	ctx.fillText(`Ранг: ${getRank(main.Tier_RankedKBM)}`, 200, 230)
 	ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 250)
 	if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 270)
 
@@ -745,6 +745,72 @@ function guruRanked(mess, accaunt) { // парсит страницу "Ranked"
 
 
 // ---> PALADINS STATS default function --->
+function getRank(n) { // переводит цифры в ранг
+	switch (n) {
+		case 1: return 'Бронза 5'
+		case 2: return 'Бронза 4'
+		case 3: return 'Бронза 3'
+		case 4: return 'Бронза 2'
+		case 5: return 'Бронза 1'
+		case 6: return 'Сильвер 5'
+		case 7: return 'Сильвер 4'
+		case 8: return 'Сильвер 3'
+		case 9: return 'Сильвер 2'
+		case 10: return 'Сильвер 1'
+		case 11: return 'Золото 5'
+		case 12: return 'Золото 4'
+		case 13: return 'Золото 3'
+		case 14: return 'Золото 2'
+		case 15: return 'Золото 1'
+		case 16: return 'Платина 5'
+		case 17: return 'Платина 4'
+		case 18: return 'Платина 3'
+		case 19: return 'Платина 2'
+		case 20: return 'Платина 1'
+		case 21: return 'Алмаз 5'
+		case 22: return 'Алмаз 4'
+		case 23: return 'Алмаз 3'
+		case 24: return 'Алмаз 2'
+		case 25: return 'Алмаз 1'
+		case 26: return 'Мастер'
+		case 27: return 'ГМ'
+		default: return 'Калибровка'
+	}
+}
+
+function getRankGuru(rank) {
+	switch (rank) {
+		case "Qualifying": return 0;break
+		case "Bronze V": return 1;break
+		case "Bronze IV": return 2;break
+		case "Bronze III": return 3;break
+		case "Bronze II": return 4;break
+		case "Bronze I": return 5;break
+		case "Silver V": return 6;break
+		case "Silver IV": return 7;break
+		case "Silver III": return 8;break
+		case "Silver II": return 9;break
+		case "Silver I": return 10;break
+		case "Gold V": return 11;break
+		case "Gold IV": return 12;break
+		case "Gold III": return 13;break
+		case "Gold II": return 14;break
+		case "Gold I": return 15;break
+		case "Platinum V": return 16;break
+		case "Platinum IV": return 17;break
+		case "Platinum III": return 18;break
+		case "Platinum II": return 19;break
+		case "Platinum I": return 20;break
+		case "Diamond V": return 21;break
+		case "Diamond IV": return 22;break
+		case "Diamond III": return 23;break
+		case "Diamond II": return 24;break
+		case "Diamond I": return 25;break
+		case "Masters": return 26;break
+		case "Grandmasters": return 27;break
+	}
+}
+
 function secToMin(s) { // секунды в минуты или минуты в часы, принцип тот же
 	let min = (s / 60).toFixed(2) + ''
 	if (min.indexOf('.') != -1) { // если дробное
@@ -1384,41 +1450,6 @@ function drawChampionsRanked(ctx, imgList) {
 		const img = imgList[i]
 		const x = positionX + 60 * i
 		ctx.drawImage(img, x, 180, 50, 50)
-	}
-}
-
-
-function getRankGuru(rank) {
-	switch (rank) {
-		case "Qualifying": return 0;break
-		case "Bronze V": return 1;break
-		case "Bronze IV": return 2;break
-		case "Bronze III": return 3;break
-		case "Bronze II": return 4;break
-		case "Bronze I": return 5;break
-		case "Silver V": return 6;break
-		case "Silver IV": return 7;break
-		case "Silver III": return 8;break
-		case "Silver II": return 9;break
-		case "Silver I": return 10;break
-		case "Gold V": return 11;break
-		case "Gold IV": return 12;break
-		case "Gold III": return 13;break
-		case "Gold II": return 14;break
-		case "Gold I": return 15;break
-		case "Platinum V": return 16;break
-		case "Platinum IV": return 17;break
-		case "Platinum III": return 18;break
-		case "Platinum II": return 19;break
-		case "Platinum I": return 20;break
-		case "Diamond V": return 21;break
-		case "Diamond IV": return 22;break
-		case "Diamond III": return 23;break
-		case "Diamond II": return 24;break
-		case "Diamond I": return 25;break
-		case "Masters": return 26;break
-		case "Grandmasters": return 27;break
-		default: return 'Калибровка'
 	}
 }
 // <--- ranked stats <---

@@ -63,10 +63,14 @@ const comands = { // будет загружаться для каждого с�
 	},
 	"!инфо": {
 		comands: ["!инфо"],
-		info: "Выводит способ связи с создателем",
+		info: "Выводит способ связи с создателем (в ЛС, убедитесь что у вас он не закрыт)",
 		func: function(mess) {
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
-			mess.reply(text)
+			const id = mess.author.id
+			const user = client.users.find((user => {
+				if ( user.id == id ) return user
+			}))
+			user.send(text)
 		}
 	},
 	"!онлайн": {

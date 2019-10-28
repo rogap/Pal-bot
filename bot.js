@@ -1498,34 +1498,34 @@ function showOnlineInServer(mess) { // !онлайн
 // приложения ->
 
 function getTextBots(num) { // склоняем слово
-	let n = (num + '').slice(-1) * 1;
+	let n = (num + '').slice(-1) * 1
 	if (n == 1) {
-		return 'бот';
+		return 'бот'
 	} else if (n > 1 && n < 5) {
-		return 'бота';
+		return 'бота'
 	} else {
-		return 'ботов';
+		return 'ботов'
 	}
 }
 
 function getTextUsers(num) { // правильно склоняет слово
-	let n = (num + '').slice(-1) * 1; // берем последнюю цифру
+	let n = (num + '').slice(-1) * 1 // берем последнюю цифру
 	if (n == 1) {
-		return 'пользователь';
+		return 'пользователь'
 	} else if (n > 1 && n < 5) {
-		return 'пользователя';
+		return 'пользователя'
 	} else {
-		return 'пользователей';
+		return 'пользователей'
 	}
 }
 
 function listGame(obj) { // принимает обьект с играми и кол-вом игроков и возвращает их список
-	if (Object.keys(obj).length == 0) return ``;
-	let list = `\n**Играют в:** `;
+	if (Object.keys(obj).length == 0) return ``
+	let list = `\n**Играют в:** `
 	for (let key in obj) {
-		list += `**"**${key}**"** **- ${obj[key]},** `;
+		list += `**"**${key}**"** **- ${obj[key]},** `
 	}
-	return `${list.slice(0, list.length - 4)}.**`;
+	return `${list.slice(0, list.length - 4)}.**`
 }
 
 // <- приложения

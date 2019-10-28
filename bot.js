@@ -780,34 +780,34 @@ function getRank(n) { // переводит цифры в ранг
 
 function getRankGuru(rank) {
 	switch (rank) {
-		case "Qualifying": return 0;break
-		case "Bronze V": return 1;break
-		case "Bronze IV": return 2;break
-		case "Bronze III": return 3;break
-		case "Bronze II": return 4;break
-		case "Bronze I": return 5;break
-		case "Silver V": return 6;break
-		case "Silver IV": return 7;break
-		case "Silver III": return 8;break
-		case "Silver II": return 9;break
-		case "Silver I": return 10;break
-		case "Gold V": return 11;break
-		case "Gold IV": return 12;break
-		case "Gold III": return 13;break
-		case "Gold II": return 14;break
-		case "Gold I": return 15;break
-		case "Platinum V": return 16;break
-		case "Platinum IV": return 17;break
-		case "Platinum III": return 18;break
-		case "Platinum II": return 19;break
-		case "Platinum I": return 20;break
-		case "Diamond V": return 21;break
-		case "Diamond IV": return 22;break
-		case "Diamond III": return 23;break
-		case "Diamond II": return 24;break
-		case "Diamond I": return 25;break
-		case "Masters": return 26;break
-		case "Grandmasters": return 27;break
+		case "Qualifying": return 0
+		case "Bronze V": return 1
+		case "Bronze IV": return 2
+		case "Bronze III": return 3
+		case "Bronze II": return 4
+		case "Bronze I": return 5
+		case "Silver V": return 6
+		case "Silver IV": return 7
+		case "Silver III": return 8
+		case "Silver II": return 9
+		case "Silver I": return 10
+		case "Gold V": return 11
+		case "Gold IV": return 12
+		case "Gold III": return 13
+		case "Gold II": return 14
+		case "Gold I": return 15
+		case "Platinum V": return 16
+		case "Platinum IV": return 17
+		case "Platinum III": return 18
+		case "Platinum II": return 19
+		case "Platinum I": return 20
+		case "Diamond V": return 21
+		case "Diamond IV": return 22
+		case "Diamond III": return 23
+		case "Diamond II": return 24
+		case "Diamond I": return 25
+		case "Masters": return 26
+		case "Grandmasters": return 27
 	}
 }
 

@@ -1464,32 +1464,33 @@ function showOnlineInServer(mess) { // !онлайн
 		return mess.reply("В личных сообщениях команда **!онлайн** не работает.")
 	}
 	let membersArr = mess.guild.members.array(),
-	game = {},
-	offline = 0,
-	dnd = 0, // красный
-	idle = 0, // желтый
-	online = 0, // зеленый
-	bot = 0; // сколько ботов
+		game = {},
+		offline = 0,
+		dnd = 0, // красный
+		idle = 0, // желтый
+		online = 0, // зеленый
+		bot = 0 // сколько ботов
+
 	for (let i = 0; i < membersArr.length; i++) {
-		if (membersArr[i].user.bot) {bot++; continue;} // если бот то пропускаем
+		if (membersArr[i].user.bot) {bot++; continue} // если бот то пропускаем
 		switch (membersArr[i].presence.status) {
-			case 'dnd': dnd++;break;
-			case 'idle': idle++;break;
-			case 'online': online++;break;
-			case 'offline': offline++;break;
+			case 'dnd': dnd++;break
+			case 'idle': idle++;break
+			case 'online': online++;break
+			case 'offline': offline++;break
 		}
 		if (membersArr[i].presence.game) {
 			if (game[membersArr[i].presence.game] > 0) {
-				game[membersArr[i].presence.game]++;
-			} else {game[membersArr[i].presence.game] = 1;}
+				game[membersArr[i].presence.game]++
+			} else {game[membersArr[i].presence.game] = 1}
 		}
 	}
 	let says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
 		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
-		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`;
+		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`
 	if (says.length >= 1800) {
-		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n${says}`;
-		says = says.slice(0, 1800) + " ...";
+		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n${says}`
+		says = says.slice(0, 1800) + " ..."
 	}
 	mess.reply(says)
 }

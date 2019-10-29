@@ -1009,8 +1009,8 @@ function drawItemsStatsSmall(ctx, params) { // для smallStats
 	ctx.fillText(`Матчей`, 40, 100)
 	ctx.fillStyle = "#ffffff"
 	ctx.fillText(`Всего: ${par.played || 0}`, 10, 120)
-	ctx.fillText(`Проиграно: ${par.won || 0}`, 10, 140)
-	ctx.fillText(`Выиграно: ${par.lost || 0}`, 10, 160)
+	ctx.fillText(`Проиграно: ${par.lost || 0}`, 10, 140)
+	ctx.fillText(`Выиграно: ${par.won || 0}`, 10, 160)
 
 	ctx.fillStyle = "#DBDB00"
 	ctx.fillText(`Урон`, 40, 200)
@@ -1171,8 +1171,8 @@ function drawItemsStatsFull(ctx, params) {
 	ctx.fillText(`Матчи`, 200, 20)
 	ctx.fillStyle = "#ffffff"
 	ctx.fillText(`Всего: ${par.played || 0}`, 170, 40)
-	ctx.fillText(`Проиграно: ${par.won || 0}`, 170, 60)
-	ctx.fillText(`Выиграно: ${par.lost || 0}`, 170, 80)
+	ctx.fillText(`Проиграно: ${par.lost || 0}`, 170, 60)
+	ctx.fillText(`Выиграно: ${par.won || 0}`, 170, 80)
 	ctx.fillText(`CPM: ${par.cpm || 0}`, 170, 100)
 	ctx.fillText(`Кредиты: ${par.credits || 0}`, 170, 120)
 	ctx.fillText(`У цели: ${par.objectiveTime || 0}`, 170, 140)
@@ -1402,8 +1402,8 @@ function drawItemsRanked(ctx, params) {
 	ctx.fillText(`Матчи`, 420, 20)
 	ctx.fillStyle = "#ffffff"
 	ctx.fillText(`Всего: ${par.played || 0}`, 390, 40)
-	ctx.fillText(`Проиграно: ${par.won || 0}`, 390, 60)
-	ctx.fillText(`Выиграно: ${par.lost || 0}`, 390, 80)
+	ctx.fillText(`Проиграно: ${par.lost || 0}`, 390, 60)
+	ctx.fillText(`Выиграно: ${par.won || 0}`, 390, 80)
 	ctx.fillText(`Винрейт: ${fixNaN((par.won / par.played * 100).toFixed(2))}%`, 390, 100)
 
 	ctx.fillStyle = "#DBDB00"

@@ -1915,7 +1915,7 @@ function startListenMess(message) { // обработака всех сообщ�
 		}
 
 		const valParams = value.params || [] // убираем ошибку, если нет параметров
-		const params = mySplit( message.content.slice(keyLen), valParams.length)
+		const params = mySplit( message.content.slice(keyLen), valParams.length - 1)
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
 		break // завершить поиск
 	}

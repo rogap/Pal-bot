@@ -612,7 +612,11 @@ function drawChampionsPlaypaladinsSH(ctx, imgList) { // рисуем чемпи�
 function prefStatsGuru(mess, name, getStats) {
 	name = name.trim()
 	// если начинается как пользователь, то тупо вырезаем все числа
-	if (name.indexOf("<@") == 0 || name.indexOf("@") == 0) name = name.replace(/[^0-9]+/ig, "")
+	//if (name.indexOf("<@") == 0 || name.indexOf("@") == 0) name = name.replace(/[^0-9]+/ig, "")
+	if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
+	if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
+	//if (!name || name === "me") name = mess.author.id // если не указан, то это автор
+	//if ( isNaN(+name) ) name = searchUser(name).id // ищем пользователя, его id
 
 	if (!name || name === "me") { // если имеется в виду свой ник
 		console.log("1")
@@ -625,11 +629,9 @@ function prefStatsGuru(mess, name, getStats) {
 		})
 	} else if (/#[0-9]{4}$/i.test(name)) { // если указан чужой ник
 		console.log("2")
-		const userId = mess.guild.members.findKey((member) => { // ищем id указанного юзера
-			if (member.user.tag == name) return member.user.id
-		})
-
-		if (!userId) return mess.reply(`Пользователь **${name}** не найден.`)
+		const user = searchUser(name) // ищем id указанного юзера
+		if (!user) return mess.reply(`Пользователь **${name}** не найден.`)
+		const userId = user.id
 
 		sendSite( getFormsParams(userId) ) // получаем чужой ник
 		.then(response => {
@@ -638,7 +640,6 @@ function prefStatsGuru(mess, name, getStats) {
 			if (!userName) return mess.reply(`Пользователь **${name}** не найден.`)
 			getStats(userName)
 		})
-
 	} else if (/^[0-9]+$/i.test(name)) { // если только цифры - id пользователя которого посмотреть стату
 		console.log("3")
 		sendSite( getFormsParams(name) ) // получаем чужой ник

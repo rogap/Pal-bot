@@ -624,7 +624,7 @@ function prefStatsGuru(mess, name, getStats) {
 		.then(response => {
 			const res = JSON.parse(response.body)
 			const userName = res.paladins_name
-			if (!userName) return mess.reply(`Пользователь **${name}** не найден.`)
+			if (!userName) return mess.reply(`У вас нет сохраненного ника. Используйте команду **!me ВАШ НИК** что бы сохранить ваш ник.`)
 			getStats(userName)
 		})
 	} else if (/#[0-9]{4}$/i.test(name)) { // если указан чужой ник
@@ -637,7 +637,7 @@ function prefStatsGuru(mess, name, getStats) {
 		.then(response => {
 			const res = JSON.parse(response.body)
 			const userName = res.paladins_name
-			if (!userName) return mess.reply(`Пользователь **${name}** не найден.`)
+			if (!userName) return mess.reply(`Пользователь **${name}** не имеет сохраненного ника.`)
 			getStats(userName)
 		})
 	} else if (/^[0-9]+$/i.test(name)) { // если только цифры - id пользователя которого посмотреть стату
@@ -646,7 +646,7 @@ function prefStatsGuru(mess, name, getStats) {
 		.then(response => {
 			const res = JSON.parse(response.body)
 			const userName = res.paladins_name
-			if (!userName) return mess.reply(`Пользователь **${name}** не найден.`)
+			if (!userName) return mess.reply(`Пользователь **${name}** не имеет сохраненного ника.`)
 			getStats(userName)
 		})
 	} else {

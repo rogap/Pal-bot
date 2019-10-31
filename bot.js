@@ -1568,7 +1568,7 @@ function showUsersAvatar(mess, name) {
 	if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
 
 	let user = searchUser(name)
-	if (!user) searchGuild(name)
+	if (!user) user = searchGuild(name)
 	if (!user) return mess.reply(`Ошибка! Пользователь **${defName}** не найден.`)
 
 	const avatarURL = user.avatarURL || user.iconURL

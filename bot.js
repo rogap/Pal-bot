@@ -1577,22 +1577,6 @@ function showUsersAvatar(mess, name) {
 	mess.reply(`Неизвестная ошибка при поиске **${defName}**.`)
 }
 
-function searchUser(nameOrId) { // ищет пользователя по id или тегу
-	const user = client.users.find(user => {
-		let locName = nameOrId
-		if (user.bot) locName = locName.slice(1)
-		if (user.id == nameOrId || user.tag == nameOrId) return user
-	})
-	return user
-}
-
-function searchGuild(guildId) { // ищет гильдию по id
-	const guild = client.guilds.find(guild => {
-		if (guild.id == guildId) return guild
-	})
-	return guild
-}
-
 /* <--- !аватар <--- */
 
 
@@ -1870,9 +1854,29 @@ function declension(num, dec1, dec2, dec3) {
 	}
 }
 
+
 function isNumeric(n) { // првоерка на число
 	return !isNaN(parseFloat(n)) && isFinite(n)
 }
+
+
+function searchUser(nameOrId) { // ищет пользователя по id или тегу
+	const user = client.users.find(user => {
+		let locName = nameOrId
+		if (user.bot) locName = locName.slice(1)
+		if (user.id == nameOrId || user.tag == nameOrId) return user
+	})
+	return user
+}
+
+
+function searchGuild(guildId) { // ищет гильдию по id
+	const guild = client.guilds.find(guild => {
+		if (guild.id == guildId) return guild
+	})
+	return guild
+}
+
 // <--- Вспомогательные функции <---
 
 

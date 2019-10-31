@@ -1562,33 +1562,36 @@ function startCounterUsers() {
 /* ---> !аватар ---> */
 
 function showUsersAvatar(mess, name) {
-	const defName = name
 	if (!name) name = mess.author.id
+	const defName = name
 	if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
 	if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
 
-	let avatarURL = null
-	client.guilds.find(guild => {
-		if (guild.id == name) {
-			avatarURL = guild.iconURL
-			return guild.iconURL
-		}
-		const url = guild.members.findKey(user => {
-			let locName = name
-			if (user.bot) locName = name.slice(1) // у ботов удаляем
+	let user = searchUser(name)
+	if (!user) searchGuild(name)
+	if (!user) return mess.reply(`Ошибка! Пользователь **${defName}** не найден.`)
 
-			if (user.user.tag == locName || user.user.id == locName) {
-				avatarURL = user.user.avatarURL
-				return user.user.avatarURL
-			}
-		})
-		if (url) return url
-	})
+	const avatarURL = user.avatarURL || user.iconURL
+	if (avatarURL === null) return mess.reply(`У пользователя **${defName}** нет аватара.`)
 	if (avatarURL) return mess.reply(avatarURL)
-	mess.reply(`Ошибка! Пользователь **${defName}** не найден.`)
+	mess.reply(`Неизвестная ошибка при поиске **${defName}**.`)
 }
 
+function searchUser(nameOrId) { // ищет пользователя по id или тегу
+	const user = client.users.find(user => {
+		let locName = nameOrId
+		if (user.bot) locName = locName.slice(1)
+		if (user.id == nameOrId || user.tag == nameOrId) return user
+	})
+	return user
+}
 
+function searchGuild(guildId) { // ищет гильдию по id
+	const guild = client.guilds.find(guild => {
+		if (guild.id == guildId) return guild
+	})
+	return guild
+}
 
 /* <--- !аватар <--- */
 

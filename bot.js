@@ -1838,14 +1838,15 @@ function getDateVK(d) { // получаем нужный вид даты
 
 /**
  * Помогает склонять исчесляемое слово и возвращает нужное окончание
- * params@num - число к котому будет "склоняться"
- * params@dec1 - окончание отвечающее на 1
- * params@dec2 - окончание отвечающее на от 2 до 5
- * params@dec3 - окончание отвечющее на остальное
+ * @param {Number} [num] - число к котому будет "склоняться"
+ * @param {String} [dec1] - окончание отвечающее на 1
+ * @param {String} [dec2] - окончание отвечающее на от 2 до 5
+ * @param {String} [dec3] - окончание отвечющее на остальное
+ * @return {String}
  **/
 function declension(num, dec1, dec2, dec3) {
 	if (num >= 5 && num < 20) return dec3
-	let n = (num + '').slice(-1) * 1 // берем последнюю цифру
+	let n = (num + '').slice(-1) // берем последнюю цифру
 	if (n == 1) {
 		return dec1
 	} else if (n > 1 && n < 5) {

@@ -490,7 +490,7 @@ function playpaladinsSH(mess, name) {
 }
 
 function drawPlaypaladinsSH(json) {
-	const imgWidth = 1160
+	const imgWidth = 1175
 	const canvas = createCanvas(imgWidth, 590)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 15px Georgia'
@@ -527,7 +527,7 @@ function drawPlaypaladinsSH(json) {
 }
 
 function drawItemsPlaypaladinsSH(ctx, matches) {
-	const pos = [70, 220, 330, 410, 535, 640, 690, 790, 870, 960, 1070]
+	const pos = [70, 235, 345, 425, 550, 655, 705, 805, 885, 975, 1085]
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
@@ -949,7 +949,8 @@ function loadChampions(championList) {
 
 // ---> smal stats --->
 function drawStatsSmall(params) {
-	const canvas = createCanvas(810, 360)
+	const statsWidth = params.statsWidth = 830
+	const canvas = createCanvas(statsWidth, 360)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
 
@@ -960,7 +961,7 @@ function drawStatsSmall(params) {
 		loadImage(`stats-img/stats-background-${background}.jpg`)
 		.then((img) => {
 			const par = params.groups
-			ctx.drawImage(img, 0, 0, 810, 330)
+			ctx.drawImage(img, 0, 0, statsWidth, 330)
 			drawItemsStatsSmall(ctx, params) // рисуем эллементы не нужнающиеся в промисах
 			
 			const championList = []
@@ -1102,10 +1103,10 @@ function drawItemsStatsSmall(ctx, params) { // для smallStats
 
 	// текст снизу
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 330, 810, 360) // черный прямоугольник снизу
+	ctx.fillRect(0, 330, params.statsWidth, 360) // черный прямоугольник снизу
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, 405, 350)
+	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, params.statsWidth / 2, 350)
 }
 // <--- smal stats <---
 
@@ -1113,7 +1114,8 @@ function drawItemsStatsSmall(ctx, params) { // для smallStats
 
 // ---> full stats --->
 function drawStatsFull(params) {
-	const canvas = createCanvas(960, 590)
+	const statsWidth = params.statsWidth = 1010
+	const canvas = createCanvas(statsWidth, 590)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
 
@@ -1124,7 +1126,7 @@ function drawStatsFull(params) {
 		loadImage(`stats-img/stats-background-${background}.jpg`)
 		.then((img) => {
 			const par = params.groups
-			ctx.drawImage(img, 0, 0, 1000, 600)
+			ctx.drawImage(img, 0, 0, statsWidth, 600)
 			drawItemsStatsFull(ctx, params) // рисуем эллементы не нужнающиеся в промисах
 			
 			const championList = []
@@ -1164,44 +1166,44 @@ function drawItemsStatsFull(ctx, params) {
 	ctx.fillStyle = "#DBDB00"
 	ctx.fillText(`region:`, 10, 100)
 	ctx.fillStyle = "#FF6600"
-	ctx.fillText(`(${region || "-"})`, 30, 120)
+	ctx.fillText(`${region || "-"}`, 30, 120)
 	ctx.fillStyle = "#33CC00"
 	ctx.fillText(`lvl: ${par.lvl}`, 10, 140)
 
 	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Матчи`, 200, 20)
+	ctx.fillText(`Матчи`, 235, 20)
 	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.played || 0}`, 170, 40)
-	ctx.fillText(`Проиграно: ${par.lost || 0}`, 170, 60)
-	ctx.fillText(`Выиграно: ${par.won || 0}`, 170, 80)
-	ctx.fillText(`CPM: ${par.cpm || 0}`, 170, 100)
-	ctx.fillText(`Кредиты: ${par.credits || 0}`, 170, 120)
-	ctx.fillText(`У цели: ${par.objectiveTime || 0}`, 170, 140)
+	ctx.fillText(`Всего: ${par.played || 0}`, 205, 40)
+	ctx.fillText(`Проиграно: ${par.lost || 0}`, 205, 60)
+	ctx.fillText(`Выиграно: ${par.won || 0}`, 205, 80)
+	ctx.fillText(`CPM: ${par.cpm || 0}`, 205, 100)
+	ctx.fillText(`Кредиты: ${par.credits || 0}`, 205, 120)
+	ctx.fillText(`У цели: ${par.objectiveTime || 0}`, 205, 140)
 
 	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Времени`, 410, 20)
+	ctx.fillText(`Времени`, 450, 20)
 	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.allTime || 0}`, 380, 40)
-	ctx.fillText(`Казуал: ${par.casualTime || 0}`, 380, 60)
-	ctx.fillText(`Ранкед: ${par.rankedTime || 0}`, 380, 80)
+	ctx.fillText(`Всего: ${par.allTime || 0}`, 430, 40)
+	ctx.fillText(`Казуал: ${par.casualTime || 0}`, 430, 60)
+	ctx.fillText(`Ранкед: ${par.rankedTime || 0}`, 430, 80)
 
 	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Убийства`, 600, 20)
+	ctx.fillText(`Убийства`, 650, 20)
 	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`KDA: ${par.kda || 0}`, 570, 40)
-	ctx.fillText(`Убийств: ${par.kills || 0}`, 570, 60)
-	ctx.fillText(`Смертей: ${par.deaths || 0}`, 570, 80)
-	ctx.fillText(`Помощи: ${par.assists || 0}`, 570, 100)
+	ctx.fillText(`KDA: ${par.kda || 0}`, 620, 40)
+	ctx.fillText(`Убийств: ${par.kills || 0}`, 620, 60)
+	ctx.fillText(`Смертей: ${par.deaths || 0}`, 620, 80)
+	ctx.fillText(`Помощи: ${par.assists || 0}`, 620, 100)
 
 	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Урон`, 770, 20)
+	ctx.fillText(`Урон`, 820, 20)
 	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Игрокам: ${par.player || 0}`, 740, 40)
-	ctx.fillText(`Исцеления: ${par.teamHealing || 0}`, 740, 60)
-	ctx.fillText(`Самохилл: ${par.selfHealing || 0}`, 740, 80)
-	ctx.fillText(`Оружием: ${par.weapon || 0}`, 740, 100)
-	ctx.fillText(`Защита: ${par.shielding || 0}`, 740, 120)
-	ctx.fillText(`Получено: ${par.taken || 0}`, 740, 140)
+	ctx.fillText(`Игрокам: ${par.player || 0}`, 790, 40)
+	ctx.fillText(`Исцеления: ${par.teamHealing || 0}`, 790, 60)
+	ctx.fillText(`Самохилл: ${par.selfHealing || 0}`, 790, 80)
+	ctx.fillText(`Оружием: ${par.weapon || 0}`, 790, 100)
+	ctx.fillText(`Защита: ${par.shielding || 0}`, 790, 120)
+	ctx.fillText(`Получено: ${par.taken || 0}`, 790, 140)
 
 	// заголовки таблицы
 	ctx.textAlign = "center"
@@ -1274,10 +1276,10 @@ function drawItemsStatsFull(ctx, params) {
 
 	// текст снизу
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 560, 970, 590) // черный прямоугольник снизу
+	ctx.fillRect(0, 560, params.statsWidth, 590) // черный прямоугольник снизу
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, 970/2, 580)
+	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, params.statsWidth / 2, 580)
 }
 
 
@@ -1319,7 +1321,8 @@ function drawChampionsStatsFull(ctx, imgList) {
 
 // ---> ranked stats --->
 function drawStatsRanked(params) {
-	const canvas = createCanvas(780, 340)
+	const statsWidth = params.statsWidth = 800
+	const canvas = createCanvas(statsWidth, 340)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
 	const rank = getRankGuru(params.groups.rank)
@@ -1331,7 +1334,7 @@ function drawStatsRanked(params) {
 		loadImage(`stats-img/stats-background-${background}.jpg`)
 		.then((img) => {
 			const par = params.groups
-			ctx.drawImage(img, 0, 0, 780, 310)
+			ctx.drawImage(img, 0, 0, statsWidth, 310)
 			drawItemsRanked(ctx, params) // рисуем эллементы не нужнающиеся в промисах
 			
 			const championList = []
@@ -1442,10 +1445,10 @@ function drawItemsRanked(ctx, params) {
 
 	// текст снизу
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 310, 790, 340) // черный прямоугольник снизу
+	ctx.fillRect(0, 310, params.statsWidth, 340) // черный прямоугольник снизу
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, 390, 330)
+	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, params.statsWidth / 2, 330)
 }
 
 

@@ -177,8 +177,7 @@ function getPlaypaladinsSS(mess, name) {
 		.then(drawPlaypaladinsSS) // рисуем
 		.then(res => { // отправляем
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 		})
 	}
 }
@@ -197,8 +196,7 @@ function getPlaypaladinsSH(mess, name) {
 		.then(drawPlaypaladinsSH) // рисуем
 		.then(res => { // отправляем
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 		})
 	}
 }
@@ -217,8 +215,7 @@ function getGuruSG(mess, name) {
 			.then(drawStatsSmall) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
 			// если просто ник
@@ -228,8 +225,7 @@ ${mess.author}`, {file: buffer, name: "stats.png"})
 			.then(drawStatsSmall) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else {
 			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
@@ -251,8 +247,7 @@ function getGuruSF(mess, name) {
 			.then(drawStatsFull) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
 			// если просто ник
@@ -262,8 +257,7 @@ ${mess.author}`, {file: buffer, name: "stats.png"})
 			.then(drawStatsFull) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else {
 			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
@@ -285,8 +279,7 @@ function getGuruSR(mess, name) {
 			.then(drawStatsRanked) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
 			// если просто ник
@@ -296,8 +289,7 @@ ${mess.author}`, {file: buffer, name: "stats.png"})
 			.then(drawStatsRanked) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС. 
-${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else {
 			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)

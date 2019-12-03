@@ -4,6 +4,8 @@ const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
 const Config = require('./configs.js')
 const config = Config.exports || Config
+config.timeStart = +new Date()
+config.usedComands = 0
 
 
 
@@ -1929,6 +1931,7 @@ function startListenMess(message) { // обработака всех сообщ�
 		const valParams = value.params || [] // убираем ошибку, если нет параметров
 		const params = mySplit( message.content.slice(keyLen), valParams.length - 1)
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
+		config.usedComands++ // увеличиваем кол-во использованных команд
 		break // завершить поиск
 	}
 }
@@ -1995,6 +1998,27 @@ function getSetting() {
 	})
 }
 
+
+
+setInterval(setStatsToSite, 60000) // обновляем статистику для сайта каждую минуту
+
+function setStatsToSite() {
+	const url = config.url_site
+	const token = config.dbToken
+	let users = 0
+	let servers = 0
+
+	client.guilds.forEach(guild => {
+		servers++
+		users += guild.memberCount
+	})
+
+	sendSite({method: "POST", url, form: {
+		token, type: 'stats', servers, users, usedComands: config.usedComands, timeStart: config.timeStart
+	}}).then (res => {
+		console.log(res.body)
+	})
+}
 
 
 

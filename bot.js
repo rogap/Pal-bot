@@ -2005,6 +2005,7 @@ setInterval(setStatsToSite, 60000) // обновляем статистику д
 function setStatsToSite() {
 	const url = config.url_site
 	const token = config.dbToken
+	const timeWork = new Date() - config.timeWork
 	let users = 0
 	let servers = 0
 
@@ -2014,7 +2015,7 @@ function setStatsToSite() {
 	})
 
 	sendSite({method: "POST", url, form: {
-		token, type: 'stats', servers, users, usedComands: config.usedComands, timeStart: config.timeStart
+		token, type: 'stats', servers, users, usedComands: config.usedComands, timeWork
 	}}).then (res => {
 		console.log(res.body)
 	})

@@ -2005,7 +2005,7 @@ setInterval(setStatsToSite, 60000) // обновляем статистику д
 function setStatsToSite() {
 	const url = config.url_site
 	const token = config.dbToken
-	const timeWork = new Date() - config.timeWork
+	const timeWork = new Date() - config.timeStart
 	let users = 0
 	let servers = 0
 

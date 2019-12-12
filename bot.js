@@ -2025,7 +2025,7 @@ function setStatsToSite() {
 	sendSite({method: "POST", url, form: {
 		token, type: 'stats', servers, users, usedComands: config.usedComands, timeWork
 	}}).then (res => {
-		console.log(res.body)
+		console.log(res.body) // успешно отправленно
 	})
 }
 

@@ -2,6 +2,8 @@
 
 Бот выдачи статистики по игре Paladins и...
 
+[Веб-страница](https://webmyself.ru/pal-bot/) бота
+
 ## Comands
 
 PR| Команда    | Описание

@@ -1979,6 +1979,7 @@ function isAdmin(user_id, guild_id=[]) { // очень кривая провер
 
 // делает запрос на url с параметрами и возвращает промис с результатом
 function sendSite(params) {
+	if (!params.strictSSL) params.strictSSL = false
 	params.url = encodeURI(params.url)
 	const send = params.method == "POST" ? request.post : request.get
 	return new Promise((resolve, reject) => {

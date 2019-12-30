@@ -269,7 +269,6 @@ function getPlaypaladinsSS(mess, name) {
 
 	function getStats(name) {
 		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть
-		console.log(name + "!!!")
 
 		playpaladinsSS(mess, name) // получаем инфу
 		.then(drawPlaypaladinsSS) // рисуем
@@ -823,7 +822,7 @@ function paladinsSL(mess, name, championName, num) {
 					text += `\r\n№ **${i + 1}**; Имя колоды: **${deck.DeckName}**.`
 				}
 
-				mess.reply(`**Выберите одну из колод, вовторив команду и вписав нужную цифру в конце:**${text}`)
+				mess.reply(`**Выберите одну из колод, повторив команду и вписав нужную цифру в конце:**${text}`)
 				resolve({err: true}) // ничего больше не делаем, завершаем
 			}
 			resolve(obj)

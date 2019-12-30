@@ -2576,7 +2576,6 @@ function createSession() {
 	// 	resolve(session)
 	// })
 
-
 	console.log("createSession")
     return new Promise((resolve, reject) => {
         const timestamp = moment().utc().format("YYYYMMDDHHmmss")
@@ -2590,7 +2589,7 @@ function createSession() {
 			const session = body.session_id
 			config.session = session
 			config.timeStartSession = +new Date()
-			console.log(session)
+			//console.log(session)
             resolve(session)
         })
     })
@@ -2786,7 +2785,7 @@ Promise.all([
 
 
 function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
-	if (message.author.id != "510112915907543042") return false // testing ON
+	//if (message.author.id != "510112915907543042") return false // testing ON
 	// перебираем все команды
 	for (key in comands) {
 		// если в начале сообщения стоит команда (ищем команду)

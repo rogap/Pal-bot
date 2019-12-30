@@ -4,11 +4,32 @@ const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
 const Config = require('./configs.js')
 const config = Config.exports || Config
+const moment = require("moment")
+const md5 = require("md5")
 config.timeStart = +new Date()
 config.usedComands = 0
 
+let championsCard = null // инфа будет загруженна с сайта
+let LegendarChampions = {} // тут будет обьект с ключами id легендарок персонажей
+let cardFrames = null // тут будет массив фреймов карт (загруженные картинки)
+let imgBackground = null // тут будут "случайные" фоны для статы
+let differentImg = {} // разные изображения
 
 
+
+function checkNewNameComand(name) { // првоеряет есть ли такая команда (список команд)
+	if (!name.fort) name = [name] // делаем массивом если не массив -_-
+
+	for (let comandName in comands) {
+		const comand = comands[comandName]
+		for (let i = 0; i < name.length; i++) {
+			const newName = name[i]
+			const index = comand.comands.indexOf(newName)
+			if (index != -1) return true
+		}
+	}
+	return false
+}
 const comands = { // будет загружаться для каждого сервера свой, как и настройки к функциям
 	"!hh": {
 		comands: ["!hh"],
@@ -16,6 +37,50 @@ const comands = { // будет загружаться для каждого с�
 		info: "Выводит список команд.",
 		func: showInfoComands
 		//params: ["Команда"]
+	},
+	"!recomand": {
+		comands: ["!recomand"],
+		info: "__(только админам)__ Изменяет название указанной команды (__с префиксом__ можно указать несколько, через запятую). __**В РАЗРАБОТКЕ**__.",
+		func: function(mess, oldName, newName) {
+			return mess.reply("Команда находится в разработке.")
+			// проверяем правильность команды
+			//if ( !comands[oldName] ) return mess.reply(`Команда **${oldName}** не найдена.`)
+
+			// проверяем занята ли такая команда
+			//if ( checkNewNameComand(newName) ) return mess.reply(`Команда **${newName}** уже существует.`)
+
+			// применяем новое название к команде
+			// sendSite({
+			// 	method: 'POST',
+			// 	url: config.url_site,
+			// 	form: {
+			// 		token: config.dbToken,
+			// 		type: 'comands'
+			// 	}
+			// })
+
+			// sendSite({
+			// 	method: 'POST',
+			// 	url: config.url_site,
+			// 	form: {
+			// 		token: config.dbToken,
+			// 		type: 'update_comands',
+			// 		guild_id: '352352',
+			// 		comands: JSON.stringify({
+			// 			"!me": {
+			// 				names: ["!me", "!меня"],
+			// 				func: "functionMe"
+			// 			}
+			// 		})
+			// 	}
+			// })
+
+			// .then(res => {
+			// 	const guildComands = JSON.parse(res.body)
+			// 	console.log(guildComands)
+			// })
+		},
+		params: ["Текущее имя команды", "Новое имя команды"]
 	},
 	"!me": {
 		comands: ["!me"],
@@ -35,6 +100,38 @@ const comands = { // будет загружаться для каждого с�
 		comands: ["!sh", "!история"],
 		info: "Выводит рейтинговою статистику указанного аккаунта (playpaladins).",
 		func: getPlaypaladinsSH,
+		params: ["Ник"],
+		permission: "ATTACH_FILES",
+		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	},
+	"!sl": {
+		comands: ["!sl", "!колода"],
+		info: ["Выводит колоды игрока указанного чемпиона"],
+		func: getPaladinsSL,
+		params: ["Ник", "имя чемпиона", "номер колоды"],
+		permission: "ATTACH_FILES",
+		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	},
+	"!st": {
+		comands: ["!st", "!лидеры"],
+		info: ["Выводит топ 10 лидеров указанного чемпиона"],
+		func: getPaladinsLeaderboard,
+		params: ["имя чемпиона"],
+		permission: "ATTACH_FILES",
+		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	},
+	"!sm": {
+		comands: ["!sm", "!матч"],
+		info: ["Выводит подробности матча по id матча или по нику игрока"],
+		func: getPaladinsMatchdetails,
+		params: ["id или Ник", "Порядок матча, если указан ник"],
+		permission: "ATTACH_FILES",
+		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	},
+	"!sp": {
+		comands: ["!sp"],
+		info: ["Проверяет статус игрока"],
+		func: getPaladinsPlayerStatus,
 		params: ["Ник"],
 		permission: "ATTACH_FILES",
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
@@ -84,36 +181,36 @@ const comands = { // будет загружаться для каждого с�
 		comands: ["!всего"],
 		info: "Выводит сколько всего серверов, людей и людей онлайн в данный момент",
 		func: showAllServersInfo
-	},
-	"!аватар": {
-		comands: ["!аватар"],
-		info: "Выводит ссылку на аватарку указанного пользователя",
-		func: showUsersAvatar,
-		params: ["Id или никнейм+тег пользователя (упомянуть)"]
-	},
-	"!вики": {
-		comands: ["!вики"],
-		info: "Осуществляет поиск в **Википедии**",
-		func: getVikiTextRU,
-		params: ["Текст"]
-	},
-	"!viki": {
-		comands: ["!viki"],
-		info: "Performs a search on **Wikipedia**",
-		func: getVikiTextEN,
-		params: ["Text"]
-	},
-	"!смс": {
-		comands: ["!смс"],
-		info: "отправляет сообщение в вк указанному id",
-		func: sendMessToVK,
-		params: ["id", "сообщение"]
-	},
-	"!переписка": {
-		comands: ["!переписка"],
-		info: "выводит 10 последних сообщений из вк (сколько влезит, если длинные)",
-		func: get_vk_messages
 	}
+	// "!аватар": {
+	// 	comands: ["!аватар"],
+	// 	info: "Выводит ссылку на аватарку указанного пользователя",
+	// 	func: showUsersAvatar,
+	// 	params: ["Id или никнейм+тег пользователя (упомянуть)"]
+	// },
+	// "!вики": {
+	// 	comands: ["!вики"],
+	// 	info: "Осуществляет поиск в **Википедии**",
+	// 	func: getVikiTextRU,
+	// 	params: ["Текст"]
+	// },
+	// "!viki": {
+	// 	comands: ["!viki"],
+	// 	info: "Performs a search on **Wikipedia**",
+	// 	func: getVikiTextEN,
+	// 	params: ["Text"]
+	// },
+	// "!смс": {
+	// 	comands: ["!смс"],
+	// 	info: "отправляет сообщение в вк указанному id",
+	// 	func: sendMessToVK,
+	// 	params: ["id", "сообщение"]
+	// },
+	// "!переписка": {
+	// 	comands: ["!переписка"],
+	// 	info: "выводит 10 последних сообщений из вк (сколько влезит, если длинные)",
+	// 	func: get_vk_messages
+	// }
 }
 
 
@@ -172,13 +269,13 @@ function getPlaypaladinsSS(mess, name) {
 
 	function getStats(name) {
 		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть
+		console.log(name + "!!!")
 
 		playpaladinsSS(mess, name) // получаем инфу
 		.then(drawPlaypaladinsSS) // рисуем
 		.then(res => { // отправляем
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-			mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 		})
 	}
 }
@@ -197,12 +294,135 @@ function getPlaypaladinsSH(mess, name) {
 		.then(drawPlaypaladinsSH) // рисуем
 		.then(res => { // отправляем
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-			mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 		})
 	}
 }
 // <--- !sh <---
+
+
+
+// ---> !sl --->
+function getPaladinsSL(mess, name, championName, num) {
+	if (!championsIds[championName]) {
+		return mess.reply("Введите корректное имя чемпиона")
+	}
+
+	// проверка num нужна
+	if (num !== undefined) {
+		if (parseInt(num) != num || num < 1) return mess.reply("Введите корректное число колоды")
+	}
+
+	prefStatsGuru(mess, name, getStats)
+
+	function getStats(name) {
+		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (хз зачем это)
+
+		paladinsSL(mess, name, championName, num) // получаем инфу
+		.then(drawPaladinsSL) // рисуем
+		.then(res => { // отправляем
+			if (res.err) return false // ничего не делает если была ошибка (уже сделали)
+			console.log("Отправляем")
+			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
+			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+		})
+	}
+}
+// <--- !sl <---
+
+
+
+// ---> !st --->
+function getPaladinsLeaderboard(mess, championName) {
+	if (!championName) return mess.reply(`Введите корректное имя чемпиона`)
+	const champ = championsIds[championName]
+	if (!champ) return mess.reply(`Введите корректное имя чемпиона`)
+	const champId = champ.id
+	if (!champId) return mess.reply(`Введите корректное имя чемпиона`)
+	hiRezFunc("getchampionleaderboard", champId, 428)
+	.then(top => {
+		let text = `__Топ 10 **${championName}**:__`
+		
+		for (let i = 0; i < 10; i++) {
+			text += `\r\n${i + 1}. **${top[i].player_name || '-скрытый профиль-'}** Винрейт: **${top[i].wins}/${top[i].losses}**.`
+		}
+		mess.reply(text)
+	})
+}
+// <--- !st <---
+
+
+
+// ---> !sm --->
+function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
+	//if (!matchIdOrName) return mess.reply(`Введите корректный Ник игрока или id матча`)
+
+	function getMatchForId(matchId) {
+		hiRezFunc("getmatchdetails", matchId)
+		.then(match => {
+			if (!match[0].name) return mess.reply(`Матч не найден`)
+
+			const res = drawMatchdetails(mess, match)
+			if (res.err) return false // ничего не делает если была ошибка (уже сделали)
+			console.log("Отправляем")
+			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
+			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+		})
+	}
+
+	if ( !isNaN(parseInt(matchIdOrName)) ) { // если id матча
+		getMatchForId(matchIdOrName)
+	} else { // если ник игрока
+		// делаем запрос на матчи игрока, получаем id последней катки или указанной
+		prefStatsGuru(mess, matchIdOrName, getStats)
+
+		function getStats(name) {
+			name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
+
+			hiRezFunc('getplayeridbyname', name)
+			.then(player => {
+				if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
+				hiRezFunc('getmatchhistory', player[0].player_id)
+				.then(matches => {
+					const match = matches[matchNum - 1] // берем указанный матч
+					if (!match || !match.Match) return mess.reply("Указанный матч не найден")
+					getMatchForId(match.Match)
+				})
+			})
+		}
+	}
+}
+// <--- !sm <---
+
+
+
+// ---> !sp --->
+function getPaladinsPlayerStatus(mess, name) {
+	prefStatsGuru(mess, name, getStats)
+
+	function getStats(name) {
+		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
+
+		hiRezFunc("getplayeridbyname", name)
+		.then(player => {
+			if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
+			hiRezFunc("getplayerstatus", player[0].player_id)
+			.then(retranslator)
+			.then(res => {
+				if (res.err) return mess.reply(res.err)
+				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+			})
+
+			function retranslator(status) { // что бы передавать name
+				return new Promise(resolve => {
+					return resolve( drawPaladinsPlayerStatus(status, name) )
+				})
+			}
+		})
+	}
+}
+// <--- !sp <---
 
 
 
@@ -217,8 +437,7 @@ function getGuruSG(mess, name) {
 			.then(drawStatsSmall) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-				mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
 			// если просто ник
@@ -228,8 +447,7 @@ function getGuruSG(mess, name) {
 			.then(drawStatsSmall) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-				mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else {
 			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
@@ -251,8 +469,7 @@ function getGuruSF(mess, name) {
 			.then(drawStatsFull) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-				mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
 			// если просто ник
@@ -262,8 +479,7 @@ function getGuruSF(mess, name) {
 			.then(drawStatsFull) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-				mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else {
 			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
@@ -285,8 +501,7 @@ function getGuruSR(mess, name) {
 			.then(drawStatsRanked) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-				mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
 			// если просто ник
@@ -296,8 +511,7 @@ function getGuruSR(mess, name) {
 			.then(drawStatsRanked) // рисуем
 			.then(res => {
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				const NEWS = "**Внимание!** Бот будет перенесен на аккаунт бота! **ТУТ** он будет работать до конца этого года. Подробней смотрите в группе бота или спрашивайте в ЛС."
-				mess.channel.send(`${NEWS} ${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
 		} else {
 			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
@@ -311,21 +525,10 @@ function getGuruSR(mess, name) {
 // ---> draw playpaladins small stats --->
 function playpaladinsSS(mess, name) {
 	return new Promise(resolve => {
-		sendSite({url: `http://www.playpaladins.online/api/profile/pc/${name}`, json: true})
-		.then(response => {
-			const json = response.body
-
-			if (json.message) { // у плейпаладинса так...
-				mess.reply(`Ошибка, игрок "${name}" не найден.`)
-				return new Promise(() => {})
-			}
-
-			if (!json.champions || !json.main) { // если нет данных вообще, то профиль скрыт либо хз
-				mess.reply(`Ошибка, возможно у игрока **"${name}"** скрыт профиль`)
-				return new Promise(() => {})
-			}
-
-			resolve(json)
+		searchPaladinsPlayer(name)
+		.then(resolve)
+		.catch(err => {
+			mess.reply(`Ошибка, игрок **"${name}"** не найден или у него скрыт профиль.`)
 		})
 	})
 }
@@ -337,38 +540,32 @@ function drawPlaypaladinsSS(json) {
 
 	return new Promise(resolve => {
 		// загружаем случайный глобальный фон для статы
-		const background = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
+		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const main = json.main
+		const kda = getKDABP(json.champions)
+		let championList = []
+		for (let i = 0; i < kda.best.length; i ++) {
+			const champion = kda.best[i].champion
+			championList.push( championsIds[fixText(champion)].img )
+		}
 
-		loadImage(`stats-img/stats-background-${background}.jpg`)
+		ctx.drawImage(img, 0, 0, 760, 300)
+		drawItemsPlaypaladinsSS(ctx, main, kda) // рисуем эллементы не нужнающиеся в промисах
+
+		if (!championList.length) resolve({ctx, main, kda}) // если чемпионов нет
+
+		drawChampionsPlaypaladinsSS(ctx, championList) // рисуем загруженных чемпионов
+
+		// data загружаемой картинки ранга
+		const rankNum = main.Tier_RankedKBM
+		const rankUrl = rankNum ? `divisions/${rankNum}.png` : 'no-rank.png'
+		const rankImgWidth = 192
+		const rankImgHeight = rankNum == 0 ? 224 : rankNum == 27 ? 241 : rankNum == 26 ? 221 : 192
+
+		loadImage(rankUrl) // загружаем картинку ранга
 		.then(img => {
-			const main = json.main
-			const kda = getKDABP(json.champions)
-			let championList = []
-			for (let i = 0; i < kda.best.length; i ++) {
-				championList.push( fixText(kda.best[i].champion) )
-			}
-
-			ctx.drawImage(img, 0, 0, 760, 300)
-			drawItemsPlaypaladinsSS(ctx, main, kda) // рисуем эллементы не нужнающиеся в промисах
-
-			if (!championList.length) resolve({ctx, main, kda}) // если чемпионов нет
-
-			loadChampions(championList) // загружаем лучших чемпионов
-			.then((imgList) => {
-				drawChampionsPlaypaladinsSS(ctx, imgList) // рисуем загруженных чемпионов
-
-				// data загружаемой картинки ранга
-				const rankNum = main.Tier_RankedKBM
-				const rankUrl = rankNum ? `https://playpaladins.online/images/Divisions/${rankNum}.png` : 'no-rank.png'
-				const rankImgWidth = 192
-				const rankImgHeight = rankNum == 0 ? 224 : rankNum == 27 ? 241 : rankNum == 26 ? 221 : 192
-
-				loadImage(rankUrl) // загружаем картинку ранга
-				.then(img => {
-					ctx.drawImage(img, 0, 10, rankImgWidth / 2, rankImgHeight / 2)
-					resolve({ctx, main, kda})
-				})
-			})
+			ctx.drawImage(img, 0, 10, rankImgWidth / 2, rankImgHeight / 2)
+			resolve({ctx, main, kda})
 		})
 	})
 }
@@ -388,7 +585,7 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с playpaladins.online / !hh показать список команд`, 380, 320)
+	ctx.fillText(`Информация взята с paladins.com / !hh показать список команд`, 380, 320)
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
@@ -480,26 +677,16 @@ function drawChampionsPlaypaladinsSS(ctx, imgList) {
 // ---> draw playpaladins history --->
 function playpaladinsSH(mess, name) {
 	return new Promise(resolve => {
-		sendSite({url: `http://playpaladins.online/api/profile/pc/${name}/matches?page=1`, json: true})
-		.then(response => {
-			const json = response.body
-
-			if (!json) { // у плейпаладинса так...
-				mess.reply(`Ошибка, игрок не найден или у игрока "${name}" скрыт профиль.`)
-				return new Promise(() => {})
-			}
-
-			if (!json.totalMatches && !json.matches) {
-				mess.reply(`Ошибка, возможно у игрока **"${name}"** нет последних матчей.`)
-				return new Promise(() => {})
-			}
-
-			resolve(json)
+		searchPaladinsMatch(name)
+		.then(resolve)
+		.catch(err => {
+			mess.reply(`Ошибка, игрок не найден или у игрока "${name}" скрыт профиль.`)
 		})
 	})
 }
 
-function drawPlaypaladinsSH(json) {
+function drawPlaypaladinsSH(matches) {
+	if (matches.length > 10) matches.length = 10 // убираем не нужные матчи
 	const imgWidth = 1175
 	const canvas = createCanvas(imgWidth, 590)
 	const ctx = canvas.getContext('2d')
@@ -512,27 +699,19 @@ function drawPlaypaladinsSH(json) {
 
 	return new Promise(resolve => {
 		// загружаем случайный глобальный фон для статы
-		const background = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
+		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		ctx.drawImage(img, 0, 30, imgWidth, 530)
+		drawItemsPlaypaladinsSH(ctx, matches) // рисуем эллементы не нужнающиеся в промисах
 
-		loadImage(`stats-img/stats-background-${background}.jpg`)
-		.then(img => {
-			const matches = json.matches
-			ctx.drawImage(img, 0, 30, imgWidth, 530)
-			drawItemsPlaypaladinsSH(ctx, matches) // рисуем эллементы не нужнающиеся в промисах
-
-			// получаем до 10 картинок персонажей с истории
-			let champList = []
-			matches.forEach(item => {
-				champList.push( fixText(item.Champion) )
-			})
-
-			loadChampions(champList) // загружаем чемпионов с истории
-			.then((imgList) => {
-				drawChampionsPlaypaladinsSH(ctx, imgList) // рисуем загруженных чемпионов
-
-				resolve({ctx})
-			})
+		// получаем до 10 картинок персонажей с истории
+		let champList = []
+		matches.forEach(item => {
+			const champion = item.Champion
+			champList.push( championsIds[fixText(champion)].img )
 		})
+
+		drawChampionsPlaypaladinsSH(ctx, champList) // рисуем загруженных чемпионов
+		resolve({ctx})
 	})
 }
 
@@ -541,7 +720,7 @@ function drawItemsPlaypaladinsSH(ctx, matches) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с playpaladins.online / !hh показать список команд`, 545, 580)
+	ctx.fillText(`Информация взята с paladins.com / !hh показать список команд`, 545, 580)
 	ctx.font = 'bold 15px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
@@ -617,14 +796,587 @@ function drawChampionsPlaypaladinsSH(ctx, imgList) { // рисуем чемпи�
 
 
 
+// ---> draw playpaladins history --->
+function paladinsSL(mess, name, championName, num) {
+	return new Promise((resolve) => {
+		searchPaladinsLoadouts(name, championName, num)
+		.then((obj) => {
+			if (obj.err) resolve(obj) // если нужно прекратить команду
+
+			const listLoadouts = obj.listLoadouts
+			const listLoadoutsLen = listLoadouts.length
+
+			if (!listLoadoutsLen) {
+				mess.reply(`Игрок не имеет колод для **${championName}**.`)
+				obj.err = true
+				return resolve(obj)
+			}
+
+			if (num > listLoadoutsLen) {
+				mess.reply(`Игрок не имеет столько колод, у него **${listLoadoutsLen}** колод.`)
+				resolve({err: true}) // ничего больше не делаем, завершаем
+			} else if (!num && listLoadoutsLen > 1) {
+				let text = ``
+
+				for (let i = 0; i < listLoadoutsLen; i++) {
+					const deck = listLoadouts[i]
+					text += `\r\n№ **${i + 1}**; Имя колоды: **${deck.DeckName}**.`
+				}
+
+				mess.reply(`**Выберите одну из колод, вовторив команду и вписав нужную цифру в конце:**${text}`)
+				resolve({err: true}) // ничего больше не делаем, завершаем
+			}
+			resolve(obj)
+		})
+		.catch(err => {
+			mess.reply(`Ошибка, игрок не найден или у игрока "${name}" скрыт профиль.`)
+		})
+	})
+}
+
+function searchPaladinsLoadouts(name, championName, num) { // возвращает массив колод указанного персонажа
+	return new Promise(resolve => {
+		hiRezFunc("getplayeridbyname", name)
+		.then((player => {
+			if (!player[0]) return resolve({err: true}) // если скрыт профиль
+
+			const playerId = player[0].player_id
+			hiRezFunc("getplayerloadouts", playerId, 11)
+			.then(loadouts => {
+				const champId = championsIds[championName].id
+				
+				const filterLoadouts = loadouts.filter(item => { // сортируем по указанному чемпиону
+					return item.ChampionId == champId
+				})
+				resolve({listLoadouts: filterLoadouts, num}) // array
+			})
+		}))
+	})
+}
+
+
+function drawPaladinsSL({listLoadouts, num, err}) { // num это какую колоду брать (num не меньше 1 и целое!)
+	num = num || 1
+	if (err) return new Promise(resolve => {resolve({err})}) // если была ошибка
+	
+	const imgWidth = 1648
+	const imgHeight = 600
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 15px Georgia'
+	ctx.fillStyle = "#ffffff"
+	ctx.textAlign = "center"
+
+	const background = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+
+	return new Promise(resolve => {
+		let loadList = [] // тут будет картинки
+		let listDeck = [] // тут будут свойства для картинки
+		let listDescription = [] // тут будут описания карт
+
+		listLoadouts.forEach(loadouts => { // перебор колод
+			const deckName = loadouts.DeckName
+			const champId = loadouts.ChampionId
+			loadouts.LoadoutItems.forEach(items => { // перебор карт в колоде
+				const points = items.Points
+				const cardId = items.ItemId
+				const card = getPaladinsCard(cardId, champId)
+
+				listDeck.push( {deckName, points} )
+				// загружаем картинки карт
+				loadList.push( loadImage(card.url) )
+				listDescription.push(card.description)
+			})
+		})
+
+		loadList = loadList.slice((num - 1) * 5, num * 5) // обрезаем
+		listDeck = listDeck.slice((num - 1) * 5, num * 5)
+		listDescription = listDescription.slice((num - 1) * 5, num * 5)
+		
+		Promise.all(loadList)
+		.then(imgListLoad => {
+			for (let i = 0; i < imgListLoad.length; i++) { // перебор загруженных картинок
+				const img = imgListLoad[i] // загруженная картинка карты
+				const properties = listDeck[i] // свойства картинки (имя и на скок вкачано)
+
+				ctx.drawImage(img, i * (10 + 314) + 48, 150, 256, 196) // рисуем картинки карт
+				// теперь нужно нарисовать фреймы для карт
+				const points = properties.points
+				const imgFrames = cardFrames[points - 1] // получаем картинку фрейма карты
+				ctx.drawImage(imgFrames, i * (10 + 314) + 20, 100, 314, 479)
+
+				// рисуем название колоды
+				ctx.font = 'bold 50px Georgia'
+				ctx.fillStyle = "#ffffff"
+				ctx.fillText(properties.deckName, imgWidth / 2, 70)
+
+				// рисуем описание карты
+				fillDescriptionCard(ctx, listDescription[i], i, points)
+			}
+
+			resolve({ctx})
+		})
+	})
+}
+
+
+// возвращает url и описание карты по id чемпиона и id карты
+function getPaladinsCard(idCard, idChamp) {
+	const champCards = championsCard[idChamp]
+
+	for (let i = 0; i < champCards.length; i++) {
+		const card = champCards[i]
+		if (card.card_id2 == idCard) return {
+			url: card.championCard_URL,
+			description: card.card_description,
+			name: card.card_name
+		}
+	}
+}
+
+
+function fillDescriptionCard(ctx, text, position, points) { // рисует описание карты
+	ctx.font = 'bold 16px Georgia'
+	ctx.fillStyle = '#000000'
+
+	text = text.replace(/^\[[а-я -]+\] /i, '') // убираем принадлежность (то что в [...])
+
+	// убираем "scale" и считаем нужную цифру подставляя в текст
+	const matchArr = text.match(/\{scale=([0-9\.]+)\|([0-9\.]+)\}/i)
+	const scaleText = (matchArr[1] * points).toFixed(1)
+	text = text.replace(/\{scale=[0-9\.]+\|[0-9\.]+\}/i, scaleText)
+
+	// сначала разбиваем текст строки на нужное кол-во строк и узнаем сколько это строк
+	const textArr = formProposals(text, 23)
+	for (let i = 0; i < textArr.length; i++) {
+		ctx.fillText(textArr[i], position * (10 + 314) + 178, 20 * i + 410)
+	}
+}
+
+
+function formProposals(text, maxLen) { // возвращает массив, разделяет строку на части
+	if (text.length <= 25) return [text]
+	let newText = []
+	let tempLen = maxLen
+	let lastIndex = 0
+
+	while (true) {
+		const letter = text.slice(tempLen - 1, tempLen)
+		if (!letter) {
+			// если пусто, то вставляем оставшееся
+			const g = text.slice(lastIndex, tempLen)
+			if (g) newText.push( g )
+			return newText
+		} else if (letter !== ' ') { // если не пустая строка то пропускаем
+			tempLen-- // сдвигаем влево поиск
+			// если слово 25 символов?
+		} else { // если пустая строка то нужно будет разбивать
+			newText.push( text.slice(lastIndex, tempLen).trim() )
+			lastIndex = tempLen
+			tempLen += maxLen // продолжим поиски с того места где закончили + максимальная длина
+		}
+	}
+}
+
+
+const championsIds = {
+	"Androxus": {id: "2205"},
+    "Cassie": {id: "2092"},
+    "Drogoz": {id: "2277"},
+    "Kinessa": {id: "2249"},
+    "Lian": {id: "2417"},
+    "Maeve": {id: "2338"},
+	"Bomb King": {id: "2281"},
+	"Sha Lin": {id: "2307"},
+    "Strix": {id: "2438"},
+    "Koga": {id: "2493"},
+    "Buck": {id: "2147"},
+    "Pip": {id: "2056"},
+    "Moji": {id: "2481"},
+    "Evie": {id: "2094"},
+    "Makoa": {id: "2288"},
+    "Zhin": {id: "2420"},
+    "Viktor": {id: "2285"},
+    "Willo": {id: "2393"},
+    "Dredge": {id: "2495"},
+    "Lex": {id: "2362"},
+    "Tyra": {id: "2314"},
+    "Ruckus": {id: "2149"},
+    "Grohk": {id: "2093"},
+    "Talus": {id: "2472"},
+    "Skye": {id: "2057"},
+	"Mal'Damba": {id: "2303"},
+    "Imani": {id: "2509"},
+    "Grover": {id: "2254"},
+    "Furia": {id: "2491"},
+    "Khan": {id: "2479"},
+    "Io": {id: "2517"},
+    "Barik": {id: "2073"},
+    "Jenos": {id: "2431"},
+    "Vivian": {id: "2480"},
+    "Fernando": {id: "2071"},
+    "Atlas": {id: "2512"},
+    "Ying": {id: "2267"},
+    "Ash": {id: "2404"},
+    "Inara": {id: "2348"},
+    "Raum": {id: "2528"},
+    "Seris": {id: "2372"},
+    "Torvald": {id: "2322"},
+    "Terminus": {id: "2477"}
+}
+
+function fixChampion(text) {
+	while (true) {
+		const sh = text.indexOf('\'')
+		if (sh != -1) text = text.slice(0, sh) + '' + text.slice(sh + 1)
+		const space = text.indexOf(' ')
+		if (space == -1) break
+		text = text.slice(0, space) + '' + text.slice(space + 1)
+		const defis = text.indexOf('-')
+		if (defis == -1) break
+		text = text.slice(0, defis) + '' + text.slice(defis + 1)
+		const bottomDefis = text.indexOf('_')
+		if (bottomDefis == -1) break
+		text = text.slice(0, bottomDefis) + '' + text.slice(bottomDefis + 1)
+	}
+	return text.toLowerCase()
+}
+
+const paladinsItems = {
+	'blast-shields': null,
+	'bulldozer': null,
+	'cauterize': null,
+	'chronos': null,
+	'deft-hands': null,
+	'haven': null,
+	'illuminate': null,
+	'kill-to-heal': null,
+	'life-rip': null,
+	'master-riding': null,
+	'morale-boost': null,
+	'nimble': null,
+	'rejuvenate': null,
+	'resilience': null,
+	'veteran': null,
+	'wrecker': null
+}
+// <--- draw playpaladins history <---
+
+
+
+// ---> draw !sm stats match id --->
+function drawMatchdetails(mess, matchDetails) { // рисует
+	const imgWidth = 1180
+	const imgHeight = 795
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 15px Georgia'
+	ctx.fillStyle = "#ffffff"
+	try {
+		const background = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+		const matchOne = matchDetails[0] // просто выбранный первый человек в матче для получения статы самого матча
+
+		// инфа по центру
+		let mapImg = null // узнаем карту, поулчаем ее картинку
+		let mapName = ''
+		for (let map in paladinsMaps) {
+			const reg = new RegExp(`${map}`, 'i')
+			const res = matchOne.Map_Game.replace(/'/,'').match(reg)
+			if (res) {
+				mapImg = paladinsMaps[map]
+				mapName = res[0]
+				break
+			}
+		}
+		if (!mapName) {
+			mapName = matchOne.Map_Game || 'test'
+			mapImg = paladinsMaps['test maps']
+		}
+		if (mapImg) ctx.drawImage(mapImg, 10, 315, 356, 200) // рисуем карту
+
+		ctx.font = 'bold 20px Georgia'
+		const typeMatch = matchOne.name
+		ctx.fillStyle = "#cccc11"
+		ctx.fillText(`${matchOne.Minutes} минут`, 376, 375)
+		ctx.fillText(`Регион: ${matchOne.Region}`, 376, 405)
+		ctx.fillText(typeMatch, 376, 435)
+		ctx.fillText(mapName, 376, 465)
+
+		ctx.textAlign = "center"
+		const winStatus = matchOne.Win_Status == 'Winner'
+		const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
+		if (winStatus) {
+			ctx.fillStyle = '#32CD32'
+			ctx.fillText('Победа', imgWidth / 2 + 70 + centerGoRight, 341)
+			ctx.fillStyle = '#BB1111'
+			ctx.fillText('Поражение', imgWidth / 2 + 70 + centerGoRight, 497)
+
+			ctx.fillStyle = 'rgba(50,205,50,0.06)'
+			ctx.fillRect(0, 30, imgWidth, 285)
+			ctx.fillStyle = 'rgba(187,17,17,0.1)'
+			ctx.fillRect(0, 515, imgWidth, 285)
+		} else { // эта часть не нужна походу так как победителя всегда перемещаются вверх
+			ctx.fillStyle = '#BB1111'
+			ctx.fillText('Поражение', imgWidth / 2 + 70 + centerGoRight, 341)
+			ctx.fillStyle = '#32CD32'
+			ctx.fillText('Победа', imgWidth / 2 + 70 + centerGoRight, 497)
+
+			ctx.fillStyle = 'rgba(187,17,17,0.1)'
+			ctx.fillRect(0, 30, imgWidth, 285)
+			ctx.fillStyle = 'rgba(50,205,50,0.06)'
+			ctx.fillRect(0, 515, imgWidth, 285)
+		}
+
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText(`Команда 1 Счет: ${matchOne.Team1Score}`, imgWidth / 2 + 70 + centerGoRight, 383)
+		ctx.fillText(`Команда 2 Счет: ${matchOne.Team2Score}`, imgWidth / 2 + 70 + centerGoRight, 456)
+		ctx.drawImage(differentImg.vs, imgWidth / 2 + 40 + centerGoRight, 386, 50, 50)
+
+		ctx.textAlign = "start"
+		ctx.fillStyle = '#CC6600'
+		if (typeMatch == 'Ranked') ctx.fillText(`Баны:`, 885, 420)
+		ctx.fillStyle = "#ffffff"
+		ctx.font = 'bold 15px Georgia'
+		if (matchOne.Ban_1)ctx.drawImage(championsIds[fixText(matchOne.Ban_1)].img, 980, 360, 50, 50)
+		if (matchOne.Ban_2)ctx.drawImage(championsIds[fixText(matchOne.Ban_2)].img, 1040, 360, 50, 50)
+		if (matchOne.Ban_3)ctx.drawImage(championsIds[fixText(matchOne.Ban_3)].img, 980, 420, 50, 50)
+		if (matchOne.Ban_4)ctx.drawImage(championsIds[fixText(matchOne.Ban_4)].img, 1040, 420, 50, 50)
+
+		// рисуем таблицу
+		ctx.fillStyle = "#000000"
+		ctx.fillRect(0, 0, imgWidth, 32)
+		ctx.fillStyle = "#1199cc"
+		ctx.fillText('Чемпион', 10, 20)
+		ctx.fillText('Игрок', 140, 20)
+		ctx.fillText('Пати', 300, 20)
+		ctx.fillText('Кредиты', 350, 20)
+		ctx.fillText('K/D/A', 440, 20)
+		ctx.fillText('Урон', 520, 20)
+		ctx.fillText('Защита', 610, 20)
+		ctx.fillText('Исцеление', 710, 20)
+		ctx.fillText('Получено', 810, 20)
+		ctx.fillText('У цели', 910, 20)
+		ctx.fillText('Закуп', 980, 20)
+		ctx.fillStyle = "#ffffff"
+
+		const party = {}
+		let partyNumber = 1
+		const partyColors = ['#00FFFF', '#006400', '#F08080', '#FFFF00', '#FF0000', '#4682B4', '#C71585', '#FF4500', '#7FFF00'].sort(function() {
+			return Math.random() - 0.5 // рандомизируем цвета каждый раз
+		})
+
+		for (let i = 0; i < matchDetails.length; i++) {
+			const players = matchDetails[i]
+			const champName = championsCard[players.ChampionId][0].champion_name
+			
+			const img = championsIds[fixText(champName)].img
+			let nextTeam = i >= 5 ? 245 : 40
+			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
+
+			const imgLegendary = LegendarChampions[players.ItemId6]
+			ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки
+
+			// рисуем закуп
+			const item1 = players.Item_Active_1
+			if (item1) {
+				ctx.drawImage(paladinsItems[fixText(item1)], 980, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel1, 980, 55 * i + nextTeam + 43, 10, 3)
+			}
+			const item2 = players.Item_Active_2
+			if (item2) {
+				ctx.drawImage(paladinsItems[fixText(item2)], 1030, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel2, 1030, 55 * i + nextTeam + 43, 10, 3)
+			}
+			const item3 = players.Item_Active_3
+			if (item3) {
+				ctx.drawImage(paladinsItems[fixText(item3)], 1080, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel3, 1080, 55 * i + nextTeam + 43, 10, 3)
+			}
+			const item4 = players.Item_Active_4
+			if (item4) {
+				ctx.drawImage(paladinsItems[fixText(item4)], 1130, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel4, 1130, 55 * i + nextTeam + 43, 10, 3)
+			}
+
+			const partyId = players.PartyId
+			let partyNum = party[partyId]
+			if (!partyNum) {
+				party[partyId] = partyNum = partyNumber
+				partyNumber++
+			}
+
+			ctx.fillText(players.playerName, 140, 55 * i + nextTeam + 15)
+			ctx.fillStyle = "#CC6600"
+			ctx.fillText(`lvl: ${players.Account_Level}`, 140, 55 * i + nextTeam + 40)
+
+			nextTeam += 25
+
+			ctx.fillStyle = partyColors[partyNum - 1]
+			ctx.beginPath()
+			ctx.arc(320, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
+			ctx.fill()
+			ctx.fillStyle = "#000000"
+			ctx.fillText(partyNum, 316, 55 * i + nextTeam) // цифра пати
+			ctx.fillStyle = "#ffffff"
+			ctx.fillText(players.Gold_Earned, 350, 55 * i + nextTeam)
+			ctx.fillStyle = "#CC6600"
+			ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 440, 55 * i + nextTeam)
+			ctx.fillStyle = "#ffffff"
+			ctx.fillText(players.Damage_Player, 520, 55 * i + nextTeam)
+			ctx.fillText(players.Damage_Mitigated, 610, 55 * i + nextTeam)
+			ctx.fillText(players.Healing, 710, 55 * i + nextTeam)
+			ctx.fillText(players.Damage_Taken, 810, 55 * i + nextTeam)
+			ctx.fillText(players.Objective_Assists, 910, 55 * i + nextTeam)
+		}
+		return {ctx}
+	} catch(e) {
+		console.log("\r\nОшибка в drawMatchdetails:")
+		console.log(e)
+		mess.reply(`Возникла непредвиденная ошибка, сообщите о ней разработчикам бота.`)
+		return {err: true}
+	}
+}
+
+function drawLevelItem(ctx, lvl, x, y) { // рисует полоски под закупом (их лвл)
+	for (let i = 0; i <= lvl; i++) {
+		ctx.fillRect(x + 14 * i, y, 10, 3)
+	}
+}
+
+let paladinsMaps = {
+	'abyss': null,
+	'abyss spire': null,
+	'ascension peak': null,
+	'bazaar': null,
+	'brightmarsh': null,
+	'dragon arena': null,
+	'dragon call': null,
+	'fish market': null,
+	'foremans rise': null,
+	'frog isle': null,
+	'frozen guard': null,
+	'ice mines': null,
+	'jaguar falls': null,
+	'magistrates archives': null,
+	'marauders port': null,
+	'primal court': null,
+	'serpent beach': null,
+	'shattered desert': null,
+	'shooting range': null,
+	'snowfall junction': null,
+	'splitstone quarry': null,
+	'stone keep': null,
+	'test maps': null,
+	'timber mill': null,
+	'trade district': null,
+	'warders gate': null
+}
+// <--- draw !sm stats match id <---
+
+
+
+// ---> рисует !sp статистику матча в реальном времени (или отсылает текст) --->
+function drawPaladinsPlayerStatus(status, name) {
+	return new Promise(resolve => {
+		const ss = status[0]
+		const statusText = [
+			"Оффлайн",
+			"В лобби (например меню)",
+			"Выбирает чемпиона (бывает баг после стрельбища)",
+			"В матче (может загружаться)",
+			"Онлайн (хз как это получилось, у меня не вышло получить такой статус)",
+			false
+		]
+	
+		const statusMess = statusText[ss.status]
+		if (!statusMess) resolve({err: "У игрока скрыт профиль, но это сообщение не должно выводится, теоретически -_-"}) // если не найден
+	
+		const matchId = ss.Match
+		if (matchId) {
+			hiRezFunc("getmatchplayerdetails", matchId) // просмотр матча в реальном времени
+			.then(championList => {
+				if ( typeof(championList[0].ret_msg) == "string") return resolve({err: `Игрок **${name}** находится в тестовых картах.`})
+				championList.sort((a, b) => {return a.taskForce - b.taskForce}) // сортируем по командам
+
+				const imgWidth = 952
+				const imgHeight = 535
+				const canvas = createCanvas(imgWidth, imgHeight)
+				const ctx = canvas.getContext('2d')
+				ctx.font = 'bold 16px Georgia'
+
+				const game = championList[0]
+				const mapName = game.mapGame || 'Test Maps'
+				try {
+					const tempMapName = mapName.replace(/live /i, '').replace(/'/i, '').replace(/ \(KOTH\)/i, '').replace(/ranked /i, '').trim()
+					const background = paladinsMaps[tempMapName.toLowerCase()]
+					ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+				} catch(e) {
+					console.log(`\r\nКарта ${mapName} не найдена. Ошибка:`)
+					console.log(e)
+					return resolve({err: 'Ошибка загрузка карты.'})
+				}
+
+				ctx.fillRect(0, 0, imgWidth, 40)
+				ctx.fillRect(0, imgHeight - 40, imgWidth, imgHeight)
+
+				ctx.fillStyle = "#0088bb"
+				ctx.fillText('Команда 1', 35, 25)
+				ctx.textAlign = 'end'
+				ctx.fillText('Команда 2', imgWidth - 35, 25)
+				ctx.fillText(`Карта: `, imgWidth / 4, imgHeight - 15)
+				ctx.fillText(`Регион: `, imgWidth / 4 + imgWidth / 2, imgHeight - 15)
+				ctx.fillText(`id матча: `, imgWidth / 2, 25)
+				ctx.textAlign = 'start'
+				ctx.fillStyle = "#CC6600"
+				ctx.fillText(` ${mapName}`, imgWidth / 4, imgHeight - 15)
+				ctx.fillText(` ${game.playerRegion}`, imgWidth / 4 + imgWidth / 2, imgHeight - 15)
+				ctx.fillText(` ${matchId}`, imgWidth / 2, 25)
+				ctx.fillStyle = '#ffffff'
+
+				for (let i = 0; i < championList.length; i++) {
+					const item = championList[i]
+					const img = championsIds[fixChampion(item.ChampionName)].img
+					if (i < 5) {
+						ctx.drawImage(img, 10, 90 * i + 50, 50, 50)
+						ctx.fillText(item.playerName, 70, 90 * i + 65)
+						ctx.fillText(item.Account_Level, 70, 90 * i + 90)
+						ctx.textAlign = 'center'
+						ctx.fillText(item.ChampionLevel, 35, 90 * i + 120)
+						ctx.textAlign = 'start'
+					} else {
+						ctx.drawImage(img, imgWidth - 60, 90 * (i - 5) + 50, 50, 50)
+						ctx.textAlign = 'end'
+						ctx.fillText(item.playerName, imgWidth - 70, 90 * (i - 5) + 65)
+						ctx.fillText(item.Account_Level, imgWidth - 70, 90 * (i - 5) + 90)
+						ctx.textAlign = 'center'
+						ctx.fillText(item.ChampionLevel, imgWidth - 35, 90 * (i - 5) + 120)
+					}
+				}
+				const vs = differentImg.vs
+				ctx.drawImage(vs, imgWidth / 2 - 70, imgHeight / 2 - 70, 140, 140)
+	
+				return resolve({ctx})
+			})
+		} else {
+			return resolve({err: `Игрок **${name}** ${statusMess}.`})
+		}
+	})
+}
+// <--- рисует !sp статистику матча в реальном времени (или отсылает текст) <---
+
+
+
 // ---> functions for GURU --->
 // обрабатывает параметры до вызова основной функции поиска на гуру (поиск по сохраненным никам)
 function prefStatsGuru(mess, name, getStats) {
 	name = name.trim()
 	// если начинается как пользователь, то тупо вырезаем все числа
 	//if (name.indexOf("<@") == 0 || name.indexOf("@") == 0) name = name.replace(/[^0-9]+/ig, "")
-	if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
+	if ( name.match(/<@![0-9]+>/i) ) name = name.slice(3).slice(0, -1) // убираем еще хрень...
 	if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
+	if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
 	//if (!name || name === "me") name = mess.author.id // если не указан, то это автор
 	//if ( isNaN(+name) ) name = searchUser(name).id // ищем пользователя, его id
 
@@ -635,7 +1387,7 @@ function prefStatsGuru(mess, name, getStats) {
 			const res = JSON.parse(response.body)
 			const userName = res.paladins_name
 			if (!userName) return mess.reply(`У вас нет сохраненного ника. Используйте команду **!me ВАШ НИК** что бы сохранить ваш ник.`)
-			getStats(userName)
+			getStats( userName.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') )
 		})
 	} else if (/#[0-9]{4}$/i.test(name)) { // если указан чужой ник
 		console.log("2")
@@ -648,7 +1400,7 @@ function prefStatsGuru(mess, name, getStats) {
 			const res = JSON.parse(response.body)
 			const userName = res.paladins_name
 			if (!userName) return mess.reply(`Пользователь **${name}** не имеет сохраненного ника.`)
-			getStats(userName)
+			getStats( userName.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') )
 		})
 	} else if (/^[0-9]+$/i.test(name)) { // если только цифры - id пользователя которого посмотреть стату
 		console.log("3")
@@ -657,11 +1409,11 @@ function prefStatsGuru(mess, name, getStats) {
 			const res = JSON.parse(response.body)
 			const userName = res.paladins_name
 			if (!userName) return mess.reply(`Пользователь **${name}** не имеет сохраненного ника.`)
-			getStats(userName)
+			getStats( userName.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') )
 		})
 	} else {
 		console.log("4")
-		getStats(name)
+		getStats( name.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') ) // replace вроде как нужен...
 	}
 }
 
@@ -938,21 +1690,6 @@ function getStatsProcent(str) {
 	if (!str) return '-'
 	return str.match(/[0-9]+\%/g)
 }
-
-
-// загружает указанный список чемпионов и возвращает Promise-Array
-function loadChampions(championList) {
-	return Promise.all( loadAllImg(championList) )
-
-	function loadAllImg() { // подготавливаем к загрузке возвращая массив
-		const allImages = []
-		for (let i = 0; i < championList.length; i++) {
-			const name = championList[i]
-			allImages.push(loadImage(`champions/${name}.jpg`))
-		}
-		return allImages
-	}
-}
 // <--- PALADINS STATS default function <---
 
 
@@ -966,29 +1703,21 @@ function drawStatsSmall(params) {
 
 	return new Promise((resolve) => {
 		// загружаем случайный глобальный фон для статы
-		const background = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
+		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const par = params.groups
+		ctx.drawImage(img, 0, 0, statsWidth, 330)
+		drawItemsStatsSmall(ctx, params) // рисуем эллементы не нужнающиеся в промисах
+		
+		const championList = []
+		for (let i = 1; i < 6; i++) {
+			const champion = par[`name${i}`]
+			if (!champion) break
+			championList.push( championsIds[fixText(champion)].img )
+		}
 
-		loadImage(`stats-img/stats-background-${background}.jpg`)
-		.then((img) => {
-			const par = params.groups
-			ctx.drawImage(img, 0, 0, statsWidth, 330)
-			drawItemsStatsSmall(ctx, params) // рисуем эллементы не нужнающиеся в промисах
-			
-			const championList = []
-			for (let i = 1; i < 6; i++) {
-				const champion = par[`name${i}`]
-				if (!champion) break
-				championList.push(fixText(champion))
-			}
-
-			if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
-
-			loadChampions(championList) // загружаем лучших чемпионов
-			.then((imgList) => {
-				drawChampionsStatsSmall(ctx, imgList) // рисуем загруженных чемпионов
-				resolve({ctx, ...params})
-			})
-		})
+		if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
+		drawChampionsStatsSmall(ctx, championList) // рисуем загруженных чемпионов
+		resolve({ctx, ...params})
 	})
 }
 
@@ -1131,29 +1860,22 @@ function drawStatsFull(params) {
 
 	return new Promise((resolve) => {
 		// загружаем случайный глобальный фон для статы
-		const background = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
+		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const par = params.groups
+		ctx.drawImage(img, 0, 0, statsWidth, 600)
+		drawItemsStatsFull(ctx, params) // рисуем эллементы не нужнающиеся в промисах
+		
+		const championList = []
+		for (let i = 1; i < 6; i++) {
+			const champion = par[`name${i}`]
+			if (!champion) break
+			championList.push( championsIds[fixText(champion)].img )
+		}
 
-		loadImage(`stats-img/stats-background-${background}.jpg`)
-		.then((img) => {
-			const par = params.groups
-			ctx.drawImage(img, 0, 0, statsWidth, 600)
-			drawItemsStatsFull(ctx, params) // рисуем эллементы не нужнающиеся в промисах
-			
-			const championList = []
-			for (let i = 1; i < 6; i++) {
-				const champion = par[`name${i}`]
-				if (!champion) break
-				championList.push(fixText(champion))
-			}
+		if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
 
-			if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
-
-			loadChampions(championList) // загружаем лучших чемпионов
-			.then((imgList) => {
-				drawChampionsStatsFull(ctx, imgList) // рисуем загруженных чемпионов
-				resolve({ctx, ...params})
-			})
-		})
+		drawChampionsStatsFull(ctx, championList) // рисуем загруженных чемпионов
+		resolve({ctx, ...params})
 	})
 }
 
@@ -1339,36 +2061,29 @@ function drawStatsRanked(params) {
 
 	return new Promise((resolve) => {
 		// загружаем случайный глобальный фон для статы
-		const background = Math.floor(Math.random() * 3) + 1 // случайный фон от 1 до 3 включительно
+		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const par = params.groups
+		ctx.drawImage(img, 0, 0, statsWidth, 310)
+		drawItemsRanked(ctx, params) // рисуем эллементы не нужнающиеся в промисах
 		
-		loadImage(`stats-img/stats-background-${background}.jpg`)
+		const championList = []
+		for (let i = 1; i < 6; i++) {
+			const champion = par[`name${i}`]
+			if (!champion) break
+			championList.push( championsIds[fixText(champion)].img )
+		}
+
+		const rankUrl = rank ? `divisions/${rank}.png` : 'no-rank.png'
+		loadImage(rankUrl) // загружаем картинку ранга
 		.then((img) => {
-			const par = params.groups
-			ctx.drawImage(img, 0, 0, statsWidth, 310)
-			drawItemsRanked(ctx, params) // рисуем эллементы не нужнающиеся в промисах
-			
-			const championList = []
-			for (let i = 1; i < 6; i++) {
-				const champion = par[`name${i}`]
-				if (!champion) break
-				championList.push(fixText(champion))
-			}
+			const coefficient = rank == 27 ? 1.257 : rank == 26 ? 1.151 : 1
+			// рисуем картинку ранга
+			ctx.drawImage(img, 2, 12, 120, 120 * coefficient)
 
-			const rankUrl = `https://static.paladins.guru/i/ranked/486/${rank}.png`
-			loadImage(rankUrl) // загружаем картинку ранга
-			.then((img) => {
-				const coefficient = rank == 27 ? 1.257 : rank == 26 ? 1.151 : 1
-				// рисуем картинку ранга
-				ctx.drawImage(img, 2, 12, 120, 120 * coefficient)
+			if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
 
-				if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
-
-				loadChampions(championList) // загружаем лучших чемпионов
-				.then((imgList) => {
-					drawChampionsRanked(ctx, imgList) // рисуем загруженных чемпионов
-					resolve({ctx, ...params})
-				})
-			})
+			drawChampionsRanked(ctx, championList) // рисуем загруженных чемпионов
+			resolve({ctx, ...params})
 		})
 	})
 }
@@ -1847,6 +2562,152 @@ function getDateVK(d) { // получаем нужный вид даты
 
 
 
+// ---> hi-rez functions --->
+
+/**
+ * Создает сессию и возвращает промис, session_id
+ * @return {Promise} session_id
+ */
+function createSession() {
+	// return new Promise(resolve => { // временная хуйня
+	// 	const session = "007DA9620A03481890986987E9A6C780"
+	// 	config.session = session
+	// 	config.timeStartSession = +new Date()
+	// 	resolve(session)
+	// })
+
+
+	console.log("createSession")
+    return new Promise((resolve, reject) => {
+        const timestamp = moment().utc().format("YYYYMMDDHHmmss")
+        const signature = md5( config.devId + "createsession" + config.authKey + timestamp )
+        const urlCreateSession = `http://api.paladins.com/paladinsapi.svc/createsessionJson/${config.devId}/${signature}/${timestamp}`
+        sendSite({url: urlCreateSession, json: true})
+        .then(response => {
+            const body =  response.body
+            const ret_msg = body.ret_msg
+			if (ret_msg !== "Approved") reject(ret_msg)
+			const session = body.session_id
+			config.session = session
+			config.timeStartSession = +new Date()
+			console.log(session)
+            resolve(session)
+        })
+    })
+}
+
+
+/**
+ * getdataused - возвращает лимиты использования API
+ * gethirezserverstatus - возвращает статусы основных серверов hi-rez
+ * getchampions - возвращает много инфы о всех чемпионах [11]
+ * getchampioncards - возвращает все карты указанного чемпиона [id, 11]
+ * getchampionleaderboard - таблица лидеров по чемпионам [id, 428]
+ * getplayer - возвращает статистику аккаунта [name, portalId]
+ * getplayer - возвращает статистику аккаунта [name]
+ * getplayeridbyname - возвращает краткую информацию об аккаунте [name]
+ * getgodranks - информацию о всех чемпионах указанного игрока [id]
+ * getchampionranks - то же что и "getgodranks" но только тех на ком играл [id]
+ * getplayerloadouts - колоды указанного игрока (сразу всех персонажей) [id, 11]
+ * getplayerstatus - возвращает статус игрока (в игре или нет, id матча) [id]
+        0 - Offline
+        1 - In Lobby  (в основном где угодно, кроме выбора бога или в игре)
+        2 - god Selection (игрок принял матч и выбирает бога перед началом игры)
+        3 - In Game (match has started)
+        4 - Online (игрок вошел в систему, но может блокировать трансляцию состояния игрока)
+        5 - Unknown (player not found)
+ * getmatchhistory - история матчей [id]
+ * getqueuestats - история но с очередью какой-то
+ * searchplayers - поискк игроков по нику как на гуру
+ * getmatchdetails - история указанного матча [id]
+ * getmatchplayerdetails - история матча в реальном времени
+ * @param {String} format - тип запроса
+ * @param  {...any} params - параметры которые будут переданы в конец url
+ */
+function hiRezFunc(format, ...params) {
+	console.log(`hiRezFunc: ${format}`)
+    return new Promise((resolve, reject) => {
+		if (!format) reject(false)
+
+		const testing = format !== "testsession" ? testSession : () => {return new Promise(resolve => {resolve()})}
+		testing()
+		.then((res) => {
+			const timestamp = moment().utc().format("YYYYMMDDHHmmss")
+			const signature = md5( config.devId + format + config.authKey + timestamp )
+			const strParams = params.length > 0 ? `/${params.join("/")}` : ''
+			const url = `http://api.paladins.com/paladinsapi.svc/${format}Json/${config.devId}/${signature}/${config.session}/${timestamp}${strParams}`
+			sendSite({url, json:true})
+			.then(res => {
+				config.timeStartSession = +new Date()
+				resolve(res.body)
+			})
+		})
+    })
+}
+
+
+function testSession() { // проверяет валидность сессии, если не валидна то создает новую
+    return new Promise(resolve => {
+
+		const checkTime = new Date() - 900000 < config.timeStartSession
+		console.log(`Минут с последнего теста сессии: ${(new Date() - config.timeStartSession) / 60000}`)
+		if (checkTime) return resolve({result: true, msg: "все норм, время не вышло"})
+		console.log("время вышло, мы проверим валидность сессии и если она 'не катит' то создадим новую")
+
+        hiRezFunc("testsession") // поидее тестить не нужно, а просто создавать новую сессию и время навсяк сделать не 15, а 14 минут
+        .then(res => {
+			const result = res.indexOf('Invalid') === -1 && res.indexOf('successful') !== -1
+			if (!result) { // если сессия не подходит
+				createSession()
+				.then(session => {
+					return resolve({result, session, msg: "создали новую сессию"})
+				})
+			} else {
+				return resolve({result, msg: "сессия рабочая"})
+			}
+        })
+    })
+}
+
+
+function searchPaladinsPlayer(name) { // функция эмулирующая API playpaladins
+	return new Promise((resolve, reject) => {
+		hiRezFunc("getplayer", name) // поиск игрока
+		.then(response => {
+			const main = response[0]
+			if (!main) return reject({msg: "Игрок не найден"})
+			
+			hiRezFunc("getgodranks", main.Id) // поиск его чемпионов
+			.then(champions => {
+				if (!champions) return reject({msg: "Чемпионы игрока не найдены"})
+				resolve({main, champions, name})
+			})
+		})
+	})
+}
+
+
+function searchPaladinsMatch(name) { // функция эмулирующая API playapaladins
+	return new Promise((resolve, reject) => {
+		hiRezFunc("getplayeridbyname", name)
+		.then(response => {
+			const body = response[0]
+			if (!body) reject({msg: "Пользователь не найден"})
+			const id = body.player_id
+
+			hiRezFunc("getmatchhistory", id)
+			.then(matches => {
+				if (!matches[0]) reject({msg: "Матчи не найденны"})
+				resolve(matches)
+			})
+		})
+	})
+}
+
+// <--- hi-rez functions <---
+
+
+
 // ---> Вспомогательные функции --->
 
 /**
@@ -1901,9 +2762,21 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 // старт бота и загрузка настроек
-Promise.all([client.login(config.tokenDiscord), getSetting()])
-.then((res) => {
-	if (res[1] !== true) throw new Error("Ошибка при запуске бота или загрузке данных.")
+Promise.all([
+	client.login(config.tokenDiscord), 
+	getSetting(), 
+	getChampionsCard(), 
+	getCardFrames(),
+	getImgBackground(),
+	getImgChampions(),
+	getImgItems(),
+	getPaladinsMaps(),
+	getDifferentImg()
+]).then(response => {
+	for (let i = 1; i < response.length; i++) {
+		if (response[i] !== true) throw new Error(`Ошибка [${i}] во время старта бота и загрузки стартовых функций.`)
+	}
+
 	console.log("Бот запущен и настройки загруженны!")
 
 	client.channels.get('612875033651707905').send('Я запустился!')
@@ -1913,6 +2786,7 @@ Promise.all([client.login(config.tokenDiscord), getSetting()])
 
 
 function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
+	if (message.author.id != "510112915907543042") return false // testing ON
 	// перебираем все команды
 	for (key in comands) {
 		// если в начале сообщения стоит команда (ищем команду)
@@ -1992,6 +2866,10 @@ function sendSite(params) {
 
 
 
+
+// ---> Функции для автозагрузки или интервальные функции --->
+
+
 // получаем настройки с сайта, вернет промис, когда загрузит настройки -> true or error -> false
 function getSetting() {
 	return new Promise((resolve, reject) => {
@@ -2002,6 +2880,179 @@ function getSetting() {
 			const res = JSON.parse(response.body)
 			if (res.status !== "OK") reject(false)
 			config.setting = res
+			resolve(true)
+		})
+	})
+}
+
+
+
+// получаем карты чемпионов, их описание и url картинок (с нашего сайта)
+function getChampionsCard() {
+	return new Promise(resolve => {
+		const url = config.url_site.replace(/[a-z_]+\.[a-z]{1,4}$/i, '') + "pal-bot/championsCard.json"
+		sendSite({url, json: true})
+		.then(response => {
+			const body = response.body
+			championsCard = body
+
+			// выбираем леги для загрузки
+			const list = []
+			for (let championId in body) {
+				const cards = body[championId]
+		
+				for (let i = 0; i < cards.length; i++) {
+					const item = cards[i]
+		
+					if (item.rarity != 'Legendary') continue
+					list.push( loadImage(`legendary/${item.card_id2}.png`) )
+				}
+			}
+
+			Promise.all(list) // загружаем леги
+			.then(imgList => {
+				let k = 0
+				for (let championId in body) {
+					const cards = body[championId]
+			
+					for (let i = 0; i < cards.length; i++) {
+						const item = cards[i]
+			
+						if (item.rarity != 'Legendary') continue
+						LegendarChampions[item.card_id2] = imgList[k]
+						k++
+					}
+				}
+				console.log("Карты и легендарки чемпионов загруженны.")
+				resolve(true)
+			})
+		})
+	})
+}
+
+
+
+function getCardFrames() { // загружает фреймы карт за ранее (рамки)
+	return new Promise(resolve => {
+		const list = []
+		list.push( loadImage("card_frames/1.png") )
+		list.push( loadImage("card_frames/2.png") )
+		list.push( loadImage("card_frames/3.png") )
+		list.push( loadImage("card_frames/4.png") )
+		list.push( loadImage("card_frames/5.png") )
+
+		Promise.all(list)
+		.then(imgList => {
+			cardFrames = imgList
+			console.log("Фреймы карт загруженны.")
+			resolve(true)
+		})
+	})
+}
+
+
+
+function getImgBackground() {
+	return new Promise(resolve => {
+		const list = []
+		list.push( loadImage(`stats-img/stats-background-1.jpg`) )
+		list.push( loadImage(`stats-img/stats-background-2.jpg`) )
+		list.push( loadImage(`stats-img/stats-background-3.jpg`) )
+
+		Promise.all(list)
+		.then(imgList => {
+			imgBackground = imgList
+			console.log("Фоны для статы загруженны.")
+			resolve(true)
+		})
+	})
+}
+
+
+
+function getImgChampions() {
+	return new Promise(resolve => {
+		const list = []
+		for (let champion in championsIds) {
+			const champ = fixText(champion)
+			list.push( loadImage(`champions/${champ}.jpg`) )
+		}
+
+		Promise.all(list)
+		.then(imgList => {
+			let i = 0
+			for (let champion in championsIds) {
+				championsIds[champion].img = imgList[i]
+				i++
+			}
+
+			for (let champion in championsIds) { // делаем возможность обращения и в нижнем регистре
+				championsIds[fixChampion(champion)] = championsIds[champion]
+				// const tempChampion = champion.replace(/ /i, '')
+				// championsIds[tempChampion.toLocaleLowerCase()] = championsIds[champion]
+			}
+
+			console.log("Иконки персонажей загружены.")
+			resolve(true)
+		})
+	})
+}
+
+
+
+function getImgItems() {
+	return new Promise(resolve => {
+		const list = []
+		for (let item in paladinsItems) {
+			list.push( loadImage(`items/${fixText(item)}.jpg`) )
+		}
+
+		Promise.all(list)
+		.then(imgList => {
+			let i = 0
+			for (let item in paladinsItems) {
+				paladinsItems[item] = imgList[i]
+				i++
+			}
+			console.log("Предметы (item) загруженны.")
+			resolve(true)
+		})
+	})
+}
+
+
+
+function getPaladinsMaps() { // paladinsMaps
+	return new Promise(resolve => {
+		const list = []
+		for (let map in paladinsMaps) {
+			list.push( loadImage(`maps/${map}.png`) )
+		}
+
+		Promise.all(list)
+		.then(imgList => {
+			let i = 0
+			for (let item in paladinsMaps) {
+				paladinsMaps[item] = imgList[i]
+				i++
+			}
+			console.log("Карты загруженны.")
+			resolve(true)
+		})
+	})
+}
+
+
+
+function getDifferentImg() { // разные изображениея
+	return new Promise(resolve => {
+		const list = []
+		list.push( loadImage(`vs.png`) )
+
+		Promise.all(list)
+		.then(imgList => {
+			differentImg['vs'] = imgList[0]
+			console.log("Разные картинки загруженны.")
 			resolve(true)
 		})
 	})
@@ -2027,6 +3078,7 @@ function setStatsToSite() {
 		token, type: 'stats', servers, users, usedComands: config.usedComands, timeWork
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
+		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)
 	})
 }
 

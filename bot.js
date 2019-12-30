@@ -546,7 +546,7 @@ function drawPlaypaladinsSS(json) {
 		let championList = []
 		for (let i = 0; i < kda.best.length; i ++) {
 			const champion = kda.best[i].champion
-			championList.push( championsIds[fixText(champion)].img )
+			championList.push( championsIds[fixChampion(champion)].img )
 		}
 
 		ctx.drawImage(img, 0, 0, 760, 300)
@@ -707,7 +707,7 @@ function drawPlaypaladinsSH(matches) {
 		let champList = []
 		matches.forEach(item => {
 			const champion = item.Champion
-			champList.push( championsIds[fixText(champion)].img )
+			champList.push( championsIds[fixChampion(champion)].img )
 		})
 
 		drawChampionsPlaypaladinsSH(ctx, champList) // рисуем загруженных чемпионов
@@ -1712,7 +1712,7 @@ function drawStatsSmall(params) {
 		for (let i = 1; i < 6; i++) {
 			const champion = par[`name${i}`]
 			if (!champion) break
-			championList.push( championsIds[fixText(champion)].img )
+			championList.push( championsIds[fixChampion(champion)].img )
 		}
 
 		if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
@@ -1869,7 +1869,7 @@ function drawStatsFull(params) {
 		for (let i = 1; i < 6; i++) {
 			const champion = par[`name${i}`]
 			if (!champion) break
-			championList.push( championsIds[fixText(champion)].img )
+			championList.push( championsIds[fixChampion(champion)].img )
 		}
 
 		if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
@@ -2070,7 +2070,7 @@ function drawStatsRanked(params) {
 		for (let i = 1; i < 6; i++) {
 			const champion = par[`name${i}`]
 			if (!champion) break
-			championList.push( championsIds[fixText(champion)].img )
+			championList.push( championsIds[fixChampion(champion)].img )
 		}
 
 		const rankUrl = rank ? `divisions/${rank}.png` : 'no-rank.png'

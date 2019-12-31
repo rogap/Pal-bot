@@ -1175,7 +1175,7 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
 
 			const imgLegendary = LegendarChampions[players.ItemId6]
-			ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки
+			if (imgLegendary) ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки
 
 			// рисуем закуп
 			const item1 = players.Item_Active_1
@@ -1308,7 +1308,7 @@ function drawPaladinsPlayerStatus(status, name) {
 				const game = championList[0]
 				const mapName = game.mapGame || 'Test Maps'
 				try {
-					const tempMapName = mapName.replace(/live /i, '').replace(/'/i, '').replace(/ \(KOTH\)/i, '').replace(/ranked /i, '').trim()
+					const tempMapName = mapName.replace(/live /i, '').replace(/'/i, '').replace(/ \(KOTH\)/i, '').replace(/ranked /i, '').replace(/\(TDM\)/, '').trim()
 					const background = paladinsMaps[tempMapName.toLowerCase()]
 					ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 				} catch(e) {
@@ -2271,8 +2271,7 @@ function listGame(obj) { // принимает обьект с играми и �
 function showAllServersInfo(mess) {
 	const allUsers = startCounterUsers()
 	const dec = declension(allUsers.guilds, 'сервере', 'серверах', 'серверах') // окончание
-	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}` + 
-	`**.`
+	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}**. Выполнено команд:** ${config.usedComands}**. Время работы: **${(new Date() - config.timeStart) / 60000 ^ 0}**.`
 	return mess.reply(text)
 }
 

@@ -14,6 +14,7 @@ let LegendarChampions = {} // тут будет обьект с ключами i
 let cardFrames = null // тут будет массив фреймов карт (загруженные картинки)
 let imgBackground = null // тут будут "случайные" фоны для статы
 let differentImg = {} // разные изображения
+let rankedImage = null // тут будут картинки ранга
 
 
 
@@ -2799,7 +2800,8 @@ Promise.all([
 	getImgChampions(),
 	getImgItems(),
 	getPaladinsMaps(),
-	getDifferentImg()
+	getDifferentImg(),
+	getRankedImage()
 ]).then(response => {
 	for (let i = 1; i < response.length; i++) {
 		if (response[i] !== true) throw new Error(`Ошибка [${i}] во время старта бота и загрузки стартовых функций.`)
@@ -3081,6 +3083,24 @@ function getDifferentImg() { // разные изображениея
 		.then(imgList => {
 			differentImg['vs'] = imgList[0]
 			console.log("Разные картинки загруженны.")
+			resolve(true)
+		})
+	})
+}
+
+
+
+function getRankedImage() { // разные изображениея
+	return new Promise(resolve => {
+		const list = []
+		for (let i = 0; i <= 27; i++) {
+			list.push( loadImage(`divisions/${i}.png`) )
+		}
+
+		Promise.all(list)
+		.then(imgList => {
+			rankedImage = imgList
+			console.log("Иконки ранга загруженны.")
 			resolve(true)
 		})
 	})

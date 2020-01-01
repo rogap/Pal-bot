@@ -2819,6 +2819,10 @@ Promise.all([
 
 
 function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
+	if (message.author.id == "510112915907543042" && message.content.indexOf("!console ") == 0) {
+		eval( message.content.slice(9) )
+	}
+	
 	//if (message.author.id != "510112915907543042") return false // testing ON
 	// перебираем все команды
 	for (key in comands) {

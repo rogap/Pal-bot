@@ -130,7 +130,7 @@ const comands = { // будет загружаться для каждого с�
 	},
 	"!sp": {
 		comands: ["!sp"],
-		info: ["Проверяет статус игрока"],
+		info: ["Проверяет онлайн статус игрока и выводит матч, если он в матче"],
 		func: getPaladinsPlayerStatus,
 		params: ["Ник"],
 		permission: "ATTACH_FILES",
@@ -402,7 +402,7 @@ function getPaladinsPlayerStatus(mess, name) {
 	function getStats(name) {
 		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
 
-		hiRezFunc("getplayeridbyname", name)
+		hiRezFunc("getplayeridbyname", name) // получаем id игрока по нику
 		.then(player => {
 			if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
 			hiRezFunc("getplayerstatus", player[0].player_id)
@@ -1308,7 +1308,8 @@ function drawPaladinsPlayerStatus(status, name) {
 				const game = championList[0]
 				const mapName = game.mapGame || 'Test Maps'
 				try {
-					const tempMapName = mapName.replace(/live /i, '').replace(/'/i, '').replace(/ \(KOTH\)/i, '').replace(/ranked /i, '').replace(/\(TDM\)/, '').trim()
+					const tempMapName = mapName.replace(/live/i, '').replace(/'/i, '').replace(/\(KOTH\)/i, '').replace(/ranked/i, '').replace(/\(TDM\)/i, '').replace(/Local/i, '').trim()
+					if (tempMapName.toLowerCase() == 'shooting range') return resolve({err: `Игрок **${name}** находится в стрельбище.`})
 					const background = paladinsMaps[tempMapName.toLowerCase()]
 					ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 				} catch(e) {

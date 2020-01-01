@@ -1296,7 +1296,7 @@ function drawPaladinsPlayerStatus(status, name) {
 		if (matchId) {
 			hiRezFunc("getmatchplayerdetails", matchId) // просмотр матча в реальном времени
 			.then(championList => {
-				if ( typeof(championList[0].ret_msg) == "string") return resolve({err: `Игрок **${name}** находится в тестовых картах.`})
+				if ( typeof(championList[0].ret_msg) == "string") return resolve({err: `Игрок **${name}** играет с ботами или в пользовательском режиме.`})
 				championList.sort((a, b) => {return a.taskForce - b.taskForce}) // сортируем по командам
 
 				const imgWidth = 952

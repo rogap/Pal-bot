@@ -1364,12 +1364,15 @@ function drawPaladinsPlayerStatus(status, name) {
 				hiRezFunc("getplayerbatch", playerIdsList)
 				.then(list => {
 					// перебираем list и playerIdsList проверяя на id и рисуя по позиции i от playerIdsList
-					for (let i = 0; i < playerIdsList.length; i++) {
+					for (let i = 0; i < playerIdsList.length; i++) { // рисуем ранги
+						if (championList[i].taskForce == 2 && i < 5) continue // фикс бага со скрытым игроком
+
 						const id = playerIdsList[i]
 						const acc = getAccForId(list, id)
 
 						// если acc найден то рисуем
 						const tier = acc.Tier_RankedKBM
+						if (tier == undefined) continue
 						const imgRank = rankedImage[tier] // получаем картинку ранга
 						const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
 						if (i < 5) {

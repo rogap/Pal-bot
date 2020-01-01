@@ -1335,34 +1335,64 @@ function drawPaladinsPlayerStatus(status, name) {
 				ctx.fillText(` ${matchId}`, imgWidth / 2, 25)
 				ctx.fillStyle = '#ffffff'
 
+				const playerIdsList = [] // список id игроков
 				for (let i = 0; i < championList.length; i++) {
 					const item = championList[i]
 					const img = championsIds[fixChampion(item.ChampionName)].img
+					playerIdsList.push(item.playerId) // добавляем их в список
 					if (i < 5) {
-						ctx.drawImage(img, 10, 90 * i + 50, 50, 50)
-						ctx.fillText(item.playerName, 70, 90 * i + 65)
-						ctx.fillText(item.Account_Level, 70, 90 * i + 90)
+						ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
+						ctx.fillText(item.playerName, 130, 90 * i + 65)
+						ctx.fillText(item.Account_Level, 130, 90 * i + 90)
 						ctx.textAlign = 'center'
-						ctx.fillText(item.ChampionLevel, 35, 90 * i + 120)
+						ctx.fillText(item.ChampionLevel, 95, 90 * i + 120)
 						ctx.textAlign = 'start'
 					} else {
-						ctx.drawImage(img, imgWidth - 60, 90 * (i - 5) + 50, 50, 50)
+						ctx.drawImage(img, imgWidth - 120, 90 * (i - 5) + 50, 50, 50)
 						ctx.textAlign = 'end'
-						ctx.fillText(item.playerName, imgWidth - 70, 90 * (i - 5) + 65)
-						ctx.fillText(item.Account_Level, imgWidth - 70, 90 * (i - 5) + 90)
+						ctx.fillText(item.playerName, imgWidth - 130, 90 * (i - 5) + 65)
+						ctx.fillText(item.Account_Level, imgWidth - 130, 90 * (i - 5) + 90)
 						ctx.textAlign = 'center'
-						ctx.fillText(item.ChampionLevel, imgWidth - 35, 90 * (i - 5) + 120)
+						ctx.fillText(item.ChampionLevel, imgWidth - 95, 90 * (i - 5) + 120)
 					}
 				}
+
 				const vs = differentImg.vs
 				ctx.drawImage(vs, imgWidth / 2 - 70, imgHeight / 2 - 70, 140, 140)
-	
-				return resolve({ctx})
+
+				hiRezFunc("getplayerbatch", playerIdsList)
+				.then(list => {
+					// перебираем list и playerIdsList проверяя на id и рисуя по позиции i от playerIdsList
+					for (let i = 0; i < playerIdsList.length; i++) {
+						const id = playerIdsList[i]
+						const acc = getAccForId(list, id)
+
+						// если acc найден то рисуем
+						const tier = acc.Tier_RankedKBM
+						const imgRank = rankedImage[tier] // получаем картинку ранга
+						const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
+						if (i < 5) {
+							ctx.drawImage(imgRank, 10, 90 * i + 50, 50, 50 * coefficient)
+						} else {
+							ctx.drawImage(imgRank, imgWidth - 60, 90 * (i - 5) + 50, 50, 50 * coefficient)
+						}
+					}
+
+					return resolve({ctx})
+				})
 			})
 		} else {
 			return resolve({err: `Игрок **${name}** ${statusMess}.`})
 		}
 	})
+}
+
+function getAccForId(list, id) {
+	for (let i = 0; i < list.length; i++) {
+		const acc = list[i]
+		if (acc.Id == id) return acc
+	}
+	return false
 }
 // <--- рисует !sp статистику матча в реальном времени (или отсылает текст) <---
 

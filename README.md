@@ -1,9 +1,9 @@
 # Pal-bot
 
-Бот выдачи статистики по игре Paladins
+Бот выдачи статистики по игре Paladins.
 
-[Веб-страница](https://webmyself.ru/pal-bot/) бота 
-[Добавить](https://discordapp.com/oauth2/authorize?client_id=626327927050600448&permissions=247872&scope=bot) бота
+[Веб-страница](https://webmyself.ru/pal-bot/) бота. 
+[Добавить](https://discordapp.com/oauth2/authorize?client_id=626327927050600448&permissions=247872&scope=bot) бота на сервер.
 
 ## Commands
 

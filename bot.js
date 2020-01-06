@@ -370,7 +370,7 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 		})
 	}
 
-	if ( !isNaN(parseInt(matchIdOrName)) && matchIdOrName.length < 15  ) { // если id матча
+	if ( !isNaN(parseInt(matchIdOrName)) && matchIdOrName.length < 15 ) { // если id матча
 		getMatchForId(matchIdOrName)
 	} else { // если ник игрока
 		// делаем запрос на матчи игрока, получаем id последней катки или указанной
@@ -1067,7 +1067,7 @@ const paladinsItems = {
 
 // ---> draw !sm stats match id --->
 function drawMatchdetails(mess, matchDetails) { // рисует
-	const imgWidth = 1180
+	const imgWidth = 1240
 	const imgHeight = 795
 	const canvas = createCanvas(imgWidth, imgHeight)
 	const ctx = canvas.getContext('2d')
@@ -1150,15 +1150,15 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 		ctx.fillStyle = "#1199cc"
 		ctx.fillText('Чемпион', 10, 20)
 		ctx.fillText('Игрок', 140, 20)
-		ctx.fillText('Пати', 300, 20)
-		ctx.fillText('Кредиты', 350, 20)
-		ctx.fillText('K/D/A', 440, 20)
-		ctx.fillText('Урон', 520, 20)
-		ctx.fillText('Защита', 610, 20)
-		ctx.fillText('Исцеление', 710, 20)
-		ctx.fillText('Получено', 810, 20)
-		ctx.fillText('У цели', 910, 20)
-		ctx.fillText('Закуп', 980, 20)
+		ctx.fillText('Пати', 360, 20)
+		ctx.fillText('Кредиты', 410, 20)
+		ctx.fillText('K/D/A', 500, 20)
+		ctx.fillText('Урон', 580, 20)
+		ctx.fillText('Защита', 670, 20)
+		ctx.fillText('Исцеление', 770, 20)
+		ctx.fillText('Получено', 870, 20)
+		ctx.fillText('У цели', 970, 20)
+		ctx.fillText('Закуп', 1040, 20)
 		ctx.fillStyle = "#ffffff"
 
 		const party = {}
@@ -1170,7 +1170,7 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 		for (let i = 0; i < matchDetails.length; i++) {
 			const players = matchDetails[i]
 			const champName = championsCard[players.ChampionId][0].champion_name
-			
+
 			const img = championsIds[fixText(champName)].img
 			let nextTeam = i >= 5 ? 245 : 40
 			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
@@ -1178,26 +1178,28 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 			const imgLegendary = LegendarChampions[players.ItemId6]
 			if (imgLegendary) ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки
 
+			ctx.drawImage(rankedImage[players.League_Tier], 130, 55 * i + nextTeam, 50, 50) // рисуем ранг
+
 			// рисуем закуп
 			const item1 = players.Item_Active_1
 			if (item1) {
-				ctx.drawImage(paladinsItems[fixText(item1)], 980, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel1, 980, 55 * i + nextTeam + 43, 10, 3)
+				ctx.drawImage(paladinsItems[fixText(item1)], 1040, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel1, 1040, 55 * i + nextTeam + 43, 10, 3)
 			}
 			const item2 = players.Item_Active_2
 			if (item2) {
-				ctx.drawImage(paladinsItems[fixText(item2)], 1030, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel2, 1030, 55 * i + nextTeam + 43, 10, 3)
+				ctx.drawImage(paladinsItems[fixText(item2)], 1090, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel2, 1090, 55 * i + nextTeam + 43, 10, 3)
 			}
 			const item3 = players.Item_Active_3
 			if (item3) {
-				ctx.drawImage(paladinsItems[fixText(item3)], 1080, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel3, 1080, 55 * i + nextTeam + 43, 10, 3)
+				ctx.drawImage(paladinsItems[fixText(item3)], 1140, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel3, 1140, 55 * i + nextTeam + 43, 10, 3)
 			}
 			const item4 = players.Item_Active_4
 			if (item4) {
-				ctx.drawImage(paladinsItems[fixText(item4)], 1130, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel4, 1130, 55 * i + nextTeam + 43, 10, 3)
+				ctx.drawImage(paladinsItems[fixText(item4)], 1190, 55 * i + nextTeam, 40, 40)
+				drawLevelItem(ctx, players.ActiveLevel4, 1190, 55 * i + nextTeam + 43, 10, 3)
 			}
 
 			const partyId = players.PartyId
@@ -1207,28 +1209,28 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 				partyNumber++
 			}
 
-			ctx.fillText(players.playerName, 140, 55 * i + nextTeam + 15)
+			ctx.fillText(players.playerName, 200, 55 * i + nextTeam + 15)
 			ctx.fillStyle = "#CC6600"
-			ctx.fillText(`lvl: ${players.Account_Level}`, 140, 55 * i + nextTeam + 40)
+			ctx.fillText(`lvl: ${players.Account_Level}`, 200, 55 * i + nextTeam + 40)
 
 			nextTeam += 25
 
 			ctx.fillStyle = partyColors[partyNum - 1]
 			ctx.beginPath()
-			ctx.arc(320, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
+			ctx.arc(380, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
 			ctx.fill()
 			ctx.fillStyle = "#000000"
-			ctx.fillText(partyNum, 316, 55 * i + nextTeam) // цифра пати
+			ctx.fillText(partyNum, 376, 55 * i + nextTeam) // цифра пати
 			ctx.fillStyle = "#ffffff"
-			ctx.fillText(players.Gold_Earned, 350, 55 * i + nextTeam)
+			ctx.fillText(players.Gold_Earned, 410, 55 * i + nextTeam)
 			ctx.fillStyle = "#CC6600"
-			ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 440, 55 * i + nextTeam)
+			ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 500, 55 * i + nextTeam)
 			ctx.fillStyle = "#ffffff"
-			ctx.fillText(players.Damage_Player, 520, 55 * i + nextTeam)
-			ctx.fillText(players.Damage_Mitigated, 610, 55 * i + nextTeam)
-			ctx.fillText(players.Healing, 710, 55 * i + nextTeam)
-			ctx.fillText(players.Damage_Taken, 810, 55 * i + nextTeam)
-			ctx.fillText(players.Objective_Assists, 910, 55 * i + nextTeam)
+			ctx.fillText(players.Damage_Player, 580, 55 * i + nextTeam)
+			ctx.fillText(players.Damage_Mitigated, 670, 55 * i + nextTeam)
+			ctx.fillText(players.Healing, 770, 55 * i + nextTeam)
+			ctx.fillText(players.Damage_Taken, 870, 55 * i + nextTeam)
+			ctx.fillText(players.Objective_Assists, 970, 55 * i + nextTeam)
 		}
 		return {ctx}
 	} catch(e) {
@@ -1341,7 +1343,7 @@ function drawPaladinsPlayerStatus(status, name) {
 					const item = championList[i]
 					const img = championsIds[fixChampion(item.ChampionName)].img
 					playerIdsList.push(item.playerId) // добавляем их в список
-					if (i < 5) {
+					if (item.taskForce == 1) {
 						ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
 						ctx.fillText(item.playerName, 130, 90 * i + 65)
 						ctx.fillText(item.Account_Level, 130, 90 * i + 90)

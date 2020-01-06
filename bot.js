@@ -370,7 +370,7 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 		})
 	}
 
-	if ( !isNaN(parseInt(matchIdOrName)) ) { // если id матча
+	if ( !isNaN(parseInt(matchIdOrName)) && matchIdOrName.length < 15  ) { // если id матча
 		getMatchForId(matchIdOrName)
 	} else { // если ник игрока
 		// делаем запрос на матчи игрока, получаем id последней катки или указанной

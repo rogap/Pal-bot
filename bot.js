@@ -1023,7 +1023,8 @@ const championsIds = {
     "Raum": {id: "2528"},
     "Seris": {id: "2372"},
     "Torvald": {id: "2322"},
-    "Terminus": {id: "2477"}
+	"Terminus": {id: "2477"},
+	"Tiberius": {id: "2529"}
 }
 
 function fixChampion(text) {
@@ -1658,7 +1659,7 @@ function getKDABP(champions) { // kill, death, assist, больеш всего �
 function getRole(name) { // основываясь на имени персонажа возвращает его роль
 	let heals = ["Mal'Damba", "Ying", "Grover", "Jenos", "Grohk", "Pip", "Seris", "Furia", "Io"],
 		dmgs = ["Lian", "Cassie", "Drogoz", "Strix", "Viktor", "Sha Lin", "Bomb King", "Kinessa", "Tyra", "Vivian", "Willo", "Dredge", "Imani"],
-		flanks = ["Androxus", "Buck", "Zhin", "Evie", "Koga", "Talus", "Maeve", "Skye", "Lex", "Moji"],
+		flanks = ["Androxus", "Buck", "Zhin", "Evie", "Koga", "Talus", "Maeve", "Skye", "Lex", "Moji", "Tiberius"],
 		tanks = ["Makoa", "Fernando", "Ruckus", "Barik", "Ash", "Khan", "Torvald", "Inara", "Terminus", "Atlas", "Raum"]
 
 	return heals.indexOf(name) != -1 ? 'heal' : 

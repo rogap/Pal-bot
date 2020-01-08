@@ -1173,7 +1173,7 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 			//const champName = championsCard[players.ChampionId][0].champion_name
 			const champName = players.Reference_Name
 
-			const img = championsIds[fixText(champName)].img
+			const img = championsIds[fixChampion(champName)].img
 			let nextTeam = i >= 5 ? 245 : 40
 			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
 

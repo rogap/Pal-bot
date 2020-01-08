@@ -1170,7 +1170,8 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 
 		for (let i = 0; i < matchDetails.length; i++) {
 			const players = matchDetails[i]
-			const champName = championsCard[players.ChampionId][0].champion_name
+			//const champName = championsCard[players.ChampionId][0].champion_name
+			const champName = players.Reference_Name
 
 			const img = championsIds[fixText(champName)].img
 			let nextTeam = i >= 5 ? 245 : 40

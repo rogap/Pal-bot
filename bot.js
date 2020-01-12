@@ -7,7 +7,7 @@ const config = Config.exports || Config
 const moment = require("moment")
 const md5 = require("md5")
 config.timeStart = +new Date()
-config.usedComands = 0
+config.usedCommands = 0
 
 let championsCard = null // инфа будет загруженна с сайта
 let LegendarChampions = {} // тут будет обьект с ключами id легендарок персонажей
@@ -18,37 +18,37 @@ let rankedImage = null // тут будут картинки ранга
 
 
 
-function checkNewNameComand(name) { // првоеряет есть ли такая команда (список команд)
+function checkNewNameCommand(name) { // првоеряет есть ли такая команда (список команд)
 	if (!name.fort) name = [name] // делаем массивом если не массив -_-
 
-	for (let comandName in comands) {
-		const comand = comands[comandName]
+	for (let commandName in commands) {
+		const command = commands[commandName]
 		for (let i = 0; i < name.length; i++) {
 			const newName = name[i]
-			const index = comand.comands.indexOf(newName)
+			const index = command.commands.indexOf(newName)
 			if (index != -1) return true
 		}
 	}
 	return false
 }
-const comands = { // будет загружаться для каждого сервера свой, как и настройки к функциям
+const commands = { // будет загружаться для каждого сервера свой, как и настройки к функциям
 	"!hh": {
-		comands: ["!hh", "инфо"],
+		commands: ["!hh", "инфо"],
 		//info: "Выводит список команд, если указан параметр то выводит подробную инструкцию.",
 		info: "Выводит список команд.",
-		func: showInfoComands
+		func: showInfoCommands
 		//params: ["Команда"]
 	},
 	"!recommand": {
-		comands: ["!recommand"],
+		commands: ["!recommand"],
 		info: "__(только админам)__ Изменяет название указанной команды (__с префиксом__ можно указать несколько, через запятую). __**В РАЗРАБОТКЕ**__.",
 		func: function(mess, oldName, newName) {
 			return mess.reply("Команда находится в разработке.")
 			// проверяем правильность команды
-			//if ( !comands[oldName] ) return mess.reply(`Команда **${oldName}** не найдена.`)
+			//if ( !commands[oldName] ) return mess.reply(`Команда **${oldName}** не найдена.`)
 
 			// проверяем занята ли такая команда
-			//if ( checkNewNameComand(newName) ) return mess.reply(`Команда **${newName}** уже существует.`)
+			//if ( checkNewNameCommand(newName) ) return mess.reply(`Команда **${newName}** уже существует.`)
 
 			// применяем новое название к команде
 			// sendSite({
@@ -56,7 +56,7 @@ const comands = { // будет загружаться для каждого с�
 			// 	url: config.url_site,
 			// 	form: {
 			// 		token: config.dbToken,
-			// 		type: 'comands'
+			// 		type: 'commands'
 			// 	}
 			// })
 
@@ -65,9 +65,9 @@ const comands = { // будет загружаться для каждого с�
 			// 	url: config.url_site,
 			// 	form: {
 			// 		token: config.dbToken,
-			// 		type: 'update_comands',
+			// 		type: 'update_commands',
 			// 		guild_id: '352352',
-			// 		comands: JSON.stringify({
+			// 		commands: JSON.stringify({
 			// 			"!me": {
 			// 				names: ["!me", "!меня"],
 			// 				func: "functionMe"
@@ -77,20 +77,20 @@ const comands = { // будет загружаться для каждого с�
 			// })
 
 			// .then(res => {
-			// 	const guildComands = JSON.parse(res.body)
-			// 	console.log(guildComands)
+			// 	const guildCommands = JSON.parse(res.body)
+			// 	console.log(guildCommands)
 			// })
 		},
 		params: ["Текущее имя команды", "Новое имя команды"]
 	},
 	"!me": {
-		comands: ["!me"],
+		commands: ["!me"],
 		info: "Сохраняет ваш никнейм для автоматической подстановки его в другие команды (можно будет писать просто !ss или !ss me).",
 		func: meNickName,
 		params: ["Ник"]
 	},
 	"!ss": {
-		comands: ["!ss", "!стата"],
+		commands: ["!ss", "!стата"],
 		info: "Выводит общую статистику аккаунта.",
 		func: getPlaypaladinsSS,
 		params: ["Ник"],
@@ -98,7 +98,7 @@ const comands = { // будет загружаться для каждого с�
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
 	"!sh": {
-		comands: ["!sh", "!история"],
+		commands: ["!sh", "!история"],
 		info: "Выводит последние 10 матчей указанного игрока.",
 		func: getPlaypaladinsSH,
 		params: ["Ник"],
@@ -106,7 +106,7 @@ const comands = { // будет загружаться для каждого с�
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
 	"!sl": {
-		comands: ["!sl", "!колода"],
+		commands: ["!sl", "!колода"],
 		info: ["Выводит колоды игрока указанного чемпиона."],
 		func: getPaladinsSL,
 		params: ["Ник", "имя чемпиона", "номер колоды"],
@@ -114,7 +114,7 @@ const comands = { // будет загружаться для каждого с�
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
 	"!st": {
-		comands: ["!st", "!лидеры"],
+		commands: ["!st", "!лидеры"],
 		info: ["Выводит топ 10 лидеров указанного чемпиона (много скрытых аккаунтов)."],
 		func: getPaladinsLeaderboard,
 		params: ["имя чемпиона"],
@@ -122,7 +122,7 @@ const comands = { // будет загружаться для каждого с�
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
 	"!sm": {
-		comands: ["!sm", "!матч"],
+		commands: ["!sm", "!матч"],
 		info: ["Выводит подробности матча по id матча или по нику игрока."],
 		func: getPaladinsMatchdetails,
 		params: ["id или Ник", "Порядок матча, если указан ник"],
@@ -130,7 +130,7 @@ const comands = { // будет загружаться для каждого с�
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
 	"!sp": {
-		comands: ["!sp"],
+		commands: ["!sp"],
 		info: ["Проверяет онлайн статус игрока и выводит матч, если он в матче."],
 		func: getPaladinsPlayerStatus,
 		params: ["Ник"],
@@ -138,7 +138,7 @@ const comands = { // будет загружаться для каждого с�
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
 	// "!sg": {
-	// 	comands: ["!sg"],
+	// 	commands: ["!sg"],
 	// 	info: "Выводит сокращенную статистику указанного аккаунта (guru).",
 	// 	func: getGuruSG,
 	// 	params: ["Ник"],
@@ -146,7 +146,7 @@ const comands = { // будет загружаться для каждого с�
 	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	// },
 	// "!sf": {
-	// 	comands: ["!sf"],
+	// 	commands: ["!sf"],
 	// 	info: "Выводит полную статистику указанного аккаунта (guru).",
 	// 	func: getGuruSF,
 	// 	params: ["Ник"],
@@ -154,7 +154,7 @@ const comands = { // будет загружаться для каждого с�
 	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	// },
 	// "!sr": {
-	// 	comands: ["!sr"],
+	// 	commands: ["!sr"],
 	// 	info: "Выводит рейтинговою статистику указанного аккаунта (guru).",
 	// 	func: getGuruSR,
 	// 	params: ["Ник"],
@@ -162,7 +162,7 @@ const comands = { // будет загружаться для каждого с�
 	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	// },
 	"!сервер": {
-		comands: ["!сервер"],
+		commands: ["!сервер"],
 		info: "Отправляет в ЛС ссылку на сервер бота",
 		func: function(mess) {
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
@@ -174,41 +174,41 @@ const comands = { // будет загружаться для каждого с�
 		}
 	},
 	"!онлайн": {
-		comands: ["!онлайн"],
+		commands: ["!онлайн"],
 		info: "выводит статистику пользователей по онлайну и играм",
 		func: showOnlineInServer
 	},
 	"!всего": {
-		comands: ["!всего"],
+		commands: ["!всего"],
 		info: "Выводит статистику бота по серверам, командам и время работы бота",
 		func: showAllServersInfo
 	}
 	// "!аватар": {
-	// 	comands: ["!аватар"],
+	// 	commands: ["!аватар"],
 	// 	info: "Выводит ссылку на аватарку указанного пользователя",
 	// 	func: showUsersAvatar,
 	// 	params: ["Id или никнейм+тег пользователя (упомянуть)"]
 	// },
 	// "!вики": {
-	// 	comands: ["!вики"],
+	// 	commands: ["!вики"],
 	// 	info: "Осуществляет поиск в **Википедии**",
 	// 	func: getVikiTextRU,
 	// 	params: ["Текст"]
 	// },
 	// "!viki": {
-	// 	comands: ["!viki"],
+	// 	commands: ["!viki"],
 	// 	info: "Performs a search on **Wikipedia**",
 	// 	func: getVikiTextEN,
 	// 	params: ["Text"]
 	// },
 	// "!смс": {
-	// 	comands: ["!смс"],
+	// 	commands: ["!смс"],
 	// 	info: "отправляет сообщение в вк указанному id",
 	// 	func: sendMessToVK,
 	// 	params: ["id", "сообщение"]
 	// },
 	// "!переписка": {
-	// 	comands: ["!переписка"],
+	// 	commands: ["!переписка"],
 	// 	info: "выводит 10 последних сообщений из вк (сколько влезит, если длинные)",
 	// 	func: get_vk_messages
 	// }
@@ -217,13 +217,13 @@ const comands = { // будет загружаться для каждого с�
 
 
 // ---> !hh --->
-function showInfoComands(mess) {
+function showInfoCommands(mess) {
 	let text = ``
-	for (let key in comands) {
-		const comand = comands[key]
-		const params = comand.params ? ` **[${comand.params.join("]**, **[")}]**` : ""
-		let info = `**${key}**${params} - ${comand.info}`
-		if (comand.comands.length > 1) info += ` (Можно **${comand.comands.join("**, **")}**).`
+	for (let key in commands) {
+		const command = commands[key]
+		const params = command.params ? ` **[${command.params.join("]**, **[")}]**` : ""
+		let info = `**${key}**${params} - ${command.info}`
+		if (command.commands.length > 1) info += ` (Можно **${command.commands.join("**, **")}**).`
 		text += `\r\n${info}`
 	}
 	mess.reply(text) // нет проверки на 2000 символов в сообщение (можно отправлять другим методом)
@@ -2310,7 +2310,7 @@ function listGame(obj) { // принимает обьект с играми и �
 function showAllServersInfo(mess) {
 	const allUsers = startCounterUsers()
 	const dec = declension(allUsers.guilds, 'сервере', 'серверах', 'серверах') // окончание
-	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}**. Выполнено команд:** ${config.usedComands}**. Время работы: **${(new Date() - config.timeStart) / 60000 ^ 0}м**.`
+	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}**. Выполнено команд:** ${config.usedCommands}**. Время работы: **${(new Date() - config.timeStart) / 60000 ^ 0}м**.`
 	return mess.reply(text)
 }
 
@@ -2829,16 +2829,16 @@ function startListenMess(message) { // обработака всех сообщ�
 
 	//if (message.author.id != "510112915907543042") return false // testing ON
 	// перебираем все команды
-	for (key in comands) {
+	for (key in commands) {
 		// если в начале сообщения стоит команда (ищем команду)
-		const value = comands[key]
+		const value = commands[key]
 		let keyLen = null
-		const searchesComand = value.comands.some((element) => {
+		const searchesCommand = value.commands.some((element) => {
 			keyLen = element.length + 1 // сохраняем, +1 что бы зацепить обязательный пробел после команды
 			return element == message.content.slice(0, keyLen).trim()
 		})
 
-		if (!searchesComand) continue // если команда не найдена, пропускаем ее
+		if (!searchesCommand) continue // если команда не найдена, пропускаем ее
 		const type = message.channel.type // тип чата, где полученно смс с командой
 
 		if (type != 'dm' && type != 'group') { // в личке проверять права не нужно
@@ -2846,15 +2846,15 @@ function startListenMess(message) { // обработака всех сообщ�
 			if (!permission) return // если нельзя писать сообщения то выход
 
 			// проверяем права которые нужны для исполнения команды
-			const comandPerm = value.permission || 'SEND_MESSAGES'
-			const checkPerm = message.channel.permissionsFor(client.user).has(comandPerm)
+			const commandPerm = value.permission || 'SEND_MESSAGES'
+			const checkPerm = message.channel.permissionsFor(client.user).has(commandPerm)
 			if (!checkPerm) return message.reply( value.errPerm || 'Ошибка прав.' )
 		}
 
 		const valParams = value.params || [] // убираем ошибку, если нет параметров
 		const params = mySplit( message.content.slice(keyLen), valParams.length - 1)
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
-		config.usedComands++ // увеличиваем кол-во использованных команд
+		config.usedCommands++ // увеличиваем кол-во использованных команд
 		break // завершить поиск
 	}
 }
@@ -3134,7 +3134,7 @@ function setStatsToSite() {
 	})
 
 	sendSite({method: "POST", url, form: {
-		token, type: 'stats', servers, users, usedComands: config.usedComands, timeWork
+		token, type: 'stats', servers, users, usedCommands: config.usedCommands, timeWork
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
 		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)

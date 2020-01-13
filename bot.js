@@ -943,7 +943,7 @@ function fillDescriptionCard(ctx, text, position, points) { // рисует оп
 	text = text.replace(/^\[[а-я -]+\] /i, '') // убираем принадлежность (то что в [...])
 
 	// убираем "scale" и считаем нужную цифру подставляя в текст
-	const matchArr = text.match(/\{scale=([0-9\.]+)\|([0-9\.]+)\}/i)
+	const matchArr = text.match(/\{scale ?= ?([0-9\.]+)\|([0-9\.]+)\}/i)
 	const scaleText = (matchArr[1] * points).toFixed(1)
 	text = text.replace(/\{scale=[0-9\.]+\|[0-9\.]+\}/i, scaleText)
 

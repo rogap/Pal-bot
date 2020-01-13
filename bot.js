@@ -1140,10 +1140,10 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 		if (typeMatch == 'Ranked') ctx.fillText(`Баны:`, 885, 420)
 		ctx.fillStyle = "#ffffff"
 		ctx.font = 'bold 15px Georgia'
-		if (matchOne.Ban_1)ctx.drawImage(championsIds[fixText(matchOne.Ban_1)].img, 980, 360, 50, 50)
-		if (matchOne.Ban_2)ctx.drawImage(championsIds[fixText(matchOne.Ban_2)].img, 1040, 360, 50, 50)
-		if (matchOne.Ban_3)ctx.drawImage(championsIds[fixText(matchOne.Ban_3)].img, 980, 420, 50, 50)
-		if (matchOne.Ban_4)ctx.drawImage(championsIds[fixText(matchOne.Ban_4)].img, 1040, 420, 50, 50)
+		if (matchOne.Ban_1)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_1)].img, 980, 360, 50, 50)
+		if (matchOne.Ban_2)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_2)].img, 1040, 360, 50, 50)
+		if (matchOne.Ban_3)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_3)].img, 980, 420, 50, 50)
+		if (matchOne.Ban_4)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_4)].img, 1040, 420, 50, 50)
 
 		// рисуем таблицу
 		ctx.fillStyle = "#000000"

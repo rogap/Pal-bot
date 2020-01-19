@@ -1345,14 +1345,14 @@ function drawPaladinsPlayerStatus(status, name) {
 					const item = championList[i]
 					const img = championsIds[fixChampion(item.ChampionName)].img
 					playerIdsList.push(item.playerId) // добавляем их в список
-					if (item.taskForce == 1) {
+					if (item.taskForce == 1 && i < 5) {
 						ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
 						ctx.fillText(item.playerName, 130, 90 * i + 65)
 						ctx.fillText(item.Account_Level, 130, 90 * i + 90)
 						ctx.textAlign = 'center'
 						ctx.fillText(item.ChampionLevel, 95, 90 * i + 120)
 						ctx.textAlign = 'start'
-					} else {
+					} else if (item.taskForce == 2 && i >= 5) {
 						ctx.drawImage(img, imgWidth - 120, 90 * (i - 5) + 50, 50, 50)
 						ctx.textAlign = 'end'
 						ctx.fillText(item.playerName, imgWidth - 130, 90 * (i - 5) + 65)

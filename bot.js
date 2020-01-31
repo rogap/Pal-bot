@@ -885,7 +885,7 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 
 				listDeck.push( {deckName, points} )
 				// загружаем картинки карт
-				loadList.push( loadImage(card.url) )
+				loadList.push( loadImage(card.url).catch(console.log) )
 				listDescription.push(card.description)
 			})
 		})

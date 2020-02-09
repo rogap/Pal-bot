@@ -571,7 +571,7 @@ function drawPlaypaladinsSS(json) {
 }
 
 function drawItemsPlaypaladinsSS(ctx, main, kda) {
-	const RankedKBM = main.RankedKBM
+	const RankedKBM = main.RankedKBM || {}
 	const totalTime = kda.dmg + kda.flank + kda.tank + kda.heal
 	const width = 200 // отступ от картинки ранга
 	const dmgDeg = 360 * (kda.dmg / totalTime)
@@ -608,11 +608,11 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	ctx.fillText(`Винрейт: ${fixNaN((main.Wins / (main.Wins + main.Losses) * 100).toFixed(0))}%`, 10, 290)
 
 	ctx.fillText(`РАНКЕД:`, 250, 170)
-	ctx.fillText(`Побед: ${RankedKBM.Wins}`, 200, 190)
-	ctx.fillText(`Поражений: ${RankedKBM.Losses}`, 200, 210)
+	ctx.fillText(`Побед: ${ fixNaN(RankedKBM.Wins) }`, 200, 190)
+	ctx.fillText(`Поражений: ${ fixNaN(RankedKBM.Losses) }`, 200, 210)
 	ctx.fillText(`Ранг: ${getRank(main.Tier_RankedKBM)}`, 200, 230)
-	ctx.fillText(`ОТ: ${RankedKBM.Points}`, 200, 250)
-	if (RankedKBM.Rank) ctx.fillText(`Позиция: ${RankedKBM.Rank}`, 200, 270)
+	ctx.fillText(`ОТ: ${ fixNaN(RankedKBM.Points) }`, 200, 250)
+	if (RankedKBM.Rank) ctx.fillText(`Позиция: ${ fixNaN(RankedKBM.Rank) }`, 200, 270)
 
 	ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 480, 160)
 
@@ -844,7 +844,7 @@ function searchPaladinsLoadouts(name, championName, num) { // возвращае
 			hiRezFunc("getplayerloadouts", playerId, 11)
 			.then(loadouts => {
 				const champId = championsIds[championName].id
-				
+
 				const filterLoadouts = loadouts.filter(item => { // сортируем по указанному чемпиону
 					return item.ChampionId == champId
 				})
@@ -858,7 +858,7 @@ function searchPaladinsLoadouts(name, championName, num) { // возвращае
 function drawPaladinsSL({listLoadouts, num, err}) { // num это какую колоду брать (num не меньше 1 и целое!)
 	num = num || 1
 	if (err) return new Promise(resolve => {resolve({err})}) // если была ошибка
-	
+
 	const imgWidth = 1648
 	const imgHeight = 600
 	const canvas = createCanvas(imgWidth, imgHeight)
@@ -893,7 +893,7 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 		loadList = loadList.slice((num - 1) * 5, num * 5) // обрезаем
 		listDeck = listDeck.slice((num - 1) * 5, num * 5)
 		listDescription = listDescription.slice((num - 1) * 5, num * 5)
-		
+
 		Promise.all(loadList)
 		.then(imgListLoad => {
 			for (let i = 0; i < imgListLoad.length; i++) { // перебор загруженных картинок

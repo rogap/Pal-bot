@@ -113,14 +113,14 @@ const commands = { // будет загружаться для каждого с
 		permission: "ATTACH_FILES",
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
-	"!st": {
-		commands: ["!st", "!лидеры"],
-		info: ["Выводит топ 10 лидеров указанного чемпиона (много скрытых аккаунтов)."],
-		func: getPaladinsLeaderboard,
-		params: ["имя чемпиона"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	},
+	// "!st": {
+	// 	commands: ["!st", "!лидеры"],
+	// 	info: ["Выводит топ 10 лидеров указанного чемпиона (много скрытых аккаунтов)."],
+	// 	func: getPaladinsLeaderboard,
+	// 	params: ["имя чемпиона"],
+	// 	permission: "ATTACH_FILES",
+	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	// },
 	"!sm": {
 		commands: ["!sm", "!матч"],
 		info: ["Выводит подробности матча по id матча или по нику игрока."],
@@ -358,7 +358,7 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 	//if (!matchIdOrName) return mess.reply(`Введите корректный Ник игрока или id матча`)
 
 	function getMatchForId(matchId) {
-		hiRezFunc("getmatchdetails", matchId)
+		hiRezFunc("getmatchdetails", {id: matchId})
 		.then(match => {
 			if (!match[0].name) return mess.reply(`Матч не найден`)
 
@@ -379,10 +379,10 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 		function getStats(name) {
 			name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
 
-			hiRezFunc('getplayeridbyname', name)
+			hiRezFunc('getplayeridbyname', {name})
 			.then(player => {
 				if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
-				hiRezFunc('getmatchhistory', player[0].player_id)
+				hiRezFunc('getmatchhistory', {id: player[0].player_id})
 				.then(matches => {
 					const match = matches[matchNum - 1] // берем указанный матч
 					if (!match || !match.Match) return mess.reply("Указанный матч не найден")
@@ -403,10 +403,10 @@ function getPaladinsPlayerStatus(mess, name) {
 	function getStats(name) {
 		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
 
-		hiRezFunc("getplayeridbyname", name) // получаем id игрока по нику
+		hiRezFunc("getplayeridbyname", {name}) // получаем id игрока по нику
 		.then(player => {
 			if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
-			hiRezFunc("getplayerstatus", player[0].player_id)
+			hiRezFunc("getplayerstatus", {id: player[0].player_id})
 			.then(retranslator)
 			.then(res => {
 				if (res.err) return mess.reply(res.err)
@@ -836,12 +836,12 @@ function paladinsSL(mess, name, championName, num) {
 
 function searchPaladinsLoadouts(name, championName, num) { // возвращает массив колод указанного персонажа
 	return new Promise(resolve => {
-		hiRezFunc("getplayeridbyname", name)
+		hiRezFunc("getplayeridbyname", {name})
 		.then((player => {
 			if (!player[0]) return resolve({err: true}) // если скрыт профиль
 
 			const playerId = player[0].player_id
-			hiRezFunc("getplayerloadouts", playerId, 11)
+			hiRezFunc("getplayerloadouts", {id: playerId, lang: "11"})
 			.then(loadouts => {
 				const champId = championsIds[championName].id
 
@@ -1299,7 +1299,7 @@ function drawPaladinsPlayerStatus(status, name) {
 	
 		const matchId = ss.Match
 		if (matchId) {
-			hiRezFunc("getmatchplayerdetails", matchId) // просмотр матча в реальном времени
+			hiRezFunc("getmatchplayerdetails", {id: matchId}) // просмотр матча в реальном времени
 			.then(championList => {
 				if ( typeof(championList[0].ret_msg) == "string") return resolve({err: `Игрок **${name}** играет с ботами или в пользовательском режиме.`})
 				championList.sort((a, b) => {return a.taskForce - b.taskForce}) // сортируем по командам
@@ -2660,7 +2660,16 @@ function createSession() {
  * @param {String} format - тип запроса
  * @param  {...any} params - параметры которые будут переданы в конец url
  */
-function hiRezFunc(format, ...params) {
+function hiRezFunc(format, params) { // format, ...params)
+	console.log(format, params)
+	return new Promise((resolve, reject) => {
+		const formSend = formHi_rezFunc(format, params)
+		sendSite( formSend )
+		.then(res => {
+			resolve(res.body.json || [])
+		})
+	})
+	/*
 	console.log(`hiRezFunc: ${format}`)
     return new Promise((resolve, reject) => {
 		if (!format) reject(false)
@@ -2678,7 +2687,8 @@ function hiRezFunc(format, ...params) {
 				resolve(res.body)
 			})
 		})
-    })
+	})
+	*/
 }
 
 
@@ -2708,12 +2718,12 @@ function testSession() { // проверяет валидность сессии
 
 function searchPaladinsPlayer(name) { // функция эмулирующая API playpaladins
 	return new Promise((resolve, reject) => {
-		hiRezFunc("getplayer", name) // поиск игрока
+		hiRezFunc("getplayer", {name}) // поиск игрока
 		.then(response => {
 			const main = response[0]
 			if (!main) return reject({msg: "Игрок не найден"})
 			
-			hiRezFunc("getgodranks", main.Id) // поиск его чемпионов
+			hiRezFunc("getgodranks", {id: main.Id}) // поиск его чемпионов
 			.then(champions => {
 				if (!champions) return reject({msg: "Чемпионы игрока не найдены"})
 				resolve({main, champions, name})
@@ -2725,13 +2735,13 @@ function searchPaladinsPlayer(name) { // функция эмулирующая A
 
 function searchPaladinsMatch(name) { // функция эмулирующая API playapaladins
 	return new Promise((resolve, reject) => {
-		hiRezFunc("getplayeridbyname", name)
+		hiRezFunc("getplayeridbyname", {name})
 		.then(response => {
 			const body = response[0]
 			if (!body) reject({msg: "Пользователь не найден"})
 			const id = body.player_id
 
-			hiRezFunc("getmatchhistory", id)
+			hiRezFunc("getmatchhistory", {id})
 			.then(matches => {
 				if (!matches[0]) reject({msg: "Матчи не найденны"})
 				resolve(matches)
@@ -2888,6 +2898,49 @@ function isAdmin(user_id, guild_id=[]) { // очень кривая провер
 	if (!adminListId[user_id].guilds) return adminListId[user_id].type; // если глобальная админка
 	if (adminListId[user_id].guilds.indexOf(guild_id) == -1) return false; // если в списке нет гильдии
 	return adminListId[user_id].type; // если же есть то значит админ и возвращаем его тип
+}
+
+
+
+function formHi_rezFunc(format, params) {
+	const form_params = []
+	const params_query = params.constructor == Object ? {} : null
+
+	for (let key in params) {
+		const value = params[key]
+		form_params.push(value)
+	}
+
+	if ( params_query && form_params.length > 1 ) { // если параметров больше 1, то в "type" будет массив, иначе строка
+		params_query.types = []
+		params_query.values = []
+		for (let key in params) {
+			const value = params[key]
+			
+			params_query.types.push(key)
+			params_query.values.push(value)
+		}
+	} else if (params_query) {
+		for (let key in params) {
+			const value = params[key]
+
+			params_query.types = key
+			params_query.values = value
+		}
+	}
+
+	return {
+		method: 'POST',
+		url: 'https://webmyself.ru/test-stats/test.php',
+		json: true,
+		form: {
+			token: config.dbToken,
+			format,
+			params: form_params,
+			params_query
+		}
+		
+	}
 }
 
 

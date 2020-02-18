@@ -313,6 +313,7 @@ function getPaladinsPlayerStatus(mess, name) {
 
 // ---> !sc --->
 function getChampionStats(mess, name, champName) {
+	if (!name || !champName) return mess.reply(`Укажите правильно команду. Пример: **!sc [имя игрока] [имя чемпиона]**`)
 	prefStatsGuru(mess, name, getStats)
 
 	function getStats(name) {

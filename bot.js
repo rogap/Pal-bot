@@ -2,35 +2,19 @@ const {Client} = require('discord.js')
 const client = new Client()
 const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
-const Config = require('./configs.js')
+const Config = require('./configs.js') // будет ли подставленна туда инфа от хероку?
 const config = Config.exports || Config
-const moment = require("moment")
-const md5 = require("md5")
+
 config.timeStart = +new Date()
 config.usedCommands = 0
-
-let championsCard = null // инфа будет загруженна с сайта
-let LegendarChampions = {} // тут будет обьект с ключами id легендарок персонажей
-let cardFrames = null // тут будет массив фреймов карт (загруженные картинки)
-let imgBackground = null // тут будут "случайные" фоны для статы
-let differentImg = {} // разные изображения
-let rankedImage = null // тут будут картинки ранга
+config.championsId = {}
+config.championsName = {}
+config.differentImg = []
+config.LegendarChampions = {}
 
 
 
-function checkNewNameCommand(name) { // првоеряет есть ли такая команда (список команд)
-	if (!name.fort) name = [name] // делаем массивом если не массив -_-
 
-	for (let commandName in commands) {
-		const command = commands[commandName]
-		for (let i = 0; i < name.length; i++) {
-			const newName = name[i]
-			const index = command.commands.indexOf(newName)
-			if (index != -1) return true
-		}
-	}
-	return false
-}
 const commands = { // будет загружаться для каждого сервера свой, как и настройки к функциям
 	"!hh": {
 		commands: ["!hh", "инфо"],
@@ -38,50 +22,6 @@ const commands = { // будет загружаться для каждого с
 		info: "Выводит список команд.",
 		func: showInfoCommands
 		//params: ["Команда"]
-	},
-	"!recommand": {
-		commands: ["!recommand"],
-		info: "__(только админам)__ Изменяет название указанной команды (__с префиксом__ можно указать несколько, через запятую). __**В РАЗРАБОТКЕ**__.",
-		func: function(mess, oldName, newName) {
-			return mess.reply("Команда находится в разработке.")
-			// проверяем правильность команды
-			//if ( !commands[oldName] ) return mess.reply(`Команда **${oldName}** не найдена.`)
-
-			// проверяем занята ли такая команда
-			//if ( checkNewNameCommand(newName) ) return mess.reply(`Команда **${newName}** уже существует.`)
-
-			// применяем новое название к команде
-			// sendSite({
-			// 	method: 'POST',
-			// 	url: config.url_site,
-			// 	form: {
-			// 		token: config.dbToken,
-			// 		type: 'commands'
-			// 	}
-			// })
-
-			// sendSite({
-			// 	method: 'POST',
-			// 	url: config.url_site,
-			// 	form: {
-			// 		token: config.dbToken,
-			// 		type: 'update_commands',
-			// 		guild_id: '352352',
-			// 		commands: JSON.stringify({
-			// 			"!me": {
-			// 				names: ["!me", "!меня"],
-			// 				func: "functionMe"
-			// 			}
-			// 		})
-			// 	}
-			// })
-
-			// .then(res => {
-			// 	const guildCommands = JSON.parse(res.body)
-			// 	console.log(guildCommands)
-			// })
-		},
-		params: ["Текущее имя команды", "Новое имя команды"]
 	},
 	"!me": {
 		commands: ["!me"],
@@ -113,14 +53,6 @@ const commands = { // будет загружаться для каждого с
 		permission: "ATTACH_FILES",
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
-	// "!st": {
-	// 	commands: ["!st", "!лидеры"],
-	// 	info: ["Выводит топ 10 лидеров указанного чемпиона (много скрытых аккаунтов)."],
-	// 	func: getPaladinsLeaderboard,
-	// 	params: ["имя чемпиона"],
-	// 	permission: "ATTACH_FILES",
-	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	// },
 	"!sm": {
 		commands: ["!sm", "!матч"],
 		info: ["Выводит подробности матча по id матча или по нику игрока."],
@@ -137,30 +69,14 @@ const commands = { // будет загружаться для каждого с
 		permission: "ATTACH_FILES",
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
-	// "!sg": {
-	// 	commands: ["!sg"],
-	// 	info: "Выводит сокращенную статистику указанного аккаунта (guru).",
-	// 	func: getGuruSG,
-	// 	params: ["Ник"],
-	// 	permission: "ATTACH_FILES",
-	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	// },
-	// "!sf": {
-	// 	commands: ["!sf"],
-	// 	info: "Выводит полную статистику указанного аккаунта (guru).",
-	// 	func: getGuruSF,
-	// 	params: ["Ник"],
-	// 	permission: "ATTACH_FILES",
-	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	// },
-	// "!sr": {
-	// 	commands: ["!sr"],
-	// 	info: "Выводит рейтинговою статистику указанного аккаунта (guru).",
-	// 	func: getGuruSR,
-	// 	params: ["Ник"],
-	// 	permission: "ATTACH_FILES",
-	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	// },
+	"!sc": {
+		commands: ["!sc", "!чемпион"],
+		info: ["Выводит статистику указанного чемпиона."],
+		func: getChampionStats,
+		params: ["Ник", "Чемпион"],
+		permission: "ATTACH_FILES",
+		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	},
 	"!сервер": {
 		commands: ["!сервер"],
 		info: "Отправляет в ЛС ссылку на сервер бота",
@@ -188,29 +104,6 @@ const commands = { // будет загружаться для каждого с
 	// 	info: "Выводит ссылку на аватарку указанного пользователя",
 	// 	func: showUsersAvatar,
 	// 	params: ["Id или никнейм+тег пользователя (упомянуть)"]
-	// },
-	// "!вики": {
-	// 	commands: ["!вики"],
-	// 	info: "Осуществляет поиск в **Википедии**",
-	// 	func: getVikiTextRU,
-	// 	params: ["Текст"]
-	// },
-	// "!viki": {
-	// 	commands: ["!viki"],
-	// 	info: "Performs a search on **Wikipedia**",
-	// 	func: getVikiTextEN,
-	// 	params: ["Text"]
-	// },
-	// "!смс": {
-	// 	commands: ["!смс"],
-	// 	info: "отправляет сообщение в вк указанному id",
-	// 	func: sendMessToVK,
-	// 	params: ["id", "сообщение"]
-	// },
-	// "!переписка": {
-	// 	commands: ["!переписка"],
-	// 	info: "выводит 10 последних сообщений из вк (сколько влезит, если длинные)",
-	// 	func: get_vk_messages
 	// }
 }
 
@@ -304,7 +197,7 @@ function getPlaypaladinsSH(mess, name) {
 
 // ---> !sl --->
 function getPaladinsSL(mess, name, championName, num) {
-	if (!championsIds[championName]) {
+	if (!config.championsName[championName]) {
 		return mess.reply("Введите корректное имя чемпиона")
 	}
 
@@ -332,33 +225,12 @@ function getPaladinsSL(mess, name, championName, num) {
 
 
 
-// ---> !st --->
-function getPaladinsLeaderboard(mess, championName) {
-	if (!championName) return mess.reply(`Введите корректное имя чемпиона`)
-	const champ = championsIds[championName]
-	if (!champ) return mess.reply(`Введите корректное имя чемпиона`)
-	const champId = champ.id
-	if (!champId) return mess.reply(`Введите корректное имя чемпиона`)
-	hiRezFunc("getchampionleaderboard", champId, 428)
-	.then(top => {
-		let text = `__Топ 10 **${championName}**:__`
-		
-		for (let i = 0; i < 10; i++) {
-			text += `\r\n${i + 1}. **${top[i].player_name || '-скрытый профиль-'}** Винрейт: **${top[i].wins}/${top[i].losses}**.`
-		}
-		mess.reply(text)
-	})
-}
-// <--- !st <---
-
-
-
 // ---> !sm --->
 function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 	//if (!matchIdOrName) return mess.reply(`Введите корректный Ник игрока или id матча`)
 
 	function getMatchForId(matchId) {
-		hiRezFunc("getmatchdetails", matchId)
+		hiRezFunc("getmatchdetails", {id: matchId})
 		.then(match => {
 			if (!match[0].name) return mess.reply(`Матч не найден`)
 
@@ -370,7 +242,7 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 		})
 	}
 
-	if ( !isNaN(parseInt(matchIdOrName)) && matchIdOrName.length < 15 ) { // если id матча
+	if ( !isNaN(parseInt(matchIdOrName)) && matchIdOrName.length < 15 && matchIdOrName.length > 8 ) { // если id матча
 		getMatchForId(matchIdOrName)
 	} else { // если ник игрока
 		// делаем запрос на матчи игрока, получаем id последней катки или указанной
@@ -379,13 +251,20 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 		function getStats(name) {
 			name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
 
-			hiRezFunc('getplayeridbyname', name)
+			hiRezFunc('searchplayers', {name})
+			.then(function(res){
+				return new Promise(resolve => {
+					return resolve( getSearchplayers(res, true) )
+				})
+			})
 			.then(player => {
-				if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
-				hiRezFunc('getmatchhistory', player[0].player_id)
+				if (!player) return mess.reply("Игрок не найден или у него скрыт профиль.")
+				// if (player.privacy_flag == "y") return mess.reply(`У игрока скрытый аккаунт.`) // фикс новой API
+				hiRezFunc('getmatchhistory', {id: player.player_id})
 				.then(matches => {
+					if (!matches[0] || matches[0].ret_msg) return mess.reply(`Ошибка, возможно у игрока **${player.player_id}** скрытый аккаунт или нет матчей.`)
 					const match = matches[matchNum - 1] // берем указанный матч
-					if (!match || !match.Match) return mess.reply("Указанный матч не найден")
+					if (!match || !match.Match) return mess.reply("Указанный матч не найден.")
 					getMatchForId(match.Match)
 				})
 			})
@@ -403,10 +282,16 @@ function getPaladinsPlayerStatus(mess, name) {
 	function getStats(name) {
 		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
 
-		hiRezFunc("getplayeridbyname", name) // получаем id игрока по нику
+		hiRezFunc("searchplayers", {name}) // получаем id игрока по нику
+		.then(function(res){ // ретранслятор -_-
+			return new Promise(resolve => {
+				return resolve( getSearchplayers(res, true) )
+			})
+		})
 		.then(player => {
-			if (!player[0]) return mess.reply("Игрок не найден или у него скрыт профиль.")
-			hiRezFunc("getplayerstatus", player[0].player_id)
+			if (!player) return mess.reply(`Игрок **${name}** не найден или у него скрыт профиль.`)
+			if (player.ret_msg) return mess.reply(`Ошибка: **${player.ret_msg}**.`) // фикс новой API
+			hiRezFunc("getplayerstatus", {id: player.player_id})
 			.then(retranslator)
 			.then(res => {
 				if (res.err) return mess.reply(res.err)
@@ -426,99 +311,96 @@ function getPaladinsPlayerStatus(mess, name) {
 
 
 
-// ---> !sg --->
-function getGuruSG(mess, name) {
+// ---> !sc --->
+function getChampionStats(mess, name, champName) {
 	prefStatsGuru(mess, name, getStats)
 
 	function getStats(name) {
-		if (/^[0-9]+-[^!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i.test(name)) {
-			// если передан ник с id
-			guruSummary(mess, {name}) // парсим инфу
-			.then(drawStatsSmall) // рисуем
-			.then(res => {
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
+		hiRezFunc("searchplayers", {name}) // получаем id игрока по нику
+		.then(function(res){ // ретранслятор -_-
+			return new Promise(resolve => {
+				return resolve( getSearchplayers(res, true) )
+			})
+		})
+		.then(player => {
+			if (!player) return mess.reply("Игрок не найден или у него скрыт профиль.")
+			if (player.ret_msg) return mess.reply(`Ошибка: ${player.ret_msg}`) // фикс новой API
+			hiRezFunc("getchampionranks", {id: player.player_id}) // получаем чемпионов
+			.then(champions => {
+				if (!champions || !champions[0]) return mess.reply(`У игрока **${name}** не найдены чемпионы.`)
+				const champion = searchChampion(champions, champName)
+				if (!champion) return mess.reply(`У **${name}** нет игр на "${champName}".`)
+				const file = drawChampionStats(champion, name)
+				if (!file) return mess.reply(`Ошибка при рисовании статистики чемпиона.`)
+				const buffer = file.toBuffer('image/png') // buffer image
 				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
 			})
-		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
-			// если просто ник
-			searchAccauntsGuru(name) // поиск аккаунта
-			.then( verifyAccauntGuru.bind(null, mess) ) // проверяем сколько их нашлось
-			.then( guruSummary.bind(null, mess) ) // парсим инфу
-			.then(drawStatsSmall) // рисуем
-			.then(res => {
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
-			})
-		} else {
-			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
-		}
+		})
 	}
 }
-// <--- !sg <---
+function searchChampion(list, name) {
+	name = name.replace(/[ ']/i,'').toLowerCase()
+	return list.find(champion => {
+		return champion.champion.replace(/[ ']/i,'').toLowerCase() == name
+	}) || false
+}
+function drawChampionStats(champion, playername) {
+	try {
+		const fullInfoChampion = config.championsId[ champion.champion_id ]
 
+		const imgWidth = 600
+		const imgHeight = 260
+		const canvas = createCanvas(imgWidth, imgHeight)
+		const ctx = canvas.getContext('2d')
+		ctx.font = 'bold 16px Georgia'
+		ctx.fillStyle = "#ffffff"
 
+		const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 
-// ---> !sf --->
-function getGuruSF(mess, name) {
-	prefStatsGuru(mess, name, getStats)
+		ctx.fillText(`Роль: ${fullInfoChampion.Roles}`, 200, 230)
+		ctx.fillText(`Титул: ${fullInfoChampion.Title}`, 200, 250)
+		ctx.fillText(`Последняя игра: ${champion.LastPlayed}`, 200, 40 + 5)
+		ctx.fillText(`Сыграно минут: ${champion.Minutes}`, 200, 60 + 5)
 
-	function getStats(name) {
-		if (/^[0-9]+-[^!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i.test(name)) {
-			// если передан ник с id
-			guruSummary(mess, {name}) // парсим инфу
-			.then(drawStatsFull) // рисуем
-			.then(res => {
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
-			})
-		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
-			// если просто ник
-			searchAccauntsGuru(name) // поиск аккаунта
-			.then( verifyAccauntGuru.bind(null, mess) ) // проверяем сколько их нашлось
-			.then( guruSummary.bind(null, mess) ) // парсим инфу
-			.then(drawStatsFull) // рисуем
-			.then(res => {
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
-			})
-		} else {
-			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
-		}
+		const img = config.championsName[ champion.champion ].loadedImg
+		ctx.drawImage(img, 10, 30, 180, 180)
+		ctx.fillStyle = '#32CD32' // зеленый
+		ctx.fillText(`Жизни: ${fullInfoChampion.Health}`, 10, 230)
+		const kills = champion.Kills
+		ctx.fillText(`Убийства: ${kills}`, 200, 120 + 5)
+		ctx.fillText(`Победы: ${champion.Wins}`, 400, 120 + 5)
+
+		ctx.fillStyle = "#1199cc" // голубой
+		ctx.fillText(`Скорость: ${fullInfoChampion.Speed}`, 10, 250)
+		const assists = champion.Assists
+		ctx.fillText(`Помощи: ${assists}`, 200, 160 + 5)
+
+		const deaths = champion.Deaths
+		ctx.fillStyle = '#BB1111' // красный
+		ctx.fillText(`Смерти: ${deaths}`, 200, 140 + 5)
+		ctx.fillText(`Поражения: ${champion.Losses}`, 400, 140 + 5)
+
+		const kda = ((kills + assists / 2) / (deaths + 1)).toFixed(2)
+		const winrate = fixNaN((champion.Wins / (champion.Wins + champion.Losses) * 100).toFixed(0))
+
+		ctx.fillStyle = '#CC6600' // оранжевый
+		ctx.textAlign = "center"
+		ctx.fillText(fullInfoChampion.Name, 100, 20)
+		ctx.textAlign = "start"
+		ctx.fillText(playername, 250, 20)
+		ctx.fillText(`Уровень: ${champion.Rank}`, 200, 80 + 5)
+		ctx.fillText(`КДА: ${kda}`, 200, 180 + 5)
+		ctx.fillText(`Винрейт: ${winrate}%`, 400, 160 + 5)
+
+		return canvas
+	} catch(e) {
+		console.log("Ошибка рисования статистики чемпионов:")
+		console.log(e)
+		return false
 	}
 }
-// <--- !sf <---
-
-
-
-// ---> !sr --->
-function getGuruSR(mess, name) {
-	prefStatsGuru(mess, name, getStats)
-
-	function getStats(name) {
-		if (/^[0-9]+-[^!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i.test(name)) {
-			// если передан ник с id
-			guruRanked(mess, {name}) // парсим инфу
-			.then(drawStatsRanked) // рисуем
-			.then(res => {
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
-			})
-		} else if (!name.match(/^[0-9]|[!@#\$\%\^\&\*()\-_+=\\\/'"`;:\.,?<>\[\]\{\}\~ ]+/i)) {
-			// если просто ник
-			searchAccauntsGuru(name) // поиск аккаунта
-			.then( verifyAccauntGuru.bind(null, mess) ) // проверяем сколько их нашлось
-			.then( guruRanked.bind(null, mess) ) // парсим инфу
-			.then(drawStatsRanked) // рисуем
-			.then(res => {
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
-			})
-		} else {
-			mess.reply(`Неизвестная ошибка при поиске имени **${name}**. Попробуйте снова или обратитесь в ТП бота.`)
-		}
-	}
-}
-// <--- !sr <---
+// <--- !sc <---
 
 
 
@@ -540,13 +422,13 @@ function drawPlaypaladinsSS(json) {
 
 	return new Promise(resolve => {
 		// загружаем случайный глобальный фон для статы
-		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
 		const main = json.main
 		const kda = getKDABP(json.champions)
 		let championList = []
 		for (let i = 0; i < kda.best.length; i ++) {
 			const champion = kda.best[i].champion
-			championList.push( championsIds[fixChampion(champion)].img )
+			championList.push( config.championsName[champion].loadedImg )
 		}
 
 		ctx.drawImage(img, 0, 0, 760, 300)
@@ -592,12 +474,13 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 
 	// рисуем инфу
 	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20)
-	ctx.fillText(`Steam: ${main.Name}`, 10 + width / 2, 40)
-	ctx.fillText(`Уровень: ${main.Level}`, 10 + width / 2, 60)
-	ctx.fillText(`Создан: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 80)
-	ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + width / 2, 100)
-	ctx.fillText(`Последний вход: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 120)
-	ctx.fillText(`KDA: ${( (kda.kills + kda.assists / 2) / (kda.deaths + 1)).toFixed(2)}`, 10 + width / 2, 140)
+	// ctx.fillText(`Клиент: ${main.Platform} - ${main.Name}`, 10 + width / 2, 40)
+	ctx.fillText(`Уровень: ${main.Level}`, 10 + width / 2, 40)
+	ctx.fillText(`Создан: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 60)
+	ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + width / 2, 80)
+	ctx.fillText(`Последний вход: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 100)
+	ctx.fillText(`KDA: ${( (kda.kills + kda.assists / 2) / (kda.deaths + 1)).toFixed(2)}`, 10 + width / 2, 120)
+	ctx.fillText(`Клиент: ${main.Platform} - ${main.Name}`, 10, 140)
 
 	ctx.fillText(`ВСЕГО:`, 50, 170)
 	ctx.fillText(`Убийств: ${kda.kills}`, 10, 190)
@@ -699,7 +582,7 @@ function drawPlaypaladinsSH(matches) {
 
 	return new Promise(resolve => {
 		// загружаем случайный глобальный фон для статы
-		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
 		ctx.drawImage(img, 0, 30, imgWidth, 530)
 		drawItemsPlaypaladinsSH(ctx, matches) // рисуем эллементы не нужнающиеся в промисах
 
@@ -707,7 +590,7 @@ function drawPlaypaladinsSH(matches) {
 		let champList = []
 		matches.forEach(item => {
 			const champion = item.Champion
-			champList.push( championsIds[fixChampion(champion)].img )
+			champList.push( config.championsName[champion].loadedImg )
 		})
 
 		drawChampionsPlaypaladinsSH(ctx, champList) // рисуем загруженных чемпионов
@@ -836,14 +719,19 @@ function paladinsSL(mess, name, championName, num) {
 
 function searchPaladinsLoadouts(name, championName, num) { // возвращает массив колод указанного персонажа
 	return new Promise(resolve => {
-		hiRezFunc("getplayeridbyname", name)
+		hiRezFunc("searchplayers", {name})
+		.then(function(res){ // ретранслятор
+			return new Promise(resolve => {
+				return resolve( getSearchplayers(res, true) )
+			})
+		})
 		.then((player => {
-			if (!player[0]) return resolve({err: true}) // если скрыт профиль
+			if (!player || player.ret_msg) return resolve({err: true}) // если скрыт профиль
 
-			const playerId = player[0].player_id
-			hiRezFunc("getplayerloadouts", playerId, 11)
+			const playerId = player.player_id
+			hiRezFunc("getplayerloadouts", {id: playerId, lang: "11"})
 			.then(loadouts => {
-				const champId = championsIds[championName].id
+				const champId = config.championsName[championName].id
 
 				const filterLoadouts = loadouts.filter(item => { // сортируем по указанному чемпиону
 					return item.ChampionId == champId
@@ -867,7 +755,7 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 	ctx.fillStyle = "#ffffff"
 	ctx.textAlign = "center"
 
-	const background = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
 	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 
 	return new Promise(resolve => {
@@ -886,6 +774,7 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 				listDeck.push( {deckName, points} )
 				// загружаем картинки карт
 				loadList.push( loadImage(card.url).catch(console.log) )
+				// тут можно добавить setPaladinsCard что бы брать уже загруженные ранее карты и не грузить их дважды
 				listDescription.push(card.description)
 			})
 		})
@@ -903,7 +792,7 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 				if (img) ctx.drawImage(img, i * (10 + 314) + 48, 150, 256, 196) // рисуем картинки карт
 				// теперь нужно нарисовать фреймы для карт
 				const points = properties.points
-				const imgFrames = cardFrames[points - 1] // получаем картинку фрейма карты
+				const imgFrames = config.cardFrames[points - 1] // получаем картинку фрейма карты
 				ctx.drawImage(imgFrames, i * (10 + 314) + 20, 100, 314, 479)
 
 				// рисуем название колоды
@@ -923,7 +812,7 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 
 // возвращает url и описание карты по id чемпиона и id карты
 function getPaladinsCard(idCard, idChamp) {
-	const champCards = championsCard[idChamp]
+	const champCards = config.championsCard[idChamp]
 
 	for (let i = 0; i < champCards.length; i++) {
 		const card = champCards[i]
@@ -980,82 +869,82 @@ function formProposals(text, maxLen) { // возвращает массив, р�
 }
 
 
-const championsIds = {
-	"Androxus": {id: "2205"},
-    "Cassie": {id: "2092"},
-    "Drogoz": {id: "2277"},
-    "Kinessa": {id: "2249"},
-    "Lian": {id: "2417"},
-    "Maeve": {id: "2338"},
-	"Bomb King": {id: "2281"},
-	"Sha Lin": {id: "2307"},
-    "Strix": {id: "2438"},
-    "Koga": {id: "2493"},
-    "Buck": {id: "2147"},
-    "Pip": {id: "2056"},
-    "Moji": {id: "2481"},
-    "Evie": {id: "2094"},
-    "Makoa": {id: "2288"},
-    "Zhin": {id: "2420"},
-    "Viktor": {id: "2285"},
-    "Willo": {id: "2393"},
-    "Dredge": {id: "2495"},
-    "Lex": {id: "2362"},
-    "Tyra": {id: "2314"},
-    "Ruckus": {id: "2149"},
-    "Grohk": {id: "2093"},
-    "Talus": {id: "2472"},
-    "Skye": {id: "2057"},
-	"Mal'Damba": {id: "2303"},
-    "Imani": {id: "2509"},
-    "Grover": {id: "2254"},
-    "Furia": {id: "2491"},
-    "Khan": {id: "2479"},
-    "Io": {id: "2517"},
-    "Barik": {id: "2073"},
-    "Jenos": {id: "2431"},
-    "Vivian": {id: "2480"},
-    "Fernando": {id: "2071"},
-    "Atlas": {id: "2512"},
-    "Ying": {id: "2267"},
-    "Ash": {id: "2404"},
-    "Inara": {id: "2348"},
-    "Raum": {id: "2528"},
-    "Seris": {id: "2372"},
-    "Torvald": {id: "2322"},
-	"Terminus": {id: "2477"},
-	"Tiberius": {id: "2529"}
-}
+// const championsIds = {
+// 	"Androxus": {id: "2205"},
+//     "Cassie": {id: "2092"},
+//     "Drogoz": {id: "2277"},
+//     "Kinessa": {id: "2249"},
+//     "Lian": {id: "2417"},
+//     "Maeve": {id: "2338"},
+// 	"Bomb King": {id: "2281"},
+// 	"Sha Lin": {id: "2307"},
+//     "Strix": {id: "2438"},
+//     "Koga": {id: "2493"},
+//     "Buck": {id: "2147"},
+//     "Pip": {id: "2056"},
+//     "Moji": {id: "2481"},
+//     "Evie": {id: "2094"},
+//     "Makoa": {id: "2288"},
+//     "Zhin": {id: "2420"},
+//     "Viktor": {id: "2285"},
+//     "Willo": {id: "2393"},
+//     "Dredge": {id: "2495"},
+//     "Lex": {id: "2362"},
+//     "Tyra": {id: "2314"},
+//     "Ruckus": {id: "2149"},
+//     "Grohk": {id: "2093"},
+//     "Talus": {id: "2472"},
+//     "Skye": {id: "2057"},
+// 	"Mal'Damba": {id: "2303"},
+//     "Imani": {id: "2509"},
+//     "Grover": {id: "2254"},
+//     "Furia": {id: "2491"},
+//     "Khan": {id: "2479"},
+//     "Io": {id: "2517"},
+//     "Barik": {id: "2073"},
+//     "Jenos": {id: "2431"},
+//     "Vivian": {id: "2480"},
+//     "Fernando": {id: "2071"},
+//     "Atlas": {id: "2512"},
+//     "Ying": {id: "2267"},
+//     "Ash": {id: "2404"},
+//     "Inara": {id: "2348"},
+//     "Raum": {id: "2528"},
+//     "Seris": {id: "2372"},
+//     "Torvald": {id: "2322"},
+// 	"Terminus": {id: "2477"},
+// 	"Tiberius": {id: "2529"}
+// }
 
-function fixChampion(text) {
-	while (true) {
-		const sh = text.indexOf('\'')
-		if (sh != -1) text = text.slice(0, sh) + '' + text.slice(sh + 1)
-		const space = text.indexOf(' ')
-		if (space == -1) break
-		text = text.slice(0, space) + '' + text.slice(space + 1)
-		const defis = text.indexOf('-')
-		if (defis == -1) break
-		text = text.slice(0, defis) + '' + text.slice(defis + 1)
-		const bottomDefis = text.indexOf('_')
-		if (bottomDefis == -1) break
-		text = text.slice(0, bottomDefis) + '' + text.slice(bottomDefis + 1)
-	}
-	return text.toLowerCase()
-}
+// function fixChampion(text) {
+// 	while (true) {
+// 		const sh = text.indexOf('\'')
+// 		if (sh != -1) text = text.slice(0, sh) + '' + text.slice(sh + 1)
+// 		const space = text.indexOf(' ')
+// 		if (space == -1) break
+// 		text = text.slice(0, space) + '' + text.slice(space + 1)
+// 		const defis = text.indexOf('-')
+// 		if (defis == -1) break
+// 		text = text.slice(0, defis) + '' + text.slice(defis + 1)
+// 		const bottomDefis = text.indexOf('_')
+// 		if (bottomDefis == -1) break
+// 		text = text.slice(0, bottomDefis) + '' + text.slice(bottomDefis + 1)
+// 	}
+// 	return text.toLowerCase()
+// }
 
 const paladinsItems = {
-	'blast-shields': null,
+	'blast shields': null,
 	'bulldozer': null,
 	'cauterize': null,
 	'chronos': null,
-	'deft-hands': null,
+	'deft hands': null,
 	'haven': null,
 	'illuminate': null,
-	'kill-to-heal': null,
-	'life-rip': null,
-	'master-riding': null,
-	'morale-boost': null,
+	'kill to heal': null,
+	'life rip': null,
+	'master riding': null,
+	'morale boost': null,
 	'nimble': null,
 	'rejuvenate': null,
 	'resilience': null,
@@ -1075,7 +964,7 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 	ctx.font = 'bold 15px Georgia'
 	ctx.fillStyle = "#ffffff"
 	try {
-		const background = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+		const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
 		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 		const matchOne = matchDetails[0] // просто выбранный первый человек в матче для получения статы самого матча
 
@@ -1096,8 +985,9 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 			mapImg = paladinsMaps['test maps']
 		}
 		if (mapImg) ctx.drawImage(mapImg, 10, 315, 356, 200) // рисуем карту
-
 		ctx.font = 'bold 20px Georgia'
+		ctx.fillText(matchOne.Entry_Datetime, 20, 502)
+
 		const typeMatch = matchOne.name
 		ctx.fillStyle = "#cccc11"
 		ctx.fillText(`${matchOne.Minutes} минут`, 376, 375)
@@ -1133,17 +1023,17 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 		ctx.fillStyle = "#ffffff"
 		ctx.fillText(`Команда 1 Счет: ${matchOne.Team1Score}`, imgWidth / 2 + 70 + centerGoRight, 383)
 		ctx.fillText(`Команда 2 Счет: ${matchOne.Team2Score}`, imgWidth / 2 + 70 + centerGoRight, 456)
-		ctx.drawImage(differentImg.vs, imgWidth / 2 + 40 + centerGoRight, 386, 50, 50)
+		ctx.drawImage(config.differentImg.vs, imgWidth / 2 + 40 + centerGoRight, 386, 50, 50)
 
 		ctx.textAlign = "start"
 		ctx.fillStyle = '#CC6600'
 		if (typeMatch == 'Ranked') ctx.fillText(`Баны:`, 885, 420)
 		ctx.fillStyle = "#ffffff"
 		ctx.font = 'bold 15px Georgia'
-		if (matchOne.Ban_1)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_1)].img, 980, 360, 50, 50)
-		if (matchOne.Ban_2)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_2)].img, 1040, 360, 50, 50)
-		if (matchOne.Ban_3)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_3)].img, 980, 420, 50, 50)
-		if (matchOne.Ban_4)ctx.drawImage(championsIds[fixChampion(matchOne.Ban_4)].img, 1040, 420, 50, 50)
+		if (matchOne.Ban_1)ctx.drawImage(config.championsName[matchOne.Ban_1].loadedImg, 980, 360, 50, 50)
+		if (matchOne.Ban_2)ctx.drawImage(config.championsName[matchOne.Ban_2].loadedImg, 1040, 360, 50, 50)
+		if (matchOne.Ban_3)ctx.drawImage(config.championsName[matchOne.Ban_3].loadedImg, 980, 420, 50, 50)
+		if (matchOne.Ban_4)ctx.drawImage(config.championsName[matchOne.Ban_4].loadedImg, 1040, 420, 50, 50)
 
 		// рисуем таблицу
 		ctx.fillStyle = "#000000"
@@ -1170,37 +1060,37 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 
 		for (let i = 0; i < matchDetails.length; i++) {
 			const players = matchDetails[i]
-			//const champName = championsCard[players.ChampionId][0].champion_name
+			//const champName = config.championsCard[players.ChampionId][0].champion_name
 			const champName = players.Reference_Name
 
-			const img = championsIds[fixChampion(champName)].img
+			const img = config.championsName[champName].loadedImg
 			let nextTeam = i >= 5 ? 245 : 40
 			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
 
-			const imgLegendary = LegendarChampions[players.ItemId6]
+			const imgLegendary = config.LegendarChampions[players.ItemId6]
 			if (imgLegendary) ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки
 
-			ctx.drawImage(rankedImage[players.League_Tier], 130, 55 * i + nextTeam, 50, 50) // рисуем ранг
+			ctx.drawImage(config.rankedImage[players.League_Tier], 130, 55 * i + nextTeam, 50, 50) // рисуем ранг
 
 			// рисуем закуп
 			const item1 = players.Item_Active_1
 			if (item1) {
-				ctx.drawImage(paladinsItems[fixText(item1)], 1040, 55 * i + nextTeam, 40, 40)
+				ctx.drawImage(paladinsItems[item1.toLowerCase()], 1040, 55 * i + nextTeam, 40, 40)
 				drawLevelItem(ctx, players.ActiveLevel1, 1040, 55 * i + nextTeam + 43, 10, 3)
 			}
 			const item2 = players.Item_Active_2
 			if (item2) {
-				ctx.drawImage(paladinsItems[fixText(item2)], 1090, 55 * i + nextTeam, 40, 40)
+				ctx.drawImage(paladinsItems[item2.toLowerCase()], 1090, 55 * i + nextTeam, 40, 40)
 				drawLevelItem(ctx, players.ActiveLevel2, 1090, 55 * i + nextTeam + 43, 10, 3)
 			}
 			const item3 = players.Item_Active_3
 			if (item3) {
-				ctx.drawImage(paladinsItems[fixText(item3)], 1140, 55 * i + nextTeam, 40, 40)
+				ctx.drawImage(paladinsItems[item3.toLowerCase()], 1140, 55 * i + nextTeam, 40, 40)
 				drawLevelItem(ctx, players.ActiveLevel3, 1140, 55 * i + nextTeam + 43, 10, 3)
 			}
 			const item4 = players.Item_Active_4
 			if (item4) {
-				ctx.drawImage(paladinsItems[fixText(item4)], 1190, 55 * i + nextTeam, 40, 40)
+				ctx.drawImage(paladinsItems[item4.toLowerCase()], 1190, 55 * i + nextTeam, 40, 40)
 				drawLevelItem(ctx, players.ActiveLevel4, 1190, 55 * i + nextTeam + 43, 10, 3)
 			}
 
@@ -1293,13 +1183,13 @@ function drawPaladinsPlayerStatus(status, name) {
 			"Онлайн (хз как это получилось, у меня не вышло получить такой статус)",
 			false
 		]
-	
+
 		const statusMess = statusText[ss.status]
 		if (!statusMess) resolve({err: "У игрока скрыт профиль, но это сообщение не должно выводится, теоретически -_-"}) // если не найден
-	
+
 		const matchId = ss.Match
 		if (matchId) {
-			hiRezFunc("getmatchplayerdetails", matchId) // просмотр матча в реальном времени
+			hiRezFunc("getmatchplayerdetails", {id: matchId}) // просмотр матча в реальном времени
 			.then(championList => {
 				if ( typeof(championList[0].ret_msg) == "string") return resolve({err: `Игрок **${name}** играет с ботами или в пользовательском режиме.`})
 				championList.sort((a, b) => {return a.taskForce - b.taskForce}) // сортируем по командам
@@ -1343,16 +1233,16 @@ function drawPaladinsPlayerStatus(status, name) {
 				const playerIdsList = [] // список id игроков
 				for (let i = 0; i < championList.length; i++) {
 					const item = championList[i]
-					const img = championsIds[fixChampion(item.ChampionName)].img
+					const img = config.championsName[item.ChampionName].loadedImg
 					playerIdsList.push(item.playerId) // добавляем их в список
-					if (item.taskForce == 1 && i < 5) {
+					if (item.taskForce == 1) {
 						ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
 						ctx.fillText(item.playerName, 130, 90 * i + 65)
 						ctx.fillText(item.Account_Level, 130, 90 * i + 90)
 						ctx.textAlign = 'center'
 						ctx.fillText(item.ChampionLevel, 95, 90 * i + 120)
 						ctx.textAlign = 'start'
-					} else if (item.taskForce == 2 && i >= 5) {
+					} else if (item.taskForce == 2) {
 						ctx.drawImage(img, imgWidth - 120, 90 * (i - 5) + 50, 50, 50)
 						ctx.textAlign = 'end'
 						ctx.fillText(item.playerName, imgWidth - 130, 90 * (i - 5) + 65)
@@ -1362,14 +1252,14 @@ function drawPaladinsPlayerStatus(status, name) {
 					}
 				}
 
-				const vs = differentImg.vs
+				const vs = config.differentImg.vs
 				ctx.drawImage(vs, imgWidth / 2 - 70, imgHeight / 2 - 70, 140, 140)
 
 				hiRezFunc("getplayerbatch", playerIdsList)
 				.then(list => {
 					// перебираем list и playerIdsList проверяя на id и рисуя по позиции i от playerIdsList
 					for (let i = 0; i < playerIdsList.length; i++) { // рисуем ранги
-						if (championList[i].taskForce == 2 && i < 5) continue // фикс бага со скрытым игроком
+						// if (championList[i].taskForce == 2 && i < 5) continue // фикс бага со скрытым игроком
 
 						const id = playerIdsList[i]
 						const acc = getAccForId(list, id)
@@ -1377,7 +1267,7 @@ function drawPaladinsPlayerStatus(status, name) {
 						// если acc найден то рисуем
 						const tier = acc.Tier_RankedKBM
 						if (tier == undefined) continue
-						const imgRank = rankedImage[tier] // получаем картинку ранга
+						const imgRank = config.rankedImage[tier] // получаем картинку ранга
 						const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
 						if (i < 5) {
 							ctx.drawImage(imgRank, 10, 90 * i + 50, 50, 50 * coefficient)
@@ -1455,96 +1345,6 @@ function prefStatsGuru(mess, name, getStats) {
 	}
 }
 
-
-
-function searchAccauntsGuru(name) { // осуществляет поиск всех профилей на странице
-	return new Promise((resolve) => {
-		sendSite({url: `https://paladins.guru/search?term=${name}&type=Player`})
-		.then((response) => {
-			let html = response.body
-			const result = []
-
-			while (true) {
-				const parse = html.match(/(?:\s*?<[^<>]+>\s*?){6}<a href="\/profile\/(?<name>[0-9]+-[^"]+)[^>]*?>[^>]*?>(?:\s*?<[^<>]+>\s*?){12}(?<region>[a-z ]+<\/span>\s*?[- a-z0-9_]+)(?:\s*?<[^<>]+>\s*?){3}\s*?.*?<div class="stat-row">\s*?<[^<>]+?>[a-z ]*?<[^<>]+?>\s*?<[^<>]+?>(?<last>[0-9a-z ]+?)<[^<>]+?>\s*?<\/div>\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]*?<[^<>]+?>\s*?<[^<>]+?>(?<playtime>[0-9 a-z,-]+?)<\/div>/i)
-				if (parse === null) break
-				parse.groups.region = parse.groups.region.replace("</span>", "")
-				result.push(parse.groups)
-				html = html.slice(parse.index + parse[0].length) // подолжать поиск
-			}
-			resolve(result)
-		})
-	})
-}
-
-
-// проверяет собранные аккаунты и возвращает результат проверки
-function verifyAccauntGuru(mess, accList) { // mess, accList, будет через bind
-	if (accList.length == 0) {
-		// будет выводить сообщение о том что аккаунт не найден
-		mess.reply(`Аккаунт не найден.`)
-		return new Promise(() => {})
-	}
-	if (accList.length > 1) {
-		// будет выводить сообщение со списком найденных аккаунтов, если их больше 10, то давать ссылку
-		const url = `https://paladins.guru/${accList[0].name.replace(/[0-9]+-/i, "")}`
-		let text = `Найдено ${accList.length} аккаунтов. Выбирите один из:`
-
-		for (let i = 0; i < accList.length; i++) {
-			const item = accList[i]
-			text += `\r\n${i+1}) *name*: **${decodeURI(item.name)}**, *region*: **${item.region}**, *playtime*: **${item.playtime}**;`
-		}
-		text += `\r\nДля выбора аккаунта используйте эту же команду, только впишите одно из указанных выше имен, которые больше всего подходят на ваш взгляд под искомый вами аккаунт.`
-
-		if (text.length >= 1900) text = `Найдено ${accList.length} аккаунтов. Смотрите аккаунт на сайте или же сохраните его командой **!me** (или укажите вместе с id), найдя его id на сайте: <${url}>.`
-		mess.reply(text)
-		return new Promise(() => {})
-	}
-	return accList[0]
-}
-
-
-function guruSummary(mess, accaunt) { // парсит страницу "Summary" и возвращает результат
-	return new Promise((resolve) => {
-		sendSite({url: `https://paladins.guru/profile/${accaunt.name}`})
-		.then(response => {
-			if (!response || !response.body) { // если пусто
-				mess.reply(`Страница не найдена или пуста, возможно ошибка парсинга или проблемы с сайтом paladins.guru.`)
-				return new Promise(() => {})
-			}
-			const html = response.body
-																										//																																																																																																																																																																																																																																																																																																																																																																																																																																																																			// Player Stats END																																																												(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)																																																																																																																																																																																																																																																																																																																																																																																																																																								// хуита для урона																																									  8 до контейтера + колонки																						  credits																													CPM																											  KDA																												 Kills																												 Deaths																													Assists																													 Damage																													DPM																											  Weapon																													 Taken																												 Shielding																														Healing																													 SelfHealing																														  Jbjective Time																															 Wins																												  Losses																													 Ratio																		// хуита для фланга																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		// хуита для танка																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																 // хуита для саппорта																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																												
-			const parse = html.match(/profile-header__level">(?<lvl>[0-9]+)<\/div>.*?profile-header__region">\s*(?<region>[a-z0-9 -]+).*?Updated (?<updated>[a-z0-9 ]+).*?Matches<\/div>\s*?<[^<>]+?>\s*?(?:\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<played>[0-9 ,]+)<[^<>]+?>(?:\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<won>[0-9 ,]+)<[^<>]+?>(?:\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<lost>[0-9 ,]+)<.*?Player Kills<\/div>(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<kda>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<kills>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<deaths>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<assists>[0-9 \.,]+).*?Objectives<\/div>(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<cpm>[0-9]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<credits>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<objectiveTime>[0-9a-z,\. ]+)<.*?Damage<\/div>(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<player>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<teamHealing>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<selfHealing>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<weapon>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<shielding>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<taken>[0-9 \.,]+).*?(?:mpc__body">)?(?:(?:\s*?<[^<>]+?>){5}(?<name1>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda1>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda11>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match1>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time1>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})?(?:(?:\s*?<[^<>]+?>){5}(?<name2>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda2>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda22>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match2>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time2>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})?(?:(?:\s*?<[^<>]+?>){5}(?<name3>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda3>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda33>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match3>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time3>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})?(?:(?:\s*?<[^<>]+?>){5}(?<name4>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda4>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda44>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match4>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time4>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})?(?:(?:\s*?<[^<>]+?>){5}(?<name5>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda5>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda55>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match5>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time5>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3}).*?<div class="ptw__val"[^>]*?>(?<allTime>[a-z0-9 ,]+?)<\/div>.*?Casual\s*?<\/div>\s*?<[^<>]+?>(?<casualTime>[0-9a-z ,]+?)\s*?<\/div>.+?Ranked<\/div>\s*?<[^<>]+?>(?<rankedTime>[a-z0-9 ,]+?)<\/div>.*?(?:Stats by Class)?.*?(?:Damage(?:\s*?<[^<>]+?>){2}(?<damageGames>[0-9]+)[ a-z]+(?:\s*?<[^<>]+?>){8}(?<damageWinS>[0-9]+)(?:\s*?<[^<>]+?>){3}[a-z]+(?:\s*?<[^<>]+?>){8}(?:(?:\s*?<[^<>]+?>){4}\s*(?<damagePlaytime>[0-9a-z,\. ]+).*?playtime\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageCredits>[0-9a-z ,\.\%]+).*?credits\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageCpm>[0-9a-z ,\.\%]+).*?cpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageKda>[0-9a-z ,\.\%]+).*?kda\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageKills>[0-9a-z ,\.\%]+).*?kills\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageDeaths>[0-9a-z ,\.\%]+).*?deaths\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageAssists>[0-9a-z ,\.\%]+).*?assists\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageDamage>[0-9a-z ,\.\%]+).*?damage\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageDpm>[0-9a-z ,\.\%]+).*?dpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageWeapon>[0-9a-z ,\.\%]+).*?weapon\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageTaken>[0-9a-z ,\.\%]+).*?taken\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageShielding>[0-9a-z ,\.\%]+).*?shielding\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageHealing>[0-9a-z ,\.\%]+).*?healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageSelfHealing>[0-9a-z ,\.\%]+).*?self healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageObjectiveTime>[0-9a-z ,\.\%]+).*?objective time\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageWins>[0-9a-z ,\.\%]+).*?wins\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageLosses>[0-9a-z ,\.\%]+).*?losses\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<damageRatio>[0-9a-z ,\.\%]+)))?\s*<div class="percentile-stat__bar.*?(?:Flanker(?:\s*?<[^<>]+?>){2}(?<flankerGames>[0-9]+)[ a-z]+(?:\s*?<[^<>]+?>){8}(?<flankerWinS>[0-9]+)(?:\s*?<[^<>]+?>){3}[a-z]+(?:\s*?<[^<>]+?>){8}(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerPlaytime>[0-9a-z,\. ]+).*?playtime\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerCredits>[0-9a-z ,\.\%]+).*?credits\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerCpm>[0-9a-z ,\.\%]+).*?cpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerKda>[0-9a-z ,\.\%]+).*?kda\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerKills>[0-9a-z ,\.\%]+).*?kills\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerDeaths>[0-9a-z ,\.\%]+).*?deaths\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerAssists>[0-9a-z ,\.\%]+).*?assists\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerDamage>[0-9a-z ,\.\%]+).*?damage\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerDpm>[0-9a-z ,\.\%]+).*?dpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerWeapon>[0-9a-z ,\.\%]+).*?weapon\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerTaken>[0-9a-z ,\.\%]+).*?taken\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerShielding>[0-9a-z ,\.\%]+).*?shielding\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerHealing>[0-9a-z ,\.\%]+).*?healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerSelfHealing>[0-9a-z ,\.\%]+).*?self healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerObjectiveTime>[0-9a-z ,\.\%]+).*?objective time\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerWins>[0-9a-z ,\.\%]+).*?wins\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerLosses>[0-9a-z ,\.\%]+).*?losses\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<flankerRatio>[0-9a-z ,\.\%]+)))?\s*<div class="percentile-stat__bar.*?(?:Front Line(?:\s*?<[^<>]+?>){2}(?<frontlineGames>[0-9]+)[ a-z]+(?:\s*?<[^<>]+?>){8}(?<frontlineWinS>[0-9]+)(?:\s*?<[^<>]+?>){3}[a-z]+(?:\s*?<[^<>]+?>){8}(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlinePlaytime>[0-9a-z,\. ]+).*?playtime\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineCredits>[0-9a-z ,\.\%]+).*?credits\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineCpm>[0-9a-z ,\.\%]+).*?cpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineKda>[0-9a-z ,\.\%]+).*?kda\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineKills>[0-9a-z ,\.\%]+).*?kills\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineDeaths>[0-9a-z ,\.\%]+).*?deaths\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineAssists>[0-9a-z ,\.\%]+).*?assists\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineDamage>[0-9a-z ,\.\%]+).*?damage\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineDpm>[0-9a-z ,\.\%]+).*?dpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineWeapon>[0-9a-z ,\.\%]+).*?weapon\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineTaken>[0-9a-z ,\.\%]+).*?taken\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineShielding>[0-9a-z ,\.\%]+).*?shielding\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineHealing>[0-9a-z ,\.\%]+).*?healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineSelfHealing>[0-9a-z ,\.\%]+).*?self healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineObjectiveTime>[0-9a-z ,\.\%]+).*?objective time\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineWins>[0-9a-z ,\.\%]+).*?wins\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineLosses>[0-9a-z ,\.\%]+).*?losses\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<frontlineRatio>[0-9a-z ,\.\%]+)))?\s*<div class="percentile-stat__bar.*?(?:Support(?:\s*?<[^<>]+?>){2}(?<supportGames>[0-9]+)[ a-z]+(?:\s*?<[^<>]+?>){8}(?<supportWinS>[0-9]+)(?:\s*?<[^<>]+?>){3}[a-z]+(?:\s*?<[^<>]+?>){8}(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportPlaytime>[0-9a-z,\. ]+).*?playtime\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportCredits>[0-9a-z ,\.\%]+).*?credits\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportCpm>[0-9a-z ,\.\%]+).*?cpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportKda>[0-9a-z ,\.\%]+).*?kda\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportKills>[0-9a-z ,\.\%]+).*?kills\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportDeaths>[0-9a-z ,\.\%]+).*?deaths\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportAssists>[0-9a-z ,\.\%]+).*?assists\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportDamage>[0-9a-z ,\.\%]+).*?damage\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportDpm>[0-9a-z ,\.\%]+).*?dpm\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportWeapon>[0-9a-z ,\.\%]+).*?weapon\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportTaken>[0-9a-z ,\.\%]+).*?taken\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportShielding>[0-9a-z ,\.\%]+).*?shielding\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportHealing>[0-9a-z ,\.\%]+).*?healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportSelfHealing>[0-9a-z ,\.\%]+).*?self healing\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportObjectiveTime>[0-9a-z ,\.\%]+).*?objective time\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportWins>[0-9a-z ,\.\%]+).*?wins\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportLosses>[0-9a-z ,\.\%]+).*?losses\s*?(?:\s*?<[^<>]+?>){4})(?:(?:\s*?<[^<>]+?>){4}\s*(?<supportRatio>[0-9a-z ,\.\%]+)))?\s*<div class="percentile-stat__bar/is)
-																										//																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			имя персонажа																																																																							 end1																																																																																						end2																																																																																					  end3																																																																																					 end4																																																																																								 end5																																																																				// хуита для урона																																										 playtime																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																															
-			if (!parse) { // если не найденно (пусто или ошибка)
-				mess.reply(`Страница не найдена или пуста, возможно ошибка парсинга или проблемы с сайтом paladins.guru.`)
-				return new Promise(() => {})
-			}
-			resolve({groups: parse.groups, accaunt})
-		})
-	})
-}
-
-
-function guruRanked(mess, accaunt) { // парсит страницу "Ranked"
-	return new Promise((resolve) => {
-		sendSite({url: `https://paladins.guru/profile/${accaunt.name}/ranked`})
-		.then(response => {
-			if (!response || !response.body) { // если пусто
-				mess.reply(`Страница не найдена или пуста, возможно ошибка парсинга или проблемы с сайтом paladins.guru.`)
-				return new Promise(() => {})
-			}
-			const html = response.body
-			const parse = html.match(/profile-header__level">(?<lvl>[0-9]+)<\/div>.*?profile-header__region">\s*(?<region>[a-z0-9 -]+).*?Updated (?<updated>[a-z0-9 ]+).*?mpc__body">(?:(?:\s*?<[^<>]+?>){5}(?<name1>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda1>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda11>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match1>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time1>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})(?:(?:\s*?<[^<>]+?>){5}(?<name2>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda2>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda22>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match2>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time2>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})(?:(?:\s*?<[^<>]+?>){5}(?<name3>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda3>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda33>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match3>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time3>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})(?:(?:\s*?<[^<>]+?>){5}(?<name4>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda4>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda44>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match4>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time4>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3})(?:(?:\s*?<[^<>]+?>){5}(?<name5>[a-z '-]+?)(?:\s*?<[^<>]+?>){2}[a-z ]+(?:\s*?<[^<>]+?>){5}(?<kda5>[0-9\.]+) KDA(?:\s*?<[^<>]+?>){2}\s*(?<kda55>[0-9 \.,\/]+)(?:\s*?<[^<>]+?>){4}(?<match5>[0-9 ()\%,-]+)(?:\s*?<[^<>]+?>){2}(?<time5>[0-9a-z,\. ]+)(?:\s*?<[^<>]+?>){3}).*?Matches<\/div>\s*?<[^<>]+?>\s*?(?:\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<played>[0-9 ,]+)<[^<>]+?>(?:\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<won>[0-9 ,]+)<[^<>]+?>(?:\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<lost>[0-9 ,]+)<.*?Player Kills<\/div>(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<kda>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<kills>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<deaths>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?)<[^<>]+?>(?<assists>[0-9 \.,]+).*?Objectives<\/div>(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<cpm>[0-9]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<credits>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<objectiveTime>[0-9a-z,\. ]+)<.*?Damage<\/div>(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<player>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<teamHealing>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<selfHealing>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<weapon>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<shielding>[0-9 \.,]+)(?:\s*?<[^<>]+?>\s*?<[^<>]+?>[a-z ]+<[^<>]+?>\s*?<[^<>]+?>)(?<taken>[0-9 \.,]+).*?queue-widget__rating[^<>]+?>(?:\s*?<[^<>]+?>){2}\s*(?<elo>[0-8 ,\.]+).*?<img alt="(?<rank>[a-z ]+)".*?(?<tp>\d+(?= \/ 100))[^<]+?(?:\s*?<[^<>]+?>){13}\s*(?<playtime>[a-z0-9 ]+)/is)
-			// dpm не парсил ибо далеко и влом
-
-			if (!parse) { // если не найденно (пусто или ошибка)
-				mess.reply(`Страница не найдена или пуста, возможно ошибка парсинга или проблемы с сайтом paladins.guru.`)
-				return new Promise(() => {})
-			}
-			resolve({groups: parse.groups, accaunt})
-		})
-	})
-}
 // <--- functions for GURU <---
 
 
@@ -1583,39 +1383,6 @@ function getRank(n) { // переводит цифры в ранг
 	}
 }
 
-function getRankGuru(rank) {
-	switch (rank) {
-		case "Qualifying": return 0
-		case "Bronze V": return 1
-		case "Bronze IV": return 2
-		case "Bronze III": return 3
-		case "Bronze II": return 4
-		case "Bronze I": return 5
-		case "Silver V": return 6
-		case "Silver IV": return 7
-		case "Silver III": return 8
-		case "Silver II": return 9
-		case "Silver I": return 10
-		case "Gold V": return 11
-		case "Gold IV": return 12
-		case "Gold III": return 13
-		case "Gold II": return 14
-		case "Gold I": return 15
-		case "Platinum V": return 16
-		case "Platinum IV": return 17
-		case "Platinum III": return 18
-		case "Platinum II": return 19
-		case "Platinum I": return 20
-		case "Diamond V": return 21
-		case "Diamond IV": return 22
-		case "Diamond III": return 23
-		case "Diamond II": return 24
-		case "Diamond I": return 25
-		case "Masters": return 26
-		case "Grandmasters": return 27
-	}
-}
-
 function secToMin(s) { // секунды в минуты или минуты в часы, принцип тот же
 	let min = (s / 60).toFixed(2) + ''
 	if (min.indexOf('.') != -1) { // если дробное
@@ -1643,9 +1410,9 @@ function getKDABP(champions) { // kill, death, assist, больеш всего �
 		kills += champions[i].Kills
 		assists += champions[i].Assists
 		deaths += champions[i].Deaths
-		
+
 		champions.sort( (a, b) => b.Minutes - a.Minutes ) // сортируем
-		
+
 		switch ( getRole(champions[i].champion) ) {
 			case 'dmg': dmg += champions[i].Minutes;break
 			case 'flank': flank += champions[i].Minutes;break
@@ -1679,17 +1446,6 @@ function drawPieSlice(ctx, centerX, centerY, radius, startAngle, endAngle, color
 }
 
 
-function fixText(text) { // фиксит текст под правильный запрос для картинки чемпиона
-	while (true) {
-		const sh = text.indexOf('\'')
-		if (sh != -1) text = text.slice(0, sh) + '-' + text.slice(sh + 1)
-		const space = text.indexOf(' ')
-		if (space == -1) break
-		text = text.slice(0, space) + '-' + text.slice(space + 1)
-	}
-	return text.toLowerCase()
-}
-
 function getFormsParams(id, name=false) { // бытро формирует обьект с парамметрами
 	return {
 		method: "POST", 
@@ -1712,518 +1468,32 @@ function fixNaN(num) {
 
 function getRadians(degrees) {return (Math.PI / 180) * degrees}
 
-// удаляет все точки и запятые из строки
-function repStatsDot(str) {
-	if (!str) return '-'
-	return str.replace(/[\.,]/g, "")
-}
 
-function getStatsHours(str) {
-	if (!str) return '-'
-	const index = str.indexOf("h")
-	return index == -1 ? "0ч" : str.slice(0, index) + "ч"
-}
+function getSearchplayers(players, needId=false) { // возвращает нужного игрока - промис, либо false либо обьект с ошибкой
+	return new Promise(resolve => {
+		if (!players || !players[0]) resolve(false) // если пусто
+		if (players.length == 1) {
+			if (needId) return resolve(players[0]) // если нужен id то возвращаем так
+			return resolve( search(players[0]) )
+		} // если он всего один то возвращаем его
 
-function getStatsProcent(str) {
-	if (!str) return '-'
-	return str.match(/[0-9]+\%/g)
-}
-// <--- PALADINS STATS default function <---
-
-
-
-// ---> smal stats --->
-function drawStatsSmall(params) {
-	const statsWidth = params.statsWidth = 830
-	const canvas = createCanvas(statsWidth, 360)
-	const ctx = canvas.getContext('2d')
-	ctx.font = 'bold 16px Georgia'
-
-	return new Promise((resolve) => {
-		// загружаем случайный глобальный фон для статы
-		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		const par = params.groups
-		ctx.drawImage(img, 0, 0, statsWidth, 330)
-		drawItemsStatsSmall(ctx, params) // рисуем эллементы не нужнающиеся в промисах
-		
-		const championList = []
-		for (let i = 1; i < 6; i++) {
-			const champion = par[`name${i}`]
-			if (!champion) break
-			championList.push( championsIds[fixChampion(champion)].img )
-		}
-
-		if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
-		drawChampionsStatsSmall(ctx, championList) // рисуем загруженных чемпионов
-		resolve({ctx, ...params})
-	})
-}
-
-
-function drawChampionsStatsSmall(ctx, imgList) {
-	let positionX = 490
-	for (let i = 0; i < imgList.length; i++) {
-		const img = imgList[i]
-		const x = positionX + 60 * i
-		ctx.drawImage(img, x, 180, 50, 50)
-	}
-}
-
-
-function drawItemsStatsSmall(ctx, params) { // для smallStats
-	const par = params.groups
-	const name = decodeURI(params.accaunt.name).replace(/[0-9]+-/, "")
-	const region = par.region.replace(/[a-z ]+- /i, "")
-	const totalMatches = repStatsDot(par.played)
-
-	// рисуем инфу ->
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Обновлено: ${par.updated || "-"}`, 10, 20)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillText(`${name} (${region || "-"})`, 10, 40)
-	ctx.fillStyle = "#33CC00"
-	ctx.fillText(`lvl: ${par.lvl}`, 10, 60)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Матчей`, 40, 100)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.played || 0}`, 10, 120)
-	ctx.fillText(`Проиграно: ${par.lost || 0}`, 10, 140)
-	ctx.fillText(`Выиграно: ${par.won || 0}`, 10, 160)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Урон`, 40, 200)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Игрокам: ${par.player || 0}`, 10, 220)
-	ctx.fillText(`Исцеления: ${par.teamHealing || 0}`, 10, 240)
-	ctx.fillText(`Самохилл: ${par.selfHealing || 0}`, 10, 260)
-	ctx.fillText(`Оружием: ${par.weapon || 0}`, 10, 280)
-	ctx.fillText(`Защита: ${par.shielding || 0}`, 10, 300)
-	ctx.fillText(`Получено: ${par.taken || 0}`, 10, 320)
-
-	// колона 2
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Времени`, 300, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.allTime || 0}`, 270, 40)
-	ctx.fillText(`Казуал: ${par.casualTime || 0}`, 270, 60)
-	ctx.fillText(`Ранкед: ${par.rankedTime || 0}`, 270, 80)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Цели`, 300, 120)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`CPM: ${par.cpm || 0}`, 270, 140)
-	ctx.fillText(`Кредиты: ${par.credits || 0}`, 270, 160)
-	ctx.fillText(`У цели: ${par.objectiveTime || 0}`, 270, 180)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Убийства`, 300, 220)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`KDA: ${par.kda || 0}`, 270, 240)
-	ctx.fillText(`Убийств: ${par.kills || 0}`, 270, 260)
-	ctx.fillText(`Смертей: ${par.deaths || 0}`, 270, 280)
-	ctx.fillText(`Помощи: ${par.assists || 0}`, 270, 300)
-
-	// рисуем диаграмму ->
-	const dmgDeg = 360 * (repStatsDot(par.damageGames) / totalMatches)
-	const flankDeg = 360 * (repStatsDot(par.flankerGames) / totalMatches)
-	const tankDeg = 360 * (repStatsDot(par.frontlineGames) / totalMatches)
-
-	const second = tankDeg + dmgDeg
-	const third = flankDeg + dmgDeg + tankDeg
-	if (0 < dmgDeg) drawPieSlice(ctx, 550, 80, 50, 0, dmgDeg, "#9966FF")
-	if (dmgDeg < second) drawPieSlice(ctx, 550, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC")
-	if (second < third) drawPieSlice(ctx, 550, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600")
-	if (third < 360) drawPieSlice(ctx, 550, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00")
-	ctx.fillStyle = "#9966FF"
-	ctx.fillRect(620, 40, 15, 15)
-	ctx.fillStyle = "#3399CC"
-	ctx.fillRect(620, 62, 15, 15)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillRect(620, 84, 15, 15)
-	ctx.fillStyle = "#33CC00"
-	ctx.fillRect(620, 106, 15, 15)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText("Роли:", 580, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Урон - ${fixNaN((par.damageGames / totalMatches * 100).toFixed(2))}%`, 640, 54)
-	ctx.fillText(`Танк - ${fixNaN((par.frontlineGames / totalMatches * 100).toFixed(2))}%`, 640, 76)
-	ctx.fillText(`Фланг - ${fixNaN((par.flankerGames / totalMatches * 100).toFixed(2))}%`, 640, 98)
-	ctx.fillText(`Саппорт - ${fixNaN((par.supportGames / totalMatches * 100).toFixed(2))}%`, 640, 120)
-
-	// любимые чемпионы ->
-	ctx.textAlign = "center"
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText("ПОПУЛЯРНЫЕ ЧЕМПИОНЫ:", 635, 160)
-
-	ctx.fillStyle = "#009900"
-	ctx.fillText(getStatsHours(par.time1), 515, 250)
-	ctx.fillText(getStatsHours(par.time2), 575, 250)
-	ctx.fillText(getStatsHours(par.time3), 635, 250)
-	ctx.fillText(getStatsHours(par.time4), 695, 250)
-	ctx.fillText(getStatsHours(par.time5), 755, 250)
-
-	ctx.fillStyle = "#CC6600"
-	ctx.fillText(par.kda1 || "-", 515, 270)
-	ctx.fillText(par.kda2 || "-", 575, 270)
-	ctx.fillText(par.kda3 || "-", 635, 270)
-	ctx.fillText(par.kda4 || "-", 695, 270)
-	ctx.fillText(par.kda5 || "-", 755, 270)
-
-	ctx.fillStyle = "#0088bb"
-	ctx.fillText(getStatsProcent(par.match1), 515, 290)
-	ctx.fillText(getStatsProcent(par.match2), 575, 290)
-	ctx.fillText(getStatsProcent(par.match3), 635, 290)
-	ctx.fillText(getStatsProcent(par.match4), 695, 290)
-	ctx.fillText(getStatsProcent(par.match5), 755, 290)
-
-	// текст снизу
-	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 330, params.statsWidth, 360) // черный прямоугольник снизу
-	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
-	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, params.statsWidth / 2, 350)
-}
-// <--- smal stats <---
-
-
-
-// ---> full stats --->
-function drawStatsFull(params) {
-	const statsWidth = params.statsWidth = 1010
-	const canvas = createCanvas(statsWidth, 590)
-	const ctx = canvas.getContext('2d')
-	ctx.font = 'bold 16px Georgia'
-
-	return new Promise((resolve) => {
-		// загружаем случайный глобальный фон для статы
-		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		const par = params.groups
-		ctx.drawImage(img, 0, 0, statsWidth, 600)
-		drawItemsStatsFull(ctx, params) // рисуем эллементы не нужнающиеся в промисах
-		
-		const championList = []
-		for (let i = 1; i < 6; i++) {
-			const champion = par[`name${i}`]
-			if (!champion) break
-			championList.push( championsIds[fixChampion(champion)].img )
-		}
-
-		if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
-
-		drawChampionsStatsFull(ctx, championList) // рисуем загруженных чемпионов
-		resolve({ctx, ...params})
-	})
-}
-
-
-function drawItemsStatsFull(ctx, params) {
-	const par = params.groups
-	const name = decodeURI(params.accaunt.name).replace(/[0-9]+-/, "")
-	const region = par.region.replace(/[a-z ]+- /i, "")
-	const totalMatches = repStatsDot(par.played)
-
-	// рисуем инфу ->
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Обновлено:`, 10, 20)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillText(par.updated || "-", 30, 40)
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`name:`, 10, 60)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillText(`${name}`, 30, 80)
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`region:`, 10, 100)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillText(`${region || "-"}`, 30, 120)
-	ctx.fillStyle = "#33CC00"
-	ctx.fillText(`lvl: ${par.lvl}`, 10, 140)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Матчи`, 235, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.played || 0}`, 205, 40)
-	ctx.fillText(`Проиграно: ${par.lost || 0}`, 205, 60)
-	ctx.fillText(`Выиграно: ${par.won || 0}`, 205, 80)
-	ctx.fillText(`CPM: ${par.cpm || 0}`, 205, 100)
-	ctx.fillText(`Кредиты: ${par.credits || 0}`, 205, 120)
-	ctx.fillText(`У цели: ${par.objectiveTime || 0}`, 205, 140)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Времени`, 450, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.allTime || 0}`, 430, 40)
-	ctx.fillText(`Казуал: ${par.casualTime || 0}`, 430, 60)
-	ctx.fillText(`Ранкед: ${par.rankedTime || 0}`, 430, 80)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Убийства`, 650, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`KDA: ${par.kda || 0}`, 620, 40)
-	ctx.fillText(`Убийств: ${par.kills || 0}`, 620, 60)
-	ctx.fillText(`Смертей: ${par.deaths || 0}`, 620, 80)
-	ctx.fillText(`Помощи: ${par.assists || 0}`, 620, 100)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Урон`, 820, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Игрокам: ${par.player || 0}`, 790, 40)
-	ctx.fillText(`Исцеления: ${par.teamHealing || 0}`, 790, 60)
-	ctx.fillText(`Самохилл: ${par.selfHealing || 0}`, 790, 80)
-	ctx.fillText(`Оружием: ${par.weapon || 0}`, 790, 100)
-	ctx.fillText(`Защита: ${par.shielding || 0}`, 790, 120)
-	ctx.fillText(`Получено: ${par.taken || 0}`, 790, 140)
-
-	// заголовки таблицы
-	ctx.textAlign = "center"
-	ctx.fillStyle = "#9966FF"
-	ctx.fillText(`Урон`, 200, 180)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillText(`Фланг`, 320, 180)
-	ctx.fillStyle = "#3399CC"
-	ctx.fillText(`Танк`, 440, 180)
-	ctx.fillStyle = "#33CC00"
-	ctx.fillText(`Саппорт`, 560, 180)
-	ctx.fillStyle = "#ffffff"
-
-	// заполнение таблицы
-	drawTableSF(ctx, params.groups)
-
-	// рисуем диаграмму ->
-	const dmgDeg = 360 * (repStatsDot(par.damageGames) / totalMatches)
-	const flankDeg = 360 * (repStatsDot(par.flankerGames) / totalMatches)
-	const tankDeg = 360 * (repStatsDot(par.frontlineGames) / totalMatches)
-	const second = tankDeg + dmgDeg
-	const third = flankDeg + dmgDeg + tankDeg
-
-	if (0 < dmgDeg) drawPieSlice(ctx, 700, 250, 50, 0, dmgDeg, "#9966FF")
-	if (dmgDeg < second) drawPieSlice(ctx, 700, 250, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC")
-	if (second < third) drawPieSlice(ctx, 700, 250, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600")
-	if (third < 360) drawPieSlice(ctx, 700, 250, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00")
-	ctx.fillStyle = "#9966FF"
-	ctx.fillRect(770, 210, 15, 15)
-	ctx.fillStyle = "#3399CC"
-	ctx.fillRect(770, 232, 15, 15)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillRect(770, 254, 15, 15)
-	ctx.fillStyle = "#33CC00"
-	ctx.fillRect(770, 276, 15, 15)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText("Роли:", 730, 190)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Урон - ${fixNaN((par.damageGames / totalMatches * 100).toFixed(2))}%`, 790, 224)
-	ctx.fillText(`Танк - ${fixNaN((par.frontlineGames / totalMatches * 100).toFixed(2))}%`, 790, 246)
-	ctx.fillText(`Фланг - ${fixNaN((par.flankerGames / totalMatches * 100).toFixed(2))}%`, 790, 268)
-	ctx.fillText(`Саппорт - ${fixNaN((par.supportGames / totalMatches * 100).toFixed(2))}%`, 790, 290)
-
-	// любимые чемпионы ->
-	ctx.textAlign = "center"
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText("ПОПУЛЯРНЫЕ ЧЕМПИОНЫ:", 785, 360)
-
-	ctx.fillStyle = "#009900"
-	ctx.fillText(getStatsHours(par.time1), 665, 450)
-	ctx.fillText(getStatsHours(par.time2), 725, 450)
-	ctx.fillText(getStatsHours(par.time3), 785, 450)
-	ctx.fillText(getStatsHours(par.time4), 845, 450)
-	ctx.fillText(getStatsHours(par.time5), 905, 450)
-
-	ctx.fillStyle = "#CC6600"
-	ctx.fillText(par.kda1 || "-", 665, 470)
-	ctx.fillText(par.kda2 || "-", 725, 470)
-	ctx.fillText(par.kda3 || "-", 785, 470)
-	ctx.fillText(par.kda4 || "-", 845, 470)
-	ctx.fillText(par.kda5 || "-", 905, 470)
-
-	ctx.fillStyle = "#0088bb"
-	ctx.fillText(getStatsProcent(par.match1), 665, 490)
-	ctx.fillText(getStatsProcent(par.match2), 725, 490)
-	ctx.fillText(getStatsProcent(par.match3), 785, 490)
-	ctx.fillText(getStatsProcent(par.match4), 845, 490)
-	ctx.fillText(getStatsProcent(par.match5), 905, 490)
-
-	// текст снизу
-	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 560, params.statsWidth, 590) // черный прямоугольник снизу
-	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
-	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, params.statsWidth / 2, 580)
-}
-
-
-function drawTableSF(ctx, params) {
-	const role = ["damage", "flanker", "frontline", "support"]
-	const table = ["Playtime", "Credits", "Cpm", "Kda", "Kills", "Deaths", "Assists", "Damage", "Dpm", 
-		"Weapon", "Taken", "Shielding", "Healing", "SelfHealing", "ObjectiveTime", "Wins", "Losses", "Ratio"]
-
-	let x = 200
-	for (let i = 0; i < role.length; i++) {
-		let y = 200
-		for (let k = 0; k < table.length; k++) {
-			const par = role[i] + table[k]
-			const text = params[par] || 0
-			ctx.textAlign = "center"
-			ctx.fillStyle = "#ffffff"
-			ctx.fillText(text, x, y)
-			ctx.textAlign = "start"
-			ctx.fillStyle = "#DBDB00"
-			ctx.fillText(table[k], 10, y) // .toLocaleLowerCase()
-			y += 20
-		}
-		x += 120
-	}
-}
-
-
-function drawChampionsStatsFull(ctx, imgList) {
-	let positionX = 640
-	for (let i = 0; i < imgList.length; i++) {
-		const img = imgList[i]
-		const x = positionX + 60 * i
-		ctx.drawImage(img, x, 380, 50, 50)
-	}
-}
-// <--- full stats <---
-
-
-
-// ---> ranked stats --->
-function drawStatsRanked(params) {
-	const statsWidth = params.statsWidth = 800
-	const canvas = createCanvas(statsWidth, 340)
-	const ctx = canvas.getContext('2d')
-	ctx.font = 'bold 16px Georgia'
-	const rank = getRankGuru(params.groups.rank)
-
-	return new Promise((resolve) => {
-		// загружаем случайный глобальный фон для статы
-		const img = imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		const par = params.groups
-		ctx.drawImage(img, 0, 0, statsWidth, 310)
-		drawItemsRanked(ctx, params) // рисуем эллементы не нужнающиеся в промисах
-		
-		const championList = []
-		for (let i = 1; i < 6; i++) {
-			const champion = par[`name${i}`]
-			if (!champion) break
-			championList.push( championsIds[fixChampion(champion)].img )
-		}
-
-		const rankUrl = rank ? `divisions/${rank}.png` : 'no-rank.png'
-		loadImage(rankUrl) // загружаем картинку ранга
-		.then((img) => {
-			const coefficient = rank == 27 ? 1.257 : rank == 26 ? 1.151 : 1
-			// рисуем картинку ранга
-			ctx.drawImage(img, 2, 12, 120, 120 * coefficient)
-
-			if (!championList.length) resolve({ctx, ...params}) // если чемпионов нет
-
-			drawChampionsRanked(ctx, championList) // рисуем загруженных чемпионов
-			resolve({ctx, ...params})
+		players.forEach(player => {
+			if (player.portal_id == 1 || player.portal_id == 25 || player.portal_id == 5) resolve(player)
 		})
+
+		return resolve({
+			ret_msg: "Выберите нужный портал",
+			players
+		})
+
+		function search(player) {
+			const id = player.player_id
+			return hiRezFunc("getplayer", {id})
+		}
 	})
 }
 
-
-function drawItemsRanked(ctx, params) {
-	const par = params.groups
-	const name = decodeURI(params.accaunt.name).replace(/[0-9]+-/, "")
-	const region = par.region.replace(/[a-z ]+- /i, "")
-	const totalMatches = repStatsDot(par.played)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Обновлено: ${par.updated || "-"}`, 130, 20)
-	ctx.fillStyle = "#FF6600"
-	ctx.fillText(`${name} (${region || "-"})`, 130, 40)
-	ctx.fillStyle = "#33CC00"
-	ctx.fillText(`Lvl: ${par.lvl}`, 130, 60)
-	ctx.fillStyle = "#9966FF"
-	ctx.fillText(`Elo: ${par.elo || 0}`, 130, 80)
-	ctx.fillStyle = "#3399CC"
-	ctx.fillText(`Ранг: ${par.rank}`, 130, 100)
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`ОТ: ${par.tp}`, 130, 120)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Урон`, 40, 170)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Игрокам: ${par.player || 0}`, 10, 190)
-	ctx.fillText(`Исцеления: ${par.teamHealing || 0}`, 10, 210)
-	ctx.fillText(`Самохилл: ${par.selfHealing || 0}`, 10, 230)
-	ctx.fillText(`Оружием: ${par.weapon || 0}`, 10, 250)
-	ctx.fillText(`Защита: ${par.shielding || 0}`, 10, 270)
-	ctx.fillText(`Получено: ${par.taken || 0}`, 10, 290)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Убийства`, 280, 170)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`KDA: ${par.kda || 0}`, 250, 190)
-	ctx.fillText(`Убийств: ${par.kills || 0}`, 250, 210)
-	ctx.fillText(`Смертей: ${par.deaths || 0}`, 250, 230)
-	ctx.fillText(`Помощи: ${par.assists || 0}`, 250, 250)
-	ctx.fillText(`CPM: ${par.cpm || 0}`, 250, 270)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Матчи`, 420, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Всего: ${par.played || 0}`, 390, 40)
-	ctx.fillText(`Проиграно: ${par.lost || 0}`, 390, 60)
-	ctx.fillText(`Выиграно: ${par.won || 0}`, 390, 80)
-	ctx.fillText(`Винрейт: ${fixNaN((par.won / par.played * 100).toFixed(2))}%`, 390, 100)
-
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText(`Разное`, 600, 20)
-	ctx.fillStyle = "#ffffff"
-	ctx.fillText(`Сыграно: ${par.playtime || 0}`, 570, 40)
-	ctx.fillText(`Кредитов: ${par.credits || 0}`, 570, 60)
-	ctx.fillText(`Время цели: ${par.objectiveTime || 0}`, 570, 80)
-
-	// любимые чемпионы ->
-	ctx.textAlign = "center"
-	ctx.fillStyle = "#DBDB00"
-	ctx.fillText("ПОПУЛЯРНЫЕ ЧЕМПИОНЫ:", 615, 160)
-
-	ctx.fillStyle = "#009900"
-	ctx.fillText(getStatsHours(par.time1), 495, 250)
-	ctx.fillText(getStatsHours(par.time2), 555, 250)
-	ctx.fillText(getStatsHours(par.time3), 615, 250)
-	ctx.fillText(getStatsHours(par.time4), 675, 250)
-	ctx.fillText(getStatsHours(par.time5), 735, 250)
-
-	ctx.fillStyle = "#CC6600"
-	ctx.fillText(par.kda1 || "-", 495, 270)
-	ctx.fillText(par.kda2 || "-", 555, 270)
-	ctx.fillText(par.kda3 || "-", 615, 270)
-	ctx.fillText(par.kda4 || "-", 675, 270)
-	ctx.fillText(par.kda5 || "-", 735, 270)
-
-	ctx.fillStyle = "#0088bb"
-	ctx.fillText(getStatsProcent(par.match1), 495, 290)
-	ctx.fillText(getStatsProcent(par.match2), 555, 290)
-	ctx.fillText(getStatsProcent(par.match3), 615, 290)
-	ctx.fillText(getStatsProcent(par.match4), 675, 290)
-	ctx.fillText(getStatsProcent(par.match5), 735, 290)
-
-	// текст снизу
-	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 310, params.statsWidth, 340) // черный прямоугольник снизу
-	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
-	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.guru / !hh показать список команд`, params.statsWidth / 2, 330)
-}
-
-
-function drawChampionsRanked(ctx, imgList) {
-	let positionX = 470
-	for (let i = 0; i < imgList.length; i++) {
-		const img = imgList[i]
-		const x = positionX + 60 * i
-		ctx.drawImage(img, x, 180, 50, 50)
-	}
-}
-// <--- ranked stats <---
+// <--- PALADINS STATS default function <---
 
 
 
@@ -2347,300 +1617,18 @@ function showUsersAvatar(mess, name) {
 
 
 
-/* ---> !вики ---> */
-
-function getVikiTextRU(mess, text) {
-	const url = `https://ru.wikipedia.org/w/api.php?action=opensearch&search=${text}&prop=info&format=json&limit=2`
-
-	if (text != text.replace(/[<>\\|@\/\^;{}~]/g,"") || 
-			text.length > 50 || text.length == 0) {
-		return mess.reply('Ошибка в тексте запроса.')
-	}
-
-	sendSite({url, json: true})
-	.then(response => {
-		const body = response.body
-		const respText = body[2][0]
-		const restUrl = body[3][0]
-
-		if (!respText && !restUrl) return mess.reply('Ошибка в тексте запроса. (^2)')
-		const returnText = `\r\n>>> ${respText}\r\n**Подробнее: <${restUrl}>**`
-		mess.reply(returnText)
-	})
-}
-
-function getVikiTextEN(mess, text) {
-	const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${text}&prop=info&format=json&limit=2`
-
-	if (text != text.replace(/[<>\\|@\/\^;{}~]/g,"") || 
-			text.length > 50 || text.length == 0) {
-		return mess.reply('Error in request text.')
-	}
-
-	sendSite({url, json: true})
-	.then(response => {
-		const body = response.body
-		const respText = body[2][0]
-		const restUrl = body[3][0]
-
-		if (!respText && !restUrl) return mess.reply('Error in request text (^2).')
-		const returnText = `\r\n>>> ${respText}\r\n**More: <${restUrl}>**`
-		mess.reply(returnText)
-	})
-}
-
-/* <--- !вики <--- */
-
-
-
-/* ---> !смс ---> */
-
-function sendMessToVK(mess, id, ...text) { // !смс
-	text = repText( text.join(" ") )
-	if (sendVkListMembers.find(function(el){return el == mess.author.id;})) { // проверяем вышло ли время
-		// если время не вышло то предупреждаем
-		return mess.reply('Возможно отправлять только 1 сообщение в минуту.')
-	}
-
-	const type_id = (id > -99999 && id < 0) ? "chat_id" : "user_id"; // позволяет отправлять сообщение в группы
-	if (id < 0) id *= -1; // делаем id правильным
-	id += ''; // для replace
-	if (id != id.replace( /[^0-9]/, '' )) return mess.reply('Не корректный id.')
-
-	if (!validMessVk(text)) return mess.reply('Недопустимые слова в сообщении.')
-	if (text.length == 0 || text.length >= 500) return mess.reply('Сообщение пустое или слишком длинное.')
-
-	if (!addListLastMess(text)) return mess.reply('Такое сообщение уже было отправленно.')
-
-	const randomIDVK = (Math.random() * 1000000000000).toFixed(0);
-	const url = `https://api.vk.com/method/messages.send?random_id=${randomIDVK}&${type_id}=${id}&message=${text}&v=5.92&access_token=`;
-
-	sendVkListMembers.push(mess.author.id); // добавляем в список временно забаненых
-	const guildId = mess.channel.guild ? mess.channel.guild.id : undefined // избегаем ошибок в личках
-	const timer = (isAdmin(mess.author.id, guildId)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
-	setTimeout(() => { // через минуту удаляем пользователя из бана
-		sendVkListMembers.find((el, i, arr) => {
-			if (el == mess.author.id) arr.splice(i, 1);
-		});
-	}, timer);
-
-	sendSite({url: `${url + config.vkToken}`, json: true})
-	.then((r) => {
-		if (r.body.error != undefined && r.body.response == undefined) { // если ошибка
-			return mess.reply('Ошибка, возможно не корректный id или закрыт лс (чс).')
-		} else if (r.body.response != undefined && r.body.error == undefined) { // если отправилось
-			return mess.reply('Сообщение успешно отправленно.')
-		} else { // непонятно че
-			return mess.reply('Неизвестная ошибка, поидее это никак не может выполнится.')
-		}
-	})
-}
-
-// приложения ->
-
-function repText(text) { // удаляем & из строки
-	while (true) {
-		let k = text.indexOf('&');
-		if (k == -1) break
-		text = text.slice(0, k) + text.slice(k+1);
-	}
-	while (true) {
-		let k = text.indexOf('#');
-		if (k == -1) break
-		text = text.slice(0, k) + text.slice(k+1);
-	}
-	return text
-}
-
-const sendVkListMembers = []; // список id людей которые отправили уже смс в вк
-
-const listLastMess = []; // список последних смс для проверки спама
-function addListLastMess(mess) {
-	if (listLastMess.indexOf(mess) != -1) return false;
-	if (listLastMess.length >= 10) listLastMess = listLastMess.slice(1); // храним максимум 10 последних сообщений
-	listLastMess.push(mess);
-	return true;
-}
-
-function validMessVk(text) { // проверяет сообщение на запрещенные фразы
-	for (let i = 0; i < listInvalidMess.length; i++) {
-		if (text.indexOf(listInvalidMess[i]) != -1) return false;
-	}
-	return true;
-}
-const listInvalidMess = ["электронных стимуляций", "заработал на автомобиль", "ежедневный доход", "blogspot", 
-"оплатa при пoлyчении закaзa", "переходи по ссылке", "зарабатывать", "в вашу группу", "Обязанности", "jebber.ru", 
-"координатор", "свободного времени", "подробности здесь", "с пометкой", "удалённая работа", "личные сообщени", 
-"для молодых мам", "Эффективное средство", "ПOДРOБНОCТИ У CОТРУДHИKА", "феромон", "желание зарабатывать", 
-"по этой ссылке", "ПОДРОБHАЯ ИНФOPMAЦИЯ", "Работа на дому", "рассылка", "wheelbike.ru", "узнaть бoлeе подpобнo", 
-"у меня на страничке", "MLM", "bks-design.ru", "наложенным платеж", "web-vk.ru", "по почте", "мышиные хвостики", 
-"вот этот", "администратора в группу", "sertak.ru", "Подробности на стене", "онлайн работа", "в любой город", 
-"krasnayenitb.win", "ПО МОСКВЕ", "Работа дома", "doref.site", "nadommebel.com", "по Украине", "набирает сотрудников", 
-"goodlook-spb.ru", "Не косметика", "lidetdaw.ru", "kosmetologshop.ru", "Зарабoток в интернете", "выплаты ежедневные", 
-"greilands.ru", "komarroff.ru", "dreamofwood", "Выплаты ежедневно", "миллиoнеpшa", "ЗAPАБATЫBАЙ", 
-"позволит зарабатывать", "Доход от", "pmibar.ru", "свободного времени", "стройную фигуру", "vtope", "втопе", 
-"vto pe", "vto.pe", "цп в лс", "порно", "порн", " дп ", "синий кит", "куратор кита", "купить голоса"];
-
-// <- приложения
-
-/* <--- !смс <--- */
-
-
-
-/* ---> !переписка ---> */
-
-function get_vk_messages(m) { // пиздец какая дерьмовая функция...
-	if (checkVkListMembers.find(function(el){return el == m.author.id;})) { // проверяем вышло ли время
-		// если время не вышло то предупреждаем
-		return m.reply('Возможно делать запросы только 1 раз в минуту.')
-	}
-	function getLactMessId(callback) { // получает id последнего сообщения вк, передавая его в callback
-		//const url = `https://api.vk.com/method/messages.searchConversations?count=1&v=5.92&access_token=`;
-		const url = `https://api.vk.com/method/messages.getConversations?count=1&filter=all&v=5.92&access_token=`;
-		sendSite({url: `${url + config.vkToken}`, json: true})
-		.then((r) => {
-			callback(r.body.response.items[0].last_message.id);
-		});
-	}
-	function lastMessVK(messID) {
-		massMessID = [];
-		for (let i = 0; i < 10; i++ ) {massMessID.push(messID - i);}
-		const url = `https://api.vk.com/method/messages.getById?message_ids=${massMessID + ''}&extended=1&v=5.92&access_token=`;
-		sendSite({url: `${url + config.vkToken}`, json: true})
-		.then((r) => {
-			if (r.body.error != undefined && r.body.response == undefined) { // если ошибка
-				return m.reply('Похоже сообщений нет...')
-			} else if (r.body.response != undefined && r.body.error == undefined) { // если ошибки нет
-				const vk_messages = r.body.response.items;
-				const vk_profiles = r.body.response.profiles;
-				const vk_groop = r.body.response.groups; // для групп
-				const obj_profiles = {};
-				const obj_groups = {};
-				for (let i = 0; i < vk_profiles.length; i++) {
-					if (obj_profiles[vk_profiles[i].id] == undefined) obj_profiles[vk_profiles[i].id] = {};
-					obj_profiles[vk_profiles[i].id].id = vk_profiles[i].id;
-					obj_profiles[vk_profiles[i].id].first_name = vk_profiles[i].first_name;
-					obj_profiles[vk_profiles[i].id].last_name = vk_profiles[i].last_name;
-					obj_profiles[vk_profiles[i].id].sex = vk_profiles[i].sex;
-					obj_profiles[vk_profiles[i].id].online = vk_profiles[i].online;
-				}
-				if (vk_groop) { // для групп
-					for (let i = 0; i < vk_groop.length; i++) {
-						if (obj_groups[vk_groop[i].id] == undefined) obj_groups[vk_groop[i].id] = {};
-						obj_groups[vk_groop[i].id].id = vk_groop[i].id;
-						obj_groups[vk_groop[i].id].name = vk_groop[i].name;
-						obj_groups[vk_groop[i].id].type = vk_groop[i].type;
-						obj_groups[vk_groop[i].id].screen_name = vk_groop[i].screen_name; // ссылка
-					}
-				}
-				let answerText = ``;
-				let lastAnswerText = answerText;
-				for (let i = 0; i < vk_messages.length; i++) {
-					const vk = vk_messages[i];
-					if (vk.peer_id < 0) { // если диалог с группой (не беседа)
-						let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
-						answerText += `(${getDateVK(vk.date)}) **${fromTo} - ${obj_groups[(vk.peer_id + '').slice(1)].name} ` + 
-							`:** ${dellHppt(vk.text)}\n`;
-					} else {
-						if (vk.action != undefined) { // события в группах
-							answerText += `(${getDateVK(vk.date)}) Событие: **${vk.action.type}** для: ${vk.from_id}\n`;
-						} else {
-							let fromTo = vk.from_id == vk.peer_id ? "От" : "Кому";
-
-							if ((vk.peer_id + '').indexOf('200000000') != -1) fromTo = `[Группа ${(vk.peer_id + '').slice(9)}]`;
-							const vkID = (vk.peer_id + '').indexOf('200000000') != -1 ? vk.from_id : vk.peer_id;
-
-							answerText += `(${getDateVK(vk.date)}) **${fromTo} - ${obj_profiles[vkID].first_name} ` + 
-								`${obj_profiles[vkID].last_name}:** ${dellHppt(vk.text)}\n`;
-						}
-					}
-					if (answerText.length >= 2000) {answerText = lastAnswerText; break;} // у дискорда лимит в 2000
-					lastAnswerText = answerText; // сохраняем
-				}
-				answerText.slice(0, -2); // удаляем перенос строки
-				return m.reply(answerText)
-			} else { // непонятно че
-				return m.reply('Неизвестная ошибка, поидее это никак не может выполнится.')
-			}
-		});
-	}
-	checkVkListMembers.push(m.author.id); // добавляем в список временно забаненых
-	const guildId = m.channel.guild ? m.channel.guild.id : undefined // избегаем ошибок в личках
-	const timer = (isAdmin(m.author.id, guildId)) ? 1000 * 3 : 1000 * 60; // время ожидания (мне 3 сек)
-	setTimeout(() => { // через минуту удаляем пользователя из бана
-		checkVkListMembers.find((el, i, arr) => {
-			if (el == m.author.id) arr.splice(i, 1);
-		});
-	}, timer);
-	getLactMessId(lastMessVK);
-}
-
-// приложения ->
-
-function dellHppt(text) { // вырезает все http:// и https://
-	let text2 = text.replace(/(https:\/\/)/, '');
-	if (text == text2) {
-		text2 = text.replace(/(http:\/\/)/, '');
-		return text == text2 ? text2 : dellHppt(text2);
-	}
-	return dellHppt(text2);
-}
-
-const checkVkListMembers = []; // список id людей которые отправили уже смс в вк
-
-function getDateVK(d) { // получаем нужный вид даты
-	d *= 1000;
-	return new Date(d).toLocaleString("ru", {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
-}
-
-// <- приложения
-
-/* <--- !переписка <--- */
-
-
-
 // ---> hi-rez functions --->
-
-/**
- * Создает сессию и возвращает промис, session_id
- * @return {Promise} session_id
- */
-function createSession() {
-	// return new Promise(resolve => { // временная хуйня
-	// 	const session = "007DA9620A03481890986987E9A6C780"
-	// 	config.session = session
-	// 	config.timeStartSession = +new Date()
-	// 	resolve(session)
-	// })
-
-	console.log("createSession")
-    return new Promise((resolve, reject) => {
-        const timestamp = moment().utc().format("YYYYMMDDHHmmss")
-        const signature = md5( config.devId + "createsession" + config.authKey + timestamp )
-        const urlCreateSession = `http://api.paladins.com/paladinsapi.svc/createsessionJson/${config.devId}/${signature}/${timestamp}`
-        sendSite({url: urlCreateSession, json: true})
-        .then(response => {
-            const body =  response.body
-            const ret_msg = body.ret_msg
-			if (ret_msg !== "Approved") reject(ret_msg)
-			const session = body.session_id
-			config.session = session
-			config.timeStartSession = +new Date()
-			//console.log(session)
-            resolve(session)
-        })
-    })
-}
 
 
 /**
  * getdataused - возвращает лимиты использования API
  * gethirezserverstatus - возвращает статусы основных серверов hi-rez
- * getchampions - возвращает много инфы о всех чемпионах [11]
+ * getchampions - возвращает много инфы о всех чемпионах [11] (getgods)
  * getchampioncards - возвращает все карты указанного чемпиона [id, 11]
  * getchampionleaderboard - таблица лидеров по чемпионам [id, 428]
  * getplayer - возвращает статистику аккаунта [name, portalId]
  * getplayer - возвращает статистику аккаунта [name]
+ * getplayerbatch - то же что и getplayer только сразу много id [id1, id2]
  * getplayeridbyname - возвращает краткую информацию об аккаунте [name]
  * getgodranks - информацию о всех чемпионах указанного игрока [id]
  * getchampionranks - то же что и "getgodranks" но только тех на ком играл [id]
@@ -2653,70 +1641,44 @@ function createSession() {
         4 - Online (игрок вошел в систему, но может блокировать трансляцию состояния игрока)
         5 - Unknown (player not found)
  * getmatchhistory - история матчей [id]
- * getqueuestats - история но с очередью какой-то
+ * getqueuestats - история но с очередью какой-то (очередь это тип игр, ранкед осада и др)
  * searchplayers - поискк игроков по нику как на гуру
  * getmatchdetails - история указанного матча [id]
- * getmatchplayerdetails - история матча в реальном времени
+ * getmatchplayerdetails - история матча в реальном времени [id]
+ * getitems - возвращает кучу всяких предметов [11]
+ * getleagueleaderboard - Возвращает лучших игроков определенной лиги {queue}/{tier}/{round}
  * @param {String} format - тип запроса
  * @param  {...any} params - параметры которые будут переданы в конец url
  */
-function hiRezFunc(format, ...params) {
-	console.log(`hiRezFunc: ${format}`)
-    return new Promise((resolve, reject) => {
+function hiRezFunc(format, params) {
+	console.log(format, params)
+	return new Promise((resolve, reject) => {
 		if (!format) reject(false)
 
-		const testing = format !== "testsession" ? testSession : () => {return new Promise(resolve => {resolve()})}
-		testing()
-		.then((res) => {
-			const timestamp = moment().utc().format("YYYYMMDDHHmmss")
-			const signature = md5( config.devId + format + config.authKey + timestamp )
-			const strParams = params.length > 0 ? `/${params.join("/")}` : ''
-			const url = `http://api.paladins.com/paladinsapi.svc/${format}Json/${config.devId}/${signature}/${config.session}/${timestamp}${strParams}`
-			sendSite({url, json:true})
-			.then(res => {
-				config.timeStartSession = +new Date()
-				resolve(res.body)
-			})
+		const formSend = formHi_rezFunc(format, params)
+		sendSite( formSend )
+		.then(res => {
+			// console.log(res.body)
+			console.log(res.body.last_update)
+			return resolve(res.body.json || [])
 		})
-    })
+	})
 }
 
-
-function testSession() { // проверяет валидность сессии, если не валидна то создает новую
-    return new Promise(resolve => {
-
-		const checkTime = new Date() - 900000 < config.timeStartSession
-		console.log(`Минут с последнего теста сессии: ${(new Date() - config.timeStartSession) / 60000}`)
-		if (checkTime) return resolve({result: true, msg: "все норм, время не вышло"})
-		console.log("время вышло, мы проверим валидность сессии и если она 'не катит' то создадим новую")
-
-        hiRezFunc("testsession") // поидее тестить не нужно, а просто создавать новую сессию и время навсяк сделать не 15, а 14 минут
-        .then(res => {
-			const result = res.indexOf('Invalid') === -1 && res.indexOf('successful') !== -1
-			if (!result) { // если сессия не подходит
-				createSession()
-				.then(session => {
-					return resolve({result, session, msg: "создали новую сессию"})
-				})
-			} else {
-				return resolve({result, msg: "сессия рабочая"})
-			}
-        })
-    })
-}
 
 
 function searchPaladinsPlayer(name) { // функция эмулирующая API playpaladins
 	return new Promise((resolve, reject) => {
-		hiRezFunc("getplayer", name) // поиск игрока
+		hiRezFunc("searchplayers", {name}) // поиск игрока
+		.then(getSearchplayers)
 		.then(response => {
 			const main = response[0]
-			if (!main) return reject({msg: "Игрок не найден"})
-			
-			hiRezFunc("getgodranks", main.Id) // поиск его чемпионов
+			if (!main || main.ret_msg) return reject({msg: "Игрок не найден"})
+
+			hiRezFunc("getchampionranks", {id: main.Id}) // поиск его чемпионов
 			.then(champions => {
-				if (!champions) return reject({msg: "Чемпионы игрока не найдены"})
-				resolve({main, champions, name})
+				if (!champions || !champions[0]) return reject({msg: "Чемпионы игрока не найдены"})
+				return resolve({main, champions, name})
 			})
 		})
 	})
@@ -2725,16 +1687,21 @@ function searchPaladinsPlayer(name) { // функция эмулирующая A
 
 function searchPaladinsMatch(name) { // функция эмулирующая API playapaladins
 	return new Promise((resolve, reject) => {
-		hiRezFunc("getplayeridbyname", name)
-		.then(response => {
-			const body = response[0]
+		hiRezFunc("searchplayers", {name})
+		.then(function(res){ // ретранслятор типо, что бы поставить второй параметр true
+			return new Promise(resolve => {
+				return resolve( getSearchplayers(res, true) )
+			})
+		})
+		.then(body => {
+			// const body = response[0]
 			if (!body) reject({msg: "Пользователь не найден"})
 			const id = body.player_id
 
-			hiRezFunc("getmatchhistory", id)
+			hiRezFunc("getmatchhistory", {id})
 			.then(matches => {
 				if (!matches[0]) reject({msg: "Матчи не найденны"})
-				resolve(matches)
+				return resolve(matches)
 			})
 		})
 	})
@@ -2798,18 +1765,9 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 // старт бота и загрузка настроек
-Promise.all([
-	client.login(config.tokenDiscord), 
-	getSetting(), 
-	getChampionsCard(), 
-	getCardFrames(),
-	getImgBackground(),
-	getImgChampions(),
-	getImgItems(),
-	getPaladinsMaps(),
-	getDifferentImg(),
-	getRankedImage()
-]).then(response => {
+getConfigs() // но сначала загружаются базовые настройки
+.then(loadAll)
+.then(response => {
 	for (let i = 1; i < response.length; i++) {
 		if (response[i] !== true) throw new Error(`Ошибка [${i}] во время старта бота и загрузки стартовых функций.`)
 	}
@@ -2820,6 +1778,23 @@ Promise.all([
 	client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
 	client.on("message", startListenMess)
 })
+
+function loadAll(res) {
+	if (!res) throw new Error("Ошибка загрузки конфинга")
+	return Promise.all([
+		client.login(config.tokenDiscord),
+		// getSetting(),
+		getChampionsCard(), // грузится не правильно, нужно что бы код не выполнялся пока не загрузится это
+		getCardFrames(),
+		getImgBackground(),
+		getImgChampions(),
+		getImgItems(),
+		getPaladinsMaps(),
+		getDifferentImg(),
+		getRankedImage()
+	])
+}
+
 
 
 function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
@@ -2853,6 +1828,8 @@ function startListenMess(message) { // обработака всех сообщ�
 
 		const valParams = value.params || [] // убираем ошибку, если нет параметров
 		const params = mySplit( message.content.slice(keyLen), valParams.length - 1)
+		message.channel.startTyping() // запускаем печатание
+		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
 		config.usedCommands++ // увеличиваем кол-во использованных команд
 		break // завершить поиск
@@ -2880,14 +1857,45 @@ function mySplit(text, count) {
 // ---> Необходимые, глобальные функции --->
 
 
-function isAdmin(user_id, guild_id=[]) { // очень кривая проверка, но пока сойдет и такая (админ 1)
-	const adminListId = config.setting.admins
-	if (!adminListId[user_id]) return false; // если его нет в записи то выход
-	if (adminListId[user_id].type == 0) return false; // если админка выключенна
+function formHi_rezFunc(format, params) {
+	const form_params = []
+	const params_query = params.constructor == Object ? {} : null
 
-	if (!adminListId[user_id].guilds) return adminListId[user_id].type; // если глобальная админка
-	if (adminListId[user_id].guilds.indexOf(guild_id) == -1) return false; // если в списке нет гильдии
-	return adminListId[user_id].type; // если же есть то значит админ и возвращаем его тип
+	for (let key in params) {
+		const value = params[key]
+		form_params.push(value)
+	}
+
+	if ( params_query && form_params.length > 1 ) { // если параметров больше 1, то в "type" будет массив, иначе строка
+		params_query.types = []
+		params_query.values = []
+		for (let key in params) {
+			const value = params[key]
+			
+			params_query.types.push(key)
+			params_query.values.push(value)
+		}
+	} else if (params_query) {
+		for (let key in params) {
+			const value = params[key]
+
+			params_query.types = key
+			params_query.values = value
+		}
+	}
+
+	return {
+		method: 'POST',
+		url: 'https://webmyself.ru/test-stats/test.php',
+		json: true,
+		form: {
+			token: config.dbToken,
+			format,
+			params: form_params,
+			params_query
+		}
+		
+	}
 }
 
 
@@ -2911,7 +1919,32 @@ function sendSite(params) {
 // ---> Функции для автозагрузки или интервальные функции --->
 
 
-// получаем настройки с сайта, вернет промис, когда загрузит настройки -> true or error -> false
+function getConfigs() {
+	return new Promise((resolve, reject) => {
+		try {
+			config.championList = require('./qwe.json') // пока так, а будет получатсья с сайта
+			config.championList.forEach(champion => {
+				champion.Roles = champion.Roles.replace(/paladins /ig, "")
+				// console.log(`${champion.Name_English}\r\n`)
+		
+				config.championsId[ champion.id ] = champion
+				config.championsName[ champion.Name_English ] = champion
+				config.championsName[ champion.Name_English.toLowerCase() ] = champion
+				if (champion.Name_English == "Mal'Damba") config.championsName[ "maldamba" ] = config.championsName[ "mal damba" ] = champion
+			})
+
+			console.log("Конфиг успешно загружен, начался запуск бота...")
+			resolve(true);
+		} catch(err) {
+			console.log("Ошибка загрузки конфига. Ошибка:")
+			console.log(err)
+			reject(false);
+		}
+	})
+}
+
+
+// получаем настройки с сайта, админки
 function getSetting() {
 	return new Promise((resolve, reject) => {
 		const url = config.url_site
@@ -2935,7 +1968,7 @@ function getChampionsCard() {
 		sendSite({url, json: true})
 		.then(response => {
 			const body = response.body
-			championsCard = body
+			config.championsCard = body
 
 			// выбираем леги для загрузки
 			const list = []
@@ -2960,7 +1993,7 @@ function getChampionsCard() {
 						const item = cards[i]
 			
 						if (item.rarity != 'Legendary') continue
-						LegendarChampions[item.card_id2] = imgList[k]
+						config.LegendarChampions[item.card_id2] = imgList[k]
 						k++
 					}
 				}
@@ -2984,7 +2017,7 @@ function getCardFrames() { // загружает фреймы карт за ра
 
 		Promise.all(list)
 		.then(imgList => {
-			cardFrames = imgList
+			config.cardFrames = imgList
 			console.log("Фреймы карт загруженны.")
 			resolve(true)
 		})
@@ -3002,7 +2035,7 @@ function getImgBackground() {
 
 		Promise.all(list)
 		.then(imgList => {
-			imgBackground = imgList
+			config.imgBackground = imgList
 			console.log("Фоны для статы загруженны.")
 			resolve(true)
 		})
@@ -3014,23 +2047,18 @@ function getImgBackground() {
 function getImgChampions() {
 	return new Promise(resolve => {
 		const list = []
-		for (let champion in championsIds) {
-			const champ = fixText(champion)
-			list.push( loadImage(`champions/${champ}.jpg`) )
+		for (let championId in config.championsId) {
+			const champion = config.championsId[championId]
+			const champName = champion.Name_English.toLowerCase()
+			list.push( loadImage(`champions/${champName}.jpg`) )
 		}
 
 		Promise.all(list)
 		.then(imgList => {
 			let i = 0
-			for (let champion in championsIds) {
-				championsIds[champion].img = imgList[i]
+			for (let championId in config.championsId) {
+				config.championsId[championId].loadedImg = imgList[i]
 				i++
-			}
-
-			for (let champion in championsIds) { // делаем возможность обращения и в нижнем регистре
-				championsIds[fixChampion(champion)] = championsIds[champion]
-				// const tempChampion = champion.replace(/ /i, '')
-				// championsIds[tempChampion.toLocaleLowerCase()] = championsIds[champion]
 			}
 
 			console.log("Иконки персонажей загружены.")
@@ -3045,7 +2073,7 @@ function getImgItems() {
 	return new Promise(resolve => {
 		const list = []
 		for (let item in paladinsItems) {
-			list.push( loadImage(`items/${fixText(item)}.jpg`) )
+			list.push( loadImage(`items/${item}.jpg`) )
 		}
 
 		Promise.all(list)
@@ -3092,7 +2120,7 @@ function getDifferentImg() { // разные изображениея
 
 		Promise.all(list)
 		.then(imgList => {
-			differentImg['vs'] = imgList[0]
+			config.differentImg['vs'] = imgList[0]
 			console.log("Разные картинки загруженны.")
 			resolve(true)
 		})
@@ -3110,7 +2138,7 @@ function getRankedImage() { // разные изображениея
 
 		Promise.all(list)
 		.then(imgList => {
-			rankedImage = imgList
+			config.rankedImage = imgList
 			console.log("Иконки ранга загруженны.")
 			resolve(true)
 		})

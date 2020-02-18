@@ -1,7 +1,7 @@
 {
   "name": "Pal-bot",
   "description": "Paladins Discord Bot",
-  "version": "2.1.1",
+  "version": "3.0.1",
   "homepage": "https://github.com/rogap/pubo",
   "repository": "github:rogap/pubo",
   "main": "bot.js",
@@ -17,9 +17,7 @@
   "dependencies": {
     "discord.js": ">= 11.5.1",
     "canvas": ">= 2.5.0",
-    "request": ">= 2.81.0",
-    "moment": "^2.17.1",
-    "md5": "^2.2.1"
+    "request": ">= 2.81.0"
   },
   "author": {
     "url": "webmyself.ru",

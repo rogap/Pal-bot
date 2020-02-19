@@ -1828,7 +1828,7 @@ function startListenMess(message) { // обработака всех сообщ�
 		}
 
 		const valParams = value.params || [] // убираем ошибку, если нет параметров
-		const params = mySplit( message.content.slice(keyLen), valParams.length - 1)
+		const params = message.content.slice(keyLen).splitCont(valParams.length - 1)
 		message.channel.startTyping() // запускаем печатание
 		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
@@ -1837,18 +1837,18 @@ function startListenMess(message) { // обработака всех сообщ�
 	}
 }
 
-function mySplit(text, count) {
+String.prototype.splitCont = function(count=0, value=' ') {
 	// делает то же что и [].split, но определенное кол-во раз, а остальное возвращает как есть
 	const params = []
 	let indexPref = 0
 	while (count) {
-		const index = text.indexOf(" ", indexPref) + 1
+		const index = this.indexOf(value, indexPref) + 1
 		if (index == 0) break // это может быть ошибкой, а может быть с автоподстановкой Ника
-		params.push( text.slice(indexPref, index).trim() )
+		params.push( this.slice(indexPref, index).trim() )
 		indexPref = index
 		count--
 	}
-	params.push( text.slice(indexPref).trim() )
+	params.push( this.slice(indexPref).trim() )
 	return params
 }
 
@@ -1923,11 +1923,11 @@ function sendSite(params) {
 function getConfigs() {
 	return new Promise((resolve, reject) => {
 		try {
-			config.championList = require('./qwe.json') // пока так, а будет получатсья с сайта
+			config.championList = require('./champions list.json') // getchampions сохраненный в json
 			config.championList.forEach(champion => {
 				champion.Roles = champion.Roles.replace(/paladins /ig, "")
 				// console.log(`${champion.Name_English}\r\n`)
-		
+
 				config.championsId[ champion.id ] = champion
 				config.championsName[ champion.Name_English ] = champion
 				config.championsName[ champion.Name_English.toLowerCase() ] = champion
@@ -1965,14 +1965,25 @@ function getSetting() {
 // получаем карты чемпионов, их описание и url картинок (с нашего сайта)
 function getChampionsCard() {
 	return new Promise(resolve => {
-		const url = config.url_site.replace(/[a-z_]+\.[a-z]{1,4}$/i, '') + "pal-bot/championsCard.json"
-		sendSite({url, json: true})
-		.then(response => {
-			const body = response.body
-			config.championsCard = body
+		const body = require("./champions card.json")
+		config.championsCard = body
 
-			// выбираем леги для загрузки
-			const list = []
+		// выбираем леги для загрузки
+		const list = []
+		for (let championId in body) {
+			const cards = body[championId]
+	
+			for (let i = 0; i < cards.length; i++) {
+				const item = cards[i]
+	
+				if (item.rarity != 'Legendary') continue
+				list.push( loadImage(`legendary/${item.card_id2}.png`) )
+			}
+		}
+
+		Promise.all(list) // загружаем леги
+		.then(imgList => {
+			let k = 0
 			for (let championId in body) {
 				const cards = body[championId]
 		
@@ -1980,27 +1991,12 @@ function getChampionsCard() {
 					const item = cards[i]
 		
 					if (item.rarity != 'Legendary') continue
-					list.push( loadImage(`legendary/${item.card_id2}.png`) )
+					config.LegendarChampions[item.card_id2] = imgList[k]
+					k++
 				}
 			}
-
-			Promise.all(list) // загружаем леги
-			.then(imgList => {
-				let k = 0
-				for (let championId in body) {
-					const cards = body[championId]
-			
-					for (let i = 0; i < cards.length; i++) {
-						const item = cards[i]
-			
-						if (item.rarity != 'Legendary') continue
-						config.LegendarChampions[item.card_id2] = imgList[k]
-						k++
-					}
-				}
-				console.log("Карты и легендарки чемпионов загруженны.")
-				resolve(true)
-			})
+			console.log("Карты и легендарки чемпионов загруженны.")
+			resolve(true)
 		})
 	})
 }

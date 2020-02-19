@@ -1845,8 +1845,9 @@ String.prototype.splitCont = function(count=0, search=' ') {
 		const index = this.indexOf(search, indexPref) + 1
 		if (index == 0) break // это может быть ошибкой, а может быть с автоподстановкой Ника
 		const value = this.slice(indexPref, index).trim()
-		if (value != '') params.push( value )
 		indexPref = index
+		if (value == '') continue
+		params.push( value )
 		count--
 	}
 	const value = this.slice(indexPref).trim()

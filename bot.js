@@ -1837,18 +1837,20 @@ function startListenMess(message) { // обработака всех сообщ�
 	}
 }
 
-String.prototype.splitCont = function(count=0, value=' ') {
+String.prototype.splitCont = function(count=0, search=' ') {
 	// делает то же что и [].split, но определенное кол-во раз, а остальное возвращает как есть
 	const params = []
 	let indexPref = 0
 	while (count) {
-		const index = this.indexOf(value, indexPref) + 1
+		const index = this.indexOf(search, indexPref) + 1
 		if (index == 0) break // это может быть ошибкой, а может быть с автоподстановкой Ника
-		params.push( this.slice(indexPref, index).trim() )
+		const value = this.slice(indexPref, index).trim()
+		if (value != '') params.push( value )
 		indexPref = index
 		count--
 	}
-	params.push( this.slice(indexPref).trim() )
+	const value = this.slice(indexPref).trim()
+	if (value != '') params.push( value )
 	return params
 }
 

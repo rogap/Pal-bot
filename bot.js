@@ -1300,14 +1300,16 @@ function getAccForId(list, id) {
 // ---> functions for GURU --->
 // обрабатывает параметры до вызова основной функции поиска на гуру (поиск по сохраненным никам)
 function prefStatsGuru(mess, name, getStats) {
-	name = name.trim()
-	// если начинается как пользователь, то тупо вырезаем все числа
-	//if (name.indexOf("<@") == 0 || name.indexOf("@") == 0) name = name.replace(/[^0-9]+/ig, "")
-	if ( name.match(/<@![0-9]+>/i) ) name = name.slice(3).slice(0, -1) // убираем еще хрень...
-	if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
-	if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
-	//if (!name || name === "me") name = mess.author.id // если не указан, то это автор
-	//if ( isNaN(+name) ) name = searchUser(name).id // ищем пользователя, его id
+	if (name) {
+		name = name.trim()
+		// если начинается как пользователь, то тупо вырезаем все числа
+		//if (name.indexOf("<@") == 0 || name.indexOf("@") == 0) name = name.replace(/[^0-9]+/ig, "")
+		if ( name.match(/<@![0-9]+>/i) ) name = name.slice(3).slice(0, -1) // убираем еще хрень...
+		if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
+		if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
+		//if (!name || name === "me") name = mess.author.id // если не указан, то это автор
+		//if ( isNaN(+name) ) name = searchUser(name).id // ищем пользователя, его id
+	}
 
 	if (!name || name === "me") { // если имеется в виду свой ник
 		console.log("1")

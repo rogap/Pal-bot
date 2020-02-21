@@ -7,6 +7,7 @@ const config = Config.exports || Config
 
 config.timeStart = +new Date()
 config.usedCommands = 0
+config.usedCommandsNow = 0
 config.championsId = {}
 config.championsName = {}
 config.differentImg = []
@@ -1840,6 +1841,7 @@ function startListenMess(message) { // обработака всех сообщ�
 		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
 		config.usedCommands++ // увеличиваем кол-во использованных команд
+		config.usedCommandsNow++
 		break // завершить поиск
 	}
 }
@@ -2169,10 +2171,11 @@ function setStatsToSite() {
 	})
 
 	const usedCommands = config.usedCommands
+	const usedCommandsNow = config.usedCommandsNow
 	config.usedCommands = 0
 
 	sendSite({method: "POST", url, form: {
-		token, type: 'stats_new', servers, users, usedCommands, timeWork
+		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
 		try {

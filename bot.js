@@ -2168,10 +2168,13 @@ function setStatsToSite() {
 		users += guild.memberCount
 	})
 
+	const usedCommands = config.usedCommands
+
 	sendSite({method: "POST", url, form: {
-		token, type: 'stats', servers, users, usedCommands: config.usedCommands, timeWork
+		token, type: 'stats_new', servers, users, usedCommands, timeWork
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
+		if ( JSON.stringify(res.body).status == "OK ") config.usedCommands -= usedCommands
 		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)
 	})
 }

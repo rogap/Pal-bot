@@ -2177,7 +2177,7 @@ function setStatsToSite() {
 		console.log(res.body) // успешно отправленно
 		try {
 			const body = JSON.parse(res.body)
-			if ( body.status != "OK ") {
+			if ( body.status != "OK") {
 				config.usedCommands += usedCommands // возвращаем их назад
 			}
 		} catch(e) {

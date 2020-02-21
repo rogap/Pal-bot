@@ -2169,12 +2169,22 @@ function setStatsToSite() {
 	})
 
 	const usedCommands = config.usedCommands
+	config.usedCommands = 0
 
 	sendSite({method: "POST", url, form: {
 		token, type: 'stats_new', servers, users, usedCommands, timeWork
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
-		if ( JSON.stringify(res.body).status == "OK ") config.usedCommands -= usedCommands
+		try {
+			const body = JSON.parse(res.body)
+			if ( body.status != "OK ") {
+				config.usedCommands += usedCommands // возвращаем их назад
+			}
+		} catch(e) {
+			console.log("Ошибка 'stats_new':")
+			console.log(e)
+			config.usedCommands += usedCommands // возвращаем их назад
+		}
 		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)
 	})
 }

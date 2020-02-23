@@ -1681,10 +1681,12 @@ function searchPaladinsPlayer(name) { // функция эмулирующая A
 		hiRezFunc("searchplayers", {name}) // поиск игрока
 		.then(getSearchplayers)
 		.then(response => {
-			const main = response[0]
+			if (!response) return reject({msg: "Игрок не найден"})
+			const main = response.constructor == Array ? response[0] : response
 			if (!main || main.ret_msg) return reject({msg: "Игрок не найден"})
 
-			hiRezFunc("getchampionranks", {id: main.Id}) // поиск его чемпионов
+			const id = main.Id || main.player_id
+			hiRezFunc("getchampionranks", {id}) // поиск его чемпионов
 			.then(champions => {
 				if (!champions || !champions[0]) return reject({msg: "Чемпионы игрока не найдены"})
 				return resolve({main, champions, name})

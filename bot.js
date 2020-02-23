@@ -1899,7 +1899,7 @@ function formHi_rezFunc(format, params) {
 
 	return {
 		method: 'POST',
-		url: 'https://webmyself.ru/test-stats/test.php',
+		url: 'https://webmyself.ru/pal-bot/api.php',
 		json: true,
 		form: {
 			token: config.dbToken,

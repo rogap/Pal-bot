@@ -1486,9 +1486,15 @@ function getSearchplayers(players, needId=false) { // возвращает ну�
 			return resolve( search(players[0]) )
 		} // если он всего один то возвращаем его
 
+		let searchPlayer = null
 		players.forEach(player => {
-			if (player.portal_id == 1 || player.portal_id == 25 || player.portal_id == 5) resolve(player)
+			if (player.portal_id == 1 || player.portal_id == 25 || player.portal_id == 5) searchPlayer = player
 		})
+
+		if (searchPlayer) {
+			if (needId) return resolve(searchPlayer)
+			return resolve( search(searchPlayer) )
+		}
 
 		return resolve({
 			ret_msg: "Выберите нужный портал",

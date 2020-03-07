@@ -1785,16 +1785,17 @@ function searchGuild(guildId) { // ищет гильдию по id
 getConfigs() // но сначала загружаются базовые настройки
 .then(loadAll)
 .then(response => {
-	for (let i = 1; i < response.length; i++) {
-		if (response[i] !== true) throw new Error(`Ошибка [${i}] во время старта бота и загрузки стартовых функций.`)
-	}
-
-	console.log("Бот запущен и настройки загруженны!")
-
-	console.log(client)
-	if (client.channels) client.channels.get('612875033651707905').send('Я запустился!')
-	client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
-	client.on("message", startListenMess)
+	setTimeout(() => {
+		for (let i = 1; i < response.length; i++) {
+			if (response[i] !== true) throw new Error(`Ошибка [${i}] во время старта бота и загрузки стартовых функций.`)
+		}
+	
+		console.log("Бот запущен и настройки загруженны!")
+	
+		client.channels.get('612875033651707905').send('Я запустился!')
+		client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
+		client.on("message", startListenMess)
+	}, 2000);
 })
 
 function loadAll(res) {

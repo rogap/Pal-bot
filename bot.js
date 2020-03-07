@@ -1791,7 +1791,8 @@ getConfigs() // но сначала загружаются базовые нас
 
 	console.log("Бот запущен и настройки загруженны!")
 
-	client.channels.get('612875033651707905').send('Я запустился!')
+	console.log(client)
+	if (client.channels) client.channels.get('612875033651707905').send('Я запустился!')
 	client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
 	client.on("message", startListenMess)
 })

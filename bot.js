@@ -84,7 +84,7 @@ const commands = { // будет загружаться для каждого с
 		func: function(mess) {
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
 			const id = mess.author.id
-			const user = client.users.find((user => {
+			const user = client.users.cache.find((user => {
 				if ( user.id == id ) return user
 			}))
 			user.send(text)
@@ -169,7 +169,7 @@ function getPlaypaladinsSS(mess, name) {
 		.then(drawPlaypaladinsSS) // рисуем
 		.then(res => { // отправляем
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {files: [buffer]})
 		})
 	}
 }
@@ -188,7 +188,7 @@ function getPlaypaladinsSH(mess, name) {
 		.then(drawPlaypaladinsSH) // рисуем
 		.then(res => { // отправляем
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {files: [buffer]})
 		})
 	}
 }
@@ -218,7 +218,7 @@ function getPaladinsSL(mess, name, championName, num) {
 			if (res.err) return false // ничего не делает если была ошибка (уже сделали)
 			console.log("Отправляем")
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {files: [buffer]})
 		})
 	}
 }
@@ -239,7 +239,7 @@ function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
 			if (res.err) return false // ничего не делает если была ошибка (уже сделали)
 			console.log("Отправляем")
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+			mess.channel.send(`${mess.author}`, {files: [buffer]})
 		})
 	}
 
@@ -297,7 +297,7 @@ function getPaladinsPlayerStatus(mess, name) {
 			.then(res => {
 				if (res.err) return mess.reply(res.err)
 				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {files: [buffer]})
 			})
 
 			function retranslator(status) { // что бы передавать name
@@ -335,7 +335,7 @@ function getChampionStats(mess, name, champName) {
 				const file = drawChampionStats(champion, name)
 				if (!file) return mess.reply(`Ошибка при рисовании статистики чемпиона.`)
 				const buffer = file.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {file: buffer, name: "stats.png"})
+				mess.channel.send(`${mess.author}`, {files: [buffer]})
 			})
 		})
 	}
@@ -1519,7 +1519,7 @@ function showOnlineInServer(mess) { // !онлайн
 		// в dm нет онлайна
 		return mess.reply("В личных сообщениях команда **!онлайн** не работает.")
 	}
-	let membersArr = mess.guild.members.array(),
+	let membersArr = mess.guild.members.cache.array(),
 		game = {},
 		offline = 0,
 		dnd = 0, // красный
@@ -1602,8 +1602,8 @@ function showAllServersInfo(mess) {
 function startCounterUsers() {
 	// можно выводить статистику еще по регионам серверов
 	let all = 0
-	client.guilds.forEach((guild) => {all += guild.memberCount})
-	return {all, guilds: client.guilds.size}
+	client.guilds.cache.forEach((guild) => {all += guild.memberCount})
+	return {all, guilds: client.guilds.cache.size}
 }
 
 /* <--- !всего <--- */
@@ -1757,7 +1757,7 @@ function isNumeric(n) { // првоерка на число
 
 
 function searchUser(nameOrId) { // ищет пользователя по id или тегу
-	const user = client.users.find(user => {
+	const user = client.users.cache.find(user => {
 		let locName = nameOrId
 		if (user.bot) locName = locName.slice(1)
 		if (user.id == nameOrId || user.tag == nameOrId) return user
@@ -1767,7 +1767,7 @@ function searchUser(nameOrId) { // ищет пользователя по id и�
 
 
 function searchGuild(guildId) { // ищет гильдию по id
-	const guild = client.guilds.find(guild => {
+	const guild = client.guilds.cache.find(guild => {
 		if (guild.id == guildId) return guild
 	})
 	return guild
@@ -1792,7 +1792,7 @@ getConfigs() // но сначала загружаются базовые нас
 	
 		console.log("Бот запущен и настройки загруженны!")
 	
-		client.channels.get('612875033651707905').send('Я запустился!')
+		client.channels.cache.get('612875033651707905').send('Я запустился!')
 		client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
 		client.on("message", startListenMess)
 	}, 2000);
@@ -2176,7 +2176,7 @@ function setStatsToSite() {
 	let users = 0
 	let servers = 0
 
-	client.guilds.forEach(guild => {
+	client.guilds.cache.forEach(guild => {
 		servers++
 		users += guild.memberCount
 	})

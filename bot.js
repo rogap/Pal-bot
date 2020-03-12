@@ -187,6 +187,7 @@ function getPlaypaladinsSH(mess, name) {
 		playpaladinsSH(mess, name) // получаем инфу
 		.then(drawPlaypaladinsSH) // рисуем
 		.then(res => { // отправляем
+			if (res.ret_msg) return mess.channel.send(res.ret_msg) // если была ошибка
 			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
 			mess.channel.send(`${mess.author}`, {files: [buffer]})
 		})
@@ -583,20 +584,30 @@ function drawPlaypaladinsSH(matches) {
 	ctx.fillStyle = "#dddddd"
 
 	return new Promise(resolve => {
+		if (matches[0].ret_msg) {
+			console.log( matches[0].ret_msg )
+			return resolve({ctx, ret_msg: "Матчи не найдены или профиль скрыт"})
+		}
+
 		// загружаем случайный глобальный фон для статы
 		const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
 		ctx.drawImage(img, 0, 30, imgWidth, 530)
 		drawItemsPlaypaladinsSH(ctx, matches) // рисуем эллементы не нужнающиеся в промисах
 
 		// получаем до 10 картинок персонажей с истории
-		let champList = []
-		matches.forEach(item => {
-			const champion = item.Champion
-			champList.push( config.championsName[champion].loadedImg )
-		})
+		try {
+			let champList = []
+			matches.forEach(item => {
+				const champion = item.Champion
+				champList.push( config.championsName[champion].loadedImg )
+			})
 
-		drawChampionsPlaypaladinsSH(ctx, champList) // рисуем загруженных чемпионов
-		resolve({ctx})
+			drawChampionsPlaypaladinsSH(ctx, champList) // рисуем загруженных чемпионов
+			return resolve({ctx})
+		} catch(e) {
+			console.log(e)
+			return resolve({ctx, ret_msg: "Ошибка загрузки чемпиона. Сообщите об этом разработчику."})
+		}
 	})
 }
 

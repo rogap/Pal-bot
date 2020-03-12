@@ -342,9 +342,14 @@ function getChampionStats(mess, name, champName) {
 	}
 }
 function searchChampion(list, name) {
+	console.log(name)
 	name = name.replace(/[ ']/i,'').toLowerCase()
 	return list.find(champion => {
-		return champion.champion.replace(/[ ']/i,'').toLowerCase() == name
+		const ch = config.championsName[name]
+		if (!ch) return false
+		const enName = ch.Name_English
+		if (!enName) return false
+		return champion.champion == enName
 	}) || false
 }
 function drawChampionStats(champion, playername) {
@@ -1978,6 +1983,13 @@ function getConfigs() {
 					config.championsId[ champion.id ] = champion
 					config.championsName[ champion.Name_English ] = champion
 					config.championsName[ champion.Name_English.toLowerCase() ] = champion
+					config.championsName[ champion.Name_English.replace(/[ ']/i,'') ] = champion
+					config.championsName[ champion.Name_English.replace(/[ ']/i,'').toLowerCase() ] = champion
+
+					config.championsName[ champion.Name ] = champion // на русском
+					config.championsName[ champion.Name.toLowerCase() ] = champion // на русском
+					config.championsName[ champion.Name.replace(/[ ']/i,'') ] = champion // на русском
+					config.championsName[ champion.Name.replace(/[ ']/i,'').toLowerCase() ] = champion // на русском
 					if (champion.Name_English == "Mal'Damba") config.championsName[ "maldamba" ] = config.championsName[ "mal damba" ] = champion
 				})
 	

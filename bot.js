@@ -1792,7 +1792,11 @@ getConfigs() // но сначала загружаются базовые нас
 	
 		console.log("Бот запущен и настройки загруженны!")
 	
-		client.channels.cache.get('612875033651707905').send('Я запустился!')
+		// client.channels.cache.get('612875033651707905').send('Я запустился!') // подойдет, но устарело
+		client.channels.fetch('612875033651707905') // правильней так ? тут я получаю канал даже если его нет в кэше
+		.then(channel => {
+			if (channel) channel.send('Я запустился!')
+		})
 		client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
 		client.on("message", startListenMess)
 	}, 2000);
@@ -1946,19 +1950,29 @@ function sendSite(params) {
 function getConfigs() {
 	return new Promise((resolve, reject) => {
 		try {
-			config.championList = require('./champions list.json') // getchampions сохраненный в json
-			config.championList.forEach(champion => {
-				champion.Roles = champion.Roles.replace(/paladins /ig, "")
-				// console.log(`${champion.Name_English}\r\n`)
-
-				config.championsId[ champion.id ] = champion
-				config.championsName[ champion.Name_English ] = champion
-				config.championsName[ champion.Name_English.toLowerCase() ] = champion
-				if (champion.Name_English == "Mal'Damba") config.championsName[ "maldamba" ] = config.championsName[ "mal damba" ] = champion
+			// config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
+			const formSend = formHi_rezFunc("getchampions", {lang: "11"})
+			sendSite( formSend )
+			.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
+				const body = res.body
+				if (!body) {
+					console.log("Ошибка загрузки getchampions")
+					return reject("Ошибка загрузки getchampions")
+				}
+				config.championList = body.json
+				config.championList.forEach(champion => {
+					champion.Roles = champion.Roles.replace(/paladins /ig, "")
+					// console.log(`${champion.Name_English}\r\n`)
+	
+					config.championsId[ champion.id ] = champion
+					config.championsName[ champion.Name_English ] = champion
+					config.championsName[ champion.Name_English.toLowerCase() ] = champion
+					if (champion.Name_English == "Mal'Damba") config.championsName[ "maldamba" ] = config.championsName[ "mal damba" ] = champion
+				})
+	
+				console.log("Конфиг успешно загружен, начался запуск бота...")
+				return resolve(true);
 			})
-
-			console.log("Конфиг успешно загружен, начался запуск бота...")
-			resolve(true);
 		} catch(err) {
 			console.log("Ошибка загрузки конфига. Ошибка:")
 			console.log(err)

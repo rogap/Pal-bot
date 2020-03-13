@@ -1611,7 +1611,7 @@ function listGame(obj) { // принимает обьект с играми и �
 function showAllServersInfo(mess) {
 	const allUsers = startCounterUsers()
 	const dec = declension(allUsers.guilds, 'сервере', 'серверах', 'серверах') // окончание
-	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}**. Выполнено команд:** ${config.usedCommands}**. Время работы: **${(new Date() - config.timeStart) / 60000 ^ 0}м**.`
+	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}**. Выполнено команд:** ${config.usedCommandsNow}**. Время работы: **${(new Date() - config.timeStart) / 60000 ^ 0}м**.`
 	return mess.reply(text)
 }
 

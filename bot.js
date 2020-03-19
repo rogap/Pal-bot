@@ -447,14 +447,16 @@ function drawPlaypaladinsSS(json) {
 		drawChampionsPlaypaladinsSS(ctx, championList) // рисуем загруженных чемпионов
 
 		// data загружаемой картинки ранга
-		const rankNum = main.Tier_RankedKBM
+		const RankedKBM = main.RankedKBM || {}
+		const Tier_RankedKBM = main.Tier_RankedKBM
+		const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
 		const rankUrl = rankNum ? `divisions/${rankNum}.png` : 'no-rank.png'
 		const rankImgWidth = 192
 		const rankImgHeight = rankNum == 0 ? 224 : rankNum == 27 ? 241 : rankNum == 26 ? 221 : 192
 
 		loadImage(rankUrl) // загружаем картинку ранга
 		.then(img => {
-			ctx.drawImage(img, 0, 10, rankImgWidth / 2, rankImgHeight / 2)
+			ctx.drawImage(img, 5, 10, rankImgWidth / 2, rankImgHeight / 2)
 			resolve({ctx, main, kda})
 		})
 	})
@@ -481,7 +483,7 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	ctx.textAlign = "start"
 
 	// рисуем инфу
-	ctx.fillText(`${main.hz_player_name} (${main.Region})`, 10 + width / 2, 20)
+	ctx.fillText(`${main.hz_player_name || main.hz_gamer_tag} (${main.Region})`, 10 + width / 2, 20)
 	// ctx.fillText(`Клиент: ${main.Platform} - ${main.Name}`, 10 + width / 2, 40)
 	ctx.fillText(`Уровень: ${main.Level}`, 10 + width / 2, 40)
 	ctx.fillText(`Создан: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 60)
@@ -501,7 +503,9 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	ctx.fillText(`РАНКЕД:`, 250, 170)
 	ctx.fillText(`Побед: ${ fixNaN(RankedKBM.Wins) }`, 200, 190)
 	ctx.fillText(`Поражений: ${ fixNaN(RankedKBM.Losses) }`, 200, 210)
-	ctx.fillText(`Ранг: ${getRank(main.Tier_RankedKBM)}`, 200, 230)
+	const Tier_RankedKBM = main.Tier_RankedKBM
+	const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
+	ctx.fillText(`Ранг: ${getRank(rankNum)}`, 200, 230)
 	ctx.fillText(`ОТ: ${ fixNaN(RankedKBM.Points) }`, 200, 250)
 	if (RankedKBM.Rank) ctx.fillText(`Позиция: ${ fixNaN(RankedKBM.Rank) }`, 200, 270)
 

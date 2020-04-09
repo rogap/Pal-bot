@@ -477,7 +477,7 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.com / !hh показать список команд`, 380, 320)
+	ctx.fillText(`Информацию и помощь можно найти в группе бота / !hh - список команд`, 380, 320)
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
@@ -625,7 +625,7 @@ function drawItemsPlaypaladinsSH(ctx, matches) {
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информация взята с paladins.com / !hh показать список команд`, 545, 580)
+	ctx.fillText(`Информацию и помощь можно найти в группе бота / !hh - список команд`, 545, 580)
 	ctx.font = 'bold 15px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
@@ -1819,6 +1819,24 @@ getConfigs() // но сначала загружаются базовые нас
 		})
 		client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
 		client.on("message", startListenMess)
+
+
+		sendSite({
+			method: "POST",
+			url: config.url_site,
+			form: {
+				token: config.dbToken,
+				type: 'vkListen'
+			}
+		}).then(res => {
+			const body = JSON.parse(res.body)
+			body.forEach(item => {
+				if (item.active != 1) return false
+				const {id, channel} = item
+				startVkListen(id, channel)
+				console.log(`Прослушка запущенна для: ${id} в ${channel}`)
+			})
+		})
 	}, 2000);
 })
 
@@ -2250,3 +2268,31 @@ function setStatsToSite() {
  * - Все функции которые отправляют сообщения должны всегда проверять права перед отправкой, а иногда и
  * перед формированием ответа (иногда можно и наоборот)
  */
+
+function startVkListen(id, to) {
+	global.vkparser = true;
+	let lastLoggedIn = null;
+	const urlVkparser = `https://vk.com/foaf.php?id=${id}`;
+	setInterval(function() {
+		if (!vkparser) return false;
+		try {
+			sendSite({url: urlVkparser})
+			.then(response => {
+				const match = response.body.match(/<ya:lastLoggedIn dc:date="([0-9-:+a-z]+?)"\/>/i);
+				if (!match) return false;
+				const res = match[1];
+				if (lastLoggedIn == res) return false;
+				console.log(res);
+				lastLoggedIn = res;
+
+				client.channels.fetch(to)
+				.then(channel => {
+					if (channel) channel.send(res);
+				});
+			});
+		} catch(error) {
+			console.log('Ошибка парсинга вк:');
+			console.log(error);
+		}
+	}, 20 * 1000);
+}

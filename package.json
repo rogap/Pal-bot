@@ -11,8 +11,8 @@
     "paladins stats"
   ],
   "engines": {
-    "node": ">= 10.16.0",
-    "npm": ">= 6.9.0"
+    "node": "10.16.0",
+    "npm": "6.9.0"
   },
   "dependencies": {
     "discord.js": "= 12.0.1",

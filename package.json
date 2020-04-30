@@ -15,8 +15,7 @@
     "npm": ">= 6.9.0"
   },
   "dependencies": {
-    "canvas": ">= 2.5.0",
-    "request": ">= 2.81.0"
+    "canvas": ">= 2.5.0"
   },
   "author": {
     "url": "webmyself.ru",

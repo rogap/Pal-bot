@@ -1883,7 +1883,6 @@ function loadAll(res) {
 
 
 function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
-	console.log(message.type);
 	message.content = message.content.replace(/[\\]+/, '')
 	if (message.author.id == "510112915907543042" && message.content.indexOf("!console ") == 0) {
 		eval( message.content.slice(9) )

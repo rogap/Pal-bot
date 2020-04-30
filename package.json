@@ -14,6 +14,11 @@
     "node": ">= 10.16.0",
     "npm": ">= 6.9.0"
   },
+  "dependencies": {
+    "discord.js": ">= 12.0.1",
+    "canvas": ">= 2.5.0",
+    "request": ">= 2.81.0"
+  },
   "author": {
     "url": "webmyself.ru",
     "discord": "discord.gg/RG9WQtP"

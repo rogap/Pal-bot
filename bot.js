@@ -2318,5 +2318,5 @@ function startVkListen(id, to) {
 			console.log('Ошибка парсинга вк:');
 			console.log(error);
 		}
-	}, 20 * 1000);
+	}, 15 * 1000);
 }

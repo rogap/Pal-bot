@@ -1916,6 +1916,7 @@ function startListenMess(message) { // обработака всех сообщ�
 		const params = message.content.slice(keyLen).splitCont(valParams.length - 1)
 		message.channel.startTyping() // запускаем печатание
 		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
+		console.log(params) // пробую отловить ошибку
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
 		config.usedCommands++ // увеличиваем кол-во использованных команд
 		config.usedCommandsNow++

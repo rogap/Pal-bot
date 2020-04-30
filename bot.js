@@ -78,6 +78,14 @@ const commands = { // будет загружаться для каждого с
 		permission: "ATTACH_FILES",
 		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
 	},
+	// "!st": {
+	// 	commands: ["!st", "!топ"],
+	// 	info: ["Выводит топ чемпионов"],
+	// 	func: getChampionTop,
+	// 	params: ["Ник"],
+	// 	permission: "ATTACH_FILES",
+	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+	// },
 	"!сервер": {
 		commands: ["!сервер"],
 		info: "Отправляет в ЛС ссылку на сервер бота",
@@ -409,6 +417,22 @@ function drawChampionStats(champion, playername) {
 	}
 }
 // <--- !sc <---
+
+
+
+// <--- !st <---
+function getChampionTop(mess, name) {
+	if (!name) return mess.reply(`Укажите правильно команду. Пример: **!sc [имя игрока] [имя чемпиона]**`)
+	prefStatsGuru(mess, name, getStats)
+
+	function getStats(name) {
+		hiRezFunc("searchplayers", {name}) // получаем id игрока по нику
+		.then(res => {
+			console.log(res)
+		})
+	}
+}
+// <--- !st <---
 
 
 
@@ -1454,7 +1478,7 @@ function getKDABP(champions) { // kill, death, assist, больеш всего �
 }
 
 function getRole(name) { // основываясь на имени персонажа возвращает его роль
-	let heals = ["Mal'Damba", "Ying", "Grover", "Jenos", "Grohk", "Pip", "Seris", "Furia", "Io"],
+	let heals = ["Mal'Damba", "Ying", "Grover", "Jenos", "Grohk", "Pip", "Seris", "Furia", "Io", "Corvus"],
 		dmgs = ["Lian", "Cassie", "Drogoz", "Strix", "Viktor", "Sha Lin", "Bomb King", "Kinessa", "Tyra", "Vivian", "Willo", "Dredge", "Imani"],
 		flanks = ["Androxus", "Buck", "Zhin", "Evie", "Koga", "Talus", "Maeve", "Skye", "Lex", "Moji", "Tiberius"],
 		tanks = ["Makoa", "Fernando", "Ruckus", "Barik", "Ash", "Khan", "Torvald", "Inara", "Terminus", "Atlas", "Raum"]

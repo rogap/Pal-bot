@@ -1883,6 +1883,7 @@ function loadAll(res) {
 
 
 function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
+	console.log(message.type);
 	message.content = message.content.replace(/[\\]+/, '')
 	if (message.author.id == "510112915907543042" && message.content.indexOf("!console ") == 0) {
 		eval( message.content.slice(9) )
@@ -1916,7 +1917,6 @@ function startListenMess(message) { // обработака всех сообщ�
 		const params = message.content.slice(keyLen).splitCont(valParams.length - 1)
 		message.channel.startTyping() // запускаем печатание
 		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
-		console.log(params) // пробую отловить ошибку
 		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
 		config.usedCommands++ // увеличиваем кол-во использованных команд
 		config.usedCommandsNow++

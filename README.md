@@ -4,6 +4,7 @@
 
 [Веб-страница](https://webmyself.ru/pal-bot/) бота. 
 [Добавить](https://discordapp.com/oauth2/authorize?client_id=626327927050600448&permissions=247872&scope=bot) бота на сервер.
+
 Заходите на [Discord-сервер](https://discord.gg/RG9WQtP) бота - там всегда можно быстро узнать о предстоящих обновлениях, сообщить об ошибках или получить другую помощь/информацию.
 
 ## Commands

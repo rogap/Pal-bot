@@ -1836,9 +1836,19 @@ client.on("ready", () => {
 	// .then(res => {
 	// 	console.log("DAAAAAA")
 	// })
-	const formSend = formHi_rezFunc("getchampions", {lang: "11"})
-	console.log(formSend)
-	sendSite( formSend )
+	// const formSend = formHi_rezFunc("getchampions", {lang: "11"})
+	// console.log(formSend)
+	sendSite({
+		method: 'POST',
+		url: 'https://webmyself.ru/pal-bot/api.php',
+		json: true,
+		form: {
+			token: config.dbToken,
+			format: 'getchampions',
+			params: [ '11' ],
+			params_query: { types: 'lang', values: '11' }
+		}
+	})
 	.then(res => {
 		const body = res.body
 		console.log(body)

@@ -1822,15 +1822,37 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 
+function repfunc() {
+	sendSite({
+		method: 'POST',
+		json: true,
+		url: "https://webmyself.ru/bot_new.php"
+	}).then(res => {
+		console.log(11111111)
+		console.log(res.body)
+	})
+	.catch(err => {
+		repfunc();
+	})
+}
 
 
-sendSite({
-	method: 'POST',
-	json: true,
-	url: "https://webmyself.ru/pal-bot/api.php"
-}).then(res => {
-	console.log(res.body)
-})
+function repfunc2() {
+	sendSite({
+		method: 'POST',
+		json: true,
+		url: "https://webmyself.ru/pal-bot/api.php"
+	}).then(res => {
+		console.log(22222222222)
+		console.log(res.body)
+	})
+	.catch(err => {
+		repfunc2();
+	})
+}
+
+repfunc();
+repfunc2();
 
 
 /*

@@ -1822,15 +1822,15 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 
+
+
 sendSite({
 	method: 'POST',
 	json: true,
-	url: "https://webmyself.ru/bot_new.php"
+	url: "https://webmyself.ru/pal-bot/api.php"
 }).then(res => {
 	console.log(res.body)
 })
-
-
 
 
 /*

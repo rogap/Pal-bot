@@ -1824,6 +1824,15 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 client.login(config.tokenDiscord)
+client.on("ready", () => {
+	console.log("im reay")
+
+	client.on("message", mess => {
+		if ( mess.content != "!ping" ) return;
+		mess.reply("pong")
+	})
+})
+
 
 // старт бота и загрузка настроек
 /*getConfigs() // но сначала загружаются базовые настройки

@@ -1836,10 +1836,6 @@ client.on("ready", () => {
 	.then(res => {
 		console.log("DAAAAAA")
 	})
-	.catch(err => {
-		console.log("\r\nERR:\r\n")
-		console.log(err)
-	})
 })
 
 
@@ -2035,6 +2031,8 @@ function getConfigs() {
 			sendSite( formSend )
 			.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
 				const body = res.body
+				console.log(body)
+				return resolve(true)
 				if (!body) {
 					console.log("Ошибка загрузки getchampions")
 					return reject("Ошибка загрузки getchampions")

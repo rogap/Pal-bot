@@ -1831,6 +1831,15 @@ client.on("ready", () => {
 		if ( mess.content != "!ping" ) return;
 		mess.reply("pong")
 	})
+
+	getConfigs()
+	.then(res => {
+		console.log("DAAAAAA")
+	})
+	.catch(err => {
+		console.log("\r\nERR:\r\n")
+		console.log(err)
+	})
 })
 
 

@@ -1830,13 +1830,7 @@ sendSite({
 	console.log(res.body)
 })
 
-sendSite({
-	method: 'POST',
-	json: true,
-	url: "https://webmyself.ru/pal-bot/api.php"
-}).then(res => {
-	console.log(res.body)
-})
+
 
 
 /*

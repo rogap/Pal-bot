@@ -1845,22 +1845,22 @@ getConfigs() // но сначала загружаются базовые нас
 		client.on("message", startListenMess)
 
 
-		sendSite({
-			method: "POST",
-			url: config.url_site,
-			form: {
-				token: config.dbToken,
-				type: 'vkListen'
-			}
-		}).then(res => {
-			const body = JSON.parse(res.body)
-			body.forEach(item => {
-				if (item.active != 1) return false
-				const {id, channel} = item
-				startVkListen(id, channel)
-				console.log(`Прослушка запущенна для: ${id} в ${channel}`)
-			})
-		})
+		// sendSite({
+		// 	method: "POST",
+		// 	url: config.url_site,
+		// 	form: {
+		// 		token: config.dbToken,
+		// 		type: 'vkListen'
+		// 	}
+		// }).then(res => {
+		// 	const body = JSON.parse(res.body)
+		// 	body.forEach(item => {
+		// 		if (item.active != 1) return false
+		// 		const {id, channel} = item
+		// 		startVkListen(id, channel)
+		// 		console.log(`Прослушка запущенна для: ${id} в ${channel}`)
+		// 	})
+		// })
 	}, 2000);
 })
 

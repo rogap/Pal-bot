@@ -13,10 +13,7 @@ config.championsName = {}
 config.differentImg = []
 config.LegendarChampions = {}
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Application specific logging, throwing an error, or other logic here
-});
+
 
 
 const commands = { // будет загружаться для каждого сервера свой, как и настройки к функциям

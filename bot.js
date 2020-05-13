@@ -1822,40 +1822,9 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 
-function repfunc() {
-	sendSite({
-		method: 'POST',
-		json: true,
-		url: "https://webmyself.ru/bot_new.php"
-	}).then(res => {
-		console.log(11111111)
-		console.log(res.body)
-	})
-	.catch(err => {
-		repfunc();
-	})
-}
 
 
-function repfunc2() {
-	sendSite({
-		method: 'POST',
-		json: true,
-		url: "https://webmyself.ru/pal-bot/api.php"
-	}).then(res => {
-		console.log(22222222222)
-		console.log(res.body)
-	})
-	.catch(err => {
-		repfunc2();
-	})
-}
 
-repfunc();
-repfunc2();
-
-
-/*
 // старт бота и загрузка настроек
 getConfigs() // но сначала загружаются базовые настройки
 .then(loadAll)
@@ -1893,7 +1862,7 @@ getConfigs() // но сначала загружаются базовые нас
 			})
 		})
 	}, 2000);
-})*/
+})
 
 function loadAll(res) {
 	if (!res) throw new Error("Ошибка загрузки конфинга")
@@ -2026,12 +1995,19 @@ function sendSite(params) {
 	if (!params.strictSSL) params.strictSSL = false
 	params.url = encodeURI(params.url)
 	const send = params.method == "POST" ? request.post : request.get
-	return new Promise((resolve, reject) => {
-		send(params, function (error, response) {
-			if (error) reject(error)
-	      resolve(response)
+
+	const resend = () => {
+		return new Promise((resolve, reject) => {
+			send(params, function (error, response) {
+				if (error) reject(error)
+		      resolve(response)
+			})
+		}).catch(err => {
+			console.log("ебучая ошибка")
+			return resend() // повторяем запрос снова
 		})
-	})
+	}
+	return resend()
 }
 
 

@@ -2058,6 +2058,9 @@ function getConfigs() {
 	
 				console.log("Конфиг успешно загружен, начался запуск бота...")
 				return resolve(true);
+			}).catch(err => {
+				console.log("та самая ошибка\r\n")
+				console.log(err)
 			})
 		} catch(err) {
 			console.log("Ошибка загрузки конфига. Ошибка:")

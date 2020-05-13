@@ -1836,6 +1836,19 @@ client.on("ready", () => {
 	.then(res => {
 		console.log("DAAAAAA")
 	})
+
+	sendSite({
+	    url: "https://webmyself.ru/pal-bot/bot_api.php",
+	    method: "POST",
+	    form: {
+	        discord_id: "510112915907543042",
+	        command: "ss", // sh дать возможность устанавливать с какой катки начать (их максимум 50)
+	        params: ["nottobe4234242"] // тут будет проверяться само был ли передан id друго-го человека в качестве параметра
+	    }
+	}).then( response => {
+	    const body = response.body
+	    console.log(body)
+	} )
 })
 
 

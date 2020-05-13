@@ -1823,10 +1823,10 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 
-
+client.login(config.tokenDiscord)
 
 // старт бота и загрузка настроек
-getConfigs() // но сначала загружаются базовые настройки
+/*getConfigs() // но сначала загружаются базовые настройки
 .then(loadAll)
 .then(response => {
 	setTimeout(() => {
@@ -1857,12 +1857,12 @@ getConfigs() // но сначала загружаются базовые нас
 			body.forEach(item => {
 				if (item.active != 1) return false
 				const {id, channel} = item
-				startVkListen(id, channel)
+				// startVkListen(id, channel)
 				console.log(`Прослушка запущенна для: ${id} в ${channel}`)
 			})
 		})
 	}, 2000);
-})
+})*/
 
 function loadAll(res) {
 	if (!res) throw new Error("Ошибка загрузки конфинга")

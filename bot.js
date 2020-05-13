@@ -2028,6 +2028,7 @@ function getConfigs() {
 		try {
 			// config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
 			const formSend = formHi_rezFunc("getchampions", {lang: "11"})
+			console.log(formSend)
 			sendSite( formSend )
 			.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
 				const body = res.body

@@ -1823,41 +1823,10 @@ function searchGuild(guildId) { // ищет гильдию по id
 
 
 
-client.login(config.tokenDiscord)
-client.on("ready", () => {
-	console.log("im reay")
-
-	client.on("message", mess => {
-		if ( mess.content != "!ping" ) return;
-		mess.reply("pong")
-	})
-
-	// getConfigs()
-	// .then(res => {
-	// 	console.log("DAAAAAA")
-	// })
-	// const formSend = formHi_rezFunc("getchampions", {lang: "11"})
-	// console.log(formSend)
-	sendSite({
-		method: 'POST',
-		url: 'https://webmyself.ru/pal-bot/api.php',
-		json: true,
-		form: {
-			token: config.dbToken,
-			format: 'getchampions',
-			params: [ '11' ],
-			params_query: { types: 'lang', values: '11' }
-		}
-	})
-	.then(res => {
-		const body = res.body
-		console.log(body)
-	})
-})
 
 
 // старт бота и загрузка настроек
-/*getConfigs() // но сначала загружаются базовые настройки
+getConfigs() // но сначала загружаются базовые настройки
 .then(loadAll)
 .then(response => {
 	setTimeout(() => {
@@ -1888,12 +1857,12 @@ client.on("ready", () => {
 			body.forEach(item => {
 				if (item.active != 1) return false
 				const {id, channel} = item
-				// startVkListen(id, channel)
+				startVkListen(id, channel)
 				console.log(`Прослушка запущенна для: ${id} в ${channel}`)
 			})
 		})
 	}, 2000);
-})*/
+})
 
 function loadAll(res) {
 	if (!res) throw new Error("Ошибка загрузки конфинга")
@@ -2043,19 +2012,16 @@ function sendSite(params) {
 function getConfigs() {
 	return new Promise((resolve, reject) => {
 		try {
-			// config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
-			const formSend = formHi_rezFunc("getchampions", {lang: "11"})
-			console.log(formSend)
-			sendSite( formSend )
-			.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
-				const body = res.body
-				console.log(body)
-				return resolve(true)
-				if (!body) {
-					console.log("Ошибка загрузки getchampions")
-					return reject("Ошибка загрузки getchampions")
-				}
-				config.championList = body.json
+			config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
+			// const formSend = formHi_rezFunc("getchampions", {lang: "11"})
+			// sendSite( formSend )
+			// .then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
+				// const body = res.body
+				// if (!body) {
+				// 	console.log("Ошибка загрузки getchampions")
+				// 	return reject("Ошибка загрузки getchampions")
+				// }
+				// config.championList = body.json
 				config.championList.forEach(champion => {
 					champion.Roles = champion.Roles.replace(/paladins /ig, "")
 					// console.log(`${champion.Name_English}\r\n`)
@@ -2075,10 +2041,7 @@ function getConfigs() {
 	
 				console.log("Конфиг успешно загружен, начался запуск бота...")
 				return resolve(true);
-			}).catch(err => {
-				console.log("та самая ошибка\r\n")
-				console.log(err)
-			})
+			// })
 		} catch(err) {
 			console.log("Ошибка загрузки конфига. Ошибка:")
 			console.log(err)

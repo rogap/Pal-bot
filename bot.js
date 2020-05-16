@@ -2029,7 +2029,7 @@ function getConfigs() {
 				// 	console.log("Ошибка загрузки getchampions")
 				// 	return reject("Ошибка загрузки getchampions")
 				// }
-				config.championList = body.json
+				// config.championList = body.json
 				config.championList.forEach(champion => {
 					champion.Roles = champion.Roles.replace(/paladins /ig, "")
 					// console.log(`${champion.Name_English}\r\n`)

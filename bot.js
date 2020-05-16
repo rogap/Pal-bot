@@ -1109,9 +1109,12 @@ function drawMatchdetails(mess, matchDetails) { // рисует
 			//const champName = config.championsCard[players.ChampionId][0].champion_name
 			const champName = players.Reference_Name
 
-			const img = config.championsName[champName].loadedImg
-			let nextTeam = i >= 5 ? 245 : 40
-			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
+			const cnampion = config.championsName[champName]
+			if (cnampion) { // если есть чемпион то рисуем
+				const img = cnampion.loadedImg
+				let nextTeam = i >= 5 ? 245 : 40
+				ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
+			}
 
 			const imgLegendary = config.LegendarChampions[players.ItemId6]
 			if (imgLegendary) ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки

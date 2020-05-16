@@ -1995,6 +1995,7 @@ function sendSite(params) {
 	if (!params.strictSSL) params.strictSSL = false
 	params.url = encodeURI(params.url)
 	const send = params.method == "POST" ? request.post : request.get
+	let count = 1 // сколько раз вылезла эта ошибка
 
 	const resend = () => {
 		return new Promise((resolve, reject) => {
@@ -2003,7 +2004,7 @@ function sendSite(params) {
 		      resolve(response)
 			})
 		}).catch(err => {
-			console.log("ебучая ошибка")
+			console.log(`ебучая ошибка ${count++}`)
 			return resend() // повторяем запрос снова
 		})
 	}
@@ -2019,15 +2020,15 @@ function sendSite(params) {
 function getConfigs() {
 	return new Promise((resolve, reject) => {
 		try {
-			// config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
-			const formSend = formHi_rezFunc("getchampions", {lang: "11"})
-			sendSite( formSend )
-			.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
-				const body = res.body
-				if (!body) {
-					console.log("Ошибка загрузки getchampions")
-					return reject("Ошибка загрузки getchampions")
-				}
+			config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
+			// const formSend = formHi_rezFunc("getchampions", {lang: "11"})
+			// sendSite( formSend )
+			// .then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
+				// const body = res.body
+				// if (!body) {
+				// 	console.log("Ошибка загрузки getchampions")
+				// 	return reject("Ошибка загрузки getchampions")
+				// }
 				config.championList = body.json
 				config.championList.forEach(champion => {
 					champion.Roles = champion.Roles.replace(/paladins /ig, "")
@@ -2048,7 +2049,7 @@ function getConfigs() {
 	
 				console.log("Конфиг успешно загружен, начался запуск бота...")
 				return resolve(true);
-			})
+			// })
 		} catch(err) {
 			console.log("Ошибка загрузки конфига. Ошибка:")
 			console.log(err)

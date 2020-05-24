@@ -2270,7 +2270,7 @@ function sendError(message, body) {
 setInterval(setStatsToSite, 60000) // обновляем статистику для сайта каждую минуту
 
 function setStatsToSite() {
-	const url = config.url_site
+	const url = "https://webmyself.ru/bot_new.php"
 	const token = config.dbToken
 	const timeWork = new Date() - config.timeStart
 	let users = 0

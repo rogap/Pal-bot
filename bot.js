@@ -5,6 +5,9 @@ const { createCanvas, loadImage } = require('canvas')
 const Config = require('./configs.js')
 const config = Config.exports || Config
 
+config.timeStart = +new Date()
+config.usedCommands = 0
+config.usedCommandsNow = 0
 
 config.timeStart = +new Date()
 config.championsId = {}
@@ -1844,6 +1847,14 @@ function startListenMess(message) {
 		const params = content.slice(keyLen).splitCont(valParams.length - 1)
 		message.channel.startTyping() // запускаем печатание
 		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
+
+		config.usedCommands++ // увеличиваем кол-во использованных команд
+		config.usedCommandsNow++
+		const guild = message.guild
+		let guildName = 'ls'
+		if (guild) guildName = guild.name
+		console.log(`user: ${authorId}; guild: ${guildName}; func: ${command.commands[0]}; params: ${params}`)
+
 		return command.func(message, ...params) // вызываем функцию команды передав параметры как строки
 	}
 }
@@ -2252,4 +2263,44 @@ function sendError(message, body) {
 	})
 	return message.reply("Возникла ошибка при запросе, повторите комманду снова. Если ошибка не пропадает сообщите о ней разработчикам.")
 }
+
+
+
+
+setInterval(setStatsToSite, 60000) // обновляем статистику для сайта каждую минуту
+
+function setStatsToSite() {
+	const url = config.url_site
+	const token = config.dbToken
+	const timeWork = new Date() - config.timeStart
+	let users = 0
+	let servers = 0
+
+	client.guilds.cache.forEach(guild => {
+		servers++
+		users += guild.memberCount
+	})
+
+	const usedCommands = config.usedCommands
+	const usedCommandsNow = config.usedCommandsNow
+	config.usedCommands = 0
+
+	sendSite({method: "POST", url, form: {
+		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork
+	}}).then (res => {
+		console.log(res.body) // успешно отправленно
+		try {
+			const body = JSON.parse(res.body)
+			if ( body.status != "OK") {
+				config.usedCommands += usedCommands // возвращаем их назад
+			}
+		} catch(e) {
+			console.log("Ошибка 'stats_new':")
+			console.log(e)
+			config.usedCommands += usedCommands // возвращаем их назад
+		}
+		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)
+	})
+}
+
 

@@ -2,477 +2,361 @@ const {Client} = require('discord.js')
 const client = new Client()
 const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
-const Config = require('./configs.js') // будет ли подставленна туда инфа от хероку?
+const Config = require('./configs.js')
 const config = Config.exports || Config
 
+
 config.timeStart = +new Date()
-config.usedCommands = 0
-config.usedCommandsNow = 0
 config.championsId = {}
 config.championsName = {}
 config.differentImg = []
 config.LegendarChampions = {}
 
 
+const paladinsItems = {
+	'blast shields': null,
+	'bulldozer': null,
+	'cauterize': null,
+	'chronos': null,
+	'deft hands': null,
+	'haven': null,
+	'illuminate': null,
+	'kill to heal': null,
+	'life rip': null,
+	'master riding': null,
+	'morale boost': null,
+	'nimble': null,
+	'rejuvenate': null,
+	'resilience': null,
+	'veteran': null,
+	'wrecker': null
+}
+
+const paladinsMaps = {
+	'abyss': null,
+	'abyss spire': null,
+	'ascension peak': null,
+	'bazaar': null,
+	'brightmarsh': null,
+	'dragon arena': null,
+	'dragon call': null,
+	'fish market': null,
+	'foremans rise': null,
+	'frog isle': null,
+	'frozen guard': null,
+	'ice mines': null,
+	'jaguar falls': null,
+	'magistrates archives': null,
+	'marauders port': null,
+	'primal court': null,
+	'serpent beach': null,
+	'shattered desert': null,
+	'shooting range': null,
+	'snowfall junction': null,
+	'splitstone quarry': null,
+	'stone keep': null,
+	'test maps': null,
+	'timber mill': null,
+	'trade district': null,
+	'warders gate': null
+}
 
 
-const commands = { // будет загружаться для каждого сервера свой, как и настройки к функциям
-	"!hh": {
-		commands: ["!hh", "инфо"],
-		//info: "Выводит список команд, если указан параметр то выводит подробную инструкцию.",
-		info: "Выводит список команд.",
-		func: showInfoCommands
-		//params: ["Команда"]
+const BOT_TESTING = false // если true то обрабатывает только комманды создателя
+
+
+
+/**
+ * делает запрос на url с параметрами и возвращает промис с результатом
+ * @param {Object} params 
+ */
+function sendSite(params) {
+	if (!params.strictSSL) params.strictSSL = false
+	params.url = encodeURI(params.url)
+	const send = params.method == "POST" ? request.post : request.get
+	let count = 1 // сколько раз вылезла эта ошибка
+
+	const resend = () => {
+		return new Promise((resolve, reject) => {
+			send(params, function (error, response) {
+				if (error) reject(error)
+		      resolve(response)
+			})
+		}).catch(err => {
+			console.log(`Неизвестная ошибка ${count++}`)
+			return resend() // повторяем запрос снова
+		})
+	}
+	return resend()
+}
+
+
+
+const botCommands = [
+	{
+		commands: ["!hh"],
+		info: "Выводит список команд или подробности команды, если она указана. Пример: **!hh !me**.",
+		func: bot_hh,
+		params: ["Команда"]
 	},
-	"!me": {
+	{
 		commands: ["!me"],
 		info: "Сохраняет ваш никнейм для автоматической подстановки его в другие команды (можно будет писать просто !ss или !ss me).",
-		func: meNickName,
+		func: bot_me,
 		params: ["Ник"]
 	},
-	"!ss": {
+	{
 		commands: ["!ss", "!стата"],
 		info: "Выводит общую статистику аккаунта.",
-		func: getPlaypaladinsSS,
-		params: ["Ник"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+		func: bot_ss,
+		params: ["Ник"]
 	},
-	"!sh": {
+	{
 		commands: ["!sh", "!история"],
-		info: "Выводит последние 10 матчей указанного игрока.",
-		func: getPlaypaladinsSH,
-		params: ["Ник"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+		info: "Выводит последние 50 матчей указанного игрока.",
+		func: bot_sh,
+		params: ["Ник", "страница"]
 	},
-	"!sl": {
-		commands: ["!sl", "!колода"],
-		info: ["Выводит колоды игрока указанного чемпиона."],
-		func: getPaladinsSL,
-		params: ["Ник", "имя чемпиона", "номер колоды"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	},
-	"!sm": {
+	{
 		commands: ["!sm", "!матч"],
-		info: ["Выводит подробности матча по id матча или по нику игрока."],
-		func: getPaladinsMatchdetails,
-		params: ["id или Ник", "Порядок матча, если указан ник"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+		info: "Выводит подробности матча по id матча или по нику игрока.",
+		func: bot_sm,
+		params: ["id или Ник", "Порядок матча, если указан ник"]
 	},
-	"!sp": {
+	{
+		commands: ["!sl", "!колода"],
+		info: "Выводит колоды игрока указанного чемпиона.",
+		func: bot_sl,
+		params: ["Ник", "имя чемпиона", "номер колоды"]
+	},
+	{
 		commands: ["!sp"],
-		info: ["Проверяет онлайн статус игрока и выводит матч, если он в матче."],
-		func: getPaladinsPlayerStatus,
-		params: ["Ник"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+		info: "Проверяет онлайн статус игрока и выводит матч, если он в матче.",
+		func: bot_sp,
+		params: ["Ник"]
 	},
-	"!sc": {
+	{
 		commands: ["!sc", "!чемпион"],
-		info: ["Выводит статистику указанного чемпиона."],
-		func: getChampionStats,
-		params: ["Ник", "Чемпион"],
-		permission: "ATTACH_FILES",
-		errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
+		info: "Выводит статистику указанного чемпиона.",
+		func: bot_sc,
+		params: ["Ник", "Чемпион"]
 	},
-	// "!st": {
-	// 	commands: ["!st", "!топ"],
-	// 	info: ["Выводит топ чемпионов"],
-	// 	func: getChampionTop,
-	// 	params: ["Ник"],
-	// 	permission: "ATTACH_FILES",
-	// 	errPerm: "Нет прав на прикрепления файлов (скриншот/картинка)."
-	// },
-	"!сервер": {
-		commands: ["!сервер"],
-		info: "Отправляет в ЛС ссылку на сервер бота",
+	{
+		commands: ["!st", "!топ"],
+		info: "Выводит топ чемпионов с возможностью сортировки (lvl, winrate, time, kda).",
+		func: bot_st,
+		params: ["Ник", "Тип сортировки"]
+	},
+	{
+		commands: ["!pal-bot", "!palbot"],
+		info: "Отправляет в ЛС ссылку на сервер бота.",
 		func: function(mess) {
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
-			const id = mess.author.id
-			const user = client.users.cache.find((user => {
-				if ( user.id == id ) return user
-			}))
-			user.send(text)
+			client.users.fetch(mess.author.id)
+			.then(user => user.send(text))
 		}
 	},
-	"!онлайн": {
-		commands: ["!онлайн"],
-		info: "выводит статистику пользователей по онлайну и играм",
-		func: showOnlineInServer
-	},
-	"!всего": {
-		commands: ["!всего"],
-		info: "Выводит статистику бота по серверам, командам и время работы бота",
-		func: showAllServersInfo
+	{
+		commands: ["!online", "!онлайн"],
+		info: "Выводит кол-во игроков онлайн в игре (данные Steam).",
+		func: bot_online
 	}
-	// "!аватар": {
-	// 	commands: ["!аватар"],
-	// 	info: "Выводит ссылку на аватарку указанного пользователя",
-	// 	func: showUsersAvatar,
-	// 	params: ["Id или никнейм+тег пользователя (упомянуть)"]
-	// }
-}
+]
 
 
 
-// ---> !hh --->
-function showInfoCommands(mess) {
-	let text = ``
-	for (let key in commands) {
-		const command = commands[key]
-		const params = command.params ? ` **[${command.params.join("]**, **[")}]**` : ""
-		let info = `**${key}**${params} - ${command.info}`
-		if (command.commands.length > 1) info += ` (Можно **${command.commands.join("**, **")}**).`
-		text += `\r\n${info}`
-	}
-	mess.reply(text) // нет проверки на 2000 символов в сообщение (можно отправлять другим методом)
-}
-// <--- !hh <---
 
 
 
-// ---> !me --->
-function meNickName(mess, name) {
-	if (name) { // если передан name
-		name = name.replace(/\\/g, '').trim() // удаляем слеши, а то они чет не чекаются в test
-		const test = /^(?:[0-9]*-)?[^ "\[\]<>?\\|+@.,\/#!$%\^&\*;:{}=\-_`~()]+$/ig.test(name)
-		if (!test) return mess.reply("Ник содержит недопустимые символы.")
+/**
+ * ---> ФУНКЦИИ КОМАНД БОТА --->
+ */
 
-		return sendSite( getFormsParams(mess.author.id, name) ) // записываем ник в БД
-		.then(response => {
-			const res = JSON.parse(response.body)
-			if (res.status == "OK") return mess.reply("Ваш ник успешно записан!")
 
-			console.log(`Неудачная загрузка set_bot_me для ${name}`)
-			const errText = "Ошибка! Попробуйте еще раз или обратитесь в группу бота за помощью (**!hh**)."
-			mess.reply(errText)
+/**
+ * Выводит команды бота или показывает детальную информацию для указанной команды
+ * @param {*} message 
+ * @param {String} command - название команды для которой нужно показать детальную инфу (не обязательно)
+ */
+function bot_hh(message, command='') {
+	if ( !command ) {
+		// если команда не передана то просто выводим список команд
+		let replyText = ''
+		let i = 0
+		botCommands.forEach(command => {
+			i++
+			const funcParams = command.params ? ` [${command.params.join(', ')}]` : ''
+			const twoCommand = command.commands.length > 1 ? ` Можно **${command.commands.join(', ')}**\r\n` : '\r\n'
+			replyText += `${i}. **${command.commands[0]}${funcParams}** - ${command.info}${twoCommand}`
 		})
+
+		return message.reply(replyText)
 	}
 
-	// Получаем ник с БД, если есть и выводим
-	return sendSite( getFormsParams(mess.author.id) )
+	// если передана команда то проверяем ее на правильность botCommands
+	const find = botCommands.find( com => com.commands.find(par => par == command || par.slice(1) == command) )
+	if (!find) return message.reply(`Команда **\`${command}\`** не найденна.`)
+
+	const repText = find.detail || "Подробное описание этой команды еще не составленно, загляните в документацию на сайте, гитхабе или сервере бота."
+	return message.reply(repText)
+}
+
+
+
+
+/**
+ * Получаем или записывает никнейм пользователя по id дискорда
+ * @param {*} message 
+ * @param {*} name - ник или id который будет записан в БД
+ */
+function bot_me(message, name=null) {
+	const discord_id = message.author.id
+	const form = formHiRezFunc("me", discord_id, name)
+	if (!name) form.form.params = null
+	sendSite(form)
 	.then(response => {
-		const res = JSON.parse(response.body)
-		const paladinsName = res.paladins_name
+		const body = response.body
 
-		if (!paladinsName) return mess.reply(`У вас нет сохраненного никнейма.`)
-		mess.reply(`Ваш сохраненный никнейм: **${paladinsName}**`)
-	})
-}
-// <--- !me <---
+		// если успешно записан
+		if ( body.status && name ) return message.reply("Ваш никнейм успешно записан!")
 
-
-
-// ---> !ss --->
-function getPlaypaladinsSS(mess, name) {
-	prefStatsGuru(mess, name, getStats) // он проверяет никнейм, получает с сервера если нужно
-
-	function getStats(name) {
-		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть
-
-		playpaladinsSS(mess, name) // получаем инфу
-		.then(drawPlaypaladinsSS) // рисуем
-		.then(res => { // отправляем
-			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {files: [buffer]})
-		})
-	}
-}
-// <--- !ss <---
-
-
-
-// ---> !sh --->
-function getPlaypaladinsSH(mess, name) {
-	prefStatsGuru(mess, name, getStats)
-
-	function getStats(name) {
-		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть
-
-		playpaladinsSH(mess, name) // получаем инфу
-		.then(drawPlaypaladinsSH) // рисуем
-		.then(res => { // отправляем
-			if (res.ret_msg) return mess.channel.send(res.ret_msg) // если была ошибка
-			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {files: [buffer]})
-		})
-	}
-}
-// <--- !sh <---
-
-
-
-// ---> !sl --->
-function getPaladinsSL(mess, name, championName, num) {
-	if (!config.championsName[championName]) {
-		return mess.reply("Введите корректное имя чемпиона")
-	}
-
-	// проверка num нужна
-	if (num !== undefined) {
-		if (parseInt(num) != num || num < 1) return mess.reply("Введите корректное число колоды")
-	}
-
-	prefStatsGuru(mess, name, getStats)
-
-	function getStats(name) {
-		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (хз зачем это)
-
-		paladinsSL(mess, name, championName, num) // получаем инфу
-		.then(drawPaladinsSL) // рисуем
-		.then(res => { // отправляем
-			if (res.err) return false // ничего не делает если была ошибка (уже сделали)
-			console.log("Отправляем")
-			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {files: [buffer]})
-		})
-	}
-}
-// <--- !sl <---
-
-
-
-// ---> !sm --->
-function getPaladinsMatchdetails(mess, matchIdOrName, matchNum=1) {
-	//if (!matchIdOrName) return mess.reply(`Введите корректный Ник игрока или id матча`)
-
-	function getMatchForId(matchId) {
-		hiRezFunc("getmatchdetails", {id: matchId})
-		.then(match => {
-			if (!match[0].name) return mess.reply(`Матч не найден`)
-
-			const res = drawMatchdetails(mess, match)
-			if (res.err) return false // ничего не делает если была ошибка (уже сделали)
-			console.log("Отправляем")
-			const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-			mess.channel.send(`${mess.author}`, {files: [buffer]})
-		})
-	}
-
-	if ( !isNaN(parseInt(matchIdOrName)) && matchIdOrName.length < 15 && matchIdOrName.length > 8 ) { // если id матча
-		getMatchForId(matchIdOrName)
-	} else { // если ник игрока
-		// делаем запрос на матчи игрока, получаем id последней катки или указанной
-		prefStatsGuru(mess, matchIdOrName, getStats)
-
-		function getStats(name) {
-			name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
-
-			hiRezFunc('searchplayers', {name})
-			.then(function(res){
-				return new Promise(resolve => {
-					return resolve( getSearchplayers(res, true) )
-				})
-			})
-			.then(player => {
-				if (!player) return mess.reply("Игрок не найден или у него скрыт профиль.")
-				// if (player.privacy_flag == "y") return mess.reply(`У игрока скрытый аккаунт.`) // фикс новой API
-				hiRezFunc('getmatchhistory', {id: player.player_id})
-				.then(matches => {
-					if (!matches[0] || matches[0].ret_msg) return mess.reply(`Ошибка, возможно у игрока **${player.player_id}** скрытый аккаунт или нет матчей.`)
-					const match = matches[matchNum - 1] // берем указанный матч
-					if (!match || !match.Match) return mess.reply("Указанный матч не найден.")
-					getMatchForId(match.Match)
-				})
-			})
+		// если никнейм был получен
+		if ( body.status && !name ) {
+			const res = body.result
+			return message.reply(`Ваш сохраненный никнейм: **${res.hz_player_name || '-'}**, id: **${res.paladins_id || '-'}**, lang: **${res.lang}**.`)
 		}
-	}
+
+		if ( !body.status && !body.json ) return message.reply(body.err_msg || "JSON пуст, сообщите об ошибке разработчику.")
+
+		// если нужно выбрать аккаунт
+		let textReply = 'Ваш ник был сохранен, однако аккаунтов с таким ником найденно несколько - выберите аккаунт:\r\n'
+		// формируем ответ
+		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+			const player = body.json[i]
+			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+			textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+		}
+
+		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+		if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+		textReply += "Что бы выбрать аккаунт введите его id, пример: **!me 000000**"
+		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+		return message.reply(textReply)
+	})
 }
-// <--- !sm <---
 
 
 
-// ---> !sp --->
-function getPaladinsPlayerStatus(mess, name) {
-	prefStatsGuru(mess, name, getStats)
 
-	function getStats(name) {
-		name = name.replace(/(?:[0-9]*-)/g, '').trim() // удаляем id с ника, если есть (это для гуру)
+/**
+ *  --- !SS ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ */
+function bot_ss(message, name) {
+	const discord_id = message.author.id
+	const form = formHiRezFunc("ss", discord_id, name)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
 
-		hiRezFunc("searchplayers", {name}) // получаем id игрока по нику
-		.then(function(res){ // ретранслятор -_-
-			return new Promise(resolve => {
-				return resolve( getSearchplayers(res, true) )
-			})
-		})
-		.then(player => {
-			if (!player) return mess.reply(`Игрок **${name}** не найден или у него скрыт профиль.`)
-			if (player.ret_msg) return mess.reply(`Ошибка: **${player.ret_msg}**.`) // фикс новой API
-			hiRezFunc("getplayerstatus", {id: player.player_id})
-			.then(retranslator)
-			.then(res => {
-				if (res.err) return mess.reply(res.err)
-				const buffer = res.ctx.canvas.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {files: [buffer]})
-			})
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
 
-			function retranslator(status) { // что бы передавать name
-				return new Promise(resolve => {
-					return resolve( drawPaladinsPlayerStatus(status, name) )
-				})
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
 			}
-		})
-	}
-}
-// <--- !sp <---
 
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
 
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
 
-// ---> !sc --->
-function getChampionStats(mess, name, champName) {
-	if (!name || !champName) return mess.reply(`Укажите правильно команду. Пример: **!sc [имя игрока] [имя чемпиона]**`)
-	prefStatsGuru(mess, name, getStats)
+		const getplayer = body.getplayer
+		const getchampionranks = body.getchampionranks
+		// проверяем есть ли ошибки в полученных данных
+		if ( !getplayer.status ) return message.reply(getplayer.err_msg)
+		if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
 
-	function getStats(name) {
-		hiRezFunc("searchplayers", {name}) // получаем id игрока по нику
-		.then(function(res){ // ретранслятор -_-
-			return new Promise(resolve => {
-				return resolve( getSearchplayers(res, true) )
-			})
-		})
-		.then(player => {
-			if (!player) return mess.reply("Игрок не найден или у него скрыт профиль.")
-			if (player.ret_msg) return mess.reply(`Ошибка: ${player.ret_msg}`) // фикс новой API
-			hiRezFunc("getchampionranks", {id: player.player_id}) // получаем чемпионов
-			.then(champions => {
-				if (!champions || !champions[0]) return mess.reply(`У игрока **${name}** не найдены чемпионы.`)
-				const champion = searchChampion(champions, champName)
-				if (!champion) return mess.reply(`У **${name}** нет игр на "${champName}".`)
-				const file = drawChampionStats(champion, name)
-				if (!file) return mess.reply(`Ошибка при рисовании статистики чемпиона.`)
-				const buffer = file.toBuffer('image/png') // buffer image
-				mess.channel.send(`${mess.author}`, {files: [buffer]})
-			})
-		})
-	}
-}
-function searchChampion(list, name) {
-	console.log(name)
-	name = name.replace(/[ ']/i,'').toLowerCase()
-	return list.find(champion => {
-		const ch = config.championsName[name]
-		if (!ch) return false
-		const enName = ch.Name_English
-		if (!enName) return false
-		return champion.champion == enName
-	}) || false
-}
-function drawChampionStats(champion, playername) {
-	try {
-		const fullInfoChampion = config.championsId[ champion.champion_id ]
-
-		const imgWidth = 600
-		const imgHeight = 260
-		const canvas = createCanvas(imgWidth, imgHeight)
-		const ctx = canvas.getContext('2d')
-		ctx.font = 'bold 16px Georgia'
-		ctx.fillStyle = "#ffffff"
-
-		const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
-
-		ctx.fillText(`Роль: ${fullInfoChampion.Roles}`, 200, 230)
-		ctx.fillText(`Титул: ${fullInfoChampion.Title}`, 200, 250)
-		ctx.fillText(`Последняя игра: ${champion.LastPlayed}`, 200, 40 + 5)
-		ctx.fillText(`Сыграно минут: ${champion.Minutes}`, 200, 60 + 5)
-
-		const img = config.championsName[ champion.champion ].loadedImg
-		ctx.drawImage(img, 10, 30, 180, 180)
-		ctx.fillStyle = '#32CD32' // зеленый
-		ctx.fillText(`Жизни: ${fullInfoChampion.Health}`, 10, 230)
-		const kills = champion.Kills
-		ctx.fillText(`Убийства: ${kills}`, 200, 120 + 5)
-		ctx.fillText(`Победы: ${champion.Wins}`, 400, 120 + 5)
-
-		ctx.fillStyle = "#1199cc" // голубой
-		ctx.fillText(`Скорость: ${fullInfoChampion.Speed}`, 10, 250)
-		const assists = champion.Assists
-		ctx.fillText(`Помощи: ${assists}`, 200, 160 + 5)
-
-		const deaths = champion.Deaths
-		ctx.fillStyle = '#BB1111' // красный
-		ctx.fillText(`Смерти: ${deaths}`, 200, 140 + 5)
-		ctx.fillText(`Поражения: ${champion.Losses}`, 400, 140 + 5)
-
-		const kda = ((kills + assists / 2) / (deaths + 1)).toFixed(2)
-		const winrate = fixNaN((champion.Wins / (champion.Wins + champion.Losses) * 100).toFixed(0))
-
-		ctx.fillStyle = '#CC6600' // оранжевый
-		ctx.textAlign = "center"
-		ctx.fillText(fullInfoChampion.Name, 100, 20)
-		ctx.textAlign = "start"
-		ctx.fillText(playername, 250, 20)
-		ctx.fillText(`Уровень: ${champion.Rank}`, 200, 80 + 5)
-		ctx.fillText(`КДА: ${kda}`, 200, 180 + 5)
-		ctx.fillText(`Винрейт: ${winrate}%`, 400, 160 + 5)
-
-		return canvas
-	} catch(e) {
-		console.log("Ошибка рисования статистики чемпионов:")
-		console.log(e)
-		return false
-	}
-}
-// <--- !sc <---
-
-
-
-// <--- !st <---
-function getChampionTop(mess, name) {
-	if (!name) return mess.reply(`Укажите правильно команду. Пример: **!sc [имя игрока] [имя чемпиона]**`)
-	prefStatsGuru(mess, name, getStats)
-
-	function getStats(name) {
-		hiRezFunc("searchplayers", {name}) // получаем id игрока по нику
-		.then(res => {
-			console.log(res)
-		})
-	}
-}
-// <--- !st <---
-
-
-
-// ---> draw playpaladins small stats --->
-function playpaladinsSS(mess, name) {
-	return new Promise(resolve => {
-		searchPaladinsPlayer(name)
-		.then(resolve)
-		.catch(err => {
-			mess.reply(`Ошибка, игрок **"${name}"** не найден или у него скрыт профиль.`)
+		// если ошибок нет, то рисуем стату
+		draw_ss(getplayer, getchampionranks)
+		.then(ctx => {
+			const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+			message.channel.send(`${message.author}`, {files: [buffer]})
 		})
 	})
 }
 
-function drawPlaypaladinsSS(json) {
+
+/**
+ * рисует статистику !ss
+ * @param {*} getplayer 
+ * @param {*} getchampionranks 
+ */
+function draw_ss(getplayer, getchampionranks) {
+	const player = getplayer.json[0]
+	const champions = getchampionranks.json
+
 	const canvas = createCanvas(760, 330)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
 
-	return new Promise(resolve => {
-		// загружаем случайный глобальный фон для статы
-		const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		const main = json.main
-		const kda = getKDABP(json.champions)
-		let championList = []
-		for (let i = 0; i < kda.best.length; i ++) {
-			const champion = kda.best[i].champion
-			championList.push( config.championsName[champion].loadedImg )
+	// загружаем случайный глобальный фон для статы
+	const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	const kda = getKDABP(champions)
+	let championList = []
+	for (let i = 0; i < kda.best.length; i ++) {
+		const champion = kda.best[i].champion
+		championList.push( config.championsName[champion].loadedImg )
+	}
+
+	ctx.drawImage(img, 0, 0, 760, 300)
+	const last_update_champ = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+	const last_update_player = getplayer.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+	drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) // рисуем эллементы не нужнающиеся в промисах
+
+	return new Promise((resolve, reject) => {
+		if (!championList.length) return reject(ctx)
+
+		// рисуем загруженных чемпионов
+		let positionX = 430
+		for (let i = 0; i < championList.length; i++) {
+			const img = championList[i]
+			const x = positionX + 60 * i
+			ctx.drawImage(img, x, 180, 50, 50)
 		}
 
-		ctx.drawImage(img, 0, 0, 760, 300)
-		drawItemsPlaypaladinsSS(ctx, main, kda) // рисуем эллементы не нужнающиеся в промисах
-
-		if (!championList.length) resolve({ctx, main, kda}) // если чемпионов нет
-
-		drawChampionsPlaypaladinsSS(ctx, championList) // рисуем загруженных чемпионов
-
 		// data загружаемой картинки ранга
-		const RankedKBM = main.RankedKBM || {}
-		const Tier_RankedKBM = main.Tier_RankedKBM
+		const RankedKBM = player.RankedKBM || {}
+		const Tier_RankedKBM = player.Tier_RankedKBM
 		const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
 		const rankUrl = rankNum ? `divisions/${rankNum}.png` : 'no-rank.png'
 		const rankImgWidth = 192
@@ -481,13 +365,20 @@ function drawPlaypaladinsSS(json) {
 		loadImage(rankUrl) // загружаем картинку ранга
 		.then(img => {
 			ctx.drawImage(img, 5, 10, rankImgWidth / 2, rankImgHeight / 2)
-			resolve({ctx, main, kda})
+			resolve(ctx)
 		})
 	})
 }
 
-function drawItemsPlaypaladinsSS(ctx, main, kda) {
-	const RankedKBM = main.RankedKBM || {}
+
+/**
+ * рисует статистику на холсте
+ * @param {*} ctx 
+ * @param {*} player 
+ * @param {*} kda 
+ */
+function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
+	const RankedKBM = player.RankedKBM || {}
 	const totalTime = kda.dmg + kda.flank + kda.tank + kda.heal
 	const width = 200 // отступ от картинки ранга
 	const dmgDeg = 360 * (kda.dmg / totalTime)
@@ -500,34 +391,34 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
-	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информацию и помощь можно найти в группе бота / !hh - список команд`, 380, 320)
+	ctx.fillStyle = "#1199cc"
+	ctx.fillText(`Аккаунт: ${last_update_player} | Чемпионы: ${last_update_champ} (UTC+0)`, 380, 320)
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
 
 	// рисуем инфу
-	ctx.fillText(`${main.hz_player_name || main.hz_gamer_tag} (${main.Region})`, 10 + width / 2, 20)
-	// ctx.fillText(`Клиент: ${main.Platform} - ${main.Name}`, 10 + width / 2, 40)
-	ctx.fillText(`Уровень: ${main.Level}`, 10 + width / 2, 40)
-	ctx.fillText(`Создан: ${getDateStats(main.Created_Datetime)}`, 10 + width / 2, 60)
-	ctx.fillText(`Сыграно ${main.HoursPlayed} часов`, 10 + width / 2, 80)
-	ctx.fillText(`Последний вход: ${getDateStats(main.Last_Login_Datetime)}`, 10 + width / 2, 100)
+	ctx.fillText(`${player.hz_player_name || player.hz_gamer_tag} (${player.Region})`, 10 + width / 2, 20)
+	// ctx.fillText(`Клиент: ${player.Platform} - ${player.Name}`, 10 + width / 2, 40)
+	ctx.fillText(`Уровень: ${player.Level}`, 10 + width / 2, 40)
+	ctx.fillText(`Создан: ${getDateStats(player.Created_Datetime)}`, 10 + width / 2, 60)
+	ctx.fillText(`Сыграно ${player.HoursPlayed} часов`, 10 + width / 2, 80)
+	ctx.fillText(`Последний вход: ${getDateStats(player.Last_Login_Datetime)}`, 10 + width / 2, 100)
 	ctx.fillText(`KDA: ${( (kda.kills + kda.assists / 2) / (kda.deaths + 1)).toFixed(2)}`, 10 + width / 2, 120)
-	ctx.fillText(`Клиент: ${main.Platform} - ${main.Name}`, 10, 140)
+	ctx.fillText(`Клиент: ${player.Platform} - ${player.Name}`, 10, 140)
 
 	ctx.fillText(`ВСЕГО:`, 50, 170)
 	ctx.fillText(`Убийств: ${kda.kills}`, 10, 190)
 	ctx.fillText(`Смертей: ${kda.deaths}`, 10, 210)
 	ctx.fillText(`Ассистов: ${kda.assists}`, 10, 230)
-	ctx.fillText(`Побед: ${main.Wins}`, 10, 250)
-	ctx.fillText(`Поражений: ${main.Losses}`, 10, 270)
-	ctx.fillText(`Винрейт: ${fixNaN((main.Wins / (main.Wins + main.Losses) * 100).toFixed(0))}%`, 10, 290)
+	ctx.fillText(`Побед: ${player.Wins}`, 10, 250)
+	ctx.fillText(`Поражений: ${player.Losses}`, 10, 270)
+	ctx.fillText(`Винрейт: ${fixNaN((player.Wins / (player.Wins + player.Losses) * 100).toFixed(0))}%`, 10, 290)
 
 	ctx.fillText(`РАНКЕД:`, 250, 170)
 	ctx.fillText(`Побед: ${ fixNaN(RankedKBM.Wins) }`, 200, 190)
 	ctx.fillText(`Поражений: ${ fixNaN(RankedKBM.Losses) }`, 200, 210)
-	const Tier_RankedKBM = main.Tier_RankedKBM
+	const Tier_RankedKBM = player.Tier_RankedKBM
 	const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
 	ctx.fillText(`Ранг: ${getRank(rankNum)}`, 200, 230)
 	ctx.fillText(`ОТ: ${ fixNaN(RankedKBM.Points) }`, 200, 250)
@@ -566,7 +457,7 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	if (best[3]) ctx.fillText(best[3].Rank, 619, 250)
 	if (best[4]) ctx.fillText(best[4].Rank, 679, 250)
 
-	ctx.fillStyle = "#CC6600"
+	ctx.fillStyle = "#EE5500"
 	if (best[0]) ctx.fillText(fixNaN(((best[0].Kills + best[0].Assists / 2) / (best[0].Deaths + 1)).toFixed(2)), 437, 270)
 	if (best[1]) ctx.fillText(fixNaN(((best[1].Kills + best[1].Assists / 2) / (best[1].Deaths + 1)).toFixed(2)), 497, 270)
 	if (best[2]) ctx.fillText(fixNaN(((best[2].Kills + best[2].Assists / 2) / (best[2].Deaths + 1)).toFixed(2)), 557, 270)
@@ -581,120 +472,175 @@ function drawItemsPlaypaladinsSS(ctx, main, kda) {
 	if (best[4]) ctx.fillText(`${getWinrate(best[4].Wins, best[4].Losses)}%`, 677, 290)
 }
 
-function drawChampionsPlaypaladinsSS(ctx, imgList) {
-	let positionX = 430
-	for (let i = 0; i < imgList.length; i++) {
-		const img = imgList[i]
-		const x = positionX + 60 * i
-		ctx.drawImage(img, x, 180, 50, 50)
-	}
-}
-// <--- draw playpaladins small stats <---
 
 
 
-// ---> draw playpaladins history --->
-function playpaladinsSH(mess, name) {
-	return new Promise(resolve => {
-		searchPaladinsMatch(name)
-		.then(resolve)
-		.catch(err => {
-			mess.reply(`Ошибка, игрок не найден или у игрока "${name}" скрыт профиль.`)
-		})
+/**
+ *  --- !SH ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ * @param {*} matchIndex - стриница истории, по десяткам (10, 20, 30, 40, 50)
+ */
+ function bot_sh(message, name, matchIndex=1) {
+	--matchIndex
+	const discord_id = message.author.id
+	const form = formHiRezFunc("sh", discord_id, name)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
+
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			}
+
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
+
+		const getmatchhistory = body.getmatchhistory
+		// проверяем есть ли ошибки в полученных данных
+		if ( !getmatchhistory.status ) return message.reply(getmatchhistory.err_msg)
+
+		let matchList = getmatchhistory.json
+		const matchLenMax = matchList.length
+
+		/**
+		 * обрезаем матчи под указанные и проверяем хватает ли их
+		 */
+		const indexTo = (matchIndex + 1) * 10
+		if (matchList.length > matchIndex * 10) {
+			matchList = matchList.slice(matchIndex * 10, indexTo)
+		} else {
+			return message.reply(`Игрок **${name}** имеет **${matchList.length}** матчей, а вы указали ${indexTo}.`)
+		}
+
+		// если ошибок нет, то рисуем стату
+		const last_update = getmatchhistory.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		const ctx = draw_sh(matchList, last_update)
+		const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+
+		// формируем вывод списка id матчей
+		let replyText = `\`\`\`md
+# ID матчей (${matchLenMax}):
+`
+		for ( let i = 0; i < matchList.length; i++) {
+			const match = matchList[i]
+			replyText += `[${i + 1}](${match.Match}) `
+		}
+
+		message.channel.send(`${message.author} ${replyText}\`\`\``, {files: [buffer]})
 	})
 }
 
-function drawPlaypaladinsSH(matches) {
-	if (matches.length > 10) matches.length = 10 // убираем не нужные матчи
-	const imgWidth = 1175
-	const canvas = createCanvas(imgWidth, 590)
+
+function draw_sh(matchList, last_update) {
+	const imgWidth = 935
+	const imgHeight = 580
+	const canvas = createCanvas(imgWidth, imgHeight)
 	const ctx = canvas.getContext('2d')
-	ctx.font = 'bold 15px Georgia'
+
+	const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	ctx.drawImage(img, 0, 30, imgWidth, 530)
 
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 0, imgWidth, 30)
-	ctx.fillRect(0, 560, imgWidth, 590)
+	ctx.fillRect(0, 0, imgWidth, 30) // прямоугольник сверху
+	ctx.fillRect(0, imgHeight - 30, imgWidth, 30) // прямоугольник снизу
 	ctx.fillStyle = "#dddddd"
 
-	return new Promise(resolve => {
-		if (matches[0].ret_msg) {
-			console.log( matches[0].ret_msg )
-			return resolve({ctx, ret_msg: "Матчи не найдены или профиль скрыт"})
-		}
-
-		// загружаем случайный глобальный фон для статы
-		const img = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		ctx.drawImage(img, 0, 30, imgWidth, 530)
-		drawItemsPlaypaladinsSH(ctx, matches) // рисуем эллементы не нужнающиеся в промисах
-
-		// получаем до 10 картинок персонажей с истории
-		try {
-			let champList = []
-			matches.forEach(item => {
-				const champion = item.Champion
-				champList.push( config.championsName[champion].loadedImg )
-			})
-
-			drawChampionsPlaypaladinsSH(ctx, champList) // рисуем загруженных чемпионов
-			return resolve({ctx})
-		} catch(e) {
-			console.log(e)
-			return resolve({ctx, ret_msg: "Ошибка загрузки чемпиона. Сообщите об этом разработчику."})
-		}
-	})
-}
-
-function drawItemsPlaypaladinsSH(ctx, matches) {
-	const pos = [70, 235, 345, 425, 550, 655, 705, 805, 885, 975, 1085]
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
-	ctx.fillStyle = "#00CCFF"
-	ctx.fillText(`Информацию и помощь можно найти в группе бота / !hh - список команд`, 545, 580)
+	ctx.fillStyle = "#1199cc"
+	ctx.fillText(`Обновленно: ${last_update} (UTC+0)`, imgWidth / 2, imgHeight - 10)
 	ctx.font = 'bold 15px Georgia'
-	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
 
+	drawItems_sh(ctx, matchList) // рисуем эллементы не нужнающиеся в промисах
+
+	// получаем до 10 картинок персонажей с истории и рисуем
+	const positiony = 30
+	for (let i = 0; i < matchList.length; i++) {
+		const item = matchList[i]
+		const champion = item.Champion
+		const img = config.championsName[champion].loadedImg
+		const y = positiony + 52 * i
+		ctx.drawImage(img, 40, y, 50, 50)
+	}
+
+	return ctx
+}
+
+
+function drawItems_sh(ctx, matchList) {
+	const pos = [10, 100, 250, 330, 410, 490, 580, 670, 760, 850]
+	ctx.fillStyle = "#1199cc"
+
 	// рисуем таблицу для инфы
-	ctx.fillText(`Дата`, pos[0], 20)
-	ctx.fillText(`Статус`, pos[1], 20)
+	ctx.fillText(`№`, pos[0], 20)
+	ctx.fillText(`Дата/Статус`, pos[1], 20)
 	ctx.fillText(`Время`, pos[2], 20)
 	ctx.fillText(`Режим`, pos[3], 20)
-	ctx.fillText(`id матча`, pos[4], 20)
+	ctx.fillText(`У цели`, pos[4], 20)
 	ctx.fillText(`КДА`, pos[5], 20)
-	ctx.fillText(`Детально`, pos[6], 20)
-	ctx.fillText(`Урон`, pos[7], 20)
-	ctx.fillText(`Защита`, pos[8], 20)
-	ctx.fillText(`Исцеление`, pos[9], 20)
-	ctx.fillText(`Кредиты`, pos[10], 20)
+	ctx.fillText(`Урон`, pos[6], 20)
+	ctx.fillText(`Защита`, pos[7], 20)
+	ctx.fillText(`Лечение`, pos[8], 20)
+	ctx.fillText(`Кредиты`, pos[9], 20)
 
-	const len = matches.length
-	// цикл с писаниной о инфе
+	const len = matchList.length
 	for (let i = 0; i < len; i++) {
-		const item = matches[i]
-		const kda = ((item.Kills + item.Assists / 2) / (item.Deaths + 1)).toFixed(2)
+		const item = matchList[i]
 
 		ctx.fillStyle = "#dddddd"
-		ctx.fillText(`${ getDateStats(item.Match_Time) }`, pos[0], 52 * i + 60)
-		// сатус пропускаем pos[1]
+		ctx.fillText(`${ i + 1 }.`, pos[0], 52 * i + 60)
+		ctx.fillText(`${ getDateStats(item.Match_Time) }`, pos[1], 52 * i + 48)
 		ctx.fillStyle = "#0088bb"
 		ctx.fillText(`${ secToMin(item.Time_In_Match_Seconds) }`, pos[2], 52 * i + 60)
 		ctx.fillStyle = "#dddddd"
-		// тип пропускаем pos[3]
-		ctx.fillText(`${item.Match}`, pos[4], 52 * i + 60) // id
-		ctx.fillStyle = "#CC6600"
-		ctx.fillText(`${kda}`, pos[5], 52 * i + 60)
-		ctx.fillStyle = "#9966FF"
-		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, pos[6], 52 * i + 60)
+		ctx.fillText(`${item.Objective_Assists}`, pos[4], 52 * i + 60) // У цели
+		ctx.fillStyle = "#EE5500"
+		ctx.fillText(`${item.Kills}/${item.Deaths}/${item.Assists}`, pos[5], 52 * i + 60)
+		ctx.fillStyle = '#BB1111' // красный
+		ctx.fillText(`${item.Damage}`, pos[6], 52 * i + 60)
+		ctx.fillStyle = '#CDCD11' // желтый
+		ctx.fillText(`${item.Damage_Mitigated}`, pos[7], 52 * i + 60)
+		ctx.fillStyle = '#32CD32' // зеленый
+		ctx.fillText(`${item.Healing}`, pos[8], 52 * i + 60)
 		ctx.fillStyle = "#dddddd"
-		ctx.fillText(`${item.Damage}`, pos[7], 52 * i + 60)
-		ctx.fillText(`${item.Damage_Mitigated}`, pos[8], 52 * i + 60)
-		ctx.fillText(`${item.Healing}`, pos[9], 52 * i + 60)
-		ctx.fillStyle = "#CC6600"
-		ctx.fillText(`${item.Gold}`, pos[10], 52 * i + 60)
+		ctx.fillText(`${item.Gold}`, pos[9], 52 * i + 60)
 
 		const getStats = item.Win_Status
 		const status = getStats == "Win" ? "Победа" : getStats == "Loss" ? "Поражение" : "-"
-		const statusColor = status == "Победа" ? "#00bb00" : "#bb0000"
+		const statusColor = status == "Победа" ? "#32CD32" : "#BB1111"
 
 		const getQueue = item.Queue
 		const queue = getQueue == "Siege" ? "Осада" : 
@@ -707,92 +653,366 @@ function drawItemsPlaypaladinsSH(ctx, matches) {
 			getQueue == "Test Maps" ? "Тестовые" : getQueue
 
 		ctx.fillStyle = statusColor
-		ctx.fillText(`${status}`, pos[1], 52 * i + 60) // сатус
+		ctx.fillText(`${status}`, pos[1], 52 * i + 72) // сатус
 		ctx.fillStyle = "#dddddd"
 		ctx.fillText(`${queue}`, pos[3], 52 * i + 60) // Режим
 	}
 }
 
-function drawChampionsPlaypaladinsSH(ctx, imgList) { // рисуем чемпионов в истории
-	const positiony = 30
-	for (let i = 0; i < imgList.length; i++) {
-		const img = imgList[i]
-		const y = positiony + 52 * i
-		ctx.drawImage(img, 10, y, 50, 50)
+
+
+
+/**
+ *  --- !SM ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ */
+function bot_sm(message, name, matchIndex=1) {
+	const discord_id = message.author.id
+	const form = formHiRezFunc("sm", discord_id, name, matchIndex)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
+
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			}
+
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
+
+		const getmatchdetails = body.getmatchdetails
+		// проверяем есть ли ошибки в полученных данных
+		if ( !getmatchdetails.status ) return message.reply(getmatchdetails.err_msg)
+
+		// если ошибок нет, то рисуем стату
+		draw_sm(getmatchdetails.json)
+		.then(ctx => {
+			const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+			message.channel.send(`${message.author}`, {files: [buffer]})
+		})
+
+	})
+}
+
+
+function draw_sm(matchdetails) {
+	const imgWidth = 1205
+	const imgHeight = 795
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 15px Georgia'
+	ctx.fillStyle = "#ffffff"
+
+	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+	const matchOne = matchdetails[0] // просто выбранный первый человек в матче для получения статы самого матча
+
+	// инфа по центру
+	let mapImg = null // узнаем карту, получаем ее картинку
+	let mapName = ''
+	for (let map in paladinsMaps) {
+		const reg = new RegExp(`${map}`, 'i')
+		const res = matchOne.Map_Game.replace(/'/,'').match(reg)
+		if (res) {
+			mapImg = paladinsMaps[map]
+			mapName = res[0]
+			break
+		}
+	}
+	if (!mapName) {
+		mapName = matchOne.Map_Game || 'test'
+		mapImg = paladinsMaps['test maps']
+	}
+	if (mapImg) ctx.drawImage(mapImg, 10, 315, 356, 200) // рисуем карту
+	ctx.font = 'bold 20px Georgia'
+	ctx.fillText(matchOne.Entry_Datetime, 20, 502)
+
+	const typeMatch = matchOne.name
+	ctx.fillStyle = "#cccc11"
+	ctx.fillText(`${matchOne.Minutes} минут`, 376, 375)
+	ctx.fillText(`Регион: ${matchOne.Region}`, 376, 405)
+	ctx.fillText(typeMatch, 376, 435)
+	ctx.fillText(mapName, 376, 465)
+
+	ctx.textAlign = "center"
+	const winStatus = matchOne.Win_Status == 'Winner'
+	const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
+	if (winStatus) {
+		ctx.fillStyle = '#32CD32'
+		ctx.fillText('Победа', imgWidth / 2 + 70 + centerGoRight, 341)
+		ctx.fillStyle = '#BB1111'
+		ctx.fillText('Поражение', imgWidth / 2 + 70 + centerGoRight, 497)
+
+		ctx.fillStyle = 'rgba(50,205,50,0.06)'
+		ctx.fillRect(0, 30, imgWidth, 285)
+		ctx.fillStyle = 'rgba(187,17,17,0.1)'
+		ctx.fillRect(0, 515, imgWidth, 285)
+	} else { // эта часть не нужна походу так как победителя всегда перемещаются вверх
+		ctx.fillStyle = '#BB1111'
+		ctx.fillText('Поражение', imgWidth / 2 + 70 + centerGoRight, 341)
+		ctx.fillStyle = '#32CD32'
+		ctx.fillText('Победа', imgWidth / 2 + 70 + centerGoRight, 497)
+
+		ctx.fillStyle = 'rgba(187,17,17,0.1)'
+		ctx.fillRect(0, 30, imgWidth, 285)
+		ctx.fillStyle = 'rgba(50,205,50,0.06)'
+		ctx.fillRect(0, 515, imgWidth, 285)
+	}
+
+	ctx.fillStyle = "#ffffff"
+	ctx.fillText(`Команда 1 Счет: ${matchOne.Team1Score}`, imgWidth / 2 + 70 + centerGoRight, 383)
+	ctx.fillText(`Команда 2 Счет: ${matchOne.Team2Score}`, imgWidth / 2 + 70 + centerGoRight, 456)
+	ctx.drawImage(config.differentImg.vs, imgWidth / 2 + 40 + centerGoRight, 386, 50, 50)
+
+	ctx.textAlign = "start"
+	ctx.fillStyle = '#EE5500'
+	if (typeMatch == 'Ranked') ctx.fillText(`Баны:`, 885, 420)
+	ctx.fillStyle = "#ffffff"
+	ctx.font = 'bold 15px Georgia'
+	if (matchOne.Ban_1)ctx.drawImage(config.championsName[matchOne.Ban_1].loadedImg, 980, 360, 50, 50)
+	if (matchOne.Ban_2)ctx.drawImage(config.championsName[matchOne.Ban_2].loadedImg, 1040, 360, 50, 50)
+	if (matchOne.Ban_3)ctx.drawImage(config.championsName[matchOne.Ban_3].loadedImg, 980, 420, 50, 50)
+	if (matchOne.Ban_4)ctx.drawImage(config.championsName[matchOne.Ban_4].loadedImg, 1040, 420, 50, 50)
+
+	// рисуем таблицу
+	ctx.fillStyle = "#000000"
+	ctx.fillRect(0, 0, imgWidth, 32)
+	ctx.fillStyle = "#1199cc"
+	ctx.fillText('Чемпион', 10, 20)
+	ctx.fillText('Игрок', 140, 20)
+	ctx.fillText('Пати', 345, 20)
+	ctx.fillText('Кредиты', 400, 20)
+	ctx.fillText('K/D/A', 485, 20)
+	ctx.fillText('Урон', 565, 20)
+	ctx.fillText('Защита', 650, 20)
+	ctx.fillText('Лечение', 745, 20)
+	ctx.fillText('Получено', 840, 20)
+	ctx.fillText('Цель', 940, 20)
+	ctx.fillText('Закуп', 1005, 20)
+	ctx.fillStyle = "#ffffff"
+
+	const party = {}
+	let partyNumber = 1
+	const partyColors = ['#00FFFF', '#006400', '#F08080', '#FFFF00', '#FF0000', '#4682B4', '#C71585', '#FF4500', '#7FFF00'].sort(function() {
+		return Math.random() - 0.5 // рандомизируем цвета каждый раз
+	})
+
+	for (let i = 0; i < matchdetails.length; i++) {
+		const players = matchdetails[i]
+		//const champName = config.championsCard[players.ChampionId][0].champion_name
+		const champName = players.Reference_Name
+
+		const cnampion = config.championsName[champName]
+		let nextTeam = i >= 5 ? 245 : 40
+		if (cnampion) { // если есть чемпион то рисуем
+			const img = cnampion.loadedImg
+			ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
+		}
+
+		const imgLegendary = config.LegendarChampions[players.ItemId6]
+		if (imgLegendary) ctx.drawImage(imgLegendary, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
+
+		ctx.drawImage(config.rankedImage[players.League_Tier], 115, 55 * i + nextTeam, 50, 50) // рисуем ранг
+
+		// рисуем закуп
+		const item1 = players.Item_Active_1
+		if (item1) {
+			ctx.drawImage(paladinsItems[item1.toLowerCase()], 1005, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel1, 1005, 55 * i + nextTeam + 43, 10, 3)
+		}
+		const item2 = players.Item_Active_2
+		if (item2) {
+			ctx.drawImage(paladinsItems[item2.toLowerCase()], 1055, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel2, 1055, 55 * i + nextTeam + 43, 10, 3)
+		}
+		const item3 = players.Item_Active_3
+		if (item3) {
+			ctx.drawImage(paladinsItems[item3.toLowerCase()], 1105, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel3, 1105, 55 * i + nextTeam + 43, 10, 3)
+		}
+		const item4 = players.Item_Active_4
+		if (item4) {
+			ctx.drawImage(paladinsItems[item4.toLowerCase()], 1155, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel4, 1155, 55 * i + nextTeam + 43, 10, 3)
+		}
+
+		const partyId = players.PartyId
+		let partyNum = party[partyId]
+		if (!partyNum) {
+			party[partyId] = partyNum = partyNumber
+			partyNumber++
+		}
+
+		ctx.fillText(players.playerName, 180, 55 * i + nextTeam + 15)
+		ctx.fillStyle = "#EE5500"
+		ctx.fillText(`lvl: ${players.Account_Level}`, 180, 55 * i + nextTeam + 40)
+
+		nextTeam += 25
+
+		ctx.fillStyle = partyColors[partyNum - 1]
+		ctx.beginPath()
+		ctx.arc(365, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
+		ctx.fill()
+		ctx.fillStyle = "#000000"
+		ctx.fillText(partyNum, 361, 55 * i + nextTeam) // цифра пати
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText(players.Gold_Earned, 400, 55 * i + nextTeam)
+		ctx.fillStyle = "#EE5500"
+		ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 485, 55 * i + nextTeam)
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText(players.Damage_Player, 565, 55 * i + nextTeam)
+		ctx.fillText(players.Damage_Mitigated, 650, 55 * i + nextTeam)
+		ctx.fillText(players.Healing, 745, 55 * i + nextTeam)
+		ctx.fillText(players.Damage_Taken, 840, 55 * i + nextTeam)
+		ctx.fillText(players.Objective_Assists, 940, 55 * i + nextTeam)
+	}
+	return new Promise(resolve => resolve(ctx))
+}
+
+function drawLevelItem(ctx, lvl, x, y) { // рисует полоски под закупом (их лвл)
+	for (let i = 0; i <= lvl; i++) {
+		ctx.fillRect(x + 14 * i, y, 10, 3)
 	}
 }
-// <--- draw playpaladins history <---
 
 
 
-// ---> draw playpaladins history --->
-function paladinsSL(mess, name, championName, num) {
-	return new Promise((resolve) => {
-		searchPaladinsLoadouts(name, championName, num)
-		.then((obj) => {
-			if (obj.err) resolve(obj) // если нужно прекратить команду
 
-			const listLoadouts = obj.listLoadouts
-			const listLoadoutsLen = listLoadouts.length
+/**
+ *  --- !SL ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ */
+function bot_sl(message, name, championName, num=false) {
+	if (!name && !championName) return message.reply("Укажите параметры правильно. **!sl [name] [champion]**")
 
-			if (!listLoadoutsLen) {
-				mess.reply(`Игрок не имеет колод для **${championName}**.`)
-				obj.err = true
-				return resolve(obj)
+	// проверяем задал ли он ник чемпиона пропустив свой ник
+	const champion = !championName ? config.championsName[name] : config.championsName[championName]
+	if (!champion) return message.reply("Введите корректное имя чемпиона. **!sl [name] [champion]**")
+	const userName = !championName ? 'me' : name // если не задал свой ник
+
+	const discord_id = message.author.id
+	const form = formHiRezFunc("sl", discord_id, userName, 11) // id чемпиона передавать не нужно (можно передать lang)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
+
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
 			}
 
-			if (num > listLoadoutsLen) {
-				mess.reply(`Игрок не имеет столько колод, у него **${listLoadoutsLen}** колод.`)
-				resolve({err: true}) // ничего больше не делаем, завершаем
-			} else if (!num && listLoadoutsLen > 1) {
-				let text = ``
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
 
-				for (let i = 0; i < listLoadoutsLen; i++) {
-					const deck = listLoadouts[i]
-					text += `\r\n№ **${i + 1}**; Имя колоды: **${deck.DeckName}**.`
-				}
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
 
-				mess.reply(`**Выберите одну из колод, повторив команду и вписав нужную цифру в конце:**${text}`)
-				resolve({err: true}) // ничего больше не делаем, завершаем
-			}
-			resolve(obj)
+		const getplayerloadouts = body.getplayerloadouts
+		// проверяем есть ли ошибки в полученных данных
+		if ( !getplayerloadouts.status ) return message.reply(getplayerloadouts.err_msg)
+
+		/**
+		 * формируем колоды, преверив есть ли они вообще
+		 * и предоставляем выбор колоды если их больше 1
+		 */
+		const loadoutsList = [] // суда запишем нужные нам колоды
+		if ( !getplayerloadouts.json ) return message.reply(`Теоретически такая ошибка быть не должна, но все же -_-`)
+		getplayerloadouts.json.forEach(loadouts => { // перебор колод
+			if ( loadouts.ChampionId != champion.id ) return false // пропускаем не нужных чемпионов
+			loadoutsList.push(loadouts)
 		})
-		.catch(err => {
-			mess.reply(`Ошибка, игрок не найден или у игрока "${name}" скрыт профиль.`)
+
+		const len = loadoutsList.length
+		if ( !len ) return message.reply(`Колоды не обнаруженны.`)
+		if ( len < num ) return message.reply(`Игрок не имеет столько колод, укажите правильное число, у него **${len}** колод.`)
+		if ( !num && len > 1) { // если колода не указанна и колод больше 1 то выводим их список
+			let repText = 'Выберите одну из колод:\r\n'
+			for (let i = 0; i < len; i++) {
+				loadouts = loadoutsList[i]
+				repText += `**№ ${i+1}**; Имя колоды: **${loadouts.DeckName}**;\r\n`
+			}
+			repText += "Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. **!sl [name] [champion] [index]**"
+			const time = getplayerloadouts.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			repText += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(repText)
+		}
+
+		// если ошибок нет, то рисуем стату
+		if ( !num ) num = 1
+		draw_sl( loadoutsList[--num] )
+		.then(ctx => {
+			const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+			message.channel.send(`${message.author}`, {files: [buffer]})
 		})
 	})
 }
 
-function searchPaladinsLoadouts(name, championName, num) { // возвращает массив колод указанного персонажа
-	return new Promise(resolve => {
-		hiRezFunc("searchplayers", {name})
-		.then(function(res){ // ретранслятор
-			return new Promise(resolve => {
-				return resolve( getSearchplayers(res, true) )
-			})
-		})
-		.then((player => {
-			if (!player || player.ret_msg) return resolve({err: true}) // если скрыт профиль
 
-			const playerId = player.player_id
-			hiRezFunc("getplayerloadouts", {id: playerId, lang: "11"})
-			.then(loadouts => {
-				const champId = config.championsName[championName].id
-
-				const filterLoadouts = loadouts.filter(item => { // сортируем по указанному чемпиону
-					return item.ChampionId == champId
-				})
-				resolve({listLoadouts: filterLoadouts, num}) // array
-			})
-		}))
-	})
-}
-
-
-function drawPaladinsSL({listLoadouts, num, err}) { // num это какую колоду брать (num не меньше 1 и целое!)
-	num = num || 1
-	if (err) return new Promise(resolve => {resolve({err})}) // если была ошибка
-
+/**
+ * 
+ * @param {Object} loadouts - колода которую будем рисовать
+ */
+function draw_sl(loadouts) {
 	const imgWidth = 1648
 	const imgHeight = 600
 	const canvas = createCanvas(imgWidth, imgHeight)
@@ -804,31 +1024,19 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
 	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 
+	let loadList = [] // тут будет картинки
+	let listDeck = [] // тут будут свойства для картинки
+	let listDescription = [] // тут будут описания карт
+
+	const championId = loadouts.ChampionId
+	loadouts.LoadoutItems.forEach(cardEl => {
+		const card = getPaladinsCard(cardEl.ItemId, championId)
+		loadList.push( loadImage(card.url).catch(console.log) )
+		listDeck.push( {deckName: loadouts.DeckName, points: cardEl.Points} )
+		listDescription.push( card.description )
+	})
+
 	return new Promise(resolve => {
-		let loadList = [] // тут будет картинки
-		let listDeck = [] // тут будут свойства для картинки
-		let listDescription = [] // тут будут описания карт
-
-		listLoadouts.forEach(loadouts => { // перебор колод
-			const deckName = loadouts.DeckName
-			const champId = loadouts.ChampionId
-			loadouts.LoadoutItems.forEach(items => { // перебор карт в колоде
-				const points = items.Points
-				const cardId = items.ItemId
-				const card = getPaladinsCard(cardId, champId)
-
-				listDeck.push( {deckName, points} )
-				// загружаем картинки карт
-				loadList.push( loadImage(card.url).catch(console.log) )
-				// тут можно добавить setPaladinsCard что бы брать уже загруженные ранее карты и не грузить их дважды
-				listDescription.push(card.description)
-			})
-		})
-
-		loadList = loadList.slice((num - 1) * 5, num * 5) // обрезаем
-		listDeck = listDeck.slice((num - 1) * 5, num * 5)
-		listDescription = listDescription.slice((num - 1) * 5, num * 5)
-
 		Promise.all(loadList)
 		.then(imgListLoad => {
 			for (let i = 0; i < imgListLoad.length; i++) { // перебор загруженных картинок
@@ -850,11 +1058,38 @@ function drawPaladinsSL({listLoadouts, num, err}) { // num это какую к�
 				fillDescriptionCard(ctx, listDescription[i], i, points)
 			}
 
-			resolve({ctx})
+			return resolve(ctx)
 		})
 	})
 }
 
+function fillDescriptionCard(ctx, text, position, points) { // рисует описание карты
+	ctx.font = 'bold 16px Georgia'
+	ctx.fillStyle = '#000000'
+
+	text = text.replace(/^\[[а-я -]+\] /i, '') // убираем принадлежность (то что в [...])
+
+	// убираем "scale" и считаем нужную цифру подставляя в текст
+	const matchArr = text.match(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)\}/i)
+	if (!matchArr) return console.log(`Ошибка fillDescriptionCard: `, text)
+
+	// const scaleText = (matchArr[1] * points).toFixed(1)
+	let scaleText = +matchArr[1]
+	for (let i = 0; i < points; i++) {
+		scaleText += +matchArr[2]
+	}
+
+	// фиксим до 2 точек и если 2 нуля в конце то убираем их
+	scaleText = scaleText.toFixed(2)
+	if (scaleText.slice(-2) == "00") scaleText = scaleText.slice(0,-3)
+	text = text.replace(/\{scale=[0-9\.]+\|-?[0-9\.]+\}/i, scaleText)
+
+	// сначала разбиваем текст строки на нужное кол-во строк и узнаем сколько это строк
+	const textArr = formProposals(text, 23)
+	for (let i = 0; i < textArr.length; i++) {
+		ctx.fillText(textArr[i], position * (10 + 314) + 178, 20 * i + 410)
+	}
+}
 
 // возвращает url и описание карты по id чемпиона и id карты
 function getPaladinsCard(idCard, idChamp) {
@@ -871,25 +1106,541 @@ function getPaladinsCard(idCard, idChamp) {
 }
 
 
-function fillDescriptionCard(ctx, text, position, points) { // рисует описание карты
-	ctx.font = 'bold 16px Georgia'
-	ctx.fillStyle = '#000000'
 
-	text = text.replace(/^\[[а-я -]+\] /i, '') // убираем принадлежность (то что в [...])
 
-	// убираем "scale" и считаем нужную цифру подставляя в текст
-	const matchArr = text.match(/\{scale ?= ?([0-9\.]+)\|([0-9\.]+)\}/i)
-	const scaleText = (matchArr[1] * points).toFixed(1)
-	text = text.replace(/\{scale=[0-9\.]+\|[0-9\.]+\}/i, scaleText)
+/**
+ *  --- !SP ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ */
+function bot_sp(message, name) {
+	const discord_id = message.author.id
+	const form = formHiRezFunc("sp", discord_id, name)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
 
-	// сначала разбиваем текст строки на нужное кол-во строк и узнаем сколько это строк
-	const textArr = formProposals(text, 23)
-	for (let i = 0; i < textArr.length; i++) {
-		ctx.fillText(textArr[i], position * (10 + 314) + 178, 20 * i + 410)
-	}
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
+
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			}
+
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
+
+		const getplayerstatus = body.getplayerstatus
+		// проверяем есть ли ошибки в полученных данных
+		if ( !getplayerstatus.status ) return message.reply(getplayerstatus.err_msg)
+		const json = getplayerstatus.json[0]
+
+		let statusMess
+		switch ( json.status ) {
+			case 0:
+				statusMess = `Игрок Offline.`
+				break
+
+			case 1:
+				statusMess = `Игрок в меню игры.`
+				break
+
+			case 2:
+				statusMess = `Игрок выбирает чемпиона.`
+				break
+
+			case 4:
+				statusMess = `Игрок Online, но блокирует трансляцию состояния игрока.`
+				break
+
+			case 5:
+				statusMess = `Игрок не найден.`
+				break
+		}
+
+		// если статус найден то выводим его
+		if (statusMess) return message.reply(statusMess)
+
+		// теоретически такого быть не должно, но все же воизбежании ошибок...
+		const getmatchplayerdetails = body.getmatchplayerdetails
+		if ( json.status != 3 || !getmatchplayerdetails ) return message.reply(`Непредвиденная ошибка, сообщите о ней разработчику.`)
+
+		// если игрок в матче то проверяем корректность данных
+		if ( !getmatchplayerdetails.status ) return message.reply(getmatchplayerdetails.err_msg )
+		const matchplayerdetails = getmatchplayerdetails.json
+		if ( !matchplayerdetails ) return message.reply("Возникла ошибка, сообщите о ней разработчикам бота: matchplayerdetails пуст.")
+		if ( typeof(matchplayerdetails[0].ret_msg) == "string" ) {
+			console.log(matchplayerdetails) // потом убрать консоль и сделат ьв одну строку, это нужно чекнуть удет с играми с боатми и кастомки
+			return message.reply("Игрок в матче с ботами или в пользовательских играх.")
+		}
+
+		const mapName = matchplayerdetails[0].mapGame || 'Test Maps'
+		let background
+		if (mapName) {
+			try {
+				const tempMapName = mapName.replace(/live/i, '').replace(/'/i, '').replace(/\(KOTH\)/i, '').replace(/ranked/i, '').replace(/\(TDM\)/i, '').replace(/Local/i, '').trim()
+				if (tempMapName.toLowerCase() == 'shooting range') return message.reply("Игрок находится в стрельбище.")
+				background = paladinsMaps[tempMapName.toLowerCase()]
+			} catch(e) {
+				console.log(`\r\nКарта ${mapName} не найдена 1. Ошибка:`)
+				console.log(e)
+				// нужно будет норм сообщить об ошибке (в логи)
+			}
+		}
+
+		// если ошибок нет, то рисуем стату
+		const ctx = draw_sp( matchplayerdetails, background )
+		// .then(ctx => {
+			const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+			message.channel.send(`${message.author}`, {files: [buffer]})
+		// })
+	})
 }
 
 
+function draw_sp(matchplayerdetails, background) {
+	matchplayerdetails.sort((a, b) => {return a.taskForce - b.taskForce}) // сортируем по командам
+
+	const imgWidth = 952
+	const imgHeight = 535
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 16px Georgia'
+
+	const game = matchplayerdetails[0] // для удобства взятия игровой инфы
+	const mapName = game.mapGame || 'Test Maps'
+
+	try {
+		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+	} catch(e) {
+		console.log(`\r\nКарта ${mapName} не найдена 2. Ошибка:`)
+		console.log(e)
+		// нужно будет норм сообщить об ошибке (в логи)
+	}
+
+	ctx.fillRect(0, 0, imgWidth, 40)
+	ctx.fillRect(0, imgHeight - 40, imgWidth, imgHeight)
+
+	ctx.fillStyle = "#0088bb"
+	ctx.fillText('Команда 1', 35, 25)
+	ctx.textAlign = 'end'
+	ctx.fillText('Команда 2', imgWidth - 35, 25)
+	ctx.fillText(`Карта: `, imgWidth / 4, imgHeight - 15)
+	ctx.fillText(`Регион: `, imgWidth / 4 + imgWidth / 2, imgHeight - 15)
+	ctx.fillText(`id матча: `, imgWidth / 2, 25)
+	ctx.textAlign = 'start'
+	ctx.fillStyle = "#EE5500"
+	ctx.fillText(` ${mapName}`, imgWidth / 4, imgHeight - 15)
+	ctx.fillText(` ${game.playerRegion}`, imgWidth / 4 + imgWidth / 2, imgHeight - 15)
+	ctx.fillText(` ${game.Match}`, imgWidth / 2, 25)
+	ctx.fillStyle = '#ffffff'
+
+	// перебираем игроков матча и рисуем их инфу
+	for (let i = 0; i < matchplayerdetails.length; i++) {
+		const item = matchplayerdetails[i]
+		const champion = config.championsName[item.ChampionName] || {} // избегаем возможных ошибок
+		const img = champion.loadedImg
+		const tier = item.Tier
+
+		if (item.taskForce == 1) {
+			if (img) ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
+			// ctx.fillStyle = '#EE5500' // оранжевый
+			ctx.fillText(`Ник: ${item.playerName}`, 130, 90 * i + 65)
+			const winrate = fixNaN((item.tierWins / (item.tierWins + item.tierLosses) * 100).toFixed(2))
+			// ctx.fillStyle = '#32CD32' // зеленый
+			// рисуем винрейт только в рейте, так как он доступен только там
+			if (item.Queue == 486) ctx.fillText(`Винрейт: ${winrate}%`, 130, 90 * i + 93)
+			// ctx.fillStyle = '#BB1111' // красный
+			ctx.fillText(`Лвл: ${item.Account_Level}`, 130, 90 * i + 120)
+			ctx.textAlign = 'center'
+			ctx.fillText(item.ChampionLevel, 95, 90 * i + 120)
+			ctx.textAlign = 'start'
+
+			if (tier == undefined) continue
+			const imgRank = config.rankedImage[tier] // получаем картинку ранга
+			const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
+			ctx.drawImage(imgRank, 10, 90 * i + 50, 50, 50 * coefficient)
+		} else if (item.taskForce == 2) {
+			if (img) ctx.drawImage(img, imgWidth - 120, 90 * (i - 5) + 50, 50, 50)
+			ctx.textAlign = 'end'
+			// ctx.fillStyle = '#EE5500' // оранжевый
+			ctx.fillText(`Ник: ${item.playerName}`, imgWidth - 130, 90 * (i - 5) + 65)
+			const winrate = fixNaN((item.tierWins / (item.tierWins + item.tierLosses) * 100).toFixed(2))
+			// ctx.fillStyle = '#32CD32' // зеленый
+			// рисуем винрейт только в рейте, так как он доступен только там
+			if (item.Queue == 486) ctx.fillText(`Винрейт: ${winrate}%`, imgWidth - 130, 90 * (i - 5) + 93)
+			// ctx.fillStyle = '#BB1111' // красный
+			ctx.fillText(`Лвл: ${item.Account_Level}`, imgWidth - 130, 90 * (i - 5) + 120)
+			ctx.textAlign = 'center'
+			ctx.fillText(item.ChampionLevel, imgWidth - 95, 90 * (i - 5) + 120)
+
+			if (tier == undefined) continue
+			const imgRank = config.rankedImage[tier] // получаем картинку ранга
+			const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
+			ctx.drawImage(imgRank, imgWidth - 60, 90 * (i - 5) + 50, 50, 50 * coefficient)
+		}
+	}
+
+	const vs = config.differentImg.vs
+	ctx.drawImage(vs, imgWidth / 2 - 70, imgHeight / 2 - 70, 140, 140)
+
+	return ctx
+}
+
+
+
+
+/**
+ *  --- !SC ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ */
+function bot_sc(message, name, championName) {
+	if (!name && !championName) return message.reply("Укажите параметры правильно. **!sc [name] [champion]**")
+
+	// проверяем задал ли он ник чемпиона пропустив свой ник
+	const champion = !championName ? config.championsName[name] : config.championsName[championName]
+	if (!champion) return message.reply("Введите корректное имя чемпиона. **!sc [name] [champion]**")
+	const userName = !championName ? 'me' : name // если не задал свой ник
+
+	const discord_id = message.author.id
+	const form = formHiRezFunc("sc", discord_id, userName)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
+
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			}
+
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
+
+		// проверяем есть ли ошибки в полученных данных
+		const getchampionranks = body.getchampionranks
+		if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		const champions = getchampionranks.json
+		const time = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		if ( !champions ) return message.reply(`Чемпионы не найденны.\r\nОбновленно: **${time}** (UTC+0)`)
+
+		// ищем чемпиона
+		const searchChampionName = champion.Name_English
+		const searches = champions.find( champion => champion.champion == searchChampionName )
+		if ( !searches ) return message.reply(`У игрока нет игр на **${championName || name}**.`)
+
+		// если ошибок нет, то рисуем стату
+		const ctx = draw_sc( searches, getchampionranks.id )
+		const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+		message.channel.send(`${message.author}`, {files: [buffer]})
+	})
+}
+
+
+function draw_sc(champion, playerId) {
+	const fullInfoChampion = config.championsId[ champion.champion_id ]
+
+	const imgWidth = 600
+	const imgHeight = 260
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 16px Georgia'
+	ctx.fillStyle = "#ffffff"
+
+	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+
+	ctx.fillText(`Роль: ${fullInfoChampion.Roles}`, 200, 230)
+	ctx.fillText(`Титул: ${fullInfoChampion.Title}`, 200, 250)
+	ctx.fillText(`Последняя игра: ${champion.LastPlayed}`, 200, 40 + 5)
+	ctx.fillText(`Сыграно минут: ${champion.Minutes}`, 200, 60 + 5)
+
+	const img = config.championsName[ champion.champion ].loadedImg
+	ctx.drawImage(img, 10, 30, 180, 180)
+	ctx.fillStyle = '#32CD32' // зеленый
+	ctx.fillText(`Жизни: ${fullInfoChampion.Health}`, 10, 230)
+	const kills = champion.Kills
+	ctx.fillText(`Убийства: ${kills}`, 200, 120 + 5)
+	ctx.fillText(`Победы: ${champion.Wins}`, 400, 120 + 5)
+
+	ctx.fillStyle = "#1199cc" // голубой
+	ctx.fillText(`Скорость: ${fullInfoChampion.Speed}`, 10, 250)
+	const assists = champion.Assists
+	ctx.fillText(`Помощи: ${assists}`, 200, 160 + 5)
+
+	const deaths = champion.Deaths
+	ctx.fillStyle = '#BB1111' // красный
+	ctx.fillText(`Смерти: ${deaths}`, 200, 140 + 5)
+	ctx.fillText(`Поражения: ${champion.Losses}`, 400, 140 + 5)
+
+	const kda = ((kills + assists / 2) / (deaths + 1)).toFixed(2)
+	const winrate = fixNaN((champion.Wins / (champion.Wins + champion.Losses) * 100).toFixed(0))
+
+	ctx.fillStyle = '#EE5500' // оранжевый
+	ctx.textAlign = "center"
+	ctx.fillText(fullInfoChampion.Name, 100, 20)
+	ctx.textAlign = "start"
+	ctx.fillText(`ID игрока: ${playerId}`, 250, 20)
+	ctx.fillText(`Уровень: ${champion.Rank}`, 200, 80 + 5)
+	ctx.fillText(`КДА: ${kda}`, 200, 180 + 5)
+	ctx.fillText(`Винрейт: ${winrate}%`, 400, 160 + 5)
+
+	return ctx
+}
+
+
+
+
+/**
+ *  --- !ST ---
+ * получает данные и обрабатывает ошибки
+ * рисует и отправляет стату
+ * @param {*} message 
+ * @param {*} name 
+ * @param {*} typeSort - тип сортировки
+ */
+function bot_st(message, name, typeSort="lvl") {
+	const discord_id = message.author.id
+	const form = formHiRezFunc("st", discord_id, name)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		/**
+		 * чисто проверяем пришел ли JSON
+		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+		 */
+		try {
+			body.status === false
+		} catch(err) {
+			return sendError(message, body)
+		}
+
+		if ( body.status === false ) {
+			/**
+			 * если ответ с ошибкой
+			 * проверим есть ли JSON
+			 * если есть, значит нужно выбрать игрока
+			 */
+			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+
+			let textReply = 'Выберите аккаунт:\r\n'
+			// формируем ответ
+			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+				const player = body.json[i]
+				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			}
+
+			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+			return message.reply(textReply)
+		}
+
+		// проверяем есть ли ошибки в полученных данных
+		const getchampionranks = body.getchampionranks
+		if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		const champions = getchampionranks.json
+		const time = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		if ( !champions ) return message.reply(`Чемпионы не найденны.\r\nОбновленно: **${time}** (UTC+0)`)
+
+		// получаем функцию сортировки
+		let sortFunc
+		switch (typeSort) {
+			case "лвл":
+			case "lvl":
+				sortFunc = (a,b) => b.Rank - a.Rank
+				break
+
+			case "время":
+			case "time":
+				sortFunc = (a,b) => b.Minutes - a.Minutes
+				break
+
+			case "кда":
+			case "kda":
+				sortFunc = (a,b) => {
+					const a_kda = ((a.Kills + a.Assists / 2) / (a.Deaths + 1)).toFixed(2)
+					const b_kda = ((b.Kills + b.Assists / 2) / (b.Deaths + 1)).toFixed(2)
+					return b_kda - a_kda
+				}
+				break
+
+			case "винрейт":
+			case "winrate":
+				sortFunc = (a,b) => {
+					const a_win = fixNaN((a.Wins / (a.Wins + a.Losses) * 100).toFixed(0))
+					const b_win = fixNaN((b.Wins / (b.Wins + b.Losses) * 100).toFixed(0))
+					return b_win - a_win
+				}
+				break
+
+			default:
+				sortFunc = (a,b) => b.Rank - a.Rank
+				break
+		}
+
+		// сортируем чемпионов
+		const sortChampions = champions.sort(sortFunc)
+
+		// если ошибок нет, то рисуем стату
+		const last_update = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		const ctx = draw_st( sortChampions, last_update )
+		const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+		message.channel.send(`${message.author}`, {files: [buffer]})
+	})
+}
+
+
+function draw_st(champions, last_update) {
+	const imgWidth = 810
+	const len = champions.length
+	const imgHeight = 22 * len / 2 + 85
+	const paddingLeft = 390 // отступ до второй колонки
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 16px Georgia'
+
+	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	ctx.drawImage(background, 0, 0, imgWidth, imgHeight - 30)
+
+	ctx.fillStyle = "#000000"
+	ctx.fillRect(0, 0, imgWidth, 30)
+	ctx.fillRect(0, imgHeight - 30, imgWidth, 30)
+	ctx.fillStyle = "#1199cc" // голубой
+	ctx.fillRect(paddingLeft - 2, 30, 2, imgHeight - 60)
+	ctx.textAlign = "center"
+	ctx.fillText(`Обновленно: ${last_update} (UTC+0)`, imgWidth / 2, imgHeight - 10)
+	ctx.textAlign = "start"
+
+	for (let i = 0; i < 2; i++) {
+		ctx.fillText(`№`, 10 + paddingLeft * i, 20)
+		ctx.fillText(`Чемпион`, 40 + paddingLeft * i, 20)
+		ctx.fillText(`Lvl`, 145 + paddingLeft * i, 20)
+		ctx.fillText(`Минут`, 195 + paddingLeft * i, 20)
+		ctx.fillText(`Винрейт`, 265 + paddingLeft * i, 20)
+		ctx.fillText(`KDA`, 345 + paddingLeft * i, 20)
+	}
+	ctx.fillStyle = "#ffffff"
+
+	for (let i = 0; i < len; i++) {
+		const j =  Math.round(len / 2) // половина len в большую сторону
+		const jj = Math.floor(len / 2) // половина len в меньшую сторону
+		const padding = jj < i ? paddingLeft : 0 // распределение лево-право
+		const k = jj < i ? i - j : i
+		const paddingTop = 22 * k + 50
+		const champion = champions[i]
+
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText(champion.champion, 40 + padding, paddingTop)
+		ctx.fillStyle = '#BB1111' // красный
+		ctx.fillText(champion.Rank, 145 + padding, paddingTop)
+		ctx.fillStyle = '#CDCD11' // желтый
+		ctx.fillText(champion.Minutes, 195 + padding, paddingTop)
+		const winrate = fixNaN((champion.Wins / (champion.Wins + champion.Losses) * 100).toFixed(0))
+		ctx.fillStyle = '#32CD32' // зеленый
+		ctx.fillText(`${winrate}%`, 265 + padding, paddingTop)
+		const kda = ((champion.Kills + champion.Assists / 2) / (champion.Deaths + 1)).toFixed(2)
+		ctx.fillStyle = '#EE5500' // оранжевый
+		ctx.fillText(kda, 345 + padding, paddingTop)
+		ctx.fillText(`${i + 1}.`, 10 + padding, paddingTop)
+	}
+
+	return ctx
+}
+
+
+
+
+/**
+ * 
+ */
+function bot_online(message) {
+	sendSite({
+		method: "GET",
+		url: "https://store.steampowered.com/stats/Steam-Game-and-Player-Statistics"
+	})
+	.then(response => {
+		const body = response.body
+
+		const res = body.match(/<tr[^<>]+>\s*?<td[^<>]+>\s*?<span[^<>]+>\s*?([0-9,\.]+)<\/span>\s*?<\/td>\s*?<td[^<>]+>\s*?<span[^<>]+>\s*?([0-9,\.]+)<\/span>\s*?<\/td>\s*?<td[^<>]+>\s*?\&nbsp;<\/td>\s*?<td[^<>]*?>\s*?<a[^<>]+>\s*?paladins/is)
+		if ( !res ) return message.reply("Ошибка в парсинге, сообщите разработчику об ошибке.")
+		const now = res[1],
+			max = res[2]
+
+		return message.reply(`Онлайн сейчас: **${now}**, Максимальный пик за день: **${max}**.`)
+	})
+}
+
+
+
+
+
+
+// ---> PALADINS STATS default function --->
 function formProposals(text, maxLen) { // возвращает массив, разделяет строку на части
 	if (text.length <= 25) return [text]
 	let newText = []
@@ -914,498 +1665,6 @@ function formProposals(text, maxLen) { // возвращает массив, р�
 	}
 }
 
-
-// const championsIds = {
-// 	"Androxus": {id: "2205"},
-//     "Cassie": {id: "2092"},
-//     "Drogoz": {id: "2277"},
-//     "Kinessa": {id: "2249"},
-//     "Lian": {id: "2417"},
-//     "Maeve": {id: "2338"},
-// 	"Bomb King": {id: "2281"},
-// 	"Sha Lin": {id: "2307"},
-//     "Strix": {id: "2438"},
-//     "Koga": {id: "2493"},
-//     "Buck": {id: "2147"},
-//     "Pip": {id: "2056"},
-//     "Moji": {id: "2481"},
-//     "Evie": {id: "2094"},
-//     "Makoa": {id: "2288"},
-//     "Zhin": {id: "2420"},
-//     "Viktor": {id: "2285"},
-//     "Willo": {id: "2393"},
-//     "Dredge": {id: "2495"},
-//     "Lex": {id: "2362"},
-//     "Tyra": {id: "2314"},
-//     "Ruckus": {id: "2149"},
-//     "Grohk": {id: "2093"},
-//     "Talus": {id: "2472"},
-//     "Skye": {id: "2057"},
-// 	"Mal'Damba": {id: "2303"},
-//     "Imani": {id: "2509"},
-//     "Grover": {id: "2254"},
-//     "Furia": {id: "2491"},
-//     "Khan": {id: "2479"},
-//     "Io": {id: "2517"},
-//     "Barik": {id: "2073"},
-//     "Jenos": {id: "2431"},
-//     "Vivian": {id: "2480"},
-//     "Fernando": {id: "2071"},
-//     "Atlas": {id: "2512"},
-//     "Ying": {id: "2267"},
-//     "Ash": {id: "2404"},
-//     "Inara": {id: "2348"},
-//     "Raum": {id: "2528"},
-//     "Seris": {id: "2372"},
-//     "Torvald": {id: "2322"},
-// 	"Terminus": {id: "2477"},
-// 	"Tiberius": {id: "2529"}
-// }
-
-// function fixChampion(text) {
-// 	while (true) {
-// 		const sh = text.indexOf('\'')
-// 		if (sh != -1) text = text.slice(0, sh) + '' + text.slice(sh + 1)
-// 		const space = text.indexOf(' ')
-// 		if (space == -1) break
-// 		text = text.slice(0, space) + '' + text.slice(space + 1)
-// 		const defis = text.indexOf('-')
-// 		if (defis == -1) break
-// 		text = text.slice(0, defis) + '' + text.slice(defis + 1)
-// 		const bottomDefis = text.indexOf('_')
-// 		if (bottomDefis == -1) break
-// 		text = text.slice(0, bottomDefis) + '' + text.slice(bottomDefis + 1)
-// 	}
-// 	return text.toLowerCase()
-// }
-
-const paladinsItems = {
-	'blast shields': null,
-	'bulldozer': null,
-	'cauterize': null,
-	'chronos': null,
-	'deft hands': null,
-	'haven': null,
-	'illuminate': null,
-	'kill to heal': null,
-	'life rip': null,
-	'master riding': null,
-	'morale boost': null,
-	'nimble': null,
-	'rejuvenate': null,
-	'resilience': null,
-	'veteran': null,
-	'wrecker': null
-}
-// <--- draw playpaladins history <---
-
-
-
-// ---> draw !sm stats match id --->
-function drawMatchdetails(mess, matchDetails) { // рисует
-	const imgWidth = 1240
-	const imgHeight = 795
-	const canvas = createCanvas(imgWidth, imgHeight)
-	const ctx = canvas.getContext('2d')
-	ctx.font = 'bold 15px Georgia'
-	ctx.fillStyle = "#ffffff"
-	try {
-		const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
-		const matchOne = matchDetails[0] // просто выбранный первый человек в матче для получения статы самого матча
-
-		// инфа по центру
-		let mapImg = null // узнаем карту, поулчаем ее картинку
-		let mapName = ''
-		for (let map in paladinsMaps) {
-			const reg = new RegExp(`${map}`, 'i')
-			const res = matchOne.Map_Game.replace(/'/,'').match(reg)
-			if (res) {
-				mapImg = paladinsMaps[map]
-				mapName = res[0]
-				break
-			}
-		}
-		if (!mapName) {
-			mapName = matchOne.Map_Game || 'test'
-			mapImg = paladinsMaps['test maps']
-		}
-		if (mapImg) ctx.drawImage(mapImg, 10, 315, 356, 200) // рисуем карту
-		ctx.font = 'bold 20px Georgia'
-		ctx.fillText(matchOne.Entry_Datetime, 20, 502)
-
-		const typeMatch = matchOne.name
-		ctx.fillStyle = "#cccc11"
-		ctx.fillText(`${matchOne.Minutes} минут`, 376, 375)
-		ctx.fillText(`Регион: ${matchOne.Region}`, 376, 405)
-		ctx.fillText(typeMatch, 376, 435)
-		ctx.fillText(mapName, 376, 465)
-
-		ctx.textAlign = "center"
-		const winStatus = matchOne.Win_Status == 'Winner'
-		const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
-		if (winStatus) {
-			ctx.fillStyle = '#32CD32'
-			ctx.fillText('Победа', imgWidth / 2 + 70 + centerGoRight, 341)
-			ctx.fillStyle = '#BB1111'
-			ctx.fillText('Поражение', imgWidth / 2 + 70 + centerGoRight, 497)
-
-			ctx.fillStyle = 'rgba(50,205,50,0.06)'
-			ctx.fillRect(0, 30, imgWidth, 285)
-			ctx.fillStyle = 'rgba(187,17,17,0.1)'
-			ctx.fillRect(0, 515, imgWidth, 285)
-		} else { // эта часть не нужна походу так как победителя всегда перемещаются вверх
-			ctx.fillStyle = '#BB1111'
-			ctx.fillText('Поражение', imgWidth / 2 + 70 + centerGoRight, 341)
-			ctx.fillStyle = '#32CD32'
-			ctx.fillText('Победа', imgWidth / 2 + 70 + centerGoRight, 497)
-
-			ctx.fillStyle = 'rgba(187,17,17,0.1)'
-			ctx.fillRect(0, 30, imgWidth, 285)
-			ctx.fillStyle = 'rgba(50,205,50,0.06)'
-			ctx.fillRect(0, 515, imgWidth, 285)
-		}
-
-		ctx.fillStyle = "#ffffff"
-		ctx.fillText(`Команда 1 Счет: ${matchOne.Team1Score}`, imgWidth / 2 + 70 + centerGoRight, 383)
-		ctx.fillText(`Команда 2 Счет: ${matchOne.Team2Score}`, imgWidth / 2 + 70 + centerGoRight, 456)
-		ctx.drawImage(config.differentImg.vs, imgWidth / 2 + 40 + centerGoRight, 386, 50, 50)
-
-		ctx.textAlign = "start"
-		ctx.fillStyle = '#CC6600'
-		if (typeMatch == 'Ranked') ctx.fillText(`Баны:`, 885, 420)
-		ctx.fillStyle = "#ffffff"
-		ctx.font = 'bold 15px Georgia'
-		if (matchOne.Ban_1)ctx.drawImage(config.championsName[matchOne.Ban_1].loadedImg, 980, 360, 50, 50)
-		if (matchOne.Ban_2)ctx.drawImage(config.championsName[matchOne.Ban_2].loadedImg, 1040, 360, 50, 50)
-		if (matchOne.Ban_3)ctx.drawImage(config.championsName[matchOne.Ban_3].loadedImg, 980, 420, 50, 50)
-		if (matchOne.Ban_4)ctx.drawImage(config.championsName[matchOne.Ban_4].loadedImg, 1040, 420, 50, 50)
-
-		// рисуем таблицу
-		ctx.fillStyle = "#000000"
-		ctx.fillRect(0, 0, imgWidth, 32)
-		ctx.fillStyle = "#1199cc"
-		ctx.fillText('Чемпион', 10, 20)
-		ctx.fillText('Игрок', 140, 20)
-		ctx.fillText('Пати', 360, 20)
-		ctx.fillText('Кредиты', 410, 20)
-		ctx.fillText('K/D/A', 500, 20)
-		ctx.fillText('Урон', 580, 20)
-		ctx.fillText('Защита', 670, 20)
-		ctx.fillText('Исцеление', 770, 20)
-		ctx.fillText('Получено', 870, 20)
-		ctx.fillText('У цели', 970, 20)
-		ctx.fillText('Закуп', 1040, 20)
-		ctx.fillStyle = "#ffffff"
-
-		const party = {}
-		let partyNumber = 1
-		const partyColors = ['#00FFFF', '#006400', '#F08080', '#FFFF00', '#FF0000', '#4682B4', '#C71585', '#FF4500', '#7FFF00'].sort(function() {
-			return Math.random() - 0.5 // рандомизируем цвета каждый раз
-		})
-
-		for (let i = 0; i < matchDetails.length; i++) {
-			const players = matchDetails[i]
-			//const champName = config.championsCard[players.ChampionId][0].champion_name
-			const champName = players.Reference_Name
-
-			const cnampion = config.championsName[champName]
-			let nextTeam = i >= 5 ? 245 : 40
-			if (cnampion) { // если есть чемпион то рисуем
-				const img = cnampion.loadedImg
-				ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
-			}
-
-			const imgLegendary = config.LegendarChampions[players.ItemId6]
-			if (imgLegendary) ctx.drawImage(imgLegendary, 70, 55 * i + nextTeam, 50, 50) // рисуем легендарки
-
-			ctx.drawImage(config.rankedImage[players.League_Tier], 130, 55 * i + nextTeam, 50, 50) // рисуем ранг
-
-			// рисуем закуп
-			const item1 = players.Item_Active_1
-			if (item1) {
-				ctx.drawImage(paladinsItems[item1.toLowerCase()], 1040, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel1, 1040, 55 * i + nextTeam + 43, 10, 3)
-			}
-			const item2 = players.Item_Active_2
-			if (item2) {
-				ctx.drawImage(paladinsItems[item2.toLowerCase()], 1090, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel2, 1090, 55 * i + nextTeam + 43, 10, 3)
-			}
-			const item3 = players.Item_Active_3
-			if (item3) {
-				ctx.drawImage(paladinsItems[item3.toLowerCase()], 1140, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel3, 1140, 55 * i + nextTeam + 43, 10, 3)
-			}
-			const item4 = players.Item_Active_4
-			if (item4) {
-				ctx.drawImage(paladinsItems[item4.toLowerCase()], 1190, 55 * i + nextTeam, 40, 40)
-				drawLevelItem(ctx, players.ActiveLevel4, 1190, 55 * i + nextTeam + 43, 10, 3)
-			}
-
-			const partyId = players.PartyId
-			let partyNum = party[partyId]
-			if (!partyNum) {
-				party[partyId] = partyNum = partyNumber
-				partyNumber++
-			}
-
-			ctx.fillText(players.playerName, 200, 55 * i + nextTeam + 15)
-			ctx.fillStyle = "#CC6600"
-			ctx.fillText(`lvl: ${players.Account_Level}`, 200, 55 * i + nextTeam + 40)
-
-			nextTeam += 25
-
-			ctx.fillStyle = partyColors[partyNum - 1]
-			ctx.beginPath()
-			ctx.arc(380, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
-			ctx.fill()
-			ctx.fillStyle = "#000000"
-			ctx.fillText(partyNum, 376, 55 * i + nextTeam) // цифра пати
-			ctx.fillStyle = "#ffffff"
-			ctx.fillText(players.Gold_Earned, 410, 55 * i + nextTeam)
-			ctx.fillStyle = "#CC6600"
-			ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 500, 55 * i + nextTeam)
-			ctx.fillStyle = "#ffffff"
-			ctx.fillText(players.Damage_Player, 580, 55 * i + nextTeam)
-			ctx.fillText(players.Damage_Mitigated, 670, 55 * i + nextTeam)
-			ctx.fillText(players.Healing, 770, 55 * i + nextTeam)
-			ctx.fillText(players.Damage_Taken, 870, 55 * i + nextTeam)
-			ctx.fillText(players.Objective_Assists, 970, 55 * i + nextTeam)
-		}
-		return {ctx}
-	} catch(e) {
-		console.log("\r\nОшибка в drawMatchdetails:")
-		console.log(e)
-		mess.reply(`Возникла непредвиденная ошибка, сообщите о ней разработчикам бота.`)
-		return {err: true}
-	}
-}
-
-function drawLevelItem(ctx, lvl, x, y) { // рисует полоски под закупом (их лвл)
-	for (let i = 0; i <= lvl; i++) {
-		ctx.fillRect(x + 14 * i, y, 10, 3)
-	}
-}
-
-let paladinsMaps = {
-	'abyss': null,
-	'abyss spire': null,
-	'ascension peak': null,
-	'bazaar': null,
-	'brightmarsh': null,
-	'dragon arena': null,
-	'dragon call': null,
-	'fish market': null,
-	'foremans rise': null,
-	'frog isle': null,
-	'frozen guard': null,
-	'ice mines': null,
-	'jaguar falls': null,
-	'magistrates archives': null,
-	'marauders port': null,
-	'primal court': null,
-	'serpent beach': null,
-	'shattered desert': null,
-	'shooting range': null,
-	'snowfall junction': null,
-	'splitstone quarry': null,
-	'stone keep': null,
-	'test maps': null,
-	'timber mill': null,
-	'trade district': null,
-	'warders gate': null
-}
-// <--- draw !sm stats match id <---
-
-
-
-// ---> рисует !sp статистику матча в реальном времени (или отсылает текст) --->
-function drawPaladinsPlayerStatus(status, name) {
-	return new Promise(resolve => {
-		const ss = status[0]
-		const statusText = [
-			"Оффлайн",
-			"В лобби (например меню)",
-			"Выбирает чемпиона (бывает баг после стрельбища)",
-			"В матче (может загружаться)",
-			"Онлайн (хз как это получилось, у меня не вышло получить такой статус)",
-			false
-		]
-
-		const statusMess = statusText[ss.status]
-		if (!statusMess) resolve({err: "У игрока скрыт профиль, но это сообщение не должно выводится, теоретически -_-"}) // если не найден
-
-		const matchId = ss.Match
-		if (matchId) {
-			hiRezFunc("getmatchplayerdetails", {id: matchId}) // просмотр матча в реальном времени
-			.then(championList => {
-				if ( typeof(championList[0].ret_msg) == "string") return resolve({err: `Игрок **${name}** играет с ботами или в пользовательском режиме.`})
-				championList.sort((a, b) => {return a.taskForce - b.taskForce}) // сортируем по командам
-
-				const imgWidth = 952
-				const imgHeight = 535
-				const canvas = createCanvas(imgWidth, imgHeight)
-				const ctx = canvas.getContext('2d')
-				ctx.font = 'bold 16px Georgia'
-
-				const game = championList[0]
-				const mapName = game.mapGame || 'Test Maps'
-				try {
-					const tempMapName = mapName.replace(/live/i, '').replace(/'/i, '').replace(/\(KOTH\)/i, '').replace(/ranked/i, '').replace(/\(TDM\)/i, '').replace(/Local/i, '').trim()
-					if (tempMapName.toLowerCase() == 'shooting range') return resolve({err: `Игрок **${name}** находится в стрельбище.`})
-					const background = paladinsMaps[tempMapName.toLowerCase()]
-					ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
-				} catch(e) {
-					console.log(`\r\nКарта ${mapName} не найдена. Ошибка:`)
-					console.log(e)
-					return resolve({err: 'Ошибка загрузка карты.'})
-				}
-
-				ctx.fillRect(0, 0, imgWidth, 40)
-				ctx.fillRect(0, imgHeight - 40, imgWidth, imgHeight)
-
-				ctx.fillStyle = "#0088bb"
-				ctx.fillText('Команда 1', 35, 25)
-				ctx.textAlign = 'end'
-				ctx.fillText('Команда 2', imgWidth - 35, 25)
-				ctx.fillText(`Карта: `, imgWidth / 4, imgHeight - 15)
-				ctx.fillText(`Регион: `, imgWidth / 4 + imgWidth / 2, imgHeight - 15)
-				ctx.fillText(`id матча: `, imgWidth / 2, 25)
-				ctx.textAlign = 'start'
-				ctx.fillStyle = "#CC6600"
-				ctx.fillText(` ${mapName}`, imgWidth / 4, imgHeight - 15)
-				ctx.fillText(` ${game.playerRegion}`, imgWidth / 4 + imgWidth / 2, imgHeight - 15)
-				ctx.fillText(` ${matchId}`, imgWidth / 2, 25)
-				ctx.fillStyle = '#ffffff'
-
-				const playerIdsList = [] // список id игроков
-				for (let i = 0; i < championList.length; i++) {
-					const item = championList[i]
-					const img = config.championsName[item.ChampionName].loadedImg
-					playerIdsList.push(item.playerId) // добавляем их в список
-					if (item.taskForce == 1) {
-						ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
-						ctx.fillText(item.playerName, 130, 90 * i + 65)
-						ctx.fillText(item.Account_Level, 130, 90 * i + 90)
-						ctx.textAlign = 'center'
-						ctx.fillText(item.ChampionLevel, 95, 90 * i + 120)
-						ctx.textAlign = 'start'
-					} else if (item.taskForce == 2) {
-						ctx.drawImage(img, imgWidth - 120, 90 * (i - 5) + 50, 50, 50)
-						ctx.textAlign = 'end'
-						ctx.fillText(item.playerName, imgWidth - 130, 90 * (i - 5) + 65)
-						ctx.fillText(item.Account_Level, imgWidth - 130, 90 * (i - 5) + 90)
-						ctx.textAlign = 'center'
-						ctx.fillText(item.ChampionLevel, imgWidth - 95, 90 * (i - 5) + 120)
-					}
-				}
-
-				const vs = config.differentImg.vs
-				ctx.drawImage(vs, imgWidth / 2 - 70, imgHeight / 2 - 70, 140, 140)
-
-				hiRezFunc("getplayerbatch", playerIdsList)
-				.then(list => {
-					// перебираем list и playerIdsList проверяя на id и рисуя по позиции i от playerIdsList
-					for (let i = 0; i < playerIdsList.length; i++) { // рисуем ранги
-						// if (championList[i].taskForce == 2 && i < 5) continue // фикс бага со скрытым игроком
-
-						const id = playerIdsList[i]
-						const acc = getAccForId(list, id)
-
-						// если acc найден то рисуем
-						const tier = acc.Tier_RankedKBM
-						if (tier == undefined) continue
-						const imgRank = config.rankedImage[tier] // получаем картинку ранга
-						const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
-						if (i < 5) {
-							ctx.drawImage(imgRank, 10, 90 * i + 50, 50, 50 * coefficient)
-						} else {
-							ctx.drawImage(imgRank, imgWidth - 60, 90 * (i - 5) + 50, 50, 50 * coefficient)
-						}
-					}
-
-					return resolve({ctx})
-				})
-			})
-		} else {
-			return resolve({err: `Игрок **${name}** ${statusMess}.`})
-		}
-	})
-}
-
-function getAccForId(list, id) {
-	for (let i = 0; i < list.length; i++) {
-		const acc = list[i]
-		if (acc.Id == id) return acc
-	}
-	return false
-}
-// <--- рисует !sp статистику матча в реальном времени (или отсылает текст) <---
-
-
-
-// ---> functions for GURU --->
-// обрабатывает параметры до вызова основной функции поиска на гуру (поиск по сохраненным никам)
-function prefStatsGuru(mess, name, getStats) {
-	try {
-		if (name) {
-			name = name.trim()
-			// если начинается как пользователь, то тупо вырезаем все числа
-			//if (name.indexOf("<@") == 0 || name.indexOf("@") == 0) name = name.replace(/[^0-9]+/ig, "")
-			if ( name.match(/<@![0-9]+>/i) ) name = name.slice(3).slice(0, -1) // убираем еще хрень...
-			if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
-			if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
-			//if (!name || name === "me") name = mess.author.id // если не указан, то это автор
-			//if ( isNaN(+name) ) name = searchUser(name).id // ищем пользователя, его id
-		}
-
-		if (!name || name === "me") { // если имеется в виду свой ник
-			console.log("1")
-			sendSite( getFormsParams(mess.author.id) ) // получаем свой ник
-			.then(response => {
-				const res = JSON.parse(response.body)
-				const userName = res.paladins_name
-				if (!userName) return mess.reply(`У вас нет сохраненного ника. Используйте команду **!me ВАШ НИК** что бы сохранить ваш ник.`)
-				getStats( userName.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') )
-			})
-		} else if (/#[0-9]{4}$/i.test(name)) { // если указан чужой ник
-			console.log("2")
-			const user = searchUser(name) // ищем id указанного юзера
-			if (!user) return mess.reply(`Пользователь **${name}** не найден.`)
-			const userId = user.id
-
-			sendSite( getFormsParams(userId) ) // получаем чужой ник
-			.then(response => {
-				const res = JSON.parse(response.body)
-				const userName = res.paladins_name
-				if (!userName) return mess.reply(`Пользователь **${name}** не имеет сохраненного ника.`)
-				getStats( userName.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') )
-			})
-		} else if (/^[0-9]+$/i.test(name)) { // если только цифры - id пользователя которого посмотреть стату
-			console.log("3")
-			sendSite( getFormsParams(name) ) // получаем чужой ник
-			.then(response => {
-				const res = JSON.parse(response.body)
-				const userName = res.paladins_name
-				if (!userName) return mess.reply(`Пользователь **${name}** не имеет сохраненного ника.`)
-				getStats( userName.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') )
-			})
-		} else {
-			console.log("4")
-			getStats( name.replace(/[\\!@#$%^&*()\[\]\=\+]+/, '') ) // replace вроде как нужен...
-		}
-	} catch(e) {
-		console.log(e)
-		return mess.reply(`Неизвестная ошибка, сообщите о ней разработчику. Параметры: ${name}`)
-	}
-}
-
-// <--- functions for GURU <---
-
-
-
-// ---> PALADINS STATS default function --->
 function getRank(n) { // переводит цифры в ранг
 	switch (n) {
 		case 1: return 'Бронза 5'
@@ -1523,411 +1782,74 @@ function fixNaN(num) {
 }
 
 function getRadians(degrees) {return (Math.PI / 180) * degrees}
-
-
-function getSearchplayers(players, needId=false) { // возвращает нужного игрока - промис, либо false либо обьект с ошибкой
-	return new Promise(resolve => {
-		if (!players || !players[0]) resolve(false) // если пусто
-		if (players.length == 1) {
-			if (needId) return resolve(players[0]) // если нужен id то возвращаем так
-			return resolve( search(players[0]) )
-		} // если он всего один то возвращаем его
-
-		let searchPlayer = null
-		players.forEach(player => {
-			if (player.portal_id == 1 || player.portal_id == 25 || player.portal_id == 5) searchPlayer = player
-		})
-
-		if (searchPlayer) {
-			if (needId) return resolve(searchPlayer)
-			return resolve( search(searchPlayer) )
-		}
-
-		return resolve({
-			ret_msg: "Выберите нужный портал",
-			players
-		})
-
-		function search(player) {
-			const id = player.player_id
-			return hiRezFunc("getplayer", {id})
-		}
-	})
-}
-
 // <--- PALADINS STATS default function <---
 
 
 
-/* ---> !онлайн ---> */
-
-function showOnlineInServer(mess) { // !онлайн
-	if (mess.channel.type == 'dm') { // не только dm но и группа dm
-		// в dm нет онлайна
-		return mess.reply("В личных сообщениях команда **!онлайн** не работает.")
-	}
-	let membersArr = mess.guild.members.cache.array(),
-		game = {},
-		offline = 0,
-		dnd = 0, // красный
-		idle = 0, // желтый
-		online = 0, // зеленый
-		bot = 0 // сколько ботов
-
-	for (let i = 0; i < membersArr.length; i++) {
-		if (membersArr[i].user.bot) {bot++; continue} // если бот то пропускаем
-		switch (membersArr[i].presence.status) {
-			case 'dnd': dnd++;break
-			case 'idle': idle++;break
-			case 'online': online++;break
-			case 'offline': offline++;break
-		}
-		if (membersArr[i].presence.game) {
-			if (game[membersArr[i].presence.game] > 0) {
-				game[membersArr[i].presence.game]++
-			} else {game[membersArr[i].presence.game] = 1}
-		}
-	}
-	let says = `**Всего: ${membersArr.length - bot}** ${getTextUsers(membersArr.length - bot)} ` + 
-		`и **${bot}** ${getTextBots(bot)}. **Оффлайн: ${offline}**, **Онлайн: ${dnd + idle + online}**, из них **` + 
-		`${online} В сети, ${idle} Не активен, ${dnd} Не беспокоить.**${listGame(game)}`
-	if (says.length >= 1800) {
-		says = `**(Слишком длинное смс - инфа обрезана!!!)** \n${says}`
-		says = says.slice(0, 1800) + " ..."
-	}
-	mess.reply(says)
-}
-
-// приложения ->
-
-function getTextBots(num) { // склоняем слово
-	let n = (num + '').slice(-1) * 1
-	if (n == 1) {
-		return 'бот'
-	} else if (n > 1 && n < 5) {
-		return 'бота'
-	} else {
-		return 'ботов'
-	}
-}
-
-function getTextUsers(num) { // правильно склоняет слово
-	let n = (num + '').slice(-1) * 1 // берем последнюю цифру
-	if (n == 1) {
-		return 'пользователь'
-	} else if (n > 1 && n < 5) {
-		return 'пользователя'
-	} else {
-		return 'пользователей'
-	}
-}
-
-function listGame(obj) { // принимает обьект с играми и кол-вом игроков и возвращает их список
-	if (Object.keys(obj).length == 0) return ``
-	let list = `\n**Играют в:** `
-	for (let key in obj) {
-		list += `**"**${key}**"** **- ${obj[key]},** `
-	}
-	return `${list.slice(0, list.length - 4)}.**`
-}
-
-// <- приложения
-
-/* <--- !онлайн <--- */
-
-
-
-/* ---> !всего ---> */
-
-function showAllServersInfo(mess) {
-	const allUsers = startCounterUsers()
-	const dec = declension(allUsers.guilds, 'сервере', 'серверах', 'серверах') // окончание
-	const text = `Бот установлен на **${allUsers.guilds}** ${dec}. Общее кол-во людей: **${allUsers.all}**. Выполнено команд:** ${config.usedCommandsNow}**. Время работы: **${(new Date() - config.timeStart) / 60000 ^ 0}м**.`
-	return mess.reply(text)
-}
-
-function startCounterUsers() {
-	// можно выводить статистику еще по регионам серверов
-	let all = 0
-	client.guilds.cache.forEach((guild) => {all += guild.memberCount})
-	return {all, guilds: client.guilds.cache.size}
-}
-
-/* <--- !всего <--- */
-
-
-
-/* ---> !аватар ---> */
-
-function showUsersAvatar(mess, name) {
-	if (!name) name = mess.author.id
-	const defName = name
-	if (name.indexOf("@") == 0) name = name.slice(1) // если поставили @ то убираем ее
-	if (name.indexOf("<@") == 0) name = name.slice(2).slice(0, -1) // убираем еще хрень...
-
-	let user = searchUser(name)
-	if (!user) user = searchGuild(name)
-	if (!user) return mess.reply(`Ошибка! Пользователь **${defName}** не найден.`)
-
-	const avatarURL = user.avatarURL || user.iconURL
-	if (avatarURL === null) return mess.reply(`У пользователя **${defName}** нет аватара.`)
-	if (avatarURL) return mess.reply(avatarURL)
-	mess.reply(`Неизвестная ошибка при поиске **${defName}**.`)
-}
-
-/* <--- !аватар <--- */
-
-
-
-// ---> hi-rez functions --->
 
 
 /**
- * getdataused - возвращает лимиты использования API
- * gethirezserverstatus - возвращает статусы основных серверов hi-rez
- * getchampions - возвращает много инфы о всех чемпионах [11] (getgods)
- * getchampioncards - возвращает все карты указанного чемпиона [id, 11]
- * getchampionleaderboard - таблица лидеров по чемпионам [id, 428]
- * getplayer - возвращает статистику аккаунта [name, portalId]
- * getplayer - возвращает статистику аккаунта [name]
- * getplayerbatch - то же что и getplayer только сразу много id [id1, id2]
- * getplayeridbyname - возвращает краткую информацию об аккаунте [name]
- * getgodranks - информацию о всех чемпионах указанного игрока [id]
- * getchampionranks - то же что и "getgodranks" но только тех на ком играл [id]
- * getplayerloadouts - колоды указанного игрока (сразу всех персонажей) [id, 11]
- * getplayerstatus - возвращает статус игрока (в игре или нет, id матча) [id]
-        0 - Offline
-        1 - In Lobby  (в основном где угодно, кроме выбора бога или в игре)
-        2 - god Selection (игрок принял матч и выбирает бога перед началом игры)
-        3 - In Game (match has started)
-        4 - Online (игрок вошел в систему, но может блокировать трансляцию состояния игрока)
-        5 - Unknown (player not found)
- * getmatchhistory - история матчей [id]
- * getqueuestats - история но с очередью какой-то (очередь это тип игр, ранкед осада и др)
- * searchplayers - поискк игроков по нику как на гуру
- * getmatchdetails - история указанного матча [id]
- * getmatchplayerdetails - история матча в реальном времени [id]
- * getitems - возвращает кучу всяких предметов [11]
- * getleagueleaderboard - Возвращает лучших игроков определенной лиги {queue}/{tier}/{round}
- * @param {String} format - тип запроса
- * @param  {...any} params - параметры которые будут переданы в конец url
+ * <--- ФУНКЦИИ КОМАНД БОТА <---
  */
-function hiRezFunc(format, params) {
-	console.log(format, params)
-	return new Promise((resolve, reject) => {
-		if (!format) reject(false)
-
-		const formSend = formHi_rezFunc(format, params)
-		sendSite( formSend )
-		.then(res => {
-			// console.log(res.body)
-			console.log(res.body.last_update)
-			return resolve(res.body.json || [])
-		})
-	})
-}
 
 
 
-function searchPaladinsPlayer(name) { // функция эмулирующая API playpaladins
-	return new Promise((resolve, reject) => {
-		hiRezFunc("searchplayers", {name}) // поиск игрока
-		.then(getSearchplayers)
-		.then(response => {
-			if (!response) return reject({msg: "Игрок не найден"})
-			const main = response.constructor == Array ? response[0] : response
-			if (!main || main.ret_msg) return reject({msg: "Игрок не найден"})
-
-			const id = main.Id || main.player_id
-			hiRezFunc("getchampionranks", {id}) // поиск его чемпионов
-			.then(champions => {
-				if (!champions || !champions[0]) return reject({msg: "Чемпионы игрока не найдены"})
-				return resolve({main, champions, name})
-			})
-		})
-	})
-}
 
 
-function searchPaladinsMatch(name) { // функция эмулирующая API playapaladins
-	return new Promise((resolve, reject) => {
-		hiRezFunc("searchplayers", {name})
-		.then(function(res){ // ретранслятор типо, что бы поставить второй параметр true
-			return new Promise(resolve => {
-				return resolve( getSearchplayers(res, true) )
-			})
-		})
-		.then(body => {
-			// const body = response[0]
-			if (!body) reject({msg: "Пользователь не найден"})
-			const id = body.player_id
-
-			hiRezFunc("getmatchhistory", {id})
-			.then(matches => {
-				if (!matches[0]) reject({msg: "Матчи не найденны"})
-				return resolve(matches)
-			})
-		})
-	})
-}
-
-// <--- hi-rez functions <---
-
-
-
-// ---> Вспомогательные функции --->
 
 /**
- * Помогает склонять исчесляемое слово и возвращает нужное окончание
- * @param {Number} [num] - число к котому будет "склоняться"
- * @param {String} [dec1] - окончание отвечающее на 1
- * @param {String} [dec2] - окончание отвечающее на от 2 до 5
- * @param {String} [dec3] - окончание отвечющее на остальное
- * @return {String}
- **/
-function declension(num, dec1, dec2, dec3) {
-	if (num >= 5 && num < 20) return dec3
-	let n = (num + '').slice(-1) // берем последнюю цифру
-	if (n == 1) {
-		return dec1
-	} else if (n > 1 && n < 5) {
-		return dec2
-	} else {
-		return dec3
-	}
-}
+ * функция обрабатывающия сообщения для определения комманд
+ */
+function startListenMess(message) {
+	if (message.author.bot) return false // если сообщение от бота то игнорим
+	const content = message.content.replace(/[\\]+/, '')
+	const authorId = message.author.id
 
+	// если включен режим тестирования
+	if ( BOT_TESTING && authorId != "510112915907543042" ) return false
 
-function isNumeric(n) { // првоерка на число
-	return !isNaN(parseFloat(n)) && isFinite(n)
-}
-
-
-function searchUser(nameOrId) { // ищет пользователя по id или тегу
-	const user = client.users.cache.find(user => {
-		let locName = nameOrId
-		if (user.bot) locName = locName.slice(1)
-		if (user.id == nameOrId || user.tag == nameOrId) return user
-	})
-	return user
-}
-
-
-function searchGuild(guildId) { // ищет гильдию по id
-	const guild = client.guilds.cache.find(guild => {
-		if (guild.id == guildId) return guild
-	})
-	return guild
-}
-
-// <--- Вспомогательные функции <---
-
-
-
-
-
-
-
-// старт бота и загрузка настроек
-getConfigs() // но сначала загружаются базовые настройки
-.then(loadAll)
-.then(response => {
-	setTimeout(() => {
-		for (let i = 1; i < response.length; i++) {
-			if (response[i] !== true) throw new Error(`Ошибка [${i}] во время старта бота и загрузки стартовых функций.`)
-		}
-	
-		console.log("Бот запущен и настройки загруженны!")
-	
-		// client.channels.cache.get('612875033651707905').send('Я запустился!') // подойдет, но устарело
-		client.channels.fetch('612875033651707905') // правильней так ? тут я получаю канал даже если его нет в кэше
-		.then(channel => {
-			if (channel) channel.send('Я запустился!')
-		})
-		client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
-		client.on("message", startListenMess)
-
-
-		sendSite({
-			method: "POST",
-			url: config.url_site,
-			form: {
-				token: config.dbToken,
-				type: 'vkListen'
-			}
-		}).then(res => {
-			const body = JSON.parse(res.body)
-			body.forEach(item => {
-				if (item.active != 1) return false
-				const {id, channel} = item
-				startVkListen(id, channel)
-				console.log(`Прослушка запущенна для: ${id} в ${channel}`)
-			})
-		})
-	}, 2000);
-})
-
-function loadAll(res) {
-	if (!res) throw new Error("Ошибка загрузки конфинга")
-	return Promise.all([
-		client.login(config.tokenDiscord),
-		// getSetting(),
-		getChampionsCard(), // грузится не правильно, нужно что бы код не выполнялся пока не загрузится это
-		getCardFrames(),
-		getImgBackground(),
-		getImgChampions(),
-		getImgItems(),
-		getPaladinsMaps(),
-		getDifferentImg(),
-		getRankedImage()
-	])
-}
-
-
-
-function startListenMess(message) { // обработака всех сообщений // message.channel.type // text dm
-	message.content = message.content.replace(/[\\]+/, '')
-	if (message.author.id == "510112915907543042" && message.content.indexOf("!console ") == 0) {
-		eval( message.content.slice(9) )
+	/**
+	 * выполняет код создателя бота внутри, нужно для тестирования и отладки
+	 */
+	if (authorId == "510112915907543042" && content.startsWith("!console ")) {
+		eval( content.slice(9) )
 	}
 
-	//if (message.author.id != "510112915907543042") return false // testing ON
-	// перебираем все команды
-	for (key in commands) {
-		// если в начале сообщения стоит команда (ищем команду)
-		const value = commands[key]
+	// ищем команду
+	for (let i = 0; i < botCommands.length; i++ ) {
+		const command = botCommands[i]
 		let keyLen = null
-		const searchesCommand = value.commands.some((element) => {
-			keyLen = element.length + 1 // сохраняем, +1 что бы зацепить обязательный пробел после команды
-			return element == message.content.slice(0, keyLen).trim()
+		const commandSearch = command.commands.some(com => {
+			keyLen = com.length + 1 // сохраняем, +1 что бы зацепить обязательный пробел после команды
+			return content.toLowerCase().startsWith(com)
 		})
 
-		if (!searchesCommand) continue // если команда не найдена, пропускаем ее
-		const type = message.channel.type // тип чата, где полученно смс с командой
+		if (!commandSearch) continue // если команда не совпадает то пропускаем ее
 
+		/**
+		 * првоеряем права на отправку сообщений и прикреплению файлов (скринов)
+		 */
+		const type = message.channel.type // тип чата
 		if (type != 'dm' && type != 'group') { // в личке проверять права не нужно
 			const permission = message.channel.permissionsFor(client.user).has('SEND_MESSAGES')
 			if (!permission) return // если нельзя писать сообщения то выход
 
 			// проверяем права которые нужны для исполнения команды
-			const commandPerm = value.permission || 'SEND_MESSAGES'
+			const commandPerm = ['SEND_MESSAGES', 'ATTACH_FILES']
 			const checkPerm = message.channel.permissionsFor(client.user).has(commandPerm)
-			if (!checkPerm) return message.reply( value.errPerm || 'Ошибка прав.' )
+			if (!checkPerm) return message.reply('Недостаточно прав на отправку сообщений (файлы).')
 		}
 
-		const valParams = value.params || [] // убираем ошибку, если нет параметров
-		const params = message.content.slice(keyLen).splitCont(valParams.length - 1)
+		const valParams = command.params || [] // убираем ошибку, если нет параметров
+		const params = content.slice(keyLen).splitCont(valParams.length - 1)
 		message.channel.startTyping() // запускаем печатание
 		message.channel.stopTyping() // и сразу останавливаем (он будет печатать чутка, этого хватит)
-		value.func(message, ...params) // вызываем функцию команды передав параметры как строки
-		config.usedCommands++ // увеличиваем кол-во использованных команд
-		config.usedCommandsNow++
-		break // завершить поиск
+		return command.func(message, ...params) // вызываем функцию команды передав параметры как строки
 	}
 }
 
+// делает то же что и [].split, но определенное кол-во раз, а остальное возвращает как есть
 String.prototype.splitCont = function(count=0, search=' ') {
-	// делает то же что и [].split, но определенное кол-во раз, а остальное возвращает как есть
 	const params = []
 	let indexPref = 0
 	while (count) {
@@ -1947,143 +1869,141 @@ String.prototype.splitCont = function(count=0, search=' ') {
 
 
 
-// ---> Необходимые, глобальные функции --->
+/**
+ *  --- ЗАПУСК БОТА ---
+ * запускаем бота предварительно загрузив все необходимые данные для его работы
+ */
+const timeStart = new Date()
+loadAllData()
+.then(status => {
+	if (!status) return console.log("Ошибка загрузки данных.")
+	client.login(config.tokenDiscord)
+}).catch(err => {
+	console.log("EXIT")
+	// пробовать рекконнект через время
+})
 
 
-function formHi_rezFunc(format, params) {
-	const form_params = []
-	const params_query = params.constructor == Object ? {} : null
+/**
+ * когда клиент загрузится запустим прослушку сообщений
+ */
+client.on("ready", () => {
+	// отправляем сообщение о запуске на канал бота
+	client.channels.fetch('612875033651707905')
+	.then(channel => {
+		if (channel) channel.send('Я запустился!')
+		.catch(err => { console.log("Ошибка отправки сообщения.") })
+	})
 
-	for (let key in params) {
-		const value = params[key]
-		form_params.push(value)
-	}
-
-	if ( params_query && form_params.length > 1 ) { // если параметров больше 1, то в "type" будет массив, иначе строка
-		params_query.types = []
-		params_query.values = []
-		for (let key in params) {
-			const value = params[key]
-			
-			params_query.types.push(key)
-			params_query.values.push(value)
-		}
-	} else if (params_query) {
-		for (let key in params) {
-			const value = params[key]
-
-			params_query.types = key
-			params_query.values = value
-		}
-	}
-
-	return {
-		method: 'POST',
-		url: 'https://webmyself.ru/pal-bot/api.php',
-		json: true,
-		form: {
-			token: config.dbToken,
-			format,
-			params: form_params,
-			params_query
-		}
-		
-	}
-}
+	client.user.setActivity('!hh - вывести команды бота', { type: 'WATCHING' })
+	client.on("message", startListenMess)
+	const timeEnd = new Date() - timeStart
+	console.log(` ++ Бот запущен и готов к работе (${timeEnd}ms)`)
+})
 
 
+/**
+ * загружает необходиммые данные для работы бота
+ */
+function loadAllData() {
+	return new Promise((resolve, reject) => {
+		const timeStart = new Date()
+		load_getchampions()
+		.then(status => {
+			if (!status) return reject(false)
 
-// делает запрос на url с параметрами и возвращает промис с результатом
-function sendSite(params) {
-	if (!params.strictSSL) params.strictSSL = false
-	params.url = encodeURI(params.url)
-	const send = params.method == "POST" ? request.post : request.get
-	let count = 1 // сколько раз вылезла эта ошибка
-
-	const resend = () => {
-		return new Promise((resolve, reject) => {
-			send(params, function (error, response) {
-				if (error) reject(error)
-		      resolve(response)
+			Promise.all([
+				load_championsCard(), // загружает легендарки чемпионов и добавляет их в обьект (сделать отдельно)
+				getCardFrames(), // Фреймы карт
+				getImgBackground(), // Фоны для статы
+				getImgChampions(), // Иконки персонажей
+				getImgItems(), // Предметы (item)
+				getPaladinsMaps(), // Карты
+				getDifferentImg(), // Разные картинки
+				getRankedImage() // Иконки ранга
+			]).then(endStatus => {
+				if ( endStatus.find(el => el == false) === false ) return reject(false)
+				const timeEnd = new Date() - timeStart
+				console.log(` -- Данные загруженны. Запуск бота... (${timeEnd}ms)`)
+				return resolve(true)
 			})
-		}).catch(err => {
-			console.log(`ебучая ошибка ${count++}`)
-			return resend() // повторяем запрос снова
-		})
-	}
-	return resend()
-}
-
-
-
-
-// ---> Функции для автозагрузки или интервальные функции --->
-
-
-function getConfigs() {
-	return new Promise((resolve, reject) => {
-		try {
-			config.championList = require('./champions list.json') // getchampions сохраненный в json // dell
-			// const formSend = formHi_rezFunc("getchampions", {lang: "11"})
-			// sendSite( formSend )
-			// .then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
-				// const body = res.body
-				// if (!body) {
-				// 	console.log("Ошибка загрузки getchampions")
-				// 	return reject("Ошибка загрузки getchampions")
-				// }
-				// config.championList = body.json
-				config.championList.forEach(champion => {
-					champion.Roles = champion.Roles.replace(/paladins /ig, "")
-					// console.log(`${champion.Name_English}\r\n`)
-	
-					config.championsId[ champion.id ] = champion
-					config.championsName[ champion.Name_English ] = champion
-					config.championsName[ champion.Name_English.toLowerCase() ] = champion
-					config.championsName[ champion.Name_English.replace(/[ ']/i,'') ] = champion
-					config.championsName[ champion.Name_English.replace(/[ ']/i,'').toLowerCase() ] = champion
-
-					config.championsName[ champion.Name ] = champion // на русском
-					config.championsName[ champion.Name.toLowerCase() ] = champion // на русском
-					config.championsName[ champion.Name.replace(/[ ']/i,'') ] = champion // на русском
-					config.championsName[ champion.Name.replace(/[ ']/i,'').toLowerCase() ] = champion // на русском
-					if (champion.Name_English == "Mal'Damba") config.championsName[ "maldamba" ] = config.championsName[ "mal damba" ] = champion
-				})
-	
-				console.log("Конфиг успешно загружен, начался запуск бота...")
-				return resolve(true);
-			// })
-		} catch(err) {
-			console.log("Ошибка загрузки конфига. Ошибка:")
-			console.log(err)
-			reject(false);
-		}
-	})
-}
-
-
-// получаем настройки с сайта, админки
-function getSetting() {
-	return new Promise((resolve, reject) => {
-		const url = config.url_site
-		const token = config.dbToken
-		sendSite({method: "POST", url, form: {token, type: 'settings'}})
-		.then(response => {
-			const res = JSON.parse(response.body)
-			if (res.status !== "OK") reject(false)
-			config.setting = res
-			resolve(true)
 		})
 	})
 }
 
 
 
-// получаем карты чемпионов, их описание и url картинок (с нашего сайта)
-function getChampionsCard() {
+/**
+ * загружает getchampions из БД
+ * это нужно что бы иметь доступ ко всем персонажам и их данным
+ * устанавливает данные для:
+ * 		config.championList,
+ * 		config.championsId,
+ * 		config.championsName
+ */
+function load_getchampions() {
+	const timeStart = new Date()
+	return new Promise((resolve, reject) => {
+		const formSend = formHiRezFunc("getchampioncards")
+		sendSite( formSend )
+		.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
+			const body = res.body
+			if (!body) return reject("body - пуст.") // если пуст - выдаем ошибку
+
+			if (body.status === false) return reject(body. err_msg)
+
+			if ( !body.getchampions.status ) {
+				// ошибка загрузки
+				return reject("Ошибка загрузки load_getchampions :(")
+			}
+
+			config.championList = body.getchampions.json
+			config.championsCard = body.getchampioncards.json
+
+			formChampions() // записываем чемпионов и формируем данные для удобства
+			const timeEnd = new Date() - timeStart
+			console.log(`getchampions и getchampioncards успешно загруженны и записанны. (${timeEnd}ms)`)
+			return resolve(true)
+		})
+	}).catch(err => {
+		console.log("\r\nОшибка load_getchampions. Ошибка:")
+		console.log(err)
+		console.log("")
+		return false
+	})
+}
+
+
+/**
+ * записываем чемпионов и формируем данные для удобства
+ */
+function formChampions() {
+	config.championList.forEach(champion => {
+		champion.Roles = champion.Roles.replace(/paladins /ig, "")
+
+		config.championsId[ champion.id ] = champion
+		config.championsName[ champion.Name_English ] = champion
+		config.championsName[ champion.Name_English.toLowerCase() ] = champion
+		config.championsName[ champion.Name_English.replace(/[ ']/i,'') ] = champion
+		config.championsName[ champion.Name_English.replace(/[ ']/i,'').toLowerCase() ] = champion
+
+		config.championsName[ champion.Name ] = champion // на русском
+		config.championsName[ champion.Name.toLowerCase() ] = champion // на русском
+		config.championsName[ champion.Name.replace(/[ ']/i,'') ] = champion // на русском
+		config.championsName[ champion.Name.replace(/[ ']/i,'').toLowerCase() ] = champion // на русском
+		if (champion.Name_English == "Mal'Damba") config.championsName[ "maldamba" ] = config.championsName[ "mal damba" ] = champion
+	})
+}
+
+
+/**
+ * загружает легендарки чемпионов и добавляет их в обьект
+ * (должно быть запущенно строго после загрузки load_getchampions)
+ */
+function load_championsCard() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
-		const body = require("./champions card.json")
-		config.championsCard = body
+		const body = config.championsCard
 
 		// выбираем леги для загрузки
 		const list = []
@@ -2093,6 +2013,10 @@ function getChampionsCard() {
 			for (let i = 0; i < cards.length; i++) {
 				const item = cards[i]
 	
+				/**
+				 * так как легендарки используются часто то загружаем их в память
+				 * легендарки загрузит полюбому так как они есть у нас в папке
+				 */
 				if (item.rarity != 'Legendary') continue
 				list.push( loadImage(`legendary/${item.card_id2}.png`) )
 			}
@@ -2112,15 +2036,19 @@ function getChampionsCard() {
 					k++
 				}
 			}
-			console.log("Карты и легендарки чемпионов загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Легендарки чемпионов загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
-function getCardFrames() { // загружает фреймы карт за ранее (рамки)
+/**
+ * загружает фреймы карт в буфер (рамки)
+ */
+function getCardFrames() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		list.push( loadImage("card_frames/1.png") )
@@ -2132,15 +2060,19 @@ function getCardFrames() { // загружает фреймы карт за ра
 		Promise.all(list)
 		.then(imgList => {
 			config.cardFrames = imgList
-			console.log("Фреймы карт загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Фреймы карт загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
+/**
+ * загружает фоны для статы в буфер
+ */
 function getImgBackground() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		list.push( loadImage(`stats-img/stats-background-1.jpg`) )
@@ -2150,15 +2082,19 @@ function getImgBackground() {
 		Promise.all(list)
 		.then(imgList => {
 			config.imgBackground = imgList
-			console.log("Фоны для статы загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Фоны для статы загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
+/**
+ * загружает иконки чемпионов (вроде после того ?)
+ */
 function getImgChampions() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		for (let championId in config.championsId) {
@@ -2175,15 +2111,19 @@ function getImgChampions() {
 				i++
 			}
 
-			console.log("Иконки персонажей загружены.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Иконки персонажей загружены. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
+/**
+ * загружает картинки закупки (items)
+ */
 function getImgItems() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		for (let item in paladinsItems) {
@@ -2197,15 +2137,19 @@ function getImgItems() {
 				paladinsItems[item] = imgList[i]
 				i++
 			}
-			console.log("Предметы (item) загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Предметы (item) загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
-function getPaladinsMaps() { // paladinsMaps
+/**
+ * загружает игровые карты (местность)
+ */
+function getPaladinsMaps() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		for (let map in paladinsMaps) {
@@ -2219,15 +2163,19 @@ function getPaladinsMaps() { // paladinsMaps
 				paladinsMaps[item] = imgList[i]
 				i++
 			}
-			console.log("Карты загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Карты загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
-function getDifferentImg() { // разные изображениея
+/**
+ * загружает другие изображениея
+ */
+function getDifferentImg() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		list.push( loadImage(`vs.png`) )
@@ -2235,15 +2183,19 @@ function getDifferentImg() { // разные изображениея
 		Promise.all(list)
 		.then(imgList => {
 			config.differentImg['vs'] = imgList[0]
-			console.log("Разные картинки загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Разные картинки загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
 }
 
 
-
-function getRankedImage() { // разные изображениея
+/**
+ * загружает изображения рейтинговых званий
+ */
+function getRankedImage() {
+	const timeStart = new Date()
 	return new Promise(resolve => {
 		const list = []
 		for (let i = 0; i <= 27; i++) {
@@ -2253,7 +2205,8 @@ function getRankedImage() { // разные изображениея
 		Promise.all(list)
 		.then(imgList => {
 			config.rankedImage = imgList
-			console.log("Иконки ранга загруженны.")
+			const timeEnd = new Date() - timeStart
+			console.log(`Иконки ранга загруженны. (${timeEnd}ms)`)
 			resolve(true)
 		})
 	})
@@ -2261,73 +2214,42 @@ function getRankedImage() { // разные изображениея
 
 
 
-setInterval(setStatsToSite, 60000) // обновляем статистику для сайта каждую минуту
-
-function setStatsToSite() {
-	const url = config.url_site
-	const token = config.dbToken
-	const timeWork = new Date() - config.timeStart
-	let users = 0
-	let servers = 0
-
-	client.guilds.cache.forEach(guild => {
-		servers++
-		users += guild.memberCount
-	})
-
-	const usedCommands = config.usedCommands
-	const usedCommandsNow = config.usedCommandsNow
-	config.usedCommands = 0
-
-	sendSite({method: "POST", url, form: {
-		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork
-	}}).then (res => {
-		console.log(res.body) // успешно отправленно
-		try {
-			const body = JSON.parse(res.body)
-			if ( body.status != "OK") {
-				config.usedCommands += usedCommands // возвращаем их назад
-			}
-		} catch(e) {
-			console.log("Ошибка 'stats_new':")
-			console.log(e)
-			config.usedCommands += usedCommands // возвращаем их назад
-		}
-		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)
-	})
-}
-
-
-
-/* - Что бы сделать боту сообщения "Embed", нужно будет дать возможность выбора оформления функции
- * - Все функции которые отправляют сообщения должны всегда проверять права перед отправкой, а иногда и
- * перед формированием ответа (иногда можно и наоборот)
+/**
+ * облегчаем формирование запросов к БД
+ * @param {String} command - имя вызываемой функции
+ * @param {Number} discord_id - id дискорда пользователя написавшего особщение (для поиска сохраненного никнейма)
+ * @param {Array} params - параметры для функции
  */
-
-function startVkListen(id, to) {
-	global.vkparser = true;
-	let lastLoggedIn = null;
-	const urlVkparser = `https://vk.com/foaf.php?id=${id}`;
-	setInterval(function() {
-		if (!vkparser) return false;
-		try {
-			sendSite({url: urlVkparser})
-			.then(response => {
-				const match = response.body.match(/<ya:lastLoggedIn dc:date="([0-9-:+a-z]+?)"\/>/i);
-				if (!match) return false;
-				const res = match[1];
-				if (lastLoggedIn == res) return false;
-				console.log(res);
-				lastLoggedIn = res;
-
-				client.channels.fetch(to)
-				.then(channel => {
-					if (channel) channel.send(res);
-				});
-			});
-		} catch(error) {
-			console.log('Ошибка парсинга вк:');
-			console.log(error);
+function formHiRezFunc(command, discord_id=null, ...params) {
+	return {
+		url: "https://webmyself.ru/pal-bot/bot_api.php",
+		method: "POST",
+		json: true,
+		form: {
+			token: config.dbToken,
+			command,
+			discord_id,
+			params
 		}
-	}, 15 * 1000);
+	}
 }
+
+
+
+/**
+ * отправляем ошибку на канал бота, в консоль и сообщает пользователю об ошибке
+ * тип ошибки - запрос с сайта
+ * @param {*} message 
+ * @param {*} body 
+ */
+function sendError(message, body) {
+	console.log("\r\nВозникла ошибка при получении данных с сайта. ERR:")
+	console.log(err)
+	client.channels.fetch('696604376034181140')
+	.then(channel => {
+		if (channel) channel.send( body.slice(0, 500) )
+		.catch(err => { console.log("Ошибка отправки сообщения.") })
+	})
+	return message.reply("Возникла ошибка при запросе, повторите комманду снова. Если ошибка не пропадает сообщите о ней разработчикам.")
+}
+

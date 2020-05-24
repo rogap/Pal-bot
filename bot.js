@@ -306,8 +306,14 @@ function bot_ss(message, name) {
 		const getplayer = body.getplayer
 		const getchampionranks = body.getchampionranks
 		// проверяем есть ли ошибки в полученных данных
-		if ( !getplayer.status ) return message.reply(getplayer.err_msg)
-		if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		try {
+			if ( !getplayer.status ) return message.reply(getplayer.err_msg)
+			if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
+		
 
 		// если ошибок нет, то рисуем стату
 		draw_ss(getplayer, getchampionranks)
@@ -532,7 +538,12 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 
 		const getmatchhistory = body.getmatchhistory
 		// проверяем есть ли ошибки в полученных данных
-		if ( !getmatchhistory.status ) return message.reply(getmatchhistory.err_msg)
+		try {
+			if ( !getmatchhistory.status ) return message.reply(getmatchhistory.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
 
 		let matchList = getmatchhistory.json
 		const matchLenMax = matchList.length
@@ -717,7 +728,12 @@ function bot_sm(message, name, matchIndex=1) {
 
 		const getmatchdetails = body.getmatchdetails
 		// проверяем есть ли ошибки в полученных данных
-		if ( !getmatchdetails.status ) return message.reply(getmatchdetails.err_msg)
+		try {
+			if ( !getmatchdetails.status ) return message.reply(getmatchdetails.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
 
 		// если ошибок нет, то рисуем стату
 		draw_sm(getmatchdetails.json)
@@ -972,7 +988,12 @@ function bot_sl(message, name, championName, num=false) {
 
 		const getplayerloadouts = body.getplayerloadouts
 		// проверяем есть ли ошибки в полученных данных
-		if ( !getplayerloadouts.status ) return message.reply(getplayerloadouts.err_msg)
+		try {
+			if ( !getplayerloadouts.status ) return message.reply(getplayerloadouts.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
 
 		/**
 		 * формируем колоды, преверив есть ли они вообще
@@ -1197,7 +1218,13 @@ function bot_sp(message, name) {
 		if ( json.status != 3 || !getmatchplayerdetails ) return message.reply(`Непредвиденная ошибка, сообщите о ней разработчику.`)
 
 		// если игрок в матче то проверяем корректность данных
-		if ( !getmatchplayerdetails.status ) return message.reply(getmatchplayerdetails.err_msg )
+		try {
+			if ( !getmatchplayerdetails.status ) return message.reply(getmatchplayerdetails.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлять в логи на серв
+		}
+
 		const matchplayerdetails = getmatchplayerdetails.json
 		if ( !matchplayerdetails ) return message.reply("Возникла ошибка, сообщите о ней разработчикам бота: matchplayerdetails пуст.")
 		if ( typeof(matchplayerdetails[0].ret_msg) == "string" ) {
@@ -1380,7 +1407,13 @@ function bot_sc(message, name, championName) {
 
 		// проверяем есть ли ошибки в полученных данных
 		const getchampionranks = body.getchampionranks
-		if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		try {
+			if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
+
 		const champions = getchampionranks.json
 		const time = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
 		if ( !champions ) return message.reply(`Чемпионы не найденны.\r\nОбновленно: **${time}** (UTC+0)`)
@@ -1505,7 +1538,13 @@ function bot_st(message, name, typeSort="lvl") {
 
 		// проверяем есть ли ошибки в полученных данных
 		const getchampionranks = body.getchampionranks
-		if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		try {
+			if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
+
 		const champions = getchampionranks.json
 		const time = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
 		if ( !champions ) return message.reply(`Чемпионы не найденны.\r\nОбновленно: **${time}** (UTC+0)`)

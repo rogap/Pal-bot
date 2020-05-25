@@ -262,6 +262,10 @@ function bot_me(message, name=null) {
  */
 function bot_ss(message, name) {
 	const discord_id = message.author.id
+
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
 	const form = formHiRezFunc("ss", discord_id, name)
 	sendSite(form)
 	.then(response => {
@@ -495,6 +499,10 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
  function bot_sh(message, name, matchIndex=1) {
 	--matchIndex
 	const discord_id = message.author.id
+	
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
 	const form = formHiRezFunc("sh", discord_id, name)
 	sendSite(form)
 	.then(response => {
@@ -685,6 +693,10 @@ function drawItems_sh(ctx, matchList) {
  */
 function bot_sm(message, name, matchIndex=1) {
 	const discord_id = message.author.id
+	
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
 	const form = formHiRezFunc("sm", discord_id, name, matchIndex)
 	sendSite(form)
 	.then(response => {
@@ -938,6 +950,9 @@ function drawLevelItem(ctx, lvl, x, y) { // рисует полоски под �
  */
 function bot_sl(message, name, championName, num=false) {
 	if (!name && !championName) return message.reply("Укажите параметры правильно. **!sl [name] [champion]**")
+	
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	// проверяем задал ли он ник чемпиона пропустив свой ник
 	const champion = !championName ? config.championsName[name] : config.championsName[championName]
@@ -1141,6 +1156,10 @@ function getPaladinsCard(idCard, idChamp) {
  */
 function bot_sp(message, name) {
 	const discord_id = message.author.id
+	
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
 	const form = formHiRezFunc("sp", discord_id, name)
 	sendSite(form)
 	.then(response => {
@@ -1358,6 +1377,9 @@ function draw_sp(matchplayerdetails, background) {
 function bot_sc(message, name, championName) {
 	if (!name && !championName) return message.reply("Укажите параметры правильно. **!sc [name] [champion]**")
 
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
 	// проверяем задал ли он ник чемпиона пропустив свой ник
 	const champion = !championName ? config.championsName[name] : config.championsName[championName]
 	if (!champion) return message.reply("Введите корректное имя чемпиона. **!sc [name] [champion]**")
@@ -1495,6 +1517,10 @@ function draw_sc(champion, playerId) {
  */
 function bot_st(message, name, typeSort="lvl") {
 	const discord_id = message.author.id
+	
+	// если указан пользователь, то берем его ID
+	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
 	const form = formHiRezFunc("st", discord_id, name)
 	sendSite(form)
 	.then(response => {
@@ -1800,22 +1826,6 @@ function drawPieSlice(ctx, centerX, centerY, radius, startAngle, endAngle, color
 	ctx.arc(centerX, centerY, radius, getRadians(startAngle), getRadians(endAngle))
 	ctx.closePath()
 	ctx.fill()
-}
-
-
-function getFormsParams(id, name=false) { // бытро формирует обьект с парамметрами
-	return {
-		method: "POST", 
-		url: config.url_site, 
-		form: {
-			token: config.dbToken, 
-			type: name ? 'set_bot_me' : 'get_bot_me', 
-			user_id: id,
-			username: name
-		}
-	}
-	//if (name) obj.form.username = name
-	//return obj
 }
 
 function fixNaN(num) {

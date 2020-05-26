@@ -98,57 +98,66 @@ function sendSite(params) {
 const botCommands = [
 	{
 		commands: ["!hh"],
-		info: "Выводит список команд или подробности команды, если она указана. Пример: **!hh !me**.",
+		info: "Выводит список команд. Если передан параметр, то выводит подсказки для указанной команды. Пример: **!hh !me**.",
 		func: bot_hh,
-		params: ["Команда"]
+		params: ["Команда"],
+		detail: "**!hh [Команда]** - Выводит список команд. Если передан параметр, то выводит подсказки для указанной команды.\r\nПримеры:\r\n**!hh !me**, **!hh ss**, **!hh !sl**\r\nТо есть можно указывать команду (по которой хотим получить помощь) как с **!** так и без."
 	},
 	{
 		commands: ["!me"],
 		info: "Сохраняет ваш никнейм для автоматической подстановки его в другие команды (можно будет писать просто !ss или !ss me).",
 		func: bot_me,
-		params: ["Ник"]
+		params: ["Ник"],
+		detail: "**!me [Ник]** - Сохраняет указанный никнейм либо выводит текущий сохраненный (если есть). Так же можно сохранить и ID аккаунте.\r\nПримеры:\r\n**!me mutu**, **!me 000000**\r\nСохранять свой никнейм очень выгодно, так как после можно не писать свое имя в некоторых командах, а писать **me** или даже ничего :) Примеры:\r\n**!ss** (тут ник подставится сам), **!st me винрейт** (тут вместо **me** подставится ваш ник или id).\r\n **!ss [упоминание или id дискорда]** - **!ss @Neuro** или **!ss 510112915907543042**"
 	},
 	{
 		commands: ["!ss", "!стата"],
 		info: "Выводит общую статистику аккаунта.",
 		func: bot_ss,
-		params: ["Ник"]
+		params: ["Ник"],
+		detail: ""
 	},
 	{
 		commands: ["!sh", "!история"],
 		info: "Выводит последние 50 матчей указанного игрока.",
 		func: bot_sh,
-		params: ["Ник", "страница"]
+		params: ["Ник", "страница"],
+		detail: ""
 	},
 	{
 		commands: ["!sm", "!матч"],
 		info: "Выводит подробности матча по id матча или по нику игрока.",
 		func: bot_sm,
-		params: ["id или Ник", "Порядок матча, если указан ник"]
+		params: ["id или Ник", "Порядок матча, если указан ник"],
+		detail: ""
 	},
 	{
 		commands: ["!sl", "!колода"],
 		info: "Выводит колоды игрока указанного чемпиона.",
 		func: bot_sl,
-		params: ["Ник", "имя чемпиона", "номер колоды"]
+		params: ["Ник", "имя чемпиона", "номер колоды"],
+		detail: ""
 	},
 	{
 		commands: ["!sp"],
 		info: "Проверяет онлайн статус игрока и выводит матч, если он в матче.",
 		func: bot_sp,
-		params: ["Ник"]
+		params: ["Ник"],
+		detail: ""
 	},
 	{
 		commands: ["!sc", "!чемпион"],
 		info: "Выводит статистику указанного чемпиона.",
 		func: bot_sc,
-		params: ["Ник", "Чемпион"]
+		params: ["Ник", "Чемпион"],
+		detail: ""
 	},
 	{
 		commands: ["!st", "!топ"],
 		info: "Выводит топ чемпионов с возможностью сортировки (lvl, winrate, time, kda).",
 		func: bot_st,
-		params: ["Ник", "Тип сортировки"]
+		params: ["Ник", "Тип сортировки"],
+		detail: ""
 	},
 	{
 		commands: ["!pal-bot", "!palbot"],
@@ -157,12 +166,14 @@ const botCommands = [
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
 			client.users.fetch(mess.author.id)
 			.then(user => user.send(text))
-		}
+		},
+		detail: "**!pal-bot** - Отправляет вам в ЛС ссылку на сервер бота.\r\nМожно использовать как **!pal-bot** так и **!palbot**"
 	},
 	{
 		commands: ["!online", "!онлайн"],
 		info: "Выводит кол-во игроков онлайн в игре (данные Steam).",
-		func: bot_online
+		func: bot_online,
+		detail: "**!online** - Парсит текущий и максимальный онлайн в игре Paladins со странички статистики стима и выводит его.\r\nМожно использовать как **!online** так и **!онлайн**"
 	}
 ]
 
@@ -554,6 +565,7 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 		}
 
 		let matchList = getmatchhistory.json
+		if ( matchList && matchList[0] && matchList[0].ret_msg ) return message.reply("Матчи не найденны.")
 		const matchLenMax = matchList.length
 
 		/**
@@ -623,7 +635,7 @@ function draw_sh(matchList, last_update) {
 
 
 function drawItems_sh(ctx, matchList) {
-	const pos = [10, 100, 250, 330, 410, 490, 580, 670, 760, 850]
+	const pos = [10, 100, 255, 330, 410, 505, 595, 685, 775, 865]
 	ctx.fillStyle = "#1199cc"
 
 	// рисуем таблицу для инфы
@@ -759,7 +771,7 @@ function bot_sm(message, name, matchIndex=1) {
 
 
 function draw_sm(matchdetails) {
-	const imgWidth = 1205
+	const imgWidth = 1225
 	const imgHeight = 795
 	const canvas = createCanvas(imgWidth, imgHeight)
 	const ctx = canvas.getContext('2d')
@@ -842,16 +854,16 @@ function draw_sm(matchdetails) {
 	ctx.fillRect(0, 0, imgWidth, 32)
 	ctx.fillStyle = "#1199cc"
 	ctx.fillText('Чемпион', 10, 20)
-	ctx.fillText('Игрок', 140, 20)
-	ctx.fillText('Пати', 345, 20)
-	ctx.fillText('Кредиты', 400, 20)
-	ctx.fillText('K/D/A', 485, 20)
-	ctx.fillText('Урон', 565, 20)
-	ctx.fillText('Защита', 650, 20)
-	ctx.fillText('Лечение', 745, 20)
-	ctx.fillText('Получено', 840, 20)
-	ctx.fillText('Цель', 940, 20)
-	ctx.fillText('Закуп', 1005, 20)
+	ctx.fillText('Игрок / ОТ', 140, 20)
+	ctx.fillText('Пати', 365, 20)
+	ctx.fillText('Кредиты', 420, 20)
+	ctx.fillText('K/D/A', 505, 20)
+	ctx.fillText('Урон', 585, 20)
+	ctx.fillText('Защита', 670, 20)
+	ctx.fillText('Лечение', 765, 20)
+	ctx.fillText('Получено', 860, 20)
+	ctx.fillText('Цель', 960, 20)
+	ctx.fillText('Закуп', 1025, 20)
 	ctx.fillStyle = "#ffffff"
 
 	const party = {}
@@ -880,23 +892,23 @@ function draw_sm(matchdetails) {
 		// рисуем закуп
 		const item1 = players.Item_Active_1
 		if (item1) {
-			ctx.drawImage(paladinsItems[item1.toLowerCase()], 1005, 55 * i + nextTeam, 40, 40)
-			drawLevelItem(ctx, players.ActiveLevel1, 1005, 55 * i + nextTeam + 43, 10, 3)
+			ctx.drawImage(paladinsItems[item1.toLowerCase()], 1025, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel1, 1025, 55 * i + nextTeam + 43, 10, 3)
 		}
 		const item2 = players.Item_Active_2
 		if (item2) {
-			ctx.drawImage(paladinsItems[item2.toLowerCase()], 1055, 55 * i + nextTeam, 40, 40)
-			drawLevelItem(ctx, players.ActiveLevel2, 1055, 55 * i + nextTeam + 43, 10, 3)
+			ctx.drawImage(paladinsItems[item2.toLowerCase()], 1075, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel2, 1075, 55 * i + nextTeam + 43, 10, 3)
 		}
 		const item3 = players.Item_Active_3
 		if (item3) {
-			ctx.drawImage(paladinsItems[item3.toLowerCase()], 1105, 55 * i + nextTeam, 40, 40)
-			drawLevelItem(ctx, players.ActiveLevel3, 1105, 55 * i + nextTeam + 43, 10, 3)
+			ctx.drawImage(paladinsItems[item3.toLowerCase()], 1125, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel3, 1125, 55 * i + nextTeam + 43, 10, 3)
 		}
 		const item4 = players.Item_Active_4
 		if (item4) {
-			ctx.drawImage(paladinsItems[item4.toLowerCase()], 1155, 55 * i + nextTeam, 40, 40)
-			drawLevelItem(ctx, players.ActiveLevel4, 1155, 55 * i + nextTeam + 43, 10, 3)
+			ctx.drawImage(paladinsItems[item4.toLowerCase()], 1175, 55 * i + nextTeam, 40, 40)
+			drawLevelItem(ctx, players.ActiveLevel4, 1175, 55 * i + nextTeam + 43, 10, 3)
 		}
 
 		const partyId = players.PartyId
@@ -906,28 +918,30 @@ function draw_sm(matchdetails) {
 			partyNumber++
 		}
 
-		ctx.fillText(players.playerName, 180, 55 * i + nextTeam + 15)
+		// ОТ ЛВЛ и ник
+		ctx.fillText(players.League_Points || '', 170, 55 * i + nextTeam + 27)
+		ctx.fillText(players.playerName, 205, 55 * i + nextTeam + 15)
 		ctx.fillStyle = "#EE5500"
-		ctx.fillText(`lvl: ${players.Account_Level}`, 180, 55 * i + nextTeam + 40)
+		ctx.fillText(`lvl: ${players.Account_Level}`, 205, 55 * i + nextTeam + 40)
 
 		nextTeam += 25
 
 		ctx.fillStyle = partyColors[partyNum - 1]
 		ctx.beginPath()
-		ctx.arc(365, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
+		ctx.arc(385, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати
 		ctx.fill()
 		ctx.fillStyle = "#000000"
-		ctx.fillText(partyNum, 361, 55 * i + nextTeam) // цифра пати
+		ctx.fillText(partyNum, 381, 55 * i + nextTeam) // цифра пати
 		ctx.fillStyle = "#ffffff"
-		ctx.fillText(players.Gold_Earned, 400, 55 * i + nextTeam)
+		ctx.fillText(players.Gold_Earned, 420, 55 * i + nextTeam)
 		ctx.fillStyle = "#EE5500"
-		ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 485, 55 * i + nextTeam)
+		ctx.fillText(`${players.Kills_Player}/${players.Deaths}/${players.Assists}`, 505, 55 * i + nextTeam)
 		ctx.fillStyle = "#ffffff"
-		ctx.fillText(players.Damage_Player, 565, 55 * i + nextTeam)
-		ctx.fillText(players.Damage_Mitigated, 650, 55 * i + nextTeam)
-		ctx.fillText(players.Healing, 745, 55 * i + nextTeam)
-		ctx.fillText(players.Damage_Taken, 840, 55 * i + nextTeam)
-		ctx.fillText(players.Objective_Assists, 940, 55 * i + nextTeam)
+		ctx.fillText(players.Damage_Player, 585, 55 * i + nextTeam)
+		ctx.fillText(players.Damage_Mitigated, 670, 55 * i + nextTeam)
+		ctx.fillText(players.Healing, 765, 55 * i + nextTeam)
+		ctx.fillText(players.Damage_Taken, 860, 55 * i + nextTeam)
+		ctx.fillText(players.Objective_Assists, 960, 55 * i + nextTeam)
 	}
 	return new Promise(resolve => resolve(ctx))
 }
@@ -1446,25 +1460,31 @@ function bot_sc(message, name, championName) {
 		if ( !searches ) return message.reply(`У игрока нет игр на **${championName || name}**.`)
 
 		// если ошибок нет, то рисуем стату
-		const ctx = draw_sc( searches, getchampionranks.id )
+		const ctx = draw_sc( searches, getchampionranks.id, `Обновленно: ${time} (UTC+0)` )
 		const buffer = ctx.canvas.toBuffer('image/png') // buffer image
 		message.channel.send(`${message.author}`, {files: [buffer]})
 	})
 }
 
 
-function draw_sc(champion, playerId) {
+function draw_sc(champion, playerId, updateTimeText) {
 	const fullInfoChampion = config.championsId[ champion.champion_id ]
 
 	const imgWidth = 600
-	const imgHeight = 260
+	const imgHeight = 290
 	const canvas = createCanvas(imgWidth, imgHeight)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
-	ctx.fillStyle = "#ffffff"
 
 	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
-	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+	ctx.drawImage(background, 0, 0, imgWidth, imgHeight - 30)
+	ctx.fillStyle = "#000000"
+	ctx.fillRect(0, imgHeight - 30, imgWidth, 30)
+	ctx.fillStyle = "#1199cc" // голубой
+	ctx.textAlign = "center"
+	ctx.fillText(updateTimeText, imgWidth / 2, imgHeight - 10)
+	ctx.textAlign = "start"
+	ctx.fillStyle = "#ffffff"
 
 	ctx.fillText(`Роль: ${fullInfoChampion.Roles}`, 200, 230)
 	ctx.fillText(`Титул: ${fullInfoChampion.Title}`, 200, 250)
@@ -1624,10 +1644,10 @@ function bot_st(message, name, typeSort="lvl") {
 
 
 function draw_st(champions, last_update) {
-	const imgWidth = 810
+	const imgWidth = 840
 	const len = champions.length
 	const imgHeight = 22 * len / 2 + 85
-	const paddingLeft = 390 // отступ до второй колонки
+	const paddingLeft = 420 // отступ до второй колонки
 	const canvas = createCanvas(imgWidth, imgHeight)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
@@ -1646,11 +1666,11 @@ function draw_st(champions, last_update) {
 
 	for (let i = 0; i < 2; i++) {
 		ctx.fillText(`№`, 10 + paddingLeft * i, 20)
-		ctx.fillText(`Чемпион`, 40 + paddingLeft * i, 20)
-		ctx.fillText(`Lvl`, 145 + paddingLeft * i, 20)
-		ctx.fillText(`Минут`, 195 + paddingLeft * i, 20)
-		ctx.fillText(`Винрейт`, 265 + paddingLeft * i, 20)
-		ctx.fillText(`KDA`, 345 + paddingLeft * i, 20)
+		ctx.fillText(`Чемпион`, 45 + paddingLeft * i, 20)
+		ctx.fillText(`Lvl`, 160 + paddingLeft * i, 20)
+		ctx.fillText(`Минут`, 210 + paddingLeft * i, 20)
+		ctx.fillText(`Винрейт`, 280 + paddingLeft * i, 20)
+		ctx.fillText(`KDA`, 370 + paddingLeft * i, 20)
 	}
 	ctx.fillStyle = "#ffffff"
 
@@ -1663,17 +1683,17 @@ function draw_st(champions, last_update) {
 		const champion = champions[i]
 
 		ctx.fillStyle = "#ffffff"
-		ctx.fillText(champion.champion, 40 + padding, paddingTop)
+		ctx.fillText(champion.champion, 45 + padding, paddingTop)
 		ctx.fillStyle = '#BB1111' // красный
-		ctx.fillText(champion.Rank, 145 + padding, paddingTop)
+		ctx.fillText(champion.Rank, 160 + padding, paddingTop)
 		ctx.fillStyle = '#CDCD11' // желтый
-		ctx.fillText(champion.Minutes, 195 + padding, paddingTop)
+		ctx.fillText(champion.Minutes, 210 + padding, paddingTop)
 		const winrate = fixNaN((champion.Wins / (champion.Wins + champion.Losses) * 100).toFixed(0))
 		ctx.fillStyle = '#32CD32' // зеленый
-		ctx.fillText(`${winrate}%`, 265 + padding, paddingTop)
+		ctx.fillText(`${winrate}%`, 280 + padding, paddingTop)
 		const kda = ((champion.Kills + champion.Assists / 2) / (champion.Deaths + 1)).toFixed(2)
 		ctx.fillStyle = '#EE5500' // оранжевый
-		ctx.fillText(kda, 345 + padding, paddingTop)
+		ctx.fillText(kda, 370 + padding, paddingTop)
 		ctx.fillText(`${i + 1}.`, 10 + padding, paddingTop)
 	}
 

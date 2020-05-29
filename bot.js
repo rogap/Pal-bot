@@ -282,7 +282,7 @@ function bot_ss(message, name) {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'ss') ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getplayer = body.getplayer
 		const getchampionranks = body.getchampionranks
@@ -490,7 +490,7 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'sh') ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getmatchhistory = body.getmatchhistory
 		// проверяем есть ли ошибки в полученных данных
@@ -651,7 +651,7 @@ function bot_sm(message, name, matchIndex=1) {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'sm') ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getmatchdetails = body.getmatchdetails
 		// проверяем есть ли ошибки в полученных данных
@@ -884,7 +884,7 @@ function bot_sl(message, name, championName, num=false) {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'sl') ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getplayerloadouts = body.getplayerloadouts
 		// проверяем есть ли ошибки в полученных данных
@@ -1050,7 +1050,7 @@ function bot_sp(message, name) {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'sp') ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getplayerstatus = body.getplayerstatus
 		// проверяем есть ли ошибки в полученных данных
@@ -1242,7 +1242,7 @@ function bot_sc(message, name, championName) {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'sc') ) return false // просто выходим, функция должна была уже отправить смс
 
 		// проверяем есть ли ошибки в полученных данных
 		const getchampionranks = body.getchampionranks
@@ -1349,7 +1349,7 @@ function bot_st(message, name, typeSort="lvl") {
 	.then(response => {
 		const body = response.body
 
-		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
+		if ( !checkSelectPlayer(message, body, 'st') ) return false // просто выходим, функция должна была уже отправить смс
 
 		// проверяем есть ли ошибки в полученных данных
 		const getchampionranks = body.getchampionranks
@@ -1504,7 +1504,7 @@ function bot_online(message) {
  * а так же выводит ошибки если они есть
  * @return {Boolean} - true если все удачно и false если нужно просто выйти
  */
-function checkSelectPlayer(message, body) {
+function checkSelectPlayer(message, body, command='ss') {
 	/**
 	 * чисто проверяем пришел ли JSON
 	 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
@@ -1528,18 +1528,29 @@ function checkSelectPlayer(message, body) {
 			return false
 		}
 
+		const platforms = {
+			1: "Hi-Rez",
+			5: "Steam",
+			9: "PS4",
+			10: "Xbox",
+			22: "Switch",
+			25: "Discord",
+			28: "Epic Games"
+		}
 		let textReply = 'Выберите аккаунт:\r\n'
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
 			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-			textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			const portal = platforms[player.portal_id] || player.portal_id
+			textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${portal}**; профиль: **${privacy}**;\r\n`
 		}
 
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
 		if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
 
-		textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+		textReply += `__Что бы выбрать аккаунт введите его id__. Пример: **!${command} 000000**`
+		textReply += "\r\nВы так же можете сохранить аккаунт по ID. Пример: **!me 000000**"
 		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
 		textReply += `\r\nОбновленно: **${time}** (UTC+0)`
 		message.reply(textReply)

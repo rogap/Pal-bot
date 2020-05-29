@@ -282,41 +282,7 @@ function bot_ss(message, name) {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getplayer = body.getplayer
 		const getchampionranks = body.getchampionranks
@@ -325,11 +291,9 @@ function bot_ss(message, name) {
 			if ( !getplayer.status ) return message.reply(getplayer.err_msg)
 			if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
 		} catch(e) {
-			console.log(body)
 			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
 			// нужно будет отправлят ьв логи на серв
 		}
-		
 
 		// если ошибок нет, то рисуем стату
 		draw_ss(getplayer, getchampionranks)
@@ -526,41 +490,7 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getmatchhistory = body.getmatchhistory
 		// проверяем есть ли ошибки в полученных данных
@@ -721,41 +651,7 @@ function bot_sm(message, name, matchIndex=1) {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getmatchdetails = body.getmatchdetails
 		// проверяем есть ли ошибки в полученных данных
@@ -976,9 +872,11 @@ function bot_sl(message, name, championName, num=false) {
 	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	// проверяем задал ли он ник чемпиона пропустив свой ник
-	const champion = !championName ? config.championsName[name] : config.championsName[championName]
+	const checkForNum = /^\d{0,1}$/.test(championName)
+	const champion = !championName || checkForNum ? config.championsName[name] : config.championsName[championName]
 	if (!champion) return message.reply("Введите корректное имя чемпиона. **!sl [name] [champion]**")
-	const userName = !championName ? 'me' : name // если не задал свой ник
+	const userName = !championName || checkForNum ? 'me' : name // если не задал свой ник
+	if (checkForNum) num = championName
 
 	const discord_id = message.author.id
 	const form = formHiRezFunc("sl", discord_id, userName, 11) // id чемпиона передавать не нужно (можно передать lang)
@@ -986,41 +884,7 @@ function bot_sl(message, name, championName, num=false) {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getplayerloadouts = body.getplayerloadouts
 		// проверяем есть ли ошибки в полученных данных
@@ -1135,7 +999,7 @@ function fillDescriptionCard(ctx, text, position, points) { // рисует оп
 
 	// const scaleText = (matchArr[1] * points).toFixed(1)
 	let scaleText = +matchArr[1]
-	for (let i = 0; i < points; i++) {
+	for (let i = 1; i < points; i++) {
 		scaleText += +matchArr[2]
 	}
 
@@ -1186,41 +1050,7 @@ function bot_sp(message, name) {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		const getplayerstatus = body.getplayerstatus
 		// проверяем есть ли ошибки в полученных данных
@@ -1412,41 +1242,7 @@ function bot_sc(message, name, championName) {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		// проверяем есть ли ошибки в полученных данных
 		const getchampionranks = body.getchampionranks
@@ -1553,41 +1349,7 @@ function bot_st(message, name, typeSort="lvl") {
 	.then(response => {
 		const body = response.body
 
-		/**
-		 * чисто проверяем пришел ли JSON
-		 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
-		 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
-		 */
-		try {
-			body.status === false
-		} catch(err) {
-			return sendError(message, body)
-		}
-
-		if ( body.status === false ) {
-			/**
-			 * если ответ с ошибкой
-			 * проверим есть ли JSON
-			 * если есть, значит нужно выбрать игрока
-			 */
-			if ( !body.json ) return message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
-
-			let textReply = 'Выберите аккаунт:\r\n'
-			// формируем ответ
-			for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-				const player = body.json[i]
-				const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-				textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
-			}
-
-			if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-			if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-			textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			textReply += `\r\nОбновленно: **${time}** (UTC+0)`
-			return message.reply(textReply)
-		}
+		if ( !checkSelectPlayer(message, body) ) return false // просто выходим, функция должна была уже отправить смс
 
 		// проверяем есть ли ошибки в полученных данных
 		const getchampionranks = body.getchampionranks
@@ -1736,6 +1498,57 @@ function bot_online(message) {
 
 
 // ---> PALADINS STATS default function --->
+
+/**
+ * проверяет на выбор аккаунта, если нужно выбрать то формирует ответ и отсылает пользователю
+ * а так же выводит ошибки если они есть
+ * @return {Boolean} - true если все удачно и false если нужно просто выйти
+ */
+function checkSelectPlayer(message, body) {
+	/**
+	 * чисто проверяем пришел ли JSON
+	 * при возникновении такой ошибки записываем ошибку (500 символов достаточно будет) на дискорд-сервере
+	 * сообщаем об ошибке пользователю и выводим в консоль описание ошибки
+	 */
+	try {
+		body.status === false
+	} catch(err) {
+		sendError(message, body)
+		return false
+	}
+
+	if ( body.status === false ) {
+		/**
+		 * если ответ с ошибкой
+		 * проверим есть ли JSON
+		 * если есть, значит нужно выбрать игрока
+		 */
+		if ( !body.json ) {
+			message.reply(body.err_msg) // будет функция которая будет сообщать еще и мне подробности ошибки
+			return false
+		}
+
+		let textReply = 'Выберите аккаунт:\r\n'
+		// формируем ответ
+		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+			const player = body.json[i]
+			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+			textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+		}
+
+		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+		if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+
+		textReply += "Что бы выбрать аккаунт введите его id, пример: **!ss 000000**"
+		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+		message.reply(textReply)
+		return false
+	}
+	return true
+}
+
+
 function formProposals(text, maxLen) { // возвращает массив, разделяет строку на части
 	if (text.length <= 25) return [text]
 	let newText = []

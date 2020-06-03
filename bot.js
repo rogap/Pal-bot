@@ -1784,15 +1784,34 @@ String.prototype.splitCont = function(count=0, search=' ') {
  *  --- ЗАПУСК БОТА ---
  * запускаем бота предварительно загрузив все необходимые данные для его работы
  */
-const timeStart = new Date()
-loadAllData()
-.then(status => {
-	if (!status) return console.log("Ошибка загрузки данных.")
-	client.login(config.tokenDiscord)
-}).catch(err => {
-	console.log("EXIT")
-	// пробовать рекконнект через время
-})
+let timeStart = new Date()
+function fullStartBot() {
+	timeStart = new Date()
+	loadAllData()
+	.then(status => {
+		if (!status) return console.log("Ошибка загрузки данных.")
+		client.login(config.tokenDiscord)
+	}).catch(err => {
+		console.log("EXIT")
+		// пробовать рекконнект через время
+
+		console.log(" -- Повторный старт через минуту...")
+		setTimeout(() => {
+			console.log(" ++ Начало повторного запуска...")
+			config.timeStart = +new Date()
+			config.usedCommands = 0
+			config.usedCommandsNow = 0
+
+			config.timeStart = +new Date()
+			config.championsId = {}
+			config.championsName = {}
+			config.differentImg = []
+			config.LegendarChampions = {}
+			fullStartBot()
+		}, 1000 * 60)
+	})
+}
+fullStartBot()
 
 
 /**

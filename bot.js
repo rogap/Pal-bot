@@ -90,6 +90,7 @@ function sendSite(params) {
 			console.log(params)
 			sendError({reply:()=>{}}, JSON.stringify(params)) // отправляем ошибку в чат на сервер бота
 			console.log(`Неизвестная ошибка ${count++}`)
+			if ( count >= 3 ) return {status: false, body: {status: false}} // максимум 3 попытки
 			return resend() // повторяем запрос снова
 		})
 	}

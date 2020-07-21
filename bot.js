@@ -87,6 +87,8 @@ function sendSite(params) {
 			})
 		}).catch(err => {
 			console.log(err)
+			console.log(params)
+			sendError({reply:()=>{}}, JSON.stringify(params)) // отправляем ошибку в чат на сервер бота
 			console.log(`Неизвестная ошибка ${count++}`)
 			return resend() // повторяем запрос снова
 		})

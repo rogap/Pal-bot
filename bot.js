@@ -86,6 +86,7 @@ function sendSite(params) {
 		      resolve(response)
 			})
 		}).catch(err => {
+			console.log(err)
 			console.log(`Неизвестная ошибка ${count++}`)
 			return resend() // повторяем запрос снова
 		})

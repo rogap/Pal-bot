@@ -79,12 +79,14 @@ function sendSite(params) {
 	const send = params.method == "POST" ? request.post : request.get
 	let count = 1 // сколько раз вылезла эта ошибка
 
-	const resend = () => {
+	const resend = (time=1000) => {
 		return new Promise((resolve, reject) => {
-			send(params, function (error, response) {
-				if (error) reject(error)
-		      resolve(response)
-			})
+			setTimeout(() => {
+				send(params, function (error, response) {
+					if (error) reject(error)
+				  resolve(response)
+				})
+			}, time) // ждем 1 секунду по дефолту
 		}).catch(err => {
 			console.log(err)
 			console.log(params)
@@ -94,7 +96,7 @@ function sendSite(params) {
 			return resend() // повторяем запрос снова
 		})
 	}
-	return resend()
+	return resend(0)
 }
 
 
@@ -2164,6 +2166,9 @@ function formHiRezFunc(command, discord_id=null, ...params) {
 			command,
 			discord_id,
 			params
+		},
+		headers: {
+			'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 		}
 	}
 }

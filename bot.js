@@ -4,6 +4,7 @@ const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
 const Config = require('./configs.js')
 const config = Config.exports || Config
+const randomUseragent = require('random-useragent')
 
 config.timeStart = +new Date()
 config.usedCommands = 0
@@ -79,14 +80,14 @@ function sendSite(params) {
 	const send = params.method == "POST" ? request.post : request.get
 	let count = 1 // сколько раз вылезла эта ошибка
 
-	const resend = (time=1000) => {
+	const resend = (time=500) => {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
 				send(params, function (error, response) {
 					if (error) reject(error)
 				  resolve(response)
 				})
-			}, time) // ждем 1 секунду по дефолту
+			}, time) // ждем 500ms по дефолту
 		}).catch(err => {
 			console.log(err)
 			console.log(params)
@@ -2168,7 +2169,8 @@ function formHiRezFunc(command, discord_id=null, ...params) {
 			params
 		},
 		headers: {
-			'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
+			'User-Agent': randomUseragent.getRandom()
+			// 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 		}
 	}
 }
@@ -2183,7 +2185,7 @@ function formHiRezFunc(command, discord_id=null, ...params) {
  */
 function sendError(message, body) {
 	console.log("\r\nВозникла ошибка при получении данных с сайта. ERR:")
-	console.log(err)
+	console.log(body)
 	client.channels.fetch('696604376034181140')
 	.then(channel => {
 		if (channel) channel.send( body.slice(0, 500) )

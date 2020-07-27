@@ -17,7 +17,8 @@
   "dependencies": {
     "discord.js": "12.2.0",
     "canvas": ">= 2.5.0",
-    "request": ">= 2.81.0"
+    "request": ">= 2.81.0",
+    "random-useragent": "0.3.1"
   },
   "author": {
     "url": "webmyself.ru",

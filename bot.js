@@ -232,6 +232,7 @@ function bot_hh(message, command='') {
  */
 function bot_me(message, name=null) {
 	const discord_id = message.author.id
+	console.log(name)
 	const form = formHiRezFunc("me", discord_id, name)
 	if (!name) form.form.params = null
 	sendSite(form)

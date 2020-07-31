@@ -283,7 +283,7 @@ function bot_ss(message, name) {
 	const discord_id = message.author.id
 
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("ss", discord_id, name)
 	sendSite(form)
@@ -485,7 +485,7 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 	const discord_id = message.author.id
 	
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	// если в name передан индекс
 	if ( Number.isInteger(+name) && name < 6 && name != 0 ) {
@@ -652,7 +652,7 @@ function bot_sm(message, name, matchIndex=1) {
 	const discord_id = message.author.id
 	
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("sm", discord_id, name, matchIndex)
 	sendSite(form)
@@ -877,7 +877,7 @@ function bot_sl(message, name, championName, num=false) {
 	if (!name && !championName) return message.reply("Укажите параметры правильно. **!sl [name] [champion]**")
 	
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	// проверяем задал ли он ник чемпиона пропустив свой ник
 	const checkForNum = /^\d{0,1}$/.test(championName)
@@ -1051,7 +1051,7 @@ function bot_sp(message, name) {
 	const discord_id = message.author.id
 	
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("sp", discord_id, name)
 	sendSite(form)
@@ -1237,7 +1237,7 @@ function bot_sc(message, name, championName) {
 	if (!name && !championName) return message.reply("Укажите параметры правильно. **!sc [name] [champion]**")
 
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	// проверяем задал ли он ник чемпиона пропустив свой ник
 	const champion = !championName ? config.championsName[name] : config.championsName[championName]
@@ -1350,7 +1350,7 @@ function bot_st(message, name, typeSort="lvl") {
 	const discord_id = message.author.id
 	
 	// если указан пользователь, то берем его ID
-	if ( /^\<\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("st", discord_id, name)
 	sendSite(form)

@@ -1603,6 +1603,7 @@ function checkSelectPlayer(message, body, command='ss') {
 		textReply += "#Вы так же можете сохранить аккаунт по ID. Пример:\r\n!me 000000\r\n"
 		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
 		textReply += `* Обновленно: ${time}<UTC+0>`
+		textReply += "```"
 
 
 

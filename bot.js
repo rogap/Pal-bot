@@ -102,46 +102,6 @@ function sendSite(params) {
 
 
 
-const delayedParams = {
-    lastTimeSend: +new Date(), // время последней отправки функции
-    timeWait: 2000 // кол-во мс ожидания между отправками
-}
-
-/**
- * Запускает функцию не чаще чем [delayedParams.timeWait] откладывая ее вызов
- * @param {Function} fun - функция которая будет запущенна в очереди
- * @param {Object} params - параметры которые будут переданы в функцию
- * @return {Promise}
- */
-function delayed(fun, params) {
-    const timeNow = +new Date()
-    const timeWait = delayedParams.timeWait
-    const subtraction = timeNow - delayedParams.lastTimeSend
-    const timeout = subtraction < timeWait ? timeWait - subtraction : 0
-
-    const last = delayedParams.lastTimeSend
-    delayedParams.lastTimeSend = timeNow + timeout // записываем последний запуск на опережение
-    if ( timeout == 0 ) { // если давно вызовов не было - вызываем сейчас
-        // console.log(`Выполняем сейчас; Now: ${timeNow}; Last: ${last}; Subtraction: ${subtraction}`)
-        console.log('Выполняем сейчас')
-        return new Promise(resolve => {
-            return resolve( fun(params) )
-        })
-    }
-
-    return new Promise(resolve => {
-        console.log(`Выполним через ${timeout}`)
-        setTimeout(() => {
-            return new Promise(resolve => {
-                // console.log(`Начало запуска в: ${timeNow}; Ожидание: ${timeout}; Сейчас: ${+new Date()}`)
-                return resolve( fun(params) )
-            })
-        }, timeout)
-    })
-}
-
-
-
 const botCommands = [
 	{
 		commands: ["!hh"],
@@ -275,7 +235,7 @@ function bot_me(message, name=null) {
 	console.log(name)
 	const form = formHiRezFunc("me", discord_id, name)
 	if (!name) form.form.params = null
-	delayed(sendSite, form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -326,7 +286,7 @@ function bot_ss(message, name) {
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("ss", discord_id, name)
-	delayed(sendSite, form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -534,7 +494,7 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 	}
 
 	const form = formHiRezFunc("sh", discord_id, name)
-	delayed(sendSite, form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -695,7 +655,7 @@ function bot_sm(message, name, matchIndex=1) {
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("sm", discord_id, name, matchIndex)
-	delayed(sendSite, form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -928,7 +888,7 @@ function bot_sl(message, name, championName, num=false) {
 
 	const discord_id = message.author.id
 	const form = formHiRezFunc("sl", discord_id, userName, 11) // id чемпиона передавать не нужно (можно передать lang)
-	delayed(sendSite, form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -1094,7 +1054,7 @@ function bot_sp(message, name) {
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("sp", discord_id, name)
-	delayed(delayed(sendSite,  form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -1286,7 +1246,7 @@ function bot_sc(message, name, championName) {
 
 	const discord_id = message.author.id
 	const form = formHiRezFunc("sc", discord_id, userName)
-	delayed(delayed(sendSite,  form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -1393,7 +1353,7 @@ function bot_st(message, name, typeSort="lvl") {
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("st", discord_id, name)
-	delayed(delayed(sendSite,  form)
+	sendSite(form)
 	.then(response => {
 		const body = response.body
 
@@ -1524,7 +1484,7 @@ function draw_st(champions, last_update) {
  * 
  */
 function bot_online(message) {
-	delayed(delayed(sendSite, {
+	sendSite({
 		method: "GET",
 		url: "https://store.steampowered.com/stats/Steam-Game-and-Player-Statistics"
 	})
@@ -1923,7 +1883,7 @@ function load_getchampions() {
 	const timeStart = new Date()
 	return new Promise((resolve, reject) => {
 		const formSend = formHiRezFunc("getchampioncards")
-		delayed(delayed(sendSite,  formSend)
+		sendSite( formSend )
 		.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
 			const body = res.body
 			if (!body) return reject("body - пуст.") // если пуст - выдаем ошибку
@@ -2256,7 +2216,7 @@ function setStatsToSite() {
 	const usedCommandsNow = config.usedCommandsNow
 	config.usedCommands = 0
 
-	delayed(sendSite, {method: "POST", url, form: {
+	sendSite({method: "POST", url, form: {
 		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно

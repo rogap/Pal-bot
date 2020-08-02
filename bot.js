@@ -10,7 +10,6 @@ config.timeStart = +new Date()
 config.usedCommands = 0
 config.usedCommandsNow = 0
 
-config.timeStart = +new Date()
 config.championsId = {}
 config.championsName = {}
 config.differentImg = []
@@ -1583,7 +1582,31 @@ function checkSelectPlayer(message, body, command='ss') {
 			25: "Discord",
 			28: "Epic Games"
 		}
-		let textReply = 'Выберите аккаунт:\r\n'
+
+
+
+		let textReply = "```md"
+		textReply += `
+#Выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
+		// формируем ответ
+		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
+			const player = body.json[i]
+			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
+			const portal = platforms[player.portal_id] || player.portal_id
+			textReply += `${i+1}. [${player.player_id}](${portal})<${privacy}>\r\n`
+		}
+
+		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
+		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
+
+		textReply += `#Что бы выбрать аккаунт введите его ID. Пример:\r\n${command} 000000\r\n`
+		textReply += "#Вы так же можете сохранить аккаунт по ID. Пример:\r\n!me 000000\r\n"
+		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
+		textReply += `* Обновленно: ${time}<UTC+0>`
+
+
+
+		/*let textReply = 'Выберите аккаунт:\r\n'
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
@@ -1598,7 +1621,7 @@ function checkSelectPlayer(message, body, command='ss') {
 		textReply += `__Что бы выбрать аккаунт введите его id__. Пример: **!${command} 000000**`
 		textReply += "\r\nВы так же можете сохранить аккаунт по ID. Пример: **!me 000000**"
 		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-		textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+		textReply += `\r\nОбновленно: **${time}** (UTC+0)`*/
 		message.reply(textReply)
 		return false
 	}

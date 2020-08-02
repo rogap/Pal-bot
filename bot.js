@@ -1286,7 +1286,7 @@ function bot_sc(message, name, championName) {
 
 	const discord_id = message.author.id
 	const form = formHiRezFunc("sc", discord_id, userName)
-	delayed(delayed(sendSite,  form)
+	delayed(sendSite,  form)
 	.then(response => {
 		const body = response.body
 
@@ -1393,7 +1393,7 @@ function bot_st(message, name, typeSort="lvl") {
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	const form = formHiRezFunc("st", discord_id, name)
-	delayed(delayed(sendSite,  form)
+	delayed(sendSite,  form)
 	.then(response => {
 		const body = response.body
 
@@ -1524,7 +1524,7 @@ function draw_st(champions, last_update) {
  * 
  */
 function bot_online(message) {
-	delayed(delayed(sendSite, {
+	delayed(sendSite, {
 		method: "GET",
 		url: "https://store.steampowered.com/stats/Steam-Game-and-Player-Statistics"
 	})
@@ -1923,7 +1923,7 @@ function load_getchampions() {
 	const timeStart = new Date()
 	return new Promise((resolve, reject) => {
 		const formSend = formHiRezFunc("getchampioncards")
-		delayed(delayed(sendSite,  formSend)
+		delayed(sendSite,  formSend)
 		.then(res => { // получаем данные о чемпионах с БД (обновляется раз в 24 часа)
 			const body = res.body
 			if (!body) return reject("body - пуст.") // если пуст - выдаем ошибку

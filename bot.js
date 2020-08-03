@@ -14,7 +14,7 @@ config.championsId = {}
 config.championsName = {}
 config.differentImg = []
 config.LegendarChampions = {}
-config.config.platforms = {
+config.platforms = {
 	1: "Hi-Rez",
 	5: "Steam",
 	9: "PS4",

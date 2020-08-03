@@ -14,6 +14,15 @@ config.championsId = {}
 config.championsName = {}
 config.differentImg = []
 config.LegendarChampions = {}
+config.config.platforms = {
+	1: "Hi-Rez",
+	5: "Steam",
+	9: "PS4",
+	10: "Xbox",
+	22: "Switch",
+	25: "Discord",
+	28: "Epic Games"
+}
 
 
 const paladinsItems = {
@@ -288,20 +297,26 @@ function bot_me(message, name=null) {
 		if ( !body.status && !body.json ) return message.reply(body.err_msg || "JSON пуст, сообщите об ошибке разработчику.")
 
 		// если нужно выбрать аккаунт
-		let textReply = 'Ваш ник был сохранен, однако аккаунтов с таким ником найденно несколько - выберите аккаунт:\r\n'
+		let textReply = "```md"
+		textReply += `
+#Ваш ник был сохранен, однако аккаунтов с таким ником найденно несколько - выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
 			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-			textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${player.portal_id}**; профиль: **${privacy}**;\r\n`
+			const portal = config.platforms[player.portal_id] || player.portal_id
+			textReply += `${i+1}. [${player.player_id}](${portal})<${privacy}>\r\n`
 		}
 
+		textReply += "> >"
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-		if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
+		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
 
-		textReply += "Что бы выбрать аккаунт введите его id, пример: **!me 000000**"
-		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-		textReply += `\r\nОбновленно: **${time}** (UTC+0)`
+		textReply += `#Что бы выбрать аккаунт введите его ID. Пример:\r\n!me 000000\r\n`
+		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
+		textReply += `* Обновленно: ${time}<UTC+0>`
+		textReply += "```"
+
 		return message.reply(textReply)
 	})
 }
@@ -955,14 +970,22 @@ function bot_sl(message, name, championName, num=false) {
 		if ( !len ) return message.reply(`Колоды не обнаруженны.`)
 		if ( len < num ) return message.reply(`Игрок не имеет столько колод, укажите правильное число, у него **${len}** колод.`)
 		if ( !num && len > 1) { // если колода не указанна и колод больше 1 то выводим их список
-			let repText = 'Выберите одну из колод:\r\n'
+			let repText = "```md"
+			repText += `
+#Выберите одну из колод:\r\n`
+			repText =+ `* [№](имя колоды)\r\n`
 			for (let i = 0; i < len; i++) {
 				loadouts = loadoutsList[i]
-				repText += `**№ ${i+1}**; Имя колоды: **${loadouts.DeckName}**;\r\n`
+				repText += `[${i+1}](${loadouts.DeckName})\r\n`
 			}
-			repText += "Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. **!sl [name] [champion] [index]**"
+
+			repText += "> >"
+			repText += "#Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. Пример:\r\n"
+			repText += "!sl me seris 1\r\n"
 			const time = getplayerloadouts.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-			repText += `\r\nОбновленно: **${time}** (UTC+0)`
+			repText += `* Обновленно: ${time}<UTC+0>`
+			repText += "```"
+
 			return message.reply(repText)
 		}
 
@@ -1573,18 +1596,6 @@ function checkSelectPlayer(message, body, command='ss') {
 			return false
 		}
 
-		const platforms = {
-			1: "Hi-Rez",
-			5: "Steam",
-			9: "PS4",
-			10: "Xbox",
-			22: "Switch",
-			25: "Discord",
-			28: "Epic Games"
-		}
-
-
-
 		let textReply = "```md"
 		textReply += `
 #Выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
@@ -1592,10 +1603,11 @@ function checkSelectPlayer(message, body, command='ss') {
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
 			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-			const portal = platforms[player.portal_id] || player.portal_id
+			const portal = config.platforms[player.portal_id] || player.portal_id
 			textReply += `${i+1}. [${player.player_id}](${portal})<${privacy}>\r\n`
 		}
 
+		textReply += "> >"
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
 		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
 
@@ -1605,24 +1617,6 @@ function checkSelectPlayer(message, body, command='ss') {
 		textReply += `* Обновленно: ${time}<UTC+0>`
 		textReply += "```"
 
-
-
-		/*let textReply = 'Выберите аккаунт:\r\n'
-		// формируем ответ
-		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
-			const player = body.json[i]
-			const privacy = player.privacy_flag == "n" ? "открытый" : "скрытый"
-			const portal = platforms[player.portal_id] || player.portal_id
-			textReply += `**${i+1}.** id: **${player.player_id}**; portal: **${portal}**; профиль: **${privacy}**;\r\n`
-		}
-
-		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
-		if ( body.json.length > 20 ) textReply += '__Этот список слишком велик и был обрезан.__\r\n'
-
-		textReply += `__Что бы выбрать аккаунт введите его id__. Пример: **!${command} 000000**`
-		textReply += "\r\nВы так же можете сохранить аккаунт по ID. Пример: **!me 000000**"
-		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-		textReply += `\r\nОбновленно: **${time}** (UTC+0)`*/
 		message.reply(textReply)
 		return false
 	}
@@ -2005,7 +1999,7 @@ function load_championsCard() {
 	return new Promise(resolve => {
 		const body = config.championsCard
 
-		// выбираем леги для загрузки
+		// выбераем леги для загрузки
 		const list = []
 		for (let championId in body) {
 			const cards = body[championId]

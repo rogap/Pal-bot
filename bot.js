@@ -248,21 +248,11 @@ const botCommands = [
 function bot_hh(message, command='') {
 	if ( !command ) {
 		// если команда не передана то просто выводим список команд
-		/*let replyText = ''
-		let i = 0
-		botCommands.forEach(command => {
-			i++
-			const funcParams = command.params ? ` [${command.params.join(', ')}]` : ''
-			const twoCommand = command.commands.length > 1 ? ` Можно **${command.commands.join(', ')}**\r\n` : '\r\n'
-			replyText += `${i}. **${command.commands[0]}${funcParams}** - ${command.info}${twoCommand}`
-		})*/
-
-
 		let replyText = "```md"
 		replyText += `
 `
 		botCommands.forEach(command => {
-			const funcParams = command.params ? ` [${command.params.join(', ')}]` : ''
+			const funcParams = command.params ? `${command.params.join(', ')}` : ''
 			const twoCommand = command.commands.length > 1 ? `\r\n#Можно: ${command.commands.join(', ')}` : ''
 			replyText += `[${command.commands[0]}](${funcParams}) - ${command.info}${twoCommand}.\r\n`
 		})

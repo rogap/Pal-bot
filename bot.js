@@ -248,14 +248,25 @@ const botCommands = [
 function bot_hh(message, command='') {
 	if ( !command ) {
 		// если команда не передана то просто выводим список команд
-		let replyText = ''
+		/*let replyText = ''
 		let i = 0
 		botCommands.forEach(command => {
 			i++
 			const funcParams = command.params ? ` [${command.params.join(', ')}]` : ''
 			const twoCommand = command.commands.length > 1 ? ` Можно **${command.commands.join(', ')}**\r\n` : '\r\n'
 			replyText += `${i}. **${command.commands[0]}${funcParams}** - ${command.info}${twoCommand}`
+		})*/
+
+
+		let replyText = "```md"
+		replyText += `
+`
+		botCommands.forEach(command => {
+			const funcParams = command.params ? ` [${command.params.join(', ')}]` : ''
+			const twoCommand = command.commands.length > 1 ? `\r\n#Можно: ${command.commands.join(', ')}` : ''
+			replyText += `[${command.commands[0]}](${funcParams}) - ${command.info}${twoCommand}.\r\n`
 		})
+		replyText += "```"
 
 		return message.reply(replyText)
 	}
@@ -981,10 +992,9 @@ function bot_sl(message, name, championName, num=false) {
 			repText += "> >\r\n"
 			repText += "#Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. Пример:\r\n"
 			repText += "!sl me seris 1\r\n"
-			const time = getplayerloadouts.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
 			repText += `* Обновленно: ${time}<UTC+0>`
 			repText += "```"
-			console.log(repText)
 			return message.reply(repText)
 		}
 

@@ -308,7 +308,7 @@ function bot_me(message, name=null) {
 			textReply += `${i+1}. [${player.player_id}](${portal})<${privacy}>\r\n`
 		}
 
-		textReply += "> >"
+		textReply += "> >\r\n"
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
 		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
 
@@ -972,20 +972,19 @@ function bot_sl(message, name, championName, num=false) {
 		if ( !num && len > 1) { // если колода не указанна и колод больше 1 то выводим их список
 			let repText = "```md"
 			repText += `
-#Выберите одну из колод:\r\n`
-			repText =+ `* [№](имя колоды)\r\n`
+#Выберите одну из колод:\r\n* [№](имя колоды)\r\n`
 			for (let i = 0; i < len; i++) {
 				loadouts = loadoutsList[i]
 				repText += `[${i+1}](${loadouts.DeckName})\r\n`
 			}
 
-			repText += "> >"
+			repText += "> >\r\n"
 			repText += "#Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. Пример:\r\n"
 			repText += "!sl me seris 1\r\n"
 			const time = getplayerloadouts.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
 			repText += `* Обновленно: ${time}<UTC+0>`
 			repText += "```"
-
+			console.log(repText)
 			return message.reply(repText)
 		}
 
@@ -1607,7 +1606,7 @@ function checkSelectPlayer(message, body, command='ss') {
 			textReply += `${i+1}. [${player.player_id}](${portal})<${privacy}>\r\n`
 		}
 
-		textReply += "> >"
+		textReply += "> >\r\n"
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
 		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
 

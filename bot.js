@@ -1,5 +1,6 @@
 const {Client} = require('discord.js')
 const client = new Client()
+const fs = require('fs')
 const request = require('request')
 const { createCanvas, loadImage } = require('canvas')
 const Config = require('./configs.js')
@@ -14,6 +15,9 @@ config.championsId = {}
 config.championsName = {}
 config.differentImg = []
 config.LegendarChampions = {}
+config.divisions = [] // картинки рангов
+config.avatars = {}
+
 config.platforms = {
 	1: "Hi-Rez",
 	5: "Steam",
@@ -23,6 +27,19 @@ config.platforms = {
 	25: "Discord",
 	28: "Epic Games"
 }
+
+config.ranks = [
+	'Калибровка', 'Бронза 5', 'Бронза 4', 'Бронза 3', 'Бронза 2', 'Бронза 1',
+	'Сильвер 5', 'Сильвер 4', 'Сильвер 3', 'Сильвер 2', 'Сильвер 1',
+	'Золото 5', 'Золото 4', 'Золото 3', 'Золото 2', 'Золото 1',
+	'Платина 5', 'Платина 4', 'Платина 3', 'Платина 2', 'Платина 1',
+	'Алмаз 5', 'Алмаз 4', 'Алмаз 3', 'Алмаз 2', 'Алмаз 1', 'Мастер', 'ГМ'
+]
+
+config.championHeal = []
+config.championDamage = []
+config.championTank = []
+config.championFlank = []
 
 
 const paladinsItems = {
@@ -74,7 +91,7 @@ const paladinsMaps = {
 }
 
 
-const BOT_TESTING = false // если true то обрабатывает только комманды создателя
+let BOT_TESTING = false // если true то обрабатывает только комманды создателя
 
 
 
@@ -93,7 +110,7 @@ function sendSite(params) {
 			setTimeout(() => {
 				send(params, function (error, response) {
 					if (error) reject(error)
-				  resolve(response)
+				  return resolve(response)
 				})
 			}, time) // ждем 500ms по дефолту
 		}).catch(err => {
@@ -105,45 +122,7 @@ function sendSite(params) {
 			return resend() // повторяем запрос снова
 		})
 	}
-	return resend(0)
-}
-
-
-
-const delayedParams = {
-    lastTimeSend: +new Date(), // время последней отправки функции
-    timeWait: 2000 // кол-во мс ожидания между отправками
-}
-
-/**
- * Запускает функцию не чаще чем [delayedParams.timeWait] откладывая ее вызов
- * @param {Function} fun - функция которая будет запущенна в очереди
- * @param {Object} params - параметры которые будут переданы в функцию
- * @return {Promise}
- */
-function delayed(fun, params) {
-    const timeNow = +new Date()
-    const timeWait = delayedParams.timeWait
-    const subtraction = timeNow - delayedParams.lastTimeSend
-    const timeout = subtraction < timeWait ? timeWait - subtraction : 0
-
-    const last = delayedParams.lastTimeSend
-    delayedParams.lastTimeSend = timeNow + timeout // записываем последний запуск на опережение
-    if ( timeout == 0 ) { // если давно вызовов не было - вызываем сейчас
-        // console.log(`Выполняем сейчас; Now: ${timeNow}; Last: ${last}; Subtraction: ${subtraction}`)
-        console.log('Выполняем сейчас')
-        return new Promise(resolve => {
-            return resolve( fun(params) )
-        })
-    }
-
-    return new Promise(resolve => {
-        console.log(`Выполним через ${timeout}`)
-        setTimeout(() => {
-            // console.log(`Начало запуска в: ${timeNow}; Ожидание: ${timeout}; Сейчас: ${+new Date()}`)
-            return resolve( fun(params) )
-        }, timeout)
-    })
+	return resend(1)
 }
 
 
@@ -154,63 +133,131 @@ const botCommands = [
 		info: "Выводит список команд. Если передан параметр, то выводит подсказки для указанной команды. Пример: **!hh !me**.",
 		func: bot_hh,
 		params: ["Команда"],
-		detail: "**!hh [Команда]** - Выводит список команд. Если передан параметр, то выводит подсказки для указанной команды.\r\nПримеры:\r\n**!hh !me**, **!hh ss**, **!hh !sl**\r\nТо есть можно указывать команду (по которой хотим получить помощь) как с **!** так и без."
+		detail: "```md" + `\r\n<!hh [?Команда]> - выводит список команд. Если передан параметр, то выводит подсказки ` +
+		`для указанной команды.\r\n> > Примеры:\r\n* <!hh> - покажет список команд.\r\n` + 
+		`* <!hh me> - покажет подробное описание и применение команды <!me>.\r\n` + "```"
 	},
 	{
 		commands: ["!me"],
-		info: "Сохраняет ваш никнейм для автоматической подстановки его в другие команды (можно будет писать просто !ss или !ss me).",
+		info: "Сохраняет ваш никнейм для автоматической подстановки его в другие команды (можно будет писать просто !ss " +
+			"или !ss me).",
 		func: bot_me,
 		params: ["Ник"],
-		detail: "**!me [Ник]** - Сохраняет указанный никнейм либо выводит текущий сохраненный (если есть). Так же можно сохранить и ID аккаунте.\r\nПримеры:\r\n**!me mutu**, **!me 000000**\r\nСохранять свой никнейм очень выгодно, так как после можно не писать свое имя в некоторых командах, а писать **me** или даже ничего :) Примеры:\r\n**!ss** (тут ник подставится сам), **!st me винрейт** (тут вместо **me** подставится ваш ник или id).\r\n**!ss [упоминание или id дискорда]** - **!ss @Neuro** или **!ss 510112915907543042** - подставит сохраненный никнейм этих дискорд-пользователей, если конечно он у них сохранен."
+		detail: "```md" + `\r\n<!me [?Ник/?id]> - сохраняет указанный никнейм (или id) либо выводит сохраненный,` +
+		`если параметры не были переданы.\r\n> > Примеры:\r\n* <!me> - выведет ваш сохраненный никнейм/id.\r\n` +
+		`* <!me 3368378> - сохранить ваш id в игре для показа статистик.\r\n* <!me mutu> - сохранит ваш никнейм, ` +
+		`если аккаунтов будет найдено не сколько то бот предложит вам выбрать один из них, сохранив по id.\r\n> >\r\n` +
+		`* Сохранять свой никнейм очень удобно, так как потом можно не писать свой ник или id для команд. Можно будет ` +
+		`писать просто <!ss> или даже <!st винрейт>.\r\n* Не стоит забывать что другие пользователи тоже смогут ` +
+		`использовать это и упомянув вас, не зная вашего никнейма, узнать статистику <!ss @Neuro>.\r\n* Если ` +
+		`вы хотите полностью удалить всю сохраненную информацию вы можете обратиться за этим к создателю бота ` +
+		`в ЛС или любой из чатов на официальном сервере бота (командой <!palbot>).\r\n` + "```"
 	},
 	{
 		commands: ["!ss", "!стата"],
 		info: "Выводит общую статистику аккаунта.",
 		func: bot_ss,
 		params: ["Ник"],
-		detail: "**!ss [Ник]** - Выводит основную статистику аккаунта. Примеры:\r\n**!ss**, **!ss me**, **!ss @Neuro**, **!ss 510112915907543042**"
+		detail: "```md" + `\r\n<!ss [?Ник]> - выводит основную статистику аккаунта.\r\n> > Примеры:\r\n` +
+		`* <!ss> - подставит ваш сохраненный никнейм.\r\n* <!ss me> - так же подставит ваш сохраненный никнейм.\r\n` +
+		`* <!ss @Neuro> - подставит никнейм того кого вы упомянули.\r\n* <!ss 510112915907543042> - подставит` +
+		`никнейм пользователя чей ID вы написали.\r\n* <!ss 3368378> - можно писать ID аккаунта в игре.` + "```"
 	},
 	{
 		commands: ["!sh", "!история"],
 		info: "Выводит последние 50 матчей указанного игрока.",
 		func: bot_sh,
 		params: ["Ник", "Страница"],
-		detail: "**!sh [Ник] [Страница]** - Выводит историю игр указанного пользователя. Примеры:\r\n**!sh**"
+		detail: "```md" + `\r\n<!sh [Ник] [?Страница]> - выводит историю игр указанного пользователя.\r\n` +
+		`> > Примеры:\r\n* <!sh> - подставит ваш сохраненный никнейм.\r\n* <!sh 2> - подставит ваш ник и ` +
+		`покажет историю второй страницы (с 10 по 20 матчи).\r\n* <!sh me> - так же подставит ` +
+		`ваш сохраненный никнейм.\r\n* <!sh @Neuro> - подставит никнейм того кого вы упомянули.\r\n` +
+		`* <!sh 510112915907543042 3> - подставит никнейм пользователя чей ID вы написали и третью страницу истории` + 
+		`матчей.\r\n* <!sh 3368378> - можно писать ID аккаунта в игре.\r\n` + "```"
 	},
 	{
 		commands: ["!sm", "!матч"],
 		info: "Выводит подробности матча по id матча или по нику игрока.",
 		func: bot_sm,
-		params: ["id или Ник", "Порядок матча, если указан ник"],
-		detail: ""
+		params: ["id матча/Ник", "Порядок матча"],
+		detail: "```md" + `\r\n<!sm [Ник] [?Порядок матча]> - выводит статистику матча по id матча или по нику игрока.\r\n` +
+		`> > Примеры:\r\n* <!sm> - подставит ваш сохраненный никнейм.\r\n* <!sm 2> - подставит ваш ник и ` +
+		`покажет статистику второго матча.\r\n* <!sm me> - так же подставит ` +
+		`ваш сохраненный никнейм.\r\n* <!sm @Neuro> - подставит никнейм того кого вы упомянули.\r\n` +
+		`* <!sm 510112915907543042 3> - подставит никнейм пользователя чей ID вы написали и статистику третьего ` + 
+		`матча.\r\n* <!sm 3368378> - можно писать ID аккаунта в игре.\r\n` + "```"
 	},
 	{
 		commands: ["!sl", "!колода"],
 		info: "Выводит колоды игрока указанного чемпиона.",
 		func: bot_sl,
-		params: ["Ник", "имя чемпиона", "номер колоды"],
-		detail: ""
+		params: ["Ник", "Чемпион", "?Номер колоды"],
+		detail: "```md" + `\r\n<!sl [Ник] [Чемпион] [?Номер колоды]> - выводит колоды игрока указанного чемпиона.\r\n` +
+		`> > Примеры:\r\n* <!sl me bombking> - подставит ваш ник и покажет колоду если она она, либо покажет ` +
+		`список колод для выбора.\r\n* <!sl me maldamba 2> - подставит ваш ник и покажет вторую колоду.\r\n` +
+		`* <!sl androxus 3> - подставит ваш ник и покажет третью колоду.\r\n* <!sl @Neuro shalin 2> - покажет ` +
+		`вторую колоду сохраненного аккаунта упомянутого пользователя.\r\n` + "```"
 	},
 	{
 		commands: ["!sp"],
-		info: "Проверяет онлайн статус игрока и выводит матч, если он в матче.",
+		info: "Проверяет онлайн статус игрока и выводит информацию о матче, если он в матче.",
 		func: bot_sp,
 		params: ["Ник"],
-		detail: ""
+		detail: "```md" + `\r\n<!sp [Ник]> - проверяет онлайн статус игрока и выводит информацию о матче, если он в матче.` +
+		`\r\n> > Примеры:\r\n* <!sp> - покажет ваш статус в игре и информацию о матче, если вы в нем.\r\n` +
+		`* <!sp @Neuro> - покажет статус сохраненного аккаунта упомянутого пользователя.\r\n` + "```"
 	},
 	{
 		commands: ["!sc", "!чемпион"],
 		info: "Выводит статистику указанного чемпиона.",
 		func: bot_sc,
 		params: ["Ник", "Чемпион"],
-		detail: ""
+		detail: "```md" + `\r\n<!sс [Ник] [Чемпион]> - выводит статистику указанного чемпиона.\r\n> > Примеры:\r\n` +
+		`* <!sc maldamba> - подставит ваш ник и покажет статистику чемпиона.\r\n* <!sc 3368378 bombking> - ` +
+		`покажет статистику чемпиона указанного игрока по id в игре.\r\n* <!sc @Neuro jenos> - покажет статистику ` +
+		`чемпиона упомянутого пользователя подставив его сохраненный аккаунт в качестве ника.\r\n` + "```"
 	},
 	{
 		commands: ["!st", "!топ"],
-		info: "Выводит топ чемпионов с возможностью сортировки (lvl, winrate, time, kda).",
+		info: "Выводит топ чемпионов с возможностью сортировки <lvl>, <winrate>, <time>, <kda> (можнои на русском).",
 		func: bot_st,
 		params: ["Ник", "Тип сортировки"],
-		detail: ""
+		detail: "```md" + `\r\n<!st [Ник] [?Тип сортировки]> - выводит топ чемпионов с возможностью сортировки <lvl>, ` +
+		`<winrate>, <time>, <kda> (можнои на русском).\r\n> > Примеры:\r\n* <!st винрейт> - подставит ваш сохраненный ` +
+		`никнейм и вытаст статистику отсортировав ее.\r\n* <!st @Neuro lvl> - подставит сохраненный аккаунт ` +
+		`упомянутого пользователя и выдаст статистику отсортировав ее.\r\n` + "```"
+	},
+	{
+		commands: ["!sf"],
+		info: "Выводит список друзей в игре.",
+		func: bot_sf,
+		params: ["Ник", "Страница"],
+		detail: "```md" + `\r\n<!sf ["Ник", "?Страница"]> - выводит список друзей в игре.\r\n> > Примеры:\r\n` + 
+		`* <!sf mutu> - покажет список друзей указанного игрока.\r\n* <!sf> - покажет ваш список друзей по ` +
+		`сохраненному нику.\r\n* <!sf 2> - покажет ваш список друзей по сохраненному нику на второй странице.\r\n` +
+		`* <!sf @Neuro> - покажет список друзей по сохраненному нику упомянутого пользователя.\r\n` + "```"
+	},
+	{
+		commands: ["!sb"],
+		info: "Выводит список заблокированный игроков указанного аккаунта.",
+		func: bot_sb,
+		params: ["Ник", "Страница"],
+		detail: "```md" + `\r\n<!sb ["Ник", "?Страница"]> - выводит заблокированный игроков указанного аккаунта.\r\n` +
+		`> > Примеры:\r\n* <!sb mutu> - покажет список заблокированный игроков указанного аккаунта.\r\n` + 
+		`* <!sb> - покажет ваш список заблокированны[ игроков сохраненного аккаунта по сохраненному нику.\r\n` +
+		`* <!sb 2> - покажет ваш список заблокированных игроков по сохраненному нику на второй странице.\r\n` +
+		`* <!sb @Neuro> - покажет список заблокированных игроков по сохраненному нику упомянутого пользователя.\r\n` +
+		"```"
+	},
+	{
+		commands: ["!sr"],
+		info: "Выводит случайного чемпиона или чемпионов, можно указывать их роль.",
+		func: bot_sr,
+		params: ["Тип/число", "число"],
+		detail: "```md" + `\r\n<!sr ["?Тип/?число", "?число"]> - выводит случайного чемпиона или чемпионов, можно ` +
+		`указывать их роль.\r\n> > Примеры:\r\n* <!sr> - вернет случайного чемпиона.\r\n` +
+		`* <!sr dmg 2> - вернет двух случайных дамагеров.\r\n* <!sr урон> - вернет случайного дамагера.\r\n` +
+		`* <!sr 10> - вернет десять случайных чемпионов.\r\n` + "```"
 	},
 	{
 		commands: ["!pal-bot", "!palbot"],
@@ -219,14 +266,19 @@ const botCommands = [
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
 			client.users.fetch(mess.author.id)
 			.then(user => user.send(text))
+			.catch(err => {
+				console.log(`Ошибка отправки сообщения в ЛС: ${mess.author.id}; ${mess.author.username}`)
+			})
 		},
-		detail: "**!pal-bot** - Отправляет вам в ЛС ссылку на сервер бота.\r\nМожно использовать как **!pal-bot** так и **!palbot**"
+		detail: "```md" + `\r\n<!palbot> - отправляет в ЛС ссылку на сервер бота.\r\nМожно использовать как ` +
+		`<!palbot> так и <!pal-bot>.`
 	},
 	{
 		commands: ["!online", "!онлайн"],
 		info: "Выводит кол-во игроков онлайн в игре (данные Steam).",
 		func: bot_online,
-		detail: "**!online** - Парсит текущий и максимальный онлайн в игре Paladins со странички статистики стима и выводит его.\r\nМожно использовать как **!online** так и **!онлайн**"
+		detail: "```md" + `\r\n<!online> - парсит текущий и максимальный онлайн в игре Paladins со странички статистики ` +
+			`стима и выводит его.\r\n* Можно использовать как <!online> так и <!онлайн>.`
 	}
 ]
 
@@ -248,9 +300,7 @@ const botCommands = [
 function bot_hh(message, command='') {
 	if ( !command ) {
 		// если команда не передана то просто выводим список команд
-		let replyText = "```md"
-		replyText += `
-`
+		let replyText = "```md" + `\r\n`
 		botCommands.forEach(command => {
 			const funcParams = command.params ? `${command.params.join(', ')}` : ''
 			const twoCommand = command.commands.length > 1 ? `\r\n#Можно: ${command.commands.join(', ')}` : ''
@@ -279,7 +329,6 @@ function bot_hh(message, command='') {
  */
 function bot_me(message, name=null) {
 	const discord_id = message.author.id
-	console.log(name)
 	const form = formHiRezFunc("me", discord_id, name)
 	if (!name) form.form.params = null
 	sendSite(form)
@@ -298,9 +347,8 @@ function bot_me(message, name=null) {
 		if ( !body.status && !body.json ) return message.reply(body.err_msg || "JSON пуст, сообщите об ошибке разработчику.")
 
 		// если нужно выбрать аккаунт
-		let textReply = "```md"
-		textReply += `
-#Ваш ник был сохранен, однако аккаунтов с таким ником найденно несколько - выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
+		let textReply = "```md" + `\r\n# Ваш ник был сохранен, однако аккаунтов с таким ником найденно несколько - ` +
+			`выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
@@ -313,7 +361,7 @@ function bot_me(message, name=null) {
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
 		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
 
-		textReply += `#Что бы выбрать аккаунт введите его ID. Пример:\r\n!me 000000\r\n`
+		textReply += `# Что бы выбрать аккаунт введите его ID. Пример:\r\n!me 000000\r\n`
 		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
 		textReply += `* Обновленно: ${time}<UTC+0>`
 		textReply += "```"
@@ -352,7 +400,7 @@ function bot_ss(message, name) {
 			if ( !getplayer.status ) return message.reply(getplayer.err_msg)
 			if ( !getchampionranks.status ) return message.reply(getchampionranks.err_msg)
 		} catch(e) {
-			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			return message.reply("Произошла ошибка, скорее всего аккаунт новый и чемпионов нет.")
 			// нужно будет отправлят ьв логи на серв
 		}
 
@@ -375,7 +423,9 @@ function draw_ss(getplayer, getchampionranks) {
 	const player = getplayer.json[0]
 	const champions = getchampionranks.json
 
-	const canvas = createCanvas(760, 330)
+	const pictureWidth = 790
+	const pictureHeight = 365
+	const canvas = createCanvas(pictureWidth, pictureHeight)
 	const ctx = canvas.getContext('2d')
 	ctx.font = 'bold 16px Georgia'
 
@@ -388,16 +438,16 @@ function draw_ss(getplayer, getchampionranks) {
 		championList.push( config.championsName[champion].loadedImg )
 	}
 
-	ctx.drawImage(img, 0, 0, 760, 300)
+	ctx.drawImage(img, 0, 0, pictureWidth, pictureHeight - 20)
 	const last_update_champ = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
 	const last_update_player = getplayer.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-	drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) // рисуем эллементы не нужнающиеся в промисах
+	drawItems_ss(ctx, player, kda, last_update_player, last_update_champ, pictureWidth, pictureHeight) // рисуем эллементы не нужнающиеся в промисах
 
 	return new Promise((resolve, reject) => {
 		if (!championList.length) return reject(ctx)
 
-		// рисуем загруженных чемпионов
-		let positionX = 430
+		// рисуем загруженых чемпионов
+		let positionX = 470
 		for (let i = 0; i < championList.length; i++) {
 			const img = championList[i]
 			const x = positionX + 60 * i
@@ -408,15 +458,39 @@ function draw_ss(getplayer, getchampionranks) {
 		const RankedKBM = player.RankedKBM || {}
 		const Tier_RankedKBM = player.Tier_RankedKBM
 		const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
-		const rankUrl = rankNum ? `divisions/${rankNum}.png` : 'no-rank.png'
 		const rankImgWidth = 192
 		const rankImgHeight = rankNum == 0 ? 224 : rankNum == 27 ? 241 : rankNum == 26 ? 221 : 192
 
-		loadImage(rankUrl) // загружаем картинку ранга
-		.then(img => {
-			ctx.drawImage(img, 5, 10, rankImgWidth / 2, rankImgHeight / 2)
-			resolve(ctx)
-		})
+		// рисуем картинку ранга
+		const divisionImg = config.divisions[rankNum]
+		ctx.drawImage(divisionImg, 5, 200, rankImgWidth / 2, rankImgHeight / 2)
+
+		// рисуем аватарку
+		const avatarId = player.AvatarId
+		if ( config.avatars[avatarId] ) {
+			// если аватарка есть, уже загруженна, то берем ее и рисуем
+			const avatar = config.avatars[avatarId]
+			ctx.drawImage(avatar, 5, 10, 95, 95)
+			return resolve(ctx)
+		} else { // иначе - загружаем аватарку и сообщаем об этом в наш чат
+			const avatarUrl = player.AvatarURL || 'https://hirez-api-docs.herokuapp.com/paladins/avatar/default'
+
+			client.channels.fetch('696604376034181140')
+			.then(channel => { // сооьщаем в чат бота что найден аватар который не загружен у нас
+				if (channel) channel.send(`Авар не был найден: ${avatarUrl}`)
+				.catch(err => { console.log("Ошибка отправки сообщения для аватара.") })
+			})
+
+			loadImage(avatarUrl)
+			.then(avatar => {
+				ctx.drawImage(avatar, 5, 10, 95, 95)
+				return resolve(ctx)
+			}).catch(e => {
+				console.log(`Ошибка загрузки аватара !ss`)
+				return resolve(ctx)
+			})
+		}
+
 	})
 }
 
@@ -427,7 +501,7 @@ function draw_ss(getplayer, getchampionranks) {
  * @param {*} player 
  * @param {*} kda 
  */
-function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
+function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ, pictureWidth, pictureHeight) {
 	const RankedKBM = player.RankedKBM || {}
 	const totalTime = kda.dmg + kda.flank + kda.tank + kda.heal
 	const width = 200 // отступ от картинки ранга
@@ -437,12 +511,12 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 	//const healDeg = 360 * (kda.heal / totalTime)
 
 	ctx.fillStyle = "#000000"
-	ctx.fillRect(0, 300, 760, 330)
+	ctx.fillRect(0, pictureHeight - 40, pictureWidth, pictureHeight)
 
 	ctx.textAlign = "center"
 	ctx.font = 'bold 14px Georgia' // Franklin Gothic Medium
 	ctx.fillStyle = "#1199cc"
-	ctx.fillText(`Аккаунт: ${last_update_player} | Чемпионы: ${last_update_champ} (UTC+0)`, 380, 320)
+	ctx.fillText(`Аккаунт: ${last_update_player} | Чемпионы: ${last_update_champ} (UTC+0)`, pictureWidth / 2,  pictureHeight - 17)
 	ctx.font = 'bold 16px Georgia'
 	ctx.fillStyle = "#dddddd"
 	ctx.textAlign = "start"
@@ -456,70 +530,76 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 	ctx.fillText(`Последний вход: ${getDateStats(player.Last_Login_Datetime)}`, 10 + width / 2, 100)
 	ctx.fillText(`KDA: ${( (kda.kills + kda.assists / 2) / (kda.deaths + 1)).toFixed(2)}`, 10 + width / 2, 120)
 	ctx.fillText(`Клиент: ${player.Platform} - ${player.Name}`, 10, 140)
+	const title = player.Title
+	if ( title ) ctx.fillText(`Титул: ${player.Title}`, 10, 160)
 
-	ctx.fillText(`ВСЕГО:`, 50, 170)
-	ctx.fillText(`Убийств: ${kda.kills}`, 10, 190)
-	ctx.fillText(`Смертей: ${kda.deaths}`, 10, 210)
-	ctx.fillText(`Ассистов: ${kda.assists}`, 10, 230)
-	ctx.fillText(`Побед: ${player.Wins}`, 10, 250)
-	ctx.fillText(`Поражений: ${player.Losses}`, 10, 270)
-	ctx.fillText(`Винрейт: ${fixNaN((player.Wins / (player.Wins + player.Losses) * 100).toFixed(0))}%`, 10, 290)
+	const padLeftNew = 100
+	ctx.fillText(`ВСЕГО:`, 50 + padLeftNew, 190)
+	ctx.fillText(`Убийств: ${kda.kills}`, 10 + padLeftNew, 210)
+	ctx.fillText(`Смертей: ${kda.deaths}`, 10 + padLeftNew, 230)
+	ctx.fillText(`Ассистов: ${kda.assists}`, 10 + padLeftNew, 250)
+	ctx.fillText(`Побед: ${player.Wins}`, 10 + padLeftNew, 270)
+	ctx.fillText(`Поражений: ${player.Losses}`, 10 + padLeftNew, 290)
+	const winrateNumAll = fixNaN((player.Wins / (player.Wins + player.Losses) * 100).toFixed(0))
+	ctx.fillText(`Винрейт: ${winrateNumAll}%`, 10 + padLeftNew, 310)
 
-	ctx.fillText(`РАНКЕД:`, 250, 170)
-	ctx.fillText(`Побед: ${ fixNaN(RankedKBM.Wins) }`, 200, 190)
-	ctx.fillText(`Поражений: ${ fixNaN(RankedKBM.Losses) }`, 200, 210)
+	ctx.fillText(`РАНКЕД:`, 250 + padLeftNew, 190)
+	ctx.fillText(`Побед: ${ fixNaN(RankedKBM.Wins) }`, 200 + padLeftNew, 210)
+	ctx.fillText(`Поражений: ${ fixNaN(RankedKBM.Losses) }`, 200 + padLeftNew, 230)
+	const winrateNumRanked = fixNaN((RankedKBM.Wins / (RankedKBM.Wins + RankedKBM.Losses) * 100).toFixed(0))
+	ctx.fillText(`Винрейт: ${winrateNumRanked}%`, 200 + padLeftNew, 250)
 	const Tier_RankedKBM = player.Tier_RankedKBM
 	const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
-	ctx.fillText(`Ранг: ${getRank(rankNum)}`, 200, 230)
-	ctx.fillText(`ОТ: ${ fixNaN(RankedKBM.Points) }`, 200, 250)
-	if (RankedKBM.Rank) ctx.fillText(`Позиция: ${ fixNaN(RankedKBM.Rank) }`, 200, 270)
+	ctx.fillText(`Ранг: ${config.ranks[rankNum]}`, 200 + padLeftNew, 270)
+	ctx.fillText(`ОТ: ${ fixNaN(RankedKBM.Points) }`, 200 + padLeftNew, 290)
+	if (RankedKBM.Rank) ctx.fillText(`Позиция: ${ fixNaN(RankedKBM.Rank) }`, 200 + padLeftNew, 310)
 
-	ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 480, 160)
+	ctx.fillText("ЛЮБИМЫЕ ЧЕМПИОНЫ:", 520, 160)
 
 	ctx.fillText("Роли:", 540, 20)
-	ctx.fillText(`Урон - ${fixNaN((kda.dmg / totalTime * 100).toFixed(2))}%`, 600, 54)
-	ctx.fillText(`Танк - ${fixNaN((kda.tank / totalTime * 100).toFixed(2))}%`, 600, 76)
-	ctx.fillText(`Фланг - ${fixNaN((kda.flank / totalTime * 100).toFixed(2))}%`, 600, 98)
-	ctx.fillText(`Хилл - ${fixNaN((kda.heal / totalTime * 100).toFixed(2))}%`, 600, 120)
+	ctx.fillText(`Урон - ${fixNaN((kda.dmg / totalTime * 100).toFixed(2))}%`, 640, 54)
+	ctx.fillText(`Танк - ${fixNaN((kda.tank / totalTime * 100).toFixed(2))}%`, 640, 76)
+	ctx.fillText(`Фланг - ${fixNaN((kda.flank / totalTime * 100).toFixed(2))}%`, 640, 98)
+	ctx.fillText(`Хилл - ${fixNaN((kda.heal / totalTime * 100).toFixed(2))}%`, 640, 120)
 
 	// рисуем диаграмму ->
 	const second = tankDeg + dmgDeg
 	const third = flankDeg + dmgDeg + tankDeg
-	if (0 < dmgDeg) drawPieSlice(ctx, 510, 80, 50, 0, dmgDeg, "#9966FF")
-	if (dmgDeg < second) drawPieSlice(ctx, 510, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC")
-	if (second < third) drawPieSlice(ctx, 510, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600")
-	if (third < 360) drawPieSlice(ctx, 510, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00")
+	if (0 < dmgDeg) drawPieSlice(ctx, 550, 80, 50, 0, dmgDeg, "#9966FF")
+	if (dmgDeg < second) drawPieSlice(ctx, 550, 80, 50, dmgDeg, tankDeg + dmgDeg, "#3399CC")
+	if (second < third) drawPieSlice(ctx, 550, 80, 50, tankDeg + dmgDeg, flankDeg + dmgDeg + tankDeg, "#FF6600")
+	if (third < 360) drawPieSlice(ctx, 550, 80, 50, flankDeg + dmgDeg + tankDeg, 360, "#33CC00")
 	ctx.fillStyle = "#9966FF"
-	ctx.fillRect(580, 40, 15, 15)
+	ctx.fillRect(620, 40, 15, 15)
 	ctx.fillStyle = "#3399CC"
-	ctx.fillRect(580, 62, 15, 15)
+	ctx.fillRect(620, 62, 15, 15)
 	ctx.fillStyle = "#FF6600"
-	ctx.fillRect(580, 84, 15, 15)
+	ctx.fillRect(620, 84, 15, 15)
 	ctx.fillStyle = "#33CC00"
-	ctx.fillRect(580, 106, 15, 15)
+	ctx.fillRect(620, 106, 15, 15)
 
 	// любимые чемпионы ->
 	ctx.fillStyle = "#009900"
 	const best = kda.best
-	if (best[0]) ctx.fillText(best[0].Rank, 439, 250)
-	if (best[1]) ctx.fillText(best[1].Rank, 499, 250)
-	if (best[2]) ctx.fillText(best[2].Rank, 559, 250)
-	if (best[3]) ctx.fillText(best[3].Rank, 619, 250)
-	if (best[4]) ctx.fillText(best[4].Rank, 679, 250)
+	if (best[0]) ctx.fillText(best[0].Rank, 479, 250)
+	if (best[1]) ctx.fillText(best[1].Rank, 539, 250)
+	if (best[2]) ctx.fillText(best[2].Rank, 599, 250)
+	if (best[3]) ctx.fillText(best[3].Rank, 659, 250)
+	if (best[4]) ctx.fillText(best[4].Rank, 719, 250)
 
 	ctx.fillStyle = "#EE5500"
-	if (best[0]) ctx.fillText(fixNaN(((best[0].Kills + best[0].Assists / 2) / (best[0].Deaths + 1)).toFixed(2)), 437, 270)
-	if (best[1]) ctx.fillText(fixNaN(((best[1].Kills + best[1].Assists / 2) / (best[1].Deaths + 1)).toFixed(2)), 497, 270)
-	if (best[2]) ctx.fillText(fixNaN(((best[2].Kills + best[2].Assists / 2) / (best[2].Deaths + 1)).toFixed(2)), 557, 270)
-	if (best[3]) ctx.fillText(fixNaN(((best[3].Kills + best[3].Assists / 2) / (best[3].Deaths + 1)).toFixed(2)), 617, 270)
-	if (best[4]) ctx.fillText(fixNaN(((best[4].Kills + best[4].Assists / 2) / (best[4].Deaths + 1)).toFixed(2)), 677, 270)
+	if (best[0]) ctx.fillText(fixNaN(((best[0].Kills + best[0].Assists / 2) / (best[0].Deaths + 1)).toFixed(2)), 477, 270)
+	if (best[1]) ctx.fillText(fixNaN(((best[1].Kills + best[1].Assists / 2) / (best[1].Deaths + 1)).toFixed(2)), 537, 270)
+	if (best[2]) ctx.fillText(fixNaN(((best[2].Kills + best[2].Assists / 2) / (best[2].Deaths + 1)).toFixed(2)), 597, 270)
+	if (best[3]) ctx.fillText(fixNaN(((best[3].Kills + best[3].Assists / 2) / (best[3].Deaths + 1)).toFixed(2)), 657, 270)
+	if (best[4]) ctx.fillText(fixNaN(((best[4].Kills + best[4].Assists / 2) / (best[4].Deaths + 1)).toFixed(2)), 717, 270)
 
 	ctx.fillStyle = "#0088bb"
-	if (best[0]) ctx.fillText(`${getWinrate(best[0].Wins, best[0].Losses)}%`, 437, 290)
-	if (best[1]) ctx.fillText(`${getWinrate(best[1].Wins, best[1].Losses)}%`, 497, 290)
-	if (best[2]) ctx.fillText(`${getWinrate(best[2].Wins, best[2].Losses)}%`, 557, 290)
-	if (best[3]) ctx.fillText(`${getWinrate(best[3].Wins, best[3].Losses)}%`, 617, 290)
-	if (best[4]) ctx.fillText(`${getWinrate(best[4].Wins, best[4].Losses)}%`, 677, 290)
+	if (best[0]) ctx.fillText(`${getWinrate(best[0].Wins, best[0].Losses)}%`, 477, 290)
+	if (best[1]) ctx.fillText(`${getWinrate(best[1].Wins, best[1].Losses)}%`, 537, 290)
+	if (best[2]) ctx.fillText(`${getWinrate(best[2].Wins, best[2].Losses)}%`, 597, 290)
+	if (best[3]) ctx.fillText(`${getWinrate(best[3].Wins, best[3].Losses)}%`, 657, 290)
+	if (best[4]) ctx.fillText(`${getWinrate(best[4].Wins, best[4].Losses)}%`, 717, 290)
 }
 
 
@@ -534,17 +614,19 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
  * @param {*} matchIndex - стриница истории, по десяткам (10, 20, 30, 40, 50)
  */
  function bot_sh(message, name, matchIndex=1) {
-	--matchIndex
 	const discord_id = message.author.id
-	
+
 	// если указан пользователь, то берем его ID
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
 
 	// если в name передан индекс
-	if ( Number.isInteger(+name) && name < 6 && name != 0 ) {
+	if ( !isNaN( parseInt(+name) ) && name < 6) {
 		matchIndex = name
 		name = discord_id
 	}
+	matchIndex = parseInt(matchIndex - 1)
+	if ( isNaN(matchIndex) ) return message.reply(`Введите корректное число.\r\n${getCommands('!sh').detail}`)
+	if ( matchIndex < 0 ) matchIndex = 0
 
 	const form = formHiRezFunc("sh", discord_id, name)
 	sendSite(form)
@@ -569,9 +651,10 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 		/**
 		 * обрезаем матчи под указанные и проверяем хватает ли их
 		 */
+		const indexFrom = matchIndex * 10
 		const indexTo = (matchIndex + 1) * 10
-		if (matchList.length > matchIndex * 10) {
-			matchList = matchList.slice(matchIndex * 10, indexTo)
+		if (matchList.length > indexFrom) {
+			matchList = matchList.slice(indexFrom, indexTo)
 		} else {
 			return message.reply(`Игрок **${name}** имеет **${matchList.length}** матчей, а вы указали ${indexTo}.`)
 		}
@@ -583,11 +666,10 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 
 		// формируем вывод списка id матчей
 		let replyText = `\`\`\`md
-# ID матчей (${matchLenMax}):
-`
+[Матчи](${indexFrom}-${indexTo}) [Всего](${matchLenMax})\r\n# ID матчей:\r\n`
 		for ( let i = 0; i < matchList.length; i++) {
 			const match = matchList[i]
-			replyText += `[${i + 1}](${match.Match}) `
+			replyText += `[${i + 1}](${match.Match}); `
 		}
 
 		message.channel.send(`${message.author} ${replyText}\`\`\``, {files: [buffer]})
@@ -596,7 +678,7 @@ function drawItems_ss(ctx, player, kda, last_update_player, last_update_champ) {
 
 
 function draw_sh(matchList, last_update) {
-	const imgWidth = 935
+	const imgWidth = 950
 	const imgHeight = 580
 	const canvas = createCanvas(imgWidth, imgHeight)
 	const ctx = canvas.getContext('2d')
@@ -633,7 +715,7 @@ function draw_sh(matchList, last_update) {
 
 
 function drawItems_sh(ctx, matchList) {
-	const pos = [10, 100, 255, 330, 410, 505, 595, 685, 775, 865]
+	const pos = [10, 100, 255, 330, 425, 505, 595, 685, 775, 865]
 	ctx.fillStyle = "#1199cc"
 
 	// рисуем таблицу для инфы
@@ -676,12 +758,12 @@ function drawItems_sh(ctx, matchList) {
 
 		const getQueue = item.Queue
 		const queue = getQueue == "Siege" ? "Осада" : 
-			getQueue == "Siege Training" ? "Осада (Б)" : 
+			getQueue == "Siege Training" ? "*Осада" : 
 			getQueue == "Ranked" ? "Ранкед" : 
 			getQueue == "Onslaught" ? "Натиск" : 
-			getQueue == "Onslaught Training" ? "Натиск (Б)" : 
+			getQueue == "Onslaught Training" ? "*Натиск" : 
 			getQueue == "Team Deathmatch" ? "Насмерть" : 
-			getQueue == "Team Deathmatch Training" ? "Насмерть (Б)" : 
+			getQueue == "Team Deathmatch Training" ? "*Насмерть" : 
 			getQueue == "Test Maps" ? "Тестовые" : getQueue
 
 		ctx.fillStyle = statusColor
@@ -703,9 +785,19 @@ function drawItems_sh(ctx, matchList) {
  */
 function bot_sm(message, name, matchIndex=1) {
 	const discord_id = message.author.id
-	
+
 	// если указан пользователь, то берем его ID
 	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
+	// если в name передан индекс
+	if ( !isNaN( parseInt(+name) ) && name < 50) {
+		matchIndex = name
+		name = discord_id
+	}
+
+	matchIndex = parseInt(matchIndex)
+	if ( isNaN(matchIndex) ) return message.reply(`Введите корректное число.\r\n${getCommands('!sm').detail}`)
+	if ( matchIndex <= 0 ) matchIndex = 1
 
 	const form = formHiRezFunc("sm", discord_id, name, matchIndex)
 	sendSite(form)
@@ -723,11 +815,21 @@ function bot_sm(message, name, matchIndex=1) {
 			// нужно будет отправлят ьв логи на серв
 		}
 
+		const json = getmatchdetails.json
+		let replyText =  `${message.author} ` + "```md" + `\r\n`
+
+		let i = 1
+		json.forEach(player => {
+			replyText += `${i}. [${player.Reference_Name}](${player.playerName})<${player.playerId}>\r\n`
+			i++
+		})
+		replyText += "```"
+
 		// если ошибок нет, то рисуем стату
-		draw_sm(getmatchdetails.json)
+		draw_sm(json)
 		.then(ctx => {
 			const buffer = ctx.canvas.toBuffer('image/png') // buffer image
-			message.channel.send(`${message.author}`, {files: [buffer]})
+			message.channel.send(`${message.author}`, {files: [buffer], content: replyText})
 		})
 
 	})
@@ -971,18 +1073,16 @@ function bot_sl(message, name, championName, num=false) {
 		if ( !len ) return message.reply(`Колоды не обнаруженны.`)
 		if ( len < num ) return message.reply(`Игрок не имеет столько колод, укажите правильное число, у него **${len}** колод.`)
 		if ( !num && len > 1) { // если колода не указанна и колод больше 1 то выводим их список
-			let repText = "```md"
-			repText += `
-#Выберите одну из колод:\r\n* [№](имя колоды)\r\n`
+			let repText = "```md" + `\r\n#Выберите одну из колод:\r\n* [№](имя колоды)\r\n`
 			for (let i = 0; i < len; i++) {
 				loadouts = loadoutsList[i]
 				repText += `[${i+1}](${loadouts.DeckName})\r\n`
 			}
 
 			repText += "> >\r\n"
-			repText += "#Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. Пример:\r\n"
+			repText += "# Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. Пример:\r\n"
 			repText += "!sl me seris 1\r\n"
-			const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
+			const time = body.getplayerloadouts.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
 			repText += `* Обновленно: ${time}<UTC+0>`
 			repText += "```"
 			return message.reply(repText)
@@ -1030,7 +1130,7 @@ function draw_sl(loadouts) {
 	return new Promise(resolve => {
 		Promise.all(loadList)
 		.then(imgListLoad => {
-			for (let i = 0; i < imgListLoad.length; i++) { // перебор загруженных картинок
+			for (let i = 0; i < imgListLoad.length; i++) { // перебор загруженых картинок
 				const img = imgListLoad[i] // загруженная картинка карты
 				const properties = listDeck[i] // свойства картинки (имя и на скок вкачано)
 
@@ -1206,13 +1306,18 @@ function draw_sp(matchplayerdetails, background) {
 	const mapName = game.mapGame || 'Test Maps'
 
 	try {
-		ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+		if ( background ) ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
 	} catch(e) {
 		console.log(`\r\nКарта ${mapName} не найдена 2. Ошибка:`)
 		console.log(e)
 		// нужно будет норм сообщить об ошибке (в логи)
 	}
 
+	// затемняющий прозрачный фон
+	ctx.fillStyle = "#0000004a"
+	ctx.fillRect(0, 0, imgWidth, imgHeight)
+
+	ctx.fillStyle = "#000000"
 	ctx.fillRect(0, 0, imgWidth, 40)
 	ctx.fillRect(0, imgHeight - 40, imgWidth, imgHeight)
 
@@ -1428,8 +1533,8 @@ function bot_st(message, name, typeSort="lvl") {
 		}
 
 		const champions = getchampionranks.json
-		const time = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
-		if ( !champions ) return message.reply(`Чемпионы не найденны.\r\nОбновленно: **${time}** (UTC+0)`)
+		const last_update = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		if ( !champions ) return message.reply(`Чемпионы не найденны.\r\nОбновленно: **${last_update}** (UTC+0)`)
 
 		// получаем функцию сортировки
 		let sortFunc
@@ -1471,7 +1576,6 @@ function bot_st(message, name, typeSort="lvl") {
 		const sortChampions = champions.sort(sortFunc)
 
 		// если ошибок нет, то рисуем стату
-		const last_update = getchampionranks.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
 		const ctx = draw_st( sortChampions, last_update )
 		const buffer = ctx.canvas.toBuffer('image/png') // buffer image
 		message.channel.send(`${message.author}`, {files: [buffer]})
@@ -1540,6 +1644,221 @@ function draw_st(champions, last_update) {
 
 
 /**
+ *  --- !SF ---
+ * показывает список друзей
+ * @param {*} message 
+ * @param {*} name 
+ * @param {*} page - страница списка друзей
+ */
+function bot_sf(message, name, page=1) {
+	const discord_id = message.author.id
+	page = parseInt(page)
+	if ( isNaN(page) ) return message.reply(`Введите корректное число страницы. Пример: **!sf me 2**`)
+	if ( page < 1 ) page = 1
+
+	// если указан пользователь, то берем его ID
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
+	const form = formHiRezFunc("sf", discord_id, name)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		if ( !checkSelectPlayer(message, body, 'sf') ) return false // просто выходим, функция должна была уже отправить смс
+
+		// проверяем есть ли ошибки в полученных данных
+		const getfriends = body.getfriends
+		try {
+			if ( !getfriends.status ) return message.reply(getfriends.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
+
+		const accaunts = getfriends.json
+		const last_update = getfriends.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		if ( !accaunts || accaunts.length == 0 ) return message.reply(`Друзья не найдены.\r\nОбновленно: **${last_update}** (UTC+0)`)
+
+		const frends = accaunts.filter(user => user.status === 'Friend')
+		const flen = frends.length
+
+		if ( frends.length == 0 ) return message.reply(`Друзья не найдены.\r\nОбновленно: **${last_update}** (UTC+0)`)
+
+		const pageCount = Math.ceil( flen / 20 )
+		if ( pageCount < page ) return message.reply(`У пользователя ${pageCount} страниц друзей.`)
+
+		let resp_text = "```md" + `\r\n# Всего ${flen} друзей (${pageCount} страниц)\r\n[id](name)<portal>\r\n> >\r\n`
+
+		for (let i = 0 + (page - 1) * 20; flen > i && i < 20 * page; i++) { // максимум 20
+			const user = frends[i]
+			const portal = config.platforms[ user.portal_id ] || user.portal_id
+			resp_text += `${i + 1}. [${user.player_id}](${user.name})<${portal}>\r\n`
+		}
+
+		if ( flen >= 20 ) {
+			resp_text += `> >\r\n# Показаны не все друзья. Страница ${page} из ${pageCount}\r\n`
+		}
+
+		const time = getfriends.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
+		resp_text += `> >\r\n* Обновленно: ${time}<UTC+0>`
+		resp_text += "```"
+		message.reply(resp_text)
+	})
+}
+
+
+
+
+/**
+ *  --- !SB ---
+ * показывает список блокировок
+ * @param {*} message 
+ * @param {*} name 
+ * @param {*} page - страница списка блокировок
+ */
+function bot_sb(message, name, page=1) {
+	const discord_id = message.author.id
+	page = parseInt(page)
+	if ( isNaN(page) ) return message.reply(`Введите корректное число страницы. Пример: **!sb me 2**`)
+	if ( page < 1 ) page = 1
+
+	// если указан пользователь, то берем его ID
+	if ( /^\<?\@\!?\d+\>$/.test(name) ) name = name.replace(/\D+/g, '')
+
+	const form = formHiRezFunc("sb", discord_id, name)
+	sendSite(form)
+	.then(response => {
+		const body = response.body
+
+		if ( !checkSelectPlayer(message, body, 'sb') ) return false // просто выходим, функция должна была уже отправить смс
+
+		// проверяем есть ли ошибки в полученных данных
+		const getfriends = body.getfriends
+		try {
+			if ( !getfriends.status ) return message.reply(getfriends.err_msg)
+		} catch(e) {
+			return message.reply("Произошла ошибка, попробуйте повторить или сообщите разработчику.")
+			// нужно будет отправлят ьв логи на серв
+		}
+
+		const accaunts = getfriends.json
+		const last_update = getfriends.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '$3.$2.$1 $4:$5:$6')
+		if ( !accaunts || accaunts.length == 0 ) return message.reply(`Заблокированные не найдены.\r\nОбновленно: **${last_update}** (UTC+0)`)
+
+		const blocked = accaunts.filter(user => user.status === 'Blocked')
+		const flen = blocked.length
+
+		if ( blocked.length == 0 ) return message.reply(`Заблокированные не найдены.\r\nОбновленно: **${last_update}** (UTC+0)`)
+
+		const pageCount = Math.ceil( flen / 20 )
+		if ( pageCount < page ) return message.reply(`У пользователя ${pageCount} страниц заблокированных.`)
+
+		let resp_text = "```md" + `\r\n# Всего ${flen} заблокированных (${pageCount} страниц)\r\n[id](name)<portal>\r\n> >\r\n`
+
+		for (let i = 0 + (page - 1) * 20; flen > i && i < 20 * page; i++) { // максимум 20
+			const user = blocked[i]
+			const portal = config.platforms[ user.portal_id ] || user.portal_id
+			resp_text += `${i + 1}. [${user.player_id}](${user.name})<${portal}>\r\n`
+		}
+
+		if ( flen >= 20 ) {
+			resp_text += `> >\r\n# Показаны не все заблокированные. Страница ${page} из ${pageCount}\r\n`
+		}
+
+		const time = getfriends.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
+		resp_text += `> >\r\n* Обновленно: ${time}<UTC+0>`
+		resp_text += "```"
+		message.reply(resp_text)
+	})
+}
+
+
+
+
+/**
+ *  --- !SR ---
+ * возвращает рандомного(ых) чемпионов
+ * @param {*} message 
+ * @param {*} type 
+ * @param {*} num - страница списка блокировок
+ */
+function bot_sr(message, type, num=1) {
+	let champList = []
+	if ( typeof(type) == 'string' ) type = type.toLowerCase()
+
+	if ( type === undefined || type == 'champ' || type == 'champion' ) {
+		champList = Array.from( config.championList )
+	} else if ( type == 'dmg' || type == 'damage' || type == 'урон' || type == 'дамаг' ) {
+		champList = Array.from( config.championDamage )
+	} else if ( type == 'flank' || type == 'фланг' || type == 'фланк' ) {
+		champList = Array.from( config.championFlank )
+	} else if ( new Set(['heal', 'хил', 'хилл', 'sup', 'support', 'suport']).has(type) ) {
+		champList = Array.from( config.championHeal )
+	} else if ( type == 'tank' || type == 'танк' ) {
+		champList = Array.from( config.championTank )
+	} else {
+		type = parseInt(type)
+		if ( isNaN(type) ) return message.reply(`Не правильно указан **type**.\r\nЧто бы получить подробный гайд по любой команде используйте команду **!hh** Пример: **!hh sr**`)
+		// если ничего из этого тогда type должен быть числом
+		champList = Array.from( config.championList )
+		num = type
+	}
+
+	// проверяем num
+	if ( num < 1 || num > 10 ) return message.reply(`Вы указали слишком большое число - максимум 10.`)
+	if ( champList.length < num ) return message.reply(`Чемпионов меньше чем нужно.`) // поидее такой ошибки не будет
+
+	const randList = []
+	for (let i = 0; i < num; i++) {
+		randList.push( champList.rand(true) )
+	}
+	// console.log(randList)
+	const ctx = draw_sr(randList)
+	const buffer = ctx.canvas.toBuffer('image/png') // buffer image
+	message.channel.send(`${message.author}`, {files: [buffer]})
+}
+
+
+function draw_sr(champions) {
+	const len = champions.length
+	const widthBlock = 170
+	const heightBlock = 265
+	const imgWidth = len > 5 ? widthBlock * 5 + 10 : widthBlock * len + 10
+	const imgHeight = len > 5 ? heightBlock * 2 : heightBlock
+	const canvas = createCanvas(imgWidth, imgHeight)
+	const ctx = canvas.getContext('2d')
+	ctx.font = 'bold 16px Georgia'
+
+	const background = config.imgBackground[ Math.floor(Math.random() * 3) ] // случайный фон
+	ctx.drawImage(background, 0, 0, imgWidth, imgHeight)
+
+	for (let i = 0; i < champions.length; i++) {
+		const k = i >= 5 ? i - 5 : i
+		const paddingLeft = widthBlock * k
+		const paddingTop = i >= 5 ? heightBlock : 0
+		const img = champions[i].loadedImg
+		ctx.drawImage(img, 10 + paddingLeft, 30 + paddingTop, 160, 160)
+
+		ctx.fillStyle = '#EE5500' // оранжевый
+		ctx.textAlign = "center"
+		ctx.fillText( champions[i].Name, 90 + paddingLeft, 20 + paddingTop )
+		ctx.textAlign = "start"
+
+		ctx.fillStyle = '#BB1111' // красный
+		ctx.fillText(`Роль: ${champions[i].Roles}`, 10 + paddingLeft, 210 + paddingTop)
+		ctx.fillStyle = '#32CD32' // зеленый
+		ctx.fillText(`Жизни: ${champions[i].Health}`, 10 + paddingLeft, 230 + paddingTop)
+		ctx.fillStyle = "#1199cc" // голубой
+		ctx.fillText(`Скорость: ${champions[i].Speed}`, 10 + paddingLeft, 250 + paddingTop)
+	}
+
+	return ctx
+}
+
+
+
+
+/**
  * 
  */
 function bot_online(message) {
@@ -1595,9 +1914,7 @@ function checkSelectPlayer(message, body, command='ss') {
 			return false
 		}
 
-		let textReply = "```md"
-		textReply += `
-#Выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
+		let textReply = "```md" + `\r\n# Выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
@@ -1610,7 +1927,7 @@ function checkSelectPlayer(message, body, command='ss') {
 		if ( textReply.length > 1500 ) textReply = textReply.slice(0, 1500) + '...\r\n' // обрезаем если оч длинное
 		if ( body.json.length > 20 ) textReply += '* Этот список слишком велик и был обрезан.\r\n'
 
-		textReply += `#Что бы выбрать аккаунт введите его ID. Пример:\r\n${command} 000000\r\n`
+		textReply += `# Что бы выбрать аккаунт введите его ID. Пример:\r\n!${command} 000000\r\n`
 		textReply += "#Вы так же можете сохранить аккаунт по ID. Пример:\r\n!me 000000\r\n"
 		const time = body.last_update.replace(/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/, '[$3.$2.$1]($4:$5:$6)')
 		textReply += `* Обновленно: ${time}<UTC+0>`
@@ -1647,38 +1964,6 @@ function formProposals(text, maxLen) { // возвращает массив, р�
 	}
 }
 
-function getRank(n) { // переводит цифры в ранг
-	switch (n) {
-		case 1: return 'Бронза 5'
-		case 2: return 'Бронза 4'
-		case 3: return 'Бронза 3'
-		case 4: return 'Бронза 2'
-		case 5: return 'Бронза 1'
-		case 6: return 'Сильвер 5'
-		case 7: return 'Сильвер 4'
-		case 8: return 'Сильвер 3'
-		case 9: return 'Сильвер 2'
-		case 10: return 'Сильвер 1'
-		case 11: return 'Золото 5'
-		case 12: return 'Золото 4'
-		case 13: return 'Золото 3'
-		case 14: return 'Золото 2'
-		case 15: return 'Золото 1'
-		case 16: return 'Платина 5'
-		case 17: return 'Платина 4'
-		case 18: return 'Платина 3'
-		case 19: return 'Платина 2'
-		case 20: return 'Платина 1'
-		case 21: return 'Алмаз 5'
-		case 22: return 'Алмаз 4'
-		case 23: return 'Алмаз 3'
-		case 24: return 'Алмаз 2'
-		case 25: return 'Алмаз 1'
-		case 26: return 'Мастер'
-		case 27: return 'ГМ'
-		default: return 'Калибровка'
-	}
-}
 
 function secToMin(s) { // секунды в минуты или минуты в часы, принцип тот же
 	let min = (s / 60).toFixed(2) + ''
@@ -1710,27 +1995,15 @@ function getKDABP(champions) { // kill, death, assist, больеш всего �
 
 		champions.sort( (a, b) => b.Minutes - a.Minutes ) // сортируем
 
-		switch ( getRole(champions[i].champion) ) {
-			case 'dmg': dmg += champions[i].Minutes;break
-			case 'flank': flank += champions[i].Minutes;break
-			case 'heal': heal += champions[i].Minutes;break
-			case 'tank': tank += champions[i].Minutes;break
+		switch ( config.championsName[champions[i].champion].Roles ) {
+			case 'Урон': dmg += champions[i].Minutes;break
+			case 'Фланг': flank += champions[i].Minutes;break
+			case 'Поддержка': heal += champions[i].Minutes;break
+			case 'Танк': tank += champions[i].Minutes;break
 		}
 	}
 
 	return {kills, deaths, assists, best: champions.slice(0, 5), dmg, flank, heal, tank}
-}
-
-function getRole(name) { // основываясь на имени персонажа возвращает его роль
-	let heals = ["Mal'Damba", "Ying", "Grover", "Jenos", "Grohk", "Pip", "Seris", "Furia", "Io", "Corvus"],
-		dmgs = ["Lian", "Cassie", "Drogoz", "Strix", "Viktor", "Sha Lin", "Bomb King", "Kinessa", "Tyra", "Vivian", "Willo", "Dredge", "Imani"],
-		flanks = ["Androxus", "Buck", "Zhin", "Evie", "Koga", "Talus", "Maeve", "Skye", "Lex", "Moji", "Tiberius"],
-		tanks = ["Makoa", "Fernando", "Ruckus", "Barik", "Ash", "Khan", "Torvald", "Inara", "Terminus", "Atlas", "Raum"]
-
-	return heals.indexOf(name) != -1 ? 'heal' : 
-		dmgs.indexOf(name) != -1 ? 'dmg' : 
-		flanks.indexOf(name) != -1 ? 'flank' : 
-		tanks.indexOf(name) != -1 ? 'tank' : false
 }
 
 function drawPieSlice(ctx, centerX, centerY, radius, startAngle, endAngle, color) {
@@ -1751,6 +2024,16 @@ function getRadians(degrees) {return (Math.PI / 180) * degrees}
 // <--- PALADINS STATS default function <---
 
 
+/**
+ * возвращает случайны эллемент массива, если splice = true то удаляет возвращаеммый эллемент по ссылке из массива
+ */
+Array.prototype.rand = function(splice=false) {
+  const max = this.length
+    const index = Math.floor( Math.random() * max )
+    if ( splice ) return this.splice(index, 1)[0]
+    return this[index]
+}
+
 
 
 
@@ -1768,7 +2051,7 @@ function getRadians(degrees) {return (Math.PI / 180) * degrees}
  */
 function startListenMess(message) {
 	if (message.author.bot) return false // если сообщение от бота то игнорим
-	const content = message.content.replace(/[\\]+/, '')
+	const content = message.content.replace(/[\\]+/, '').trim()
 	const authorId = message.author.id
 
 	// если включен режим тестирования
@@ -1787,7 +2070,17 @@ function startListenMess(message) {
 		let keyLen = null
 		const commandSearch = command.commands.some(com => {
 			keyLen = com.length + 1 // сохраняем, +1 что бы зацепить обязательный пробел после команды
-			return content.toLowerCase().startsWith(com)
+			const cnt = content.toLowerCase()
+			if ( cnt.startsWith(com) ) {
+				// если команда найдена, то проверим есть ли после нее пробел, если есть параметры
+				if ( cnt.length == com.length ) {
+					return true // нет пробела и нет параметров
+				} else if ( cnt.startsWith(com + ' ') ) {
+					return true // если есть пробел, а потом идут параметры
+					// после пробела полюбому что-то есть так как ранее была вызвана функция .trim()
+				}
+			}
+			return false
 		})
 
 		if (!commandSearch) continue // если команда не совпадает то пропускаем ее
@@ -1913,11 +2206,13 @@ function loadAllData() {
 				getImgItems(), // Предметы (item)
 				getPaladinsMaps(), // Карты
 				getDifferentImg(), // Разные картинки
-				getRankedImage() // Иконки ранга
+				getRankedImage(), // Иконки ранга
+				getPlayerAvatars(), // аватарки
+				getDivisions() // дивизионы
 			]).then(endStatus => {
 				if ( endStatus.find(el => el == false) === false ) return reject(false)
 				const timeEnd = new Date() - timeStart
-				console.log(` -- Данные загруженны. Запуск бота... (${timeEnd}ms)`)
+				console.log(` -- Данные загружены. Запуск бота... (${timeEnd}ms)`)
 				return resolve(true)
 			})
 		})
@@ -1955,7 +2250,7 @@ function load_getchampions() {
 
 			formChampions() // записываем чемпионов и формируем данные для удобства
 			const timeEnd = new Date() - timeStart
-			console.log(`getchampions и getchampioncards успешно загруженны и записанны. (${timeEnd}ms)`)
+			console.log(`getchampions и getchampioncards успешно загружены и записанны. (${timeEnd}ms)`)
 			return resolve(true)
 		})
 	}).catch(err => {
@@ -1972,7 +2267,14 @@ function load_getchampions() {
  */
 function formChampions() {
 	config.championList.forEach(champion => {
-		champion.Roles = champion.Roles.replace(/paladins /ig, "")
+		const role = champion.Roles.replace(/paladins /ig, "")
+		champion.Roles = role
+		const championRole = role == 'Поддержка' ? config.championHeal : 
+							 role == 'Танк' ? config.championTank : 
+							 role == 'Фланг' ? config.championFlank : 
+							 role == 'Урон' ? config.championDamage : []
+
+		championRole.push(champion)
 
 		config.championsId[ champion.id ] = champion
 		config.championsName[ champion.Name_English ] = champion
@@ -2030,8 +2332,8 @@ function load_championsCard() {
 				}
 			}
 			const timeEnd = new Date() - timeStart
-			console.log(`Легендарки чемпионов загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Легендарки чемпионов загружены. (${timeEnd}ms)`)
+			return resolve(true)
 		})
 	})
 }
@@ -2054,8 +2356,8 @@ function getCardFrames() {
 		.then(imgList => {
 			config.cardFrames = imgList
 			const timeEnd = new Date() - timeStart
-			console.log(`Фреймы карт загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Фреймы карт загружены. (${timeEnd}ms)`)
+			return resolve(true)
 		})
 	})
 }
@@ -2076,8 +2378,8 @@ function getImgBackground() {
 		.then(imgList => {
 			config.imgBackground = imgList
 			const timeEnd = new Date() - timeStart
-			console.log(`Фоны для статы загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Фоны для статы загружены. (${timeEnd}ms)`)
+			return resolve(true)
 		})
 	})
 }
@@ -2106,7 +2408,7 @@ function getImgChampions() {
 
 			const timeEnd = new Date() - timeStart
 			console.log(`Иконки персонажей загружены. (${timeEnd}ms)`)
-			resolve(true)
+			return resolve(true)
 		})
 	})
 }
@@ -2131,8 +2433,8 @@ function getImgItems() {
 				i++
 			}
 			const timeEnd = new Date() - timeStart
-			console.log(`Предметы (item) загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Предметы (item) загружены. (${timeEnd}ms)`)
+			return resolve(true)
 		})
 	})
 }
@@ -2157,8 +2459,8 @@ function getPaladinsMaps() {
 				i++
 			}
 			const timeEnd = new Date() - timeStart
-			console.log(`Карты загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Карты загружены. (${timeEnd}ms)`)
+			return resolve(true)
 		})
 	})
 }
@@ -2177,8 +2479,8 @@ function getDifferentImg() {
 		.then(imgList => {
 			config.differentImg['vs'] = imgList[0]
 			const timeEnd = new Date() - timeStart
-			console.log(`Разные картинки загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Разные картинки загружены. (${timeEnd}ms)`)
+			return resolve(true)
 		})
 	})
 }
@@ -2199,8 +2501,76 @@ function getRankedImage() {
 		.then(imgList => {
 			config.rankedImage = imgList
 			const timeEnd = new Date() - timeStart
-			console.log(`Иконки ранга загруженны. (${timeEnd}ms)`)
-			resolve(true)
+			console.log(`Иконки ранга загружены. (${timeEnd}ms)`)
+			return resolve(true)
+		})
+	})
+}
+
+
+
+/**
+ * загружает аватарки пользователей
+ */
+function getPlayerAvatars() {
+	const timeStart = new Date()
+	return new Promise(resolve => {
+		fs.readdir('./avatars/', (err, avatars) => {
+			if (err) {
+				console.log(err)
+				return resolve(false)
+			}
+
+			const avatarsList = []
+			avatars.forEach(img => {
+				avatarsList.push( loadImage(`./avatars/${img}`) )
+			})
+
+			Promise.all(avatarsList)
+			.then(ava => {
+				let i = 0
+				ava.forEach(avatar => {
+					config.avatars[ avatars[i].replace(/[^0-9]+/g, '') ] = avatar
+					i++
+				})
+				const timeEnd = new Date() - timeStart
+				console.log(`Аватары загружены ${i} штук. (${timeEnd}ms)`)
+				return resolve(true)
+			})
+		})
+	})
+}
+
+
+
+/**
+ * загружает ранговые дивизионы
+ */
+function getDivisions() {
+	const timeStart = new Date()
+	return new Promise(resolve => {
+		fs.readdir('./divisions/', (err, divisions) => {
+			if (err) {
+				console.log(err)
+				return resolve(false)
+			}
+
+			const divisionsList = []
+			divisions.forEach(img => {
+				divisionsList.push( loadImage(`./divisions/${img}`) )
+			})
+
+			Promise.all(divisionsList)
+			.then(div => {
+				let i = 0
+				div.forEach(division => {
+					config.divisions[ divisions[i].replace(/[^0-9]+/g, '') ] = division
+					i++
+				})
+				const timeEnd = new Date() - timeStart
+				console.log(`Дивизионы загружены. (${timeEnd}ms)`)
+				return resolve(true)
+			})
 		})
 	})
 }
@@ -2229,6 +2599,19 @@ function formHiRezFunc(command, discord_id=null, ...params) {
 			// 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 		}
 	}
+}
+
+
+
+/**
+ * Находит и возвращает команду бота, если такая есть
+ * @param {String} com - название команды с префиксом
+ * @return {Object} - обьект команды
+ */
+function getCommands(com) {
+	return botCommands.find(el => {
+		return el.commands.indexOf(com) != -1
+	})
 }
 
 

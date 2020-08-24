@@ -1335,7 +1335,11 @@ function draw_sp(matchplayerdetails, background) {
 	ctx.fillText(` ${game.Match}`, imgWidth / 2, 25)
 	ctx.fillStyle = '#ffffff'
 
+	//Удаляем игроков, которые ливнули
+
 	// перебираем игроков матча и рисуем их инфу
+	let matchPlayersTeam1 = 0
+	let matchPlayersTeam2 = 0
 	for (let i = 0; i < matchplayerdetails.length; i++) {
 		const item = matchplayerdetails[i]
 		const champion = config.championsName[item.ChampionName] || {} // избегаем возможных ошибок
@@ -1343,6 +1347,8 @@ function draw_sp(matchplayerdetails, background) {
 		const tier = item.Tier
 
 		if (item.taskForce == 1) {
+			matchPlayersTeam1++
+
 			if (img) ctx.drawImage(img, 70, 90 * i + 50, 50, 50)
 			// ctx.fillStyle = '#EE5500' // оранжевый
 			ctx.fillText(`Ник: ${item.playerName}`, 130, 90 * i + 65)
@@ -1361,23 +1367,24 @@ function draw_sp(matchplayerdetails, background) {
 			const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
 			ctx.drawImage(imgRank, 10, 90 * i + 50, 50, 50 * coefficient)
 		} else if (item.taskForce == 2) {
-			if (img) ctx.drawImage(img, imgWidth - 120, 90 * (i - 5) + 50, 50, 50)
+			matchPlayersTeam2++
+			if (img) ctx.drawImage(img, imgWidth - 120, 90 * (i - matchPlayersTeam1) + 50, 50, 50)
 			ctx.textAlign = 'end'
 			// ctx.fillStyle = '#EE5500' // оранжевый
-			ctx.fillText(`Ник: ${item.playerName}`, imgWidth - 130, 90 * (i - 5) + 65)
+			ctx.fillText(`Ник: ${item.playerName}`, imgWidth - 130, 90 * (i - matchPlayersTeam1) + 65)
 			const winrate = fixNaN((item.tierWins / (item.tierWins + item.tierLosses) * 100).toFixed(2))
 			// ctx.fillStyle = '#32CD32' // зеленый
 			// рисуем винрейт только в рейте, так как он доступен только там
-			if (item.Queue == 486) ctx.fillText(`Винрейт: ${winrate}%`, imgWidth - 130, 90 * (i - 5) + 93)
+			if (item.Queue == 486) ctx.fillText(`Винрейт: ${winrate}%`, imgWidth - 130, 90 * (i - matchPlayersTeam1) + 93)
 			// ctx.fillStyle = '#BB1111' // красный
-			ctx.fillText(`Лвл: ${item.Account_Level}`, imgWidth - 130, 90 * (i - 5) + 120)
+			ctx.fillText(`Лвл: ${item.Account_Level}`, imgWidth - 130, 90 * (i - matchPlayersTeam1) + 120)
 			ctx.textAlign = 'center'
-			ctx.fillText(item.ChampionLevel, imgWidth - 95, 90 * (i - 5) + 120)
+			ctx.fillText(item.ChampionLevel, imgWidth - 95, 90 * (i - matchPlayersTeam1) + 120)
 
 			if (tier == undefined) continue
 			const imgRank = config.rankedImage[tier] // получаем картинку ранга
 			const coefficient = tier == 27 ? 1.257 : tier == 26 ? 1.151 : tier == 0 ? 1.2 :1
-			ctx.drawImage(imgRank, imgWidth - 60, 90 * (i - 5) + 50, 50, 50 * coefficient)
+			ctx.drawImage(imgRank, imgWidth - 60, 90 * (i - matchPlayersTeam1) + 50, 50, 50 * coefficient)
 		}
 	}
 

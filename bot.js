@@ -2671,7 +2671,7 @@ function setStatsToSite() {
 	config.commandsStats = {}
 
 	sendSite({method: "POST", url, form: {
-		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork, commandsStats
+		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork, commandsStats: JSON.stringify(commandsStats)
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
 		try {

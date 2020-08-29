@@ -10,6 +10,7 @@ const randomUseragent = require('random-useragent')
 config.timeStart = +new Date()
 config.usedCommands = 0
 config.usedCommandsNow = 0
+config.commandsStats = {}
 
 config.championsId = {}
 config.championsName = {}
@@ -2093,7 +2094,7 @@ function startListenMess(message) {
 		if (!commandSearch) continue // если команда не совпадает то пропускаем ее
 
 		/**
-		 * првоеряем права на отправку сообщений и прикреплению файлов (скринов)
+		 * проверяем права на отправку сообщений и прикреплению файлов (скринов)
 		 */
 		const type = message.channel.type // тип чата
 		if (type != 'dm' && type != 'group') { // в личке проверять права не нужно
@@ -2118,7 +2119,12 @@ function startListenMess(message) {
 		if (guild) guildName = guild.name
 		console.log(`user: ${authorId}; guild: ${guildName}; func: ${command.commands[0]}; params: ${params}`)
 
+		const commandName = command.commands[0]
+		if ( !config.commandsStats[commandName] ) config.commandsStats[commandName] = 0
+		config.commandsStats[commandName]++ // увеличиваем кол-во использований этой команды
+
 		return command.func(message, ...params) // вызываем функцию команды передав параметры как строки
+		// было бы не плохо возвращать в итоге true/false - была ли успешно выполнена функция (команда)
 	}
 }
 
@@ -2660,9 +2666,12 @@ function setStatsToSite() {
 	const usedCommands = config.usedCommands
 	const usedCommandsNow = config.usedCommandsNow
 	config.usedCommands = 0
+	const commandsStats = {}
+	Object.assign(commandsStats, config.commandsStats)
+	config.commandsStats = {}
 
 	sendSite({method: "POST", url, form: {
-		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork
+		token, type: 'stats_new', servers, users, usedCommands, usedCommandsNow, timeWork, commandsStats
 	}}).then (res => {
 		console.log(res.body) // успешно отправленно
 		try {
@@ -2674,6 +2683,7 @@ function setStatsToSite() {
 			console.log("Ошибка 'stats_new':")
 			console.log(e)
 			config.usedCommands += usedCommands // возвращаем их назад
+			// сделать возврат и для commandsStats
 		}
 		// можно так же получать в ответ изменившиеся настройки команд для серверов (экономим запросы)
 	})

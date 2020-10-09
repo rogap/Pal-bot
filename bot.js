@@ -2069,7 +2069,12 @@ function startListenMess(message) {
 	 * выполняет код создателя бота внутри, нужно для тестирования и отладки
 	 */
 	if (authorId == "510112915907543042" && content.startsWith("!console ")) {
-		eval( content.slice(9) )
+		try {
+			eval( content.slice(9) )
+			return;
+		} catch (e) {
+			return console.log(e)
+		}
 	}
 
 	// ищем команду

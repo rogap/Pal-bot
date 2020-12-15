@@ -2203,6 +2203,26 @@ client.on("ready", () => {
 	client.on("message", startListenMess)
 	const timeEnd = new Date() - timeStart
 	console.log(` ++ Бот запущен и готов к работе (${timeEnd}ms)`)
+
+	client.on("guildCreate", guild => {
+		const text = ` + add; name: ${guild.name}; id: ${guild.id}; countMember: ${guild.memberCount};`
+		console.log(text)
+		client.channels.fetch('612875033651707905')
+		.then(channel => {
+			if (channel) channel.send(text)
+			.catch(err => { console.log("Ошибка отправки сообщения.") })
+		})
+	})
+
+	client.on("guildDelete", guild => {
+		const text = ` - remove; name: ${guild.name}; id: ${guild.id}; countMember: ${guild.memberCount};`
+		console.log(text)
+		client.channels.fetch('612875033651707905')
+		.then(channel => {
+			if (channel) channel.send(text)
+			.catch(err => { console.log("Ошибка отправки сообщения.") })
+		})
+	})
 })
 
 

@@ -224,7 +224,7 @@ const botCommands = [
 		func: bot_st,
 		params: ["Ник", "Тип сортировки"],
 		detail: "```md" + `\r\n<!st [Ник] [?Тип сортировки]> - выводит топ чемпионов с возможностью сортировки <lvl>, ` +
-		`<winrate>, <time>, <kda> (можнои на русском).\r\n> > Примеры:\r\n* <!st винрейт> - подставит ваш сохраненный ` +
+		`<winrate>, <time>, <kda> (можно и на русском).\r\n> > Примеры:\r\n* <!st винрейт> - подставит ваш сохраненный ` +
 		`никнейм и вытаст статистику отсортировав ее.\r\n* <!st @Neuro lvl> - подставит сохраненный аккаунт ` +
 		`упомянутого пользователя и выдаст статистику отсортировав ее.\r\n` + "```"
 	},
@@ -262,7 +262,7 @@ const botCommands = [
 	},
 	{
 		commands: ["!pal-bot", "!palbot"],
-		info: "Отправляет в ЛС ссылку на сервер бота.",
+		info: "Отправляет в ЛС ссылку на сервер бота. Тут вы сможете сообщить о багах или предложить идею.",
 		func: function(mess) {
 			const text = "Группа бота: https://discord.gg/RG9WQtP"
 			client.users.fetch(mess.author.id)
@@ -271,7 +271,7 @@ const botCommands = [
 				console.log(`Ошибка отправки сообщения в ЛС: ${mess.author.id}; ${mess.author.username}`)
 			})
 		},
-		detail: "```md" + `\r\n<!palbot> - отправляет в ЛС ссылку на сервер бота.\r\nМожно использовать как ` +
+		detail: "```md" + `\r\n<!palbot> - отправляет в ЛС ссылку на сервер бота. Тут вы сможете сообщить о багах или предложить идею.\r\nМожно использовать как ` +
 		`<!palbot> так и <!pal-bot>.`
 	},
 	{
@@ -1284,11 +1284,20 @@ function bot_sp(message, name) {
 			}
 		}
 
+		let replyText =  `${message.author} ` + "```md" + `\r\n`
+
+		let i = 1
+		matchplayerdetails.forEach(player => {
+			replyText += `${i}. [${player.ChampionName}](${player.playerName})<${player.playerId}>\r\n`
+			i++
+		})
+		replyText += "```"
+
 		// если ошибок нет, то рисуем стату
 		const ctx = draw_sp( matchplayerdetails, background )
 		// .then(ctx => {
 			const buffer = ctx.canvas.toBuffer('image/png') // buffer image
-			message.channel.send(`${message.author}`, {files: [buffer]})
+			message.channel.send(`${message.author}`, {files: [buffer], content: replyText})
 		// })
 	})
 }

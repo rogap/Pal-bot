@@ -264,7 +264,7 @@ const botCommands = [
 		commands: ["!pal-bot", "!palbot"],
 		info: "Отправляет в ЛС ссылку на сервер бота. Тут вы сможете сообщить о багах или предложить идею.",
 		func: function(mess) {
-			const text = "Группа бота: https://discord.gg/RG9WQtP"
+			const text = "Группа бота: https://discord.gg/8kcbnm8Pnn"
 			client.users.fetch(mess.author.id)
 			.then(user => user.send(text))
 			.catch(err => {

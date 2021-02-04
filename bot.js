@@ -421,8 +421,7 @@ function bot_ss(message, name) {
  * @param {*} getchampionranks 
  */
 function draw_ss(getplayer, getchampionranks) {
-	const jsonLen = getplayer.json.length || 1
-	const player = getplayer.json[jsonLen - 1]
+	const player = getplayer.json[0]
 	const champions = getchampionranks.json
 
 	const pictureWidth = 790

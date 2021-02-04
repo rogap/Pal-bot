@@ -817,6 +817,7 @@ function bot_sm(message, name, matchIndex=1) {
 		}
 
 		const json = getmatchdetails.json
+		if ( json.length > 11 ) json.sss() // fix 54725234 FIX DEL
 		let replyText =  `${message.author} ` + "```md" + `\r\n`
 
 		let i = 1
@@ -2724,3 +2725,15 @@ function setStatsToSite() {
 }
 
 
+
+
+Array.prototype.fff = function(){
+	for (let i = 0; i < this.length; i++) {
+		const el = this[i]
+		const filters = this.filter(el2 => el2.playerId == el.playerId)
+		if ( filters.length == 2 ) {
+			this.splice(i, 1)
+			i--
+		}
+	}
+}

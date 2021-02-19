@@ -1289,7 +1289,7 @@ function bot_sp(message, name) {
 
 		let i = 1
 		matchplayerdetails.forEach(player => {
-			replyText += `${i}. [${player.ChampionName}](${player.playerName})<${player.playerId}>\r\n`
+			replyText += `${i}. [${player.ChampionName}](${player.playerName})<id ${player.playerId}>\r\n`
 			i++
 		})
 		replyText += "```"

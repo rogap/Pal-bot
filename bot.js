@@ -349,7 +349,7 @@ function bot_me(message, name=null) {
 
 		// если нужно выбрать аккаунт
 		let textReply = "```md" + `\r\n# Ваш ник был сохранен, однако аккаунтов с таким ником найденно несколько - ` +
-			`выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
+			`выберите аккаунт:\r\n* [id](пратформа)<статус профиля>\r\n> >\r\n`
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]
@@ -822,7 +822,7 @@ function bot_sm(message, name, matchIndex=1) {
 
 		let i = 1
 		json.forEach(player => {
-			replyText += `${i}. [${player.Reference_Name}](${player.playerName})<${player.playerId}>\r\n`
+			replyText += `${i}. [${player.Reference_Name}](${player.playerName})<id ${player.playerId}>\r\n`
 			i++
 		})
 		replyText += "```"
@@ -1932,7 +1932,7 @@ function checkSelectPlayer(message, body, command='ss') {
 			return false
 		}
 
-		let textReply = "```md" + `\r\n# Выберите аккаунт:\r\n* [id](пратформа)<статус_профиля>\r\n> >\r\n`
+		let textReply = "```md" + `\r\n# Выберите аккаунт:\r\n* [id](пратформа)<статус профиля>\r\n> >\r\n`
 		// формируем ответ
 		for (let i = 0; body.json.length > i && i < 20; i++) { // а так же не больше 20
 			const player = body.json[i]

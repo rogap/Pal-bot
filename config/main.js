@@ -1,15 +1,18 @@
 /**
+ * основной файл-скрипт для загрузки всех файлов в этой папке (переделать под ЭТО)
  * файл-конфиг
  */
 
 
-require('dotenv').config()
+const res = require('dotenv').config()
+const translate = require('./lang')
 const env = process.env
 
 module.exports = {
 	discordToken: env.DISCORDTOKEN,
 	dbToken: env.DATABASETOKEN,
 	steamKey: env.STEAMKEY,
+	translate,
 	urlApi: "https://webmyself.ru/pal-bot/api/api.php",
 	discordInvate: "https://discord.gg/8kcbnm8Pnn",
 	siteSupport: "https://webmyself.ru/pal-bot/",

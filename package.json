@@ -2,9 +2,9 @@
   "name": "Pal-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node main.js"
   },
   "repository": {
     "type": "git",
@@ -12,12 +12,14 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GNU GPL",
   "bugs": {
     "url": "https://github.com/rogap/Pal-bot/issues"
   },
   "homepage": "https://github.com/rogap/Pal-bot#readme",
   "dependencies": {
+    "canvas": "^2.7.0",
+    "discord.js": "^12.5.3",
     "fs": "*"
   },
   "devDependencies": {

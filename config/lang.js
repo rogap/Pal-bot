@@ -6,10 +6,7 @@
  */
 
 
-module.exports = getLangs()
-
-
-function getLangs() {
+module.exports = (function() {
     const words = {
         Position: {ru: "Позиция", en: "Position"},
         Tp: {ru: "От", en: "Tp"},
@@ -48,7 +45,7 @@ function getLangs() {
         Example: {ru: "Пример", en: "Example"}
     }
  
-    for (key in words) {
+    for (let key in words) {
         const value = words[key]
         const {ru, en} = value
 
@@ -63,4 +60,4 @@ function getLangs() {
         }
     }
     return words
-}
+})();

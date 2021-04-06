@@ -14,8 +14,8 @@ process._local = _local // для передачи данных между ск�
 
 _local.classes = require(path.join(__dirname, 'classes', 'main.js'))
 
-// const utils = require("./utils/main.js")
-// _local.utils = utils
+const utils = require("./utils/main.js")
+_local.utils = utils
 
 require(path.join(__dirname, 'loading', 'main.js'))
 .then(res => {

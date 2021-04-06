@@ -27,7 +27,7 @@ module.exports = new Promise((resolve, reject) => {
                 if ( !match ) return console.log(`Ошибка регулярного выражения loadChampions (1)`, champion)
                 const groups = match.groups
                 if ( !groups ) return console.log(`Ошибка регулярного выражения loadChampions (2)`, champion)
-                const championName = groups.championName.toChampionName()
+                const championName = groups.championName.normalizeChampName()
                 if ( !championName ) return console.log(`Ошибка регулярного выражения loadChampions (3)`, champion)
 
                 _local.config.img.champions[championName] = champion

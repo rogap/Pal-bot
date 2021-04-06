@@ -15,7 +15,7 @@ module.exports = new Promise((resolve, reject) => {
         require('./avatars.js'),
         require('./backgrounds.js'),
         require('./cardFrames.js'),
-        // require('./champions.js'),
+        require('./champions.js'),
         // require('./commands.js'),
         // require('./dataFromSite.js'),
         require('./divisions.js'),

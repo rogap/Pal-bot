@@ -3,7 +3,7 @@
  */
 
 
-module.exports = class {
+module.exports = class Command {
     constructor({name, commands, params, info, detail, draw, owner, permissions, order}) {
         this.name = name
         this.commands = commands

@@ -9,7 +9,10 @@ const path = require('path')
 
 
 module.exports = {
-    Command: require(path.join(__dirname, 'Command.js'))
+    Command: require(path.join(__dirname, 'Command.js')),
+    Settings: require(path.join(__dirname, 'Settings.js')),
+    ChampionsManager: require(path.join(__dirname, 'ChampionsManager.js')),
+    Champion: require(path.join(__dirname, 'Champion.js'))
 }
 
 

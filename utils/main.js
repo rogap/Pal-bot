@@ -3,8 +3,10 @@
  */
 
 
-
-
+module.exports = Object.assign(
+	require('./discord.js'),
+	require('./helperSendSite.js')
+)
 
 
 

@@ -5,13 +5,17 @@
  */
 
 
+const _local = process._local
+const {config, utils} = _local
+const {Settings} =_local.classes
+const {sendSite, formHiRezFunc} = utils
 const timeStart = new Date() // время старта загрузки
 
 
 module.exports = new Promise((resolve, reject) => {
     const formSend = formHiRezFunc('botSettings')
     sendSite( formSend )
-    .then(res => {
+    .then(async (res) => {
         try {
             // console.log(res.body)
             const body = res.body
@@ -19,18 +23,23 @@ module.exports = new Promise((resolve, reject) => {
             const {getchampions, championsCard, guildSettings, userSettings, timeLimit} = body
 
             if ( !getchampions.status ) return reject(getchampions)
-            config.champions = getchampions
+			// console.log(getchampions)
+            config.champions = getchampions // _local.champions = {ru, en}
 
             if ( !championsCard.status ) return reject(championsCard)
-            config.championsCard = championsCard // возможно лучше добавить свойство для чемпионов ???
+			// console.log(championsCard.ru)
+            config.championsCard = championsCard // delete
 
             if ( !guildSettings.status ) return reject(guildSettings)
-            config.guildSettings = guildSettings.json
             // console.log(guildSettings)
+			config.guildSettings = new Settings('guild').addArr(guildSettings.json, true)
 
             if ( !userSettings.status ) return reject(userSettings)
-            config.userSettings = userSettings.json
             // console.log(userSettings)
+			config.userSettings = new Settings('user').addArr(userSettings.json, true)
+			return;
+
+			// возмоно стоит создать еще класс для карт чемпиона?
 
             config.timeLimit = timeLimit // лимиты обновлений статистики
 

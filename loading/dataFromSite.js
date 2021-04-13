@@ -15,7 +15,7 @@ const timeStart = new Date() // время старта загрузки
 module.exports = new Promise((resolve, reject) => {
     const formSend = formHiRezFunc('botSettings')
     sendSite( formSend )
-    .then(async (res) => {
+    .then((res) => {
         try {
             // console.log(res.body)
             const body = res.body

@@ -6,7 +6,7 @@ module.exports = class Settings {
 	}
 
 	static parse(obj) {
-		// приводит обьект настроек в используемый вид (после поулчения из БД)
+		// приводит обьект настроек в используемый вид (после получения из БД)
 		delete obj.count
 		obj.commands = JSON.parse(obj.commands)
 		obj.backgrounds = JSON.parse(obj.backgrounds)

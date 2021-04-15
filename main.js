@@ -22,6 +22,16 @@ require(path.join(__dirname, 'loading', 'main.js'))
 .then(res => {
     console.log(res)
     // console.log(_local.config.img)
+
+    // загружаем обработчики
+    require(path.join(__dirname, 'listeners', 'main.js'))
+    // .then(res => {
+    //     console.log(res)
+    //     _local.launched = true
+    // })
+    // .catch(err => {
+    //     console.log(err)
+    // })
 })
 .catch(err => {
     console.log(err)

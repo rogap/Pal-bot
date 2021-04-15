@@ -4,23 +4,13 @@
 
 
 const path = require('path')
-const pathToCommands = path.join(__dirname, '..', 'commands')
+const pathToDefaultCommands = path.join(__dirname, '..', 'commands', 'main.js')
 const Command = require('./Command.js')
 
 
 module.exports = class CommandsManager {
     #commands = [] // пока не уверен нужно ли показывать это все сразу или нет
-    #default = { // дефолтные значения всех команд
-        ss: {
-            name: 'ss',
-            possibly: ['ss', 'стата'],
-            order: 5,
-            permissions: ["SEND_MESSAGES", "ATTACH_FILES"],
-            owner: false,
-            path: path.join(pathToCommands, 'ss'),
-            files: ['detail', 'draw'] // список файлов которые нужно будет загрузить для команды
-        }
-    }
+    #default = require(pathToDefaultCommands) // дефолтные значения всех команд
 
     constructor(commandSettingList) {
         // commandSettingList - обьект, ключами которого являются названия команд, а значение это массив (possibly)

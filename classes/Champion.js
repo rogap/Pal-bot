@@ -6,8 +6,6 @@
 const NameNormalize = require('./NameNormalize.js')
 const path = require('path')
 const { loadImage } = require('canvas')
-const _local = process._local
-const {config} = _local
 
 
 module.exports = class Champion extends NameNormalize {
@@ -53,6 +51,3 @@ module.exports = class Champion extends NameNormalize {
     //     return this.#data
     // }
 }
-
-
-// нужно скачать все карты чемпионов и распределить по папкам

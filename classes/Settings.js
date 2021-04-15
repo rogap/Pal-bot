@@ -1,3 +1,8 @@
+/**
+ * классы
+ */
+
+
 const CommandsManager = require('./CommandsManager')
 const _local = process._local
 const {config} = _local

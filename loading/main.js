@@ -4,7 +4,7 @@
  */
 
 
-const { registerFont } = require("canvas")
+const { registerFont } = require('canvas')
 const path = require('path')
 const pathToFont = path.join(__dirname, '..', 'font', 'GothamSSm-Bold.otf')
 registerFont(pathToFont, { family: 'GothamSSm_Bold' }) // регистрируем шрифт

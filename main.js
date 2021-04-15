@@ -10,6 +10,7 @@ const config = require("./config/main.js")
 
 // обьект бота, в начале launched = false (все обработчики на паузе)
 const _local = { client, config, commands: [], launched: false, timeStart: new Date() }
+// champions, userSettings, guildsSettings
 process._local = _local // для передачи данных между скриптами
 
 _local.classes = require(path.join(__dirname, 'classes', 'main.js'))

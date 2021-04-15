@@ -24,27 +24,27 @@ module.exports = new Promise((resolve, reject) => {
 
             if ( !getchampions.status ) return reject(getchampions)
 			// console.log(getchampions.ru.json) // массив обьектов базовых данных о чемпионах
-            config.champions = getchampions // _local.champions = {ru, en}
 
             if ( !championsCard.status ) return reject(championsCard)
 			// console.log(championsCard.ru) // обьект содержащий в качестве ключей id чемпионов и содержит в себе массив всех карт этого чемпиона
-            config.championsCard = championsCard // delete
-
 
 			// создаем класс менеджера чемпионов (чемпиона, менеджера карт)
 			const CHAMPIONS = await creatingChampions(getchampions, championsCard)
-			console.log(CHAMPIONS.getByName('androxus'))
-			console.log(CHAMPIONS.getById('2438').cards)
-			return;
-
+			_local.champions = CHAMPIONS
+			console.log(`Чемпионы и их данные загруженны (${CHAMPIONS.size})`)
+			// console.log(CHAMPIONS.getByName('androxus'))
+			// console.log(CHAMPIONS.getById('2438').cards)
 
             if ( !guildSettings.status ) return reject(guildSettings)
             // console.log(guildSettings)
-			config.guildSettings = new Settings('guild').addArr(guildSettings.json, true)
+			_local.guildsSettings = new Settings('guilds', guildSettings.json)
+			console.log(_local.guildsSettings)
 
             if ( !userSettings.status ) return reject(userSettings)
             // console.log(userSettings)
-			config.userSettings = new Settings('user').addArr(userSettings.json, true)
+			_local.userSettings = new Settings('users', userSettings.json)
+			console.log(_local.userSettings)
+			// console.log( _local.userSettings.get('510112915907543042').commands )
 			return;
 
             config.timeLimit = timeLimit // лимиты обновлений статистики

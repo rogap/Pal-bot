@@ -61,10 +61,10 @@ module.exports = {
 	},
 	img: {
 		items: {},
-		champions: {},
+		// champions: {},
 		maps: {},
 		avatars: {},
-		legends: {},
+		// legends: {},
 		divisions: [],
 		backgrounds: {},
 		cardFrames: []
@@ -83,9 +83,9 @@ module.exports = {
 		11: "ru"
 	},
 	owners: ["510112915907543042"],
-	champions: null,
-	championsCard: null,
-	guildSettings: null,
-	userSettings: null,
+	// champions: null,
+	// championsCard: null,
+	// guildSettings: null,
+	// userSettings: null,
 	timeLimit: null
 }

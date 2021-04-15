@@ -10,6 +10,7 @@ module.exports = class ChampionsManager extends NameNormalize {
     #champions = []
     constructor() {
         super()
+        this.size = 0
     }
 
     get healers() {
@@ -60,6 +61,7 @@ module.exports = class ChampionsManager extends NameNormalize {
     add(champion) {
         // добавляет чемпиона в базу класса
         this.#champions.push(champion)
+        this.size = this.#champions.length
 
         // после добавления чемпиона можно сортировать массив что бы они были по алфавиту (engl)
     }

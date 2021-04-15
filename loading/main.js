@@ -15,12 +15,9 @@ module.exports = new Promise((resolve, reject) => {
         require('./avatars.js'),
         require('./backgrounds.js'),
         require('./cardFrames.js'),
-        // require('./champions.js'), // связано с чемпионами
-        // require('./commands.js'),
-        require('./dataFromSite.js'), // связано с чемпионами
+        require('./dataFromSite.js'), // связано с чемпионами, а так же настройками (и командами)
         require('./divisions.js'),
         require('./items.js'),
-        // require('./legends.js'), // связано с чемпионами
         require('./maps.js')
         // что если "связано с чемпионами" (картинки) загружать во время создания класса чемпиона (карт чемпиона и т.д.)
         // так же оно должно учесть и такой параметр как "lang" (можно только в тех функциях где он нужен)

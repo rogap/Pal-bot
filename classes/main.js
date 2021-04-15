@@ -9,6 +9,7 @@
 
 
 module.exports = {
+    CommandsManager: require('./CommandsManager.js'),
     Command: require('./Command.js'),
     Settings: require('./Settings.js'),
     ChampionsManager: require('./ChampionsManager.js'),

@@ -2,7 +2,7 @@
  * классы
  */
 
-
+/*
 module.exports = class Command {
     constructor({name, commands, params, info, detail, draw, owner, permissions, order}) {
         this.name = name
@@ -36,4 +36,29 @@ module.exports = class Command {
     // sendChannel() {
     //     // будет отправлять результат выполнения команды
     // }
+}
+*/
+
+const path = require('path')
+
+
+module.exports = class Command {
+    constructor(params) {
+        this.name = params.name
+        this.possibly = params.possibly
+        this.order = params.order
+        this.permissions = params.permissions
+        this.owner = params.owner
+
+        params.files.forEach(filename => {
+            const pathToCommand = params.path
+            this[filename] = require(path.join(pathToCommand, `${filename}.js`))
+        })
+    }
+
+    has(name) {
+        // проверяет есть ли текущая команда в строке (без префикса)
+        name = name.tolowercase()
+        return this.commands.some(name => name.startsWith(name))
+    }
 }

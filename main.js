@@ -22,3 +22,6 @@ require(path.join(__dirname, 'loading', 'main.js'))
     console.log(res)
     // console.log(_local.config.img)
 })
+.catch(err => {
+    console.log(err)
+})

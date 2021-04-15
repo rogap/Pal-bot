@@ -3,23 +3,69 @@
  */
 
 
-module.exports = class ChampionsManager {
-    #champions = []
-    constructor() {}
+const NameNormalize = require('./NameNormalize.js')
 
-    static nameNormalize(name) {
-        // делает первую букву большой и убирает лишние символы (включая пробелы)
-        name = name.replace(/[-`' ]+/g, "")
-        return name.slice(0, 1).toUpperCase() + name.slice(1).toLowerCase()
+
+module.exports = class ChampionsManager extends NameNormalize {
+    #champions = []
+    constructor() {
+        super()
     }
+
+    get healers() {
+        return {
+            list: [],
+            names: []
+        }
+    }
+
+    get tanks() {
+        return {
+            list: [],
+            names: []
+        }
+    }
+
+    get damages() {
+        return {
+            list: [],
+            names: []
+        }
+    }
+
+    get flanks() {
+        return {
+            list: [],
+            names: []
+        }
+    }
+
+    get champions() {
+        return {
+            list: [],
+            names: []
+        }
+    }
+
+    sort(type) { // type or function??!!
+        //
+    }
+
+    avatars(type) {
+        // возвращает аватарки чемпионов
+    }
+
+    random(role) {}
 
     add(champion) {
         // добавляет чемпиона в базу класса
         this.#champions.push(champion)
+
+        // после добавления чемпиона можно сортировать массив что бы они были по алфавиту (engl)
     }
 
     getById(id) {
-        // поулчает чемпиона по id
+        // получает чемпиона по id
         return this.#champions.find(champion => champion.id == id)
     }
 

@@ -7,7 +7,7 @@
 
 const _local = process._local
 const {config, utils} = _local
-const {Settings} =_local.classes
+const {Settings, ChampionsManager, Champion, CardsManager, Card} =_local.classes
 const {sendSite, formHiRezFunc} = utils
 const timeStart = new Date() // время старта загрузки
 
@@ -15,7 +15,7 @@ const timeStart = new Date() // время старта загрузки
 module.exports = new Promise((resolve, reject) => {
     const formSend = formHiRezFunc('botSettings')
     sendSite( formSend )
-    .then((res) => {
+    .then(async (res) => {
         try {
             // console.log(res.body)
             const body = res.body
@@ -23,12 +23,20 @@ module.exports = new Promise((resolve, reject) => {
             const {getchampions, championsCard, guildSettings, userSettings, timeLimit} = body
 
             if ( !getchampions.status ) return reject(getchampions)
-			// console.log(getchampions)
+			// console.log(getchampions.ru.json) // массив обьектов базовых данных о чемпионах
             config.champions = getchampions // _local.champions = {ru, en}
 
             if ( !championsCard.status ) return reject(championsCard)
-			// console.log(championsCard.ru)
+			// console.log(championsCard.ru) // обьект содержащий в качестве ключей id чемпионов и содержит в себе массив всех карт этого чемпиона
             config.championsCard = championsCard // delete
+
+
+			// создаем класс менеджера чемпионов (чемпиона, менеджера карт)
+			const CHAMPIONS = await creatingChampions(getchampions, championsCard)
+			console.log(CHAMPIONS.getByName('androxus'))
+			console.log(CHAMPIONS.getById('2438').cards)
+			return;
+
 
             if ( !guildSettings.status ) return reject(guildSettings)
             // console.log(guildSettings)
@@ -38,8 +46,6 @@ module.exports = new Promise((resolve, reject) => {
             // console.log(userSettings)
 			config.userSettings = new Settings('user').addArr(userSettings.json, true)
 			return;
-
-			// возмоно стоит создать еще класс для карт чемпиона?
 
             config.timeLimit = timeLimit // лимиты обновлений статистики
 
@@ -55,6 +61,106 @@ module.exports = new Promise((resolve, reject) => {
         
     })
 })
+
+
+
+
+async function creatingChampions(championsInfo, championsCards) {
+	const CHAMPIONS = new ChampionsManager()
+	// championsInfo.ru.json
+	for (const championId in championsCards.ru) {
+		const championCardsRU = championsCards.ru[championId]
+		const championCardsEN = championsCards.en[championId]
+		const championInfoRU = championsInfo.ru.json.find(champ => champ.id == championId)
+		const championInfoEN = championsInfo.en.json.find(champ => champ.id == championId)
+
+		const CARDS = new CardsManager()
+		// перебираем карты, создаем их и добавляем в менеджер
+		for (let i = 0; i < championCardsRU.length; i++) {
+			const cardRU = championCardsRU[i]
+			const cardEN = championCardsEN.find(card => card.card_id1 == cardRU.card_id1)
+
+			const cardDescription = {
+				ru: cardRU.card_description,
+				en: cardEN.card_description
+			}, cardName = {
+				ru: cardRU.card_name,
+				en: cardEN.card_name
+			}
+
+			cardRU.card_description = cardDescription
+			cardRU.card_name = cardName
+			const CARD = new Card(cardRU)
+			await CARD.loadImg() // загружаем картинку карты
+			CARDS.add(CARD)
+		}
+
+		const uniteObj = {
+			Lore: {
+				ru: championInfoRU.Lore,
+				en: championInfoEN.Lore
+			},
+			Name: {
+				ru: championInfoRU.Name,
+				en: championInfoEN.Name
+			},
+			Roles: {
+				ru: championInfoRU.Roles,
+				en: championInfoEN.Roles
+			},
+			Title: {
+				ru: championInfoRU.Title,
+				en: championInfoEN.Title
+			},
+			Pantheon: {
+				ru: championInfoRU.Pantheon,
+				en: championInfoEN.Pantheon
+			},
+			...formAbility(championInfoRU, championInfoEN)
+		}
+
+		championInfoRU.Cards = CARDS
+
+		for (let i = 0; i < 5; i++) {
+			delete championInfoRU[`Ability${i+1}`]
+			delete championInfoRU[`AbilityId${i+1}`]
+			delete championInfoRU[`abilityDescription${i+1}`]
+			delete championInfoRU[`ChampionAbility${i+1}`]
+		}
+
+		const CHAMPION = new Champion( Object.assign(championInfoRU, uniteObj) )
+		await CHAMPION.loadIcon() // загружаем иконку чемпиона
+		CHAMPIONS.add(CHAMPION)
+	}
+	return CHAMPIONS
+}
+
+
+// вспомогательная функция для формирования обьекта способностей чемпиона
+function formAbility(ru, en) {
+	const obj = {}
+	for (let i = 0; i < 5; i++) {
+		const key = `Ability_${i+1}`
+		obj[key] = {
+			Summary: {
+				ru: ru[key].Summary,
+				en: en[key].Summary
+			},
+			Description: {
+				ru: ru[key].Description,
+				en: en[key].Description
+			},
+			Id: ru[key].Id,
+			damageType: ru[key].damageType,
+			rechargeSeconds: ru[key].rechargeSeconds
+		}
+	}
+	return obj
+}
+
+
+
+
 
 
 // добавляет всем командам свойства (и юзеры и сервера)

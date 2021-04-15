@@ -4,15 +4,18 @@
 
 
 // const fs = require('fs')
-const path = require('path')
+// const path = require('path')
 // const { _local } = require('process')
 
 
 module.exports = {
-    Command: require(path.join(__dirname, 'Command.js')),
-    Settings: require(path.join(__dirname, 'Settings.js')),
-    ChampionsManager: require(path.join(__dirname, 'ChampionsManager.js')),
-    Champion: require(path.join(__dirname, 'Champion.js'))
+    Command: require('./Command.js'),
+    Settings: require('./Settings.js'),
+    ChampionsManager: require('./ChampionsManager.js'),
+    Champion: require('./Champion.js'),
+    NameNormalize: require('./NameNormalize.js'),
+    CardsManager: require('./CardsManager.js'),
+    Card: require('./Card.js')
 }
 
 

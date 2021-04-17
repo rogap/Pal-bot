@@ -46,6 +46,7 @@ _local.console = {userUsed, serverUsed, allUsed} // что бы смотреть
  * на основе этого создаем класс (с командами) который подходит (сделать класс который сам все это проделает)
  */
 client.on('message', message => {
+    return;
     if ( !_local.launched ) return; // если бот не запущен до конца
     if ( message.author.bot ) return; // если сообщение от бота то игнорим
 
@@ -101,7 +102,7 @@ function getSettings(message) { // unify
 
 
 client.on("message", message => {
-    // return;
+    return;
     if ( !_local.launched ) return; // если бот не запущен до конца
     if ( message.author.bot ) return; // если сообщение от бота то игнорим
     const _prop = {}

@@ -2,25 +2,53 @@
  * событие при удалении бота с сервера
  */
 
+
 const _local = process._local
-const { client, config } = _local
+const {client, config} = _local
 
 
-client.on("guildDelete", guild => {
+client.on('guildDelete', guild => {
     guild.members.fetch(guild.ownerID)
     .then(owner => {
-        owner.send(123)
+        // при удалении думаю лучше ничего не отправлять
+        // owner.send(123)
+    })
+    .catch(err => {
+        // ошибка отправки сообщения
     })
 
-    const text = ` - remove; name: ${guild.name}; id: ${guild.id}; countMember: ${guild.memberCount};`
-    console.log(text)
     client.channels.fetch(config.chNot)
     .then(channel => {
-        if (channel) channel.send(text)
-        .catch(() => { console.log("Ошибка отправки сообщения при удаленни бота с сервера.") })
+        if (channel) channel.send({
+            embed: {
+                title: `${guild.name} (${guild.id})`,
+                description: '__удален__',
+                color: '#C71F1D',
+                timestamp: guild.joinedAt,
+                footer: {
+                    icon_url: 'https://raw.githubusercontent.com/rogap/Pal-bot/new/img/empty.png',
+                    text: 'Был добавлен'
+                },
+                thumbnail: {
+                    url: guild.iconURL()
+                },
+                fields: [
+                    {
+                        name: 'Region',
+                        value: guild.region,
+                        inline: true
+                    },
+                    {
+                        name: 'member count',
+                        value: guild.memberCount,
+                        inline: true
+                    }
+                ]
+            }
+        })
+        .catch((err) => {
+            // сделать вывод в логи на сервере
+            console.log('Ошибка отправки сообщения при удаленни бота с сервера.')
+        })
     })
 })
-
-// guild.joinedTimestamp - время когда бота добавили на сервер
-// сделать сообщение embed где указать картинку сервера (icon) и имя сервера (мало ли много серверов у человека)
-// а так же сделать изменение дефолтных настроек если на сервере указана локализация не RU и не EU (регион)

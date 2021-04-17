@@ -24,14 +24,10 @@ require(path.join(__dirname, 'loading', 'main.js'))
     // console.log(_local.config.img)
 
     // загружаем обработчики
-    require(path.join(__dirname, 'listeners', 'main.js'))
-    // .then(res => {
-    //     console.log(res)
-    //     _local.launched = true
-    // })
-    // .catch(err => {
-    //     console.log(err)
-    // })
+    const listeners = require(path.join(__dirname, 'listeners', 'main.js'))
+    if (!listeners) return; // если ошибка загрузки
+    console.log(' # Начинаю запуск клиента бота...')
+    client.login(config.discordToken)
 })
 .catch(err => {
     console.log(err)

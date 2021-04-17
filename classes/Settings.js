@@ -40,8 +40,9 @@ module.exports = class Settings {
 			el.commands = new CommandsManager(el.commands)
 		}
 
+		el.type = this.type
 		el.lang = el.lang || config.lang
-		el.timezone = el.timezone || config.timezone
+		el.timezone = el.timezone != undefined ? +el.timezone : config.timezone
 		el.prefix = el.prefix || config.prefix
 		el.backgrounds = el.backgrounds || config.backgrounds
 

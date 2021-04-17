@@ -42,9 +42,9 @@ module.exports = new Promise((resolve, reject) => {
 
             if ( !userSettings.status ) return reject(userSettings)
             // console.log(userSettings)
-			_local.userSettings = new Settings('users', userSettings.json)
-			console.log(_local.userSettings)
-			// console.log( _local.userSettings.get('510112915907543042').commands )
+			_local.usersSettings = new Settings('users', userSettings.json)
+			console.log(_local.usersSettings)
+			// console.log( _local.usersSettings.get('510112915907543042').commands )
 
             config.timeLimit = timeLimit // лимиты обновлений статистики
 

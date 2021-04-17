@@ -9,14 +9,18 @@ const path = require('path')
 const config = require(path.join(__dirname, 'config', 'main.js'))
 
 // обьект бота, в начале launched = false (все обработчики на паузе)
-const _local = { client, config, commands: [], launched: false, timeStart: new Date() }
-// champions, userSettings, guildsSettings
+const _local = { client, config, launched: false, timeStart: new Date() }
+// champions, usersSettings, guildsSettings, commands
 process._local = _local // для передачи данных между скриптами
 
 _local.classes = require(path.join(__dirname, 'classes', 'main.js'))
 
 const utils = require(path.join(__dirname, 'utils', 'main.js'))
 _local.utils = utils
+
+const {CommandsManager} = _local.classes
+_local.commands = new CommandsManager() // добавляем дефолтные команды в быстрый доступ
+// console.log(_local.commands)
 
 require(path.join(__dirname, 'loading', 'main.js'))
 .then(res => {

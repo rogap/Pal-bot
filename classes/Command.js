@@ -56,9 +56,15 @@ module.exports = class Command {
         })
     }
 
-    has(name) {
-        // проверяет есть ли текущая команда в строке (без префикса)
-        name = name.tolowercase()
-        return this.commands.some(name => name.startsWith(name))
+    get(commandName) {
+        // получает команду точно по название
+        commandName = commandName.tolowercase()
+        return this.possibly.find(name => name == commandName)
+    }
+
+    has(text) {
+        // проверяет есть ли текущая команда в строке (без префикса) и возвращает ее, если есть
+        text = text.tolowercase()
+        return this.possibly.find(name => name.startsWith(text))
     }
 }

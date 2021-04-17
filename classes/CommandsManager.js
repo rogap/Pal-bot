@@ -12,7 +12,7 @@ module.exports = class CommandsManager {
     #commands = [] // пока не уверен нужно ли показывать это все сразу или нет
     #default = require(pathToDefaultCommands) // дефолтные значения всех команд
 
-    constructor(commandSettingList) {
+    constructor(commandSettingList={}) {
         // commandSettingList - обьект, ключами которого являются названия команд, а значение это массив (possibly)
         // создает дефолтные команды если ничего не указано,
         // если указаны то создает указанные команды по подобию дефолта и добавляет нехватающие команды
@@ -21,7 +21,7 @@ module.exports = class CommandsManager {
         for (const commandName in this.#default) {
             count++
             const comSetting = commandSettingList ? commandSettingList[commandName] : undefined
-            const com = this.#default[commandName]
+            const com = Object.assign({}, this.#default[commandName])
 
             // если есть натсройки команды то изменяем их
             if (comSetting) com.possibly = comSetting // (только это и можно поменять в самой команде)
@@ -34,11 +34,18 @@ module.exports = class CommandsManager {
 
     get(commandName) {
         // получает команду если она есть (вместо проверки можно использовать)
+        commandName = commandName.toLowerCase()
         return this.#commands.find(com => com.possibly.some(name => name == commandName))
     }
 
     getByName(commandName) {
+        commandName = commandName.toLowerCase()
         return this.#commands.find(com => com.name == commandName)
+    }
+
+    has(text) {
+        text = text.toLowerCase()
+        return this.#commands.find(com => com.possibly.some(name => text.startsWith(name)))
     }
 
     add(command) {

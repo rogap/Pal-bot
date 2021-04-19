@@ -32,10 +32,10 @@ module.exports = class CommandsManager {
         // this.list = this.#commands // для теста
     }
 
-    get(commandName) {
+    get(text) {
         // получает команду если она есть (вместо проверки можно использовать)
-        commandName = commandName.toLowerCase()
-        return this.#commands.find(com => com.possibly.some(name => name == commandName))
+        text = text.toLowerCase()
+        return this.#commands.find(com => com.has(text))
     }
 
     getByName(commandName) {
@@ -45,7 +45,7 @@ module.exports = class CommandsManager {
 
     has(text) {
         text = text.toLowerCase()
-        return this.#commands.find(com => com.possibly.some(name => text.startsWith(name)))
+        return this.#commands.some(com => com.has(text))
     }
 
     add(command) {

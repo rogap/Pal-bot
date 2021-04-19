@@ -52,7 +52,7 @@ client.on('message', message => {
     const authorId = message.author.id
     // если включен режим тестирования
     if ( config.testing && !authorId.isOwner() ) return;
-    const content = message.content.replace(/^[\\]+/, "").replace(/[\n\r]+/g, " ").trim()
+    const content = message.parseContent()
     const settings = getSettings(message) // получаем обьект настроек для текущего пользователя
     // console.log(settings)
     // console.log(settings.commands.list[0])
@@ -60,14 +60,24 @@ client.on('message', message => {
     if ( !content.startsWith(settings.prefix) ) return; // если нет префикса то выход
     const cont = content.cut(settings.prefix)
 
-    const command = settings.commands.has(cont)
+    const command = settings.commands.get(cont)
     if (!command) return; // команда не найдена
     console.log(command)
-    command.execute(message, settings)
 
-    // разложить на параметры для команды (или лучше это сделать в самой команде с помощью метода класса)
-    // есть ли у найденой команды права
-    // выполнить команду (рисовать, а если рисовать не нужно?)
+    // если команда только для админов и это не админ то выходим
+    if ( command.owner && !message.isOwner() ) return;
+
+    if ( !message.hasPerm(command.permissions) ) {
+        // если нет прав то сообщаем об этом на канале (если можем)
+        if ( !message.hasPerm('SEND_MESSAGES') ) return;
+        const replyErr = {
+            ru: `Не хватает прав для выполнения команды (${command.permissions}).`,
+            en: `Insufficient rights to execute command (${command.permissions}).`
+        }
+        return message.reply(replyErr[settings.lang])
+    }
+
+    return command.execute(message, settings, command)
 })
 
 
@@ -97,9 +107,9 @@ function getSettings(message) { // unify
             if (userSettings) {
                 // console.log('add user setting in guild setting')
                 // guildSettings.type // хз какой должен быть type в таком случае
-                if (userSettings.lang != undefined) guildSettings.lang = userSettings.lang
-                if (userSettings.timezone != undefined) guildSettings.timezone = userSettings.timezone
-                if (userSettings.backgrounds != undefined) guildSettings.backgrounds = userSettings.backgrounds
+                if ('lang' in userSettings) guildSettings.lang = userSettings.lang
+                if ('timezone' in userSettings) guildSettings.timezone = userSettings.timezone
+                if ('backgrounds' in userSettings) guildSettings.backgrounds = userSettings.backgrounds
             }
             return guildSettings
         }

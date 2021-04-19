@@ -3,17 +3,17 @@
  */
 
 
-const {Client} = require('discord.js')
-const client = new Client()
+const Discord = require('discord.js')
+const client = new Discord.Client()
 const path = require('path')
 const config = require(path.join(__dirname, 'config', 'main.js'))
 
 // обьект бота, в начале launched = false (все обработчики на паузе)
-const _local = { client, config, launched: false, timeStart: new Date() }
+const _local = { Discord, client, config, launched: false, timeStart: new Date() }
 // champions, usersSettings, guildsSettings, commands
 process._local = _local // для передачи данных между скриптами
 
-_local.classes = require(path.join(__dirname, 'classes', 'main.js'))
+_local.classes = require(path.join(__dirname, 'classes', 'main.js')) // мб лучше загружать их после utils??
 
 const utils = require(path.join(__dirname, 'utils', 'main.js'))
 _local.utils = utils

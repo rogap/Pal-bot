@@ -2,42 +2,6 @@
  * классы
  */
 
-/*
-module.exports = class Command {
-    constructor({name, commands, params, info, detail, draw, owner, permissions, order}) {
-        this.name = name
-        this.commands = commands
-        this.params = params
-        this.info = info
-        this.detail = detail
-        this.draw = draw
-        this.owner = owner
-        this.permissions = permissions
-        this.order = order
-        // this.type = 'draw' // draw/text - тип команды который она возвращает (картинку или текстовое содержимое)
-        // возможно еще стоит определить куда (лс или не важно куда)
-    }
-
-    has(str) {
-        // проверяет есть ли текущая команда в строке (без префикса)
-        str = str.tolowercase()
-        return this.commands.some(name => str.startsWith(name))
-    }
-
-    checkPerm() {
-        // проверяет права
-    }
-
-    // оно нужно не тут...
-    // sendUser() {
-    //     // будет отправлять результат выполнения команды
-    // }
-
-    // sendChannel() {
-    //     // будет отправлять результат выполнения команды
-    // }
-}
-*/
 
 const path = require('path')
 
@@ -56,15 +20,23 @@ module.exports = class Command {
         })
     }
 
-    get(commandName) {
-        // получает команду точно по название
-        commandName = commandName.tolowercase()
+    get(text) {
+        // проверяет есть ли текущая команда в строке (без префикса) и возвращает ее имя либо false/undefined
+        text = text.toLowerCase()
+        const commandName = (text.match(/^[a-zа-я]+/i) || [])[0]
+        if (!commandName) return false
         return this.possibly.find(name => name == commandName)
     }
 
     has(text) {
-        // проверяет есть ли текущая команда в строке (без префикса) и возвращает ее, если есть
-        text = text.tolowercase()
-        return this.possibly.find(name => name.startsWith(text))
+        // проверяет есть ли текущая команда в строке (без префикса) и возвращает ее имя либо false/undefined
+        text = text.toLowerCase()
+        const commandName = (text.match(/^[^\s]+/i) || [])[0]
+        if (!commandName) return false
+        return this.possibly.some(name => name == commandName)
+    }
+
+    getContent(text) {
+        return text.cut(this.get(text)).trim()
     }
 }

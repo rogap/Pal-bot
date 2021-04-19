@@ -43,10 +43,9 @@ _local.console = {userUsed, serverUsed, allUsed} // что бы смотреть
 /**
  * когда получаем сообщение то сначала отсеиваим спам
  * затем нужно понять какие настройки будем применять - user/server/default
- * на основе этого создаем класс (с командами) который подходит (сделать класс который сам все это проделает)
+ * получаем обьект настроек (это не класс)
  */
 client.on('message', message => {
-    return;
     if ( !_local.launched ) return; // если бот не запущен до конца
     if ( message.author.bot ) return; // если сообщение от бота то игнорим
 
@@ -54,14 +53,22 @@ client.on('message', message => {
     // если включен режим тестирования
     if ( config.testing && !authorId.isOwner() ) return;
     const content = message.content.replace(/^[\\]+/, "").replace(/[\n\r]+/g, " ").trim()
-    const settings = getSettings(message)
+    const settings = getSettings(message) // получаем обьект настроек для текущего пользователя
+    // console.log(settings)
+    // console.log(settings.commands.list[0])
 
-    // далее нужно проверить префикс (найти команду) и разложить на параметры для команды (или лучше это сделать в самой команде)
+    if ( !content.startsWith(settings.prefix) ) return; // если нет префикса то выход
+    const cont = content.cut(settings.prefix)
+
+    const command = settings.commands.has(cont)
+    if (!command) return; // команда не найдена
+    console.log(command)
+    command.execute(message, settings)
+
+    // разложить на параметры для команды (или лучше это сделать в самой команде с помощью метода класса)
     // есть ли у найденой команды права
     // выполнить команду (рисовать, а если рисовать не нужно?)
 })
-
-// настройки тоже будут создаватсья классом
 
 
 
@@ -72,28 +79,44 @@ client.on('message', message => {
  */
 function getSettings(message) { // unify
     const authorId = message.author.id
-    const userSettings = config.userSettings[authorId]
+    const userSettings = _local.usersSettings.get(authorId)
+    // console.log(userSettings, userSettings.commands.list[0])
 
     // если есть настройки пользователя и включен приоритет
     if (userSettings && userSettings.only == 1) return userSettings
 
     const guild = message.guild
     if (guild) {
-        const guildSettings = config.guildSettings[guild.id]
+        // console.log('in guild')
+        const guildSettings = _local.guildsSettings.get(guild.id)
+        // console.log(guildSettings, guild.id)
         // если есть настройки сервера
-        if (guildSettings) return guildSettings
+        if (guildSettings) {
+            // console.log('guild has settings')
+            // если пользователь изменял себе другие параметры (не команды) то вернем их тут перекрыв серверные настройки
+            if (userSettings) {
+                // console.log('add user setting in guild setting')
+                // guildSettings.type // хз какой должен быть type в таком случае
+                if (userSettings.lang != undefined) guildSettings.lang = userSettings.lang
+                if (userSettings.timezone != undefined) guildSettings.timezone = userSettings.timezone
+                if (userSettings.backgrounds != undefined) guildSettings.backgrounds = userSettings.backgrounds
+            }
+            return guildSettings
+        }
     }
 
     // если есть настройки пользователя и не включен приоритет
     if (userSettings) return userSettings
 
-    return {
-        commands: _local.commands,
-        prefix: config.prefix,
+    return { // дефолтный обьект настроек для пользователя
+        id: authorId,
+        type: 'default', // users
         lang: config.lang,
         timezone: config.timezone,
-        backgrounds: sconfig.backgrounds,
-        type: 'default'
+        prefix: config.prefix,
+        only: null,
+        commands: _local.commands,
+        backgrounds: config.backgrounds
     }
 }
 

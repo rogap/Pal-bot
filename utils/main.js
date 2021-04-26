@@ -4,24 +4,10 @@
 
 
 module.exports = Object.assign(
+	require('./time.js'),
 	require('./discord.js'),
 	require('./helperSendSite.js')
 )
-
-
-
-
-
-
-/**
- * приводит имя чемпиона в стандартизированный вид для нас
- * @returns 
- */
-String.prototype.normalizeChampName = function() {
-	return this.replace(/[-`' ]+/g, "").toLowerCase()
-}
-Object.defineProperty(String.prototype, "normalizeChampName", {enumerable: false})
-
 
 
 // вырезает начало строки, если она совпадает и возвращает результат

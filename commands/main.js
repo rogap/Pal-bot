@@ -23,20 +23,14 @@ module.exports = {
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'ss'),
-        params(_prop) { // возвращает массив нужных параметров для команды
-            const {lang} = _prop
-            return {
-                ru: ['?Ник/id'],
-                en: ['?Nickname/id']
-            }[lang]
+        params: {
+            ru: ['?Ник/id'],
+            en: ['?Nickname/id']
         },
-        info(_prop) { // возвращает базовую инфу о команде (для функции вывода всех команд)
-            const {lang} = _prop
-            return {
-                ru: `Выводит общую статистику аккаунта.`,
-                en: `Displays general account statistics.`
-            }[lang]
+        info: {
+            ru: `Выводит общую статистику аккаунта.`,
+            en: `Displays general account statistics.`
         },
-        files: ['detail', 'draw', 'execute'] // список файлов которые нужно будет загрузить для команды
+        files: ['details', 'draw', 'getStats', 'execute'] // список файлов которые нужно будет загрузить для команды
     }
 }

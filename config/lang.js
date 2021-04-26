@@ -36,6 +36,7 @@ module.exports = (function() {
         Tank: {ru: 'Танк', en: 'Tank'},
         Flank: {ru: 'Фланг', en: 'Flank'},
         Heal: {ru: 'Хилл', en: 'Heal'},
+        Support: {ru: 'Саппорт', en: 'Support'},
         Bot_site: {ru: 'Сайт бота', en: 'Bot site'},
         Prefix: {ru: 'Префикс', en: 'Prefix'},
         Commands: {ru: 'Команды', en: 'Commands'},

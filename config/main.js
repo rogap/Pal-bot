@@ -17,6 +17,8 @@ module.exports = {
 	discordInvate: 'https://discord.gg/C2phgzTxH9',
 	siteSupport: 'https://webmyself.ru/pal-bot/',
 	botIcon: 'https://cdn.discordapp.com/icons/605378869691940889/c52df036ebee94381bcc325b20cb7b90.png?size=128',
+	emptyIcon: 'https://raw.githubusercontent.com/rogap/Pal-bot/new/img/empty.png',
+	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
 		ru: '```test news```',

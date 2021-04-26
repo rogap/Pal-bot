@@ -26,7 +26,7 @@ client.on('guildDelete', guild => {
                 color: '#C71F1D',
                 timestamp: guild.joinedAt,
                 footer: {
-                    icon_url: 'https://raw.githubusercontent.com/rogap/Pal-bot/new/img/empty.png',
+                    icon_url: config.emptyIcon,
                     text: 'Был добавлен'
                 },
                 thumbnail: {

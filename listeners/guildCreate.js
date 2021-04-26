@@ -19,8 +19,8 @@ client.on('guildCreate', guild => {
                 },
                 color: '#22BE2D',
                 footer: {
-                    icon_url: 'https://raw.githubusercontent.com/rogap/Pal-bot/new/img/empty.png',
-                    text: '© 2019 Pal-Bot'
+                    icon_url: config.emptyIcon,
+                    text: config.copyText
                 },
                 fields: [
                     {

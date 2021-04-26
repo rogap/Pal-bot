@@ -49,8 +49,8 @@ module.exports = function(body, prop) {
             canvas
         }
     } catch(err) {
-        if (err.status !== undefined) return err
-        return {
+        if (err.err_msg !== undefined) throw err
+        throw {
             status: false,
             err,
             err_msg: {
@@ -104,7 +104,8 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
 
         return {status: true}
     } catch(err) {
-        return {
+        if (err.err_msg !== undefined) throw err
+        throw {
             status: false,
             err,
             err_msg: {
@@ -187,7 +188,8 @@ function drawPlayer(ctx, player, champions, prop) {
 
         return {status: true}
     } catch (err) {
-        return {
+        if (err.err_msg !== undefined) throw err
+        throw {
             status: false,
             err,
             err_msg: {
@@ -271,7 +273,8 @@ function drawChampions(ctx, champions, prop) {
 
         return {status: true}
     } catch (err) {
-        return {
+        if (err.err_msg !== undefined) throw err
+        throw {
             status: false,
             err,
             err_msg: {

@@ -54,6 +54,7 @@ client.on('message', message => {
     if ( config.testing && !authorId.isOwner() ) return;
     const content = message.parseContent()
     const settings = getSettings(message) // получаем обьект настроек для текущего пользователя
+    const {lang} = settings
     // console.log(settings)
     // console.log(settings.commands.list[0])
 
@@ -74,7 +75,7 @@ client.on('message', message => {
             ru: `Не хватает прав для выполнения команды (${command.permissions}).`,
             en: `Insufficient rights to execute command (${command.permissions}).`
         }
-        return message.reply(replyErr[settings.lang])
+        return message.reply(replyErr[lang])
     }
 
     // выводим в консоль отладочные данные
@@ -90,6 +91,8 @@ client.on('message', message => {
     .catch(err => {
         // сделать норм обработчик ошибок
         console.log(err)
+        const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
+        message.reply(errText[lang])
     })
 })
 

@@ -50,6 +50,10 @@ module.exports = function(message, settings, command) {
             .catch(err => {
                 return reject({
                     err,
+                    err_msg: {
+                        ru: '',
+                        en: ''
+                    },
                     log_msg: `Ошибка отправки сообщения готового ответа команды (<@${userId}>).`,
                     content: message.content,
                     params: contentParams
@@ -57,9 +61,14 @@ module.exports = function(message, settings, command) {
             })
         })
         .catch(err => {
+            if (err.err_msg !== undefined) return reject(err)
             return reject({
                 err,
                 log_msg: `Ошибка вызова "getStats" команды для пользователя (<@${userId}>).`,
+                err_msg: {
+                    ru: '',
+                    en: ''
+                },
                 content: message.content,
                 params: contentParams
             })

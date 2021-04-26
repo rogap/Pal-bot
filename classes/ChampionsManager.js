@@ -71,9 +71,16 @@ module.exports = class ChampionsManager extends AbstractChampion {
         return this.#champions.find(champion => champion.id == id)
     }
 
-    getByName(name) {
+    getByName(nameSearch) {
         // получает чемпиона по имени
-        name = this.constructor.nameNormalize(name)
-        return this.#champions.find(champion => this.constructor.nameNormalize(champion.Name) == name)
+        nameSearch = this.constructor.nameNormalize(nameSearch)
+        return this.#champions.find(champion => {
+            // перебираем все варрианты языков для имени чемпиона
+            for (let lang in champion.name) {
+                const name = champion.name[lang]
+                if ( this.constructor.nameNormalize(name) == nameSearch ) return true
+            }
+            return false
+        })
     }
 }

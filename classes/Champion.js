@@ -9,29 +9,22 @@ const { loadImage } = require('canvas')
 
 
 module.exports = class Champion extends AbstractChampion {
-    #data // обьект данных чемпиона
-
     constructor(champion) {
         super()
-        this.#data = champion
         this.id = champion.id
         this.lore = champion.Lore
         this.Name = this.constructor.nameNormalize(champion.Name['en'])
-        this.name = champion.Name
-        this.roles = champion.Roles
+        this.name = champion.Name // тут обьект, не забываем
+        this.role = champion.Roles
         this.title = champion.Title
         this.pantheon = champion.Pantheon
         this.cards = champion.Cards
-    }
+        this.speed = champion.Speed
+        this.health = champion.Health
+        this.ability = champion.ability
 
-    get ability() {
-        return [
-            this.#data.Ability_1,
-            this.#data.Ability_2,
-            this.#data.Ability_3,
-            this.#data.Ability_4,
-            this.#data.Ability_5
-        ]
+        // каждый чемпион может иметь псевдонимы (короткие имена)
+        // их так же можно разместить в текстовом файле в папке чемпиона (где картинки)
     }
 
     loadIcon() { // загружает иконку чемпиона

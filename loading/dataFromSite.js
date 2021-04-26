@@ -7,7 +7,7 @@
 
 const _local = process._local
 const {config, utils} = _local
-const {Settings, ChampionsManager, Champion, CardsManager, Card} =_local.classes
+const {SettingsManager, ChampionsManager, Champion, CardsManager, Card} =_local.classes
 const {sendSite, formHiRezFunc} = utils
 const timeStart = new Date() // время старта загрузки
 
@@ -37,12 +37,12 @@ module.exports = new Promise((resolve, reject) => {
 
             if ( !guildSettings.status ) return reject(guildSettings)
             // console.log(guildSettings)
-			_local.guildsSettings = new Settings('guilds', guildSettings.json)
+			_local.guildsSettings = new SettingsManager('guilds', guildSettings.json)
 			console.log(_local.guildsSettings)
 
             if ( !userSettings.status ) return reject(userSettings)
             // console.log(userSettings)
-			_local.usersSettings = new Settings('users', userSettings.json)
+			_local.usersSettings = new SettingsManager('users', userSettings.json)
 			console.log(_local.usersSettings)
 			// console.log( _local.usersSettings.get('510112915907543042').commands )
 
@@ -98,8 +98,8 @@ async function creatingChampions(championsInfo, championsCards) {
 				en: championInfoEN.Name
 			},
 			Roles: {
-				ru: championInfoRU.Roles,
-				en: championInfoEN.Roles
+				ru: championInfoRU.Roles.replace(/^paladins /i, '').replace(/[ ]/ig, '').trim().toLowerCase(),
+				en: championInfoEN.Roles.replace(/^paladins /i, '').replace(/[ ]/ig, '').trim().toLowerCase()
 			},
 			Title: {
 				ru: championInfoRU.Title,
@@ -109,7 +109,7 @@ async function creatingChampions(championsInfo, championsCards) {
 				ru: championInfoRU.Pantheon,
 				en: championInfoEN.Pantheon
 			},
-			...formAbility(championInfoRU, championInfoEN)
+			ability: formAbility(championInfoRU, championInfoEN)
 		}
 
 		championInfoRU.Cards = CARDS
@@ -134,7 +134,7 @@ function formAbility(ru, en) {
 	const obj = {}
 	for (let i = 0; i < 5; i++) {
 		const key = `Ability_${i+1}`
-		obj[key] = {
+		obj[i + 1] = {
 			Summary: {
 				ru: ru[key].Summary,
 				en: en[key].Summary

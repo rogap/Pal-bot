@@ -15,7 +15,8 @@ module.exports = {
     SettingsManager: require('./SettingsManager.js'),
     Champion: require('./Champion.js'),
     ChampionsManager: require('./ChampionsManager.js'),
-    NameNormalize: require('./NameNormalize.js'),
+    ChampionsStats: require('./ChampionsStats.js'),
+    AbstractChampion: require('./AbstractChampion.js'),
     CardsManager: require('./CardsManager.js'),
     Card: require('./Card.js')
 }

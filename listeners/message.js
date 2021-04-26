@@ -62,7 +62,7 @@ client.on('message', message => {
 
     const command = settings.commands.get(cont)
     if (!command) return; // команда не найдена
-    console.log(command)
+    // console.log(command)
 
     // если команда только для админов и это не админ то выходим
     if ( command.owner && !message.isOwner() ) return;
@@ -77,7 +77,20 @@ client.on('message', message => {
         return message.reply(replyErr[settings.lang])
     }
 
-    return command.execute(message, settings, command)
+    // выводим в консоль отладочные данные
+    let guildName = "ls"
+    const guild = message.guild
+    if (guild) guildName = guild.name
+    console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${content}`)
+
+    command.execute(message, settings, command)
+    .then(res => {
+        console.log(`Команда успешно выполнена (<@${authorId}>).`)
+    })
+    .catch(err => {
+        // сделать норм обработчик ошибок
+        console.log(err)
+    })
 })
 
 

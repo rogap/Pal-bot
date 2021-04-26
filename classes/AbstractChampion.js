@@ -1,9 +1,9 @@
 /**
- * класс используемый только в наследовании
+ * абстрактный класс используемый только в наследовании
  */
 
 
- module.exports = class NameNormalize {
+ module.exports = class AbstractChampion {
     static nameNormalize(name) {
         return name.replace(/[-`' ]+/g, "").toLowerCase()
     }

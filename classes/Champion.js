@@ -3,12 +3,12 @@
  */
 
 
-const NameNormalize = require('./NameNormalize.js')
+const AbstractChampion = require('./AbstractChampion.js')
 const path = require('path')
 const { loadImage } = require('canvas')
 
 
-module.exports = class Champion extends NameNormalize {
+module.exports = class Champion extends AbstractChampion {
     #data // обьект данных чемпиона
 
     constructor(champion) {
@@ -16,7 +16,7 @@ module.exports = class Champion extends NameNormalize {
         this.#data = champion
         this.id = champion.id
         this.lore = champion.Lore
-        this.Name = Champion.nameNormalize(champion.Name['en'])
+        this.Name = this.constructor.nameNormalize(champion.Name['en'])
         this.name = champion.Name
         this.roles = champion.Roles
         this.title = champion.Title

@@ -9,11 +9,12 @@
 
 
 module.exports = {
-    CommandsManager: require('./CommandsManager.js'),
     Command: require('./Command.js'),
+    CommandsManager: require('./CommandsManager.js'),
     Settings: require('./Settings.js'),
-    ChampionsManager: require('./ChampionsManager.js'),
+    SettingsManager: require('./SettingsManager.js'),
     Champion: require('./Champion.js'),
+    ChampionsManager: require('./ChampionsManager.js'),
     NameNormalize: require('./NameNormalize.js'),
     CardsManager: require('./CardsManager.js'),
     Card: require('./Card.js')

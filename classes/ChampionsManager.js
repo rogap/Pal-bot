@@ -3,10 +3,10 @@
  */
 
 
-const NameNormalize = require('./NameNormalize.js')
+const AbstractChampion = require('./AbstractChampion.js')
 
 
-module.exports = class ChampionsManager extends NameNormalize {
+module.exports = class ChampionsManager extends AbstractChampion {
     #champions = []
     constructor() {
         super()
@@ -73,7 +73,7 @@ module.exports = class ChampionsManager extends NameNormalize {
 
     getByName(name) {
         // получает чемпиона по имени
-        name = ChampionsManager.nameNormalize(name)
-        return this.#champions.find(champion => ChampionsManager.nameNormalize(champion.Name) == name)
+        name = this.constructor.nameNormalize(name)
+        return this.#champions.find(champion => this.constructor.nameNormalize(champion.Name) == name)
     }
 }

@@ -3,12 +3,12 @@
  */
 
 
-const NameNormalize = require('./NameNormalize.js')
+const AbstractChampion = require('./AbstractChampion.js')
 const path = require('path')
 const { loadImage } = require('canvas')
 
 
-module.exports = class Card extends NameNormalize {
+module.exports = class Card extends AbstractChampion {
     #data
 
     constructor(card) {
@@ -17,7 +17,7 @@ module.exports = class Card extends NameNormalize {
         this.id = this.#data.card_id2
         this.type = this.#data.rarity.toLowerCase()
         this.championId = this.#data.champion_id
-        this.championName = Card.nameNormalize(this.#data.champion_name)
+        this.championName = this.constructor.nameNormalize(this.#data.champion_name)
         this.name = card.card_name
         this.description = card.card_description
     }

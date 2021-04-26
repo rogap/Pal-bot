@@ -13,6 +13,8 @@ module.exports = class Command {
         this.order = params.order
         this.permissions = params.permissions
         this.owner = params.owner
+        this.params = params.params
+        this.info = params.info
 
         params.files.forEach(filename => {
             const pathToCommand = params.path

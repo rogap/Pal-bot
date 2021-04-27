@@ -36,5 +36,8 @@ module.exports = function(userId, ...prams) {
             if ( !getchampionranks.status ) return reject(getchampionranks) // возможно стоит пропустить эту проверку
             return resolve(body)
         })
+        .catch(err => {
+            return reject(err)
+        })
     })
 }

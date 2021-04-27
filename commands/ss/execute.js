@@ -37,23 +37,24 @@ module.exports = function(message, settings, command, contentParams) {
                 return resolve(mess)
             })
             .catch(err => {
+                if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
                 return reject({
                     err,
                     err_msg: {
                         ru: '',
                         en: ''
                     },
-                    log_msg: `Ошибка отправки сообщения готового ответа команды (<@${userId}>).`,
+                    log_msg: `Ошибка отправки сообщения готового ответа команды "ss" (<@${userId}>).`,
                     content: message.content,
                     params: contentParams
                 })
             })
         })
         .catch(err => {
-            if (err.err_msg !== undefined) return reject(err)
+            if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
             return reject({
                 err,
-                log_msg: `Ошибка вызова "getStats" команды для пользователя (<@${userId}>).`,
+                log_msg: `Ошибка вызова "ss.getStats" команды для пользователя (<@${userId}>).`,
                 err_msg: {
                     ru: '',
                     en: ''

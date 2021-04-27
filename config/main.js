@@ -78,16 +78,18 @@ module.exports = {
 	lang: 'ru', // язык по умолчанию
 	timezone: 0,
 	backgrounds: ['1'], // дефолтный фон
-	langs: { // для перевода языка в числовой и буквенный вид
+	langs: { // для перевода языка в числовой вид
 		'ru': 11,
-		'en': 1,
+		'en': 1
+	},
+	langsNum: { // для перевода языка в буквенный вид
 		1: 'en',
 		11: 'ru'
 	},
 	owners: ['510112915907543042'],
-	// champions: null,
-	// championsCard: null,
-	// guildSettings: null,
-	// userSettings: null,
+	example: { // id и ник который будет использован в примерах
+		name: 'mutu',
+		id: 3368378
+	},
 	timeLimit: null
 }

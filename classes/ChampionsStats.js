@@ -65,7 +65,7 @@ module.exports = class ChampionsStats extends AbstractChampion {
 
     /**
      * Преобразаует опыт в более детальную инфу
-     * @param {Number} worshippers - опыт ирока или чемпиона
+     * @param {Number} exp - опыт ирока или чемпиона
      * @return {Object} {
      * 		lvl - уровень
      * 		expTo - сколько осталось опыта до апа лвла
@@ -74,8 +74,8 @@ module.exports = class ChampionsStats extends AbstractChampion {
      * 		progress - кол-во проценков опыта уровня
      * 	}
      */
-    parseExp(worshippers) {
-        let exp = worshippers + 20000
+    parseExp(exp) {
+        exp += 20000
         let lvl = 0
         let exp1to30 = 20000
         let expNeedToNextLvl = 0 // сколько опыта нужно до следующего лвла

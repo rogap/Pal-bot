@@ -18,7 +18,8 @@ module.exports = {
     ChampionsStats: require('./ChampionsStats.js'),
     AbstractChampion: require('./AbstractChampion.js'),
     CardsManager: require('./CardsManager.js'),
-    Card: require('./Card.js')
+    Card: require('./Card.js'),
+    Details: require('./Details.js')
 }
 
 

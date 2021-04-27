@@ -16,16 +16,6 @@ module.exports = function(message, settings, command) {
         const contentFull = message.parseContent().cut(prop.prefix)
         const contentParams = command.getContent(contentFull)
         console.log(`contentParams = ${contentParams}`)
-        /* думаю нет смысла проверять кол-во параметров, а просто брать нужное их кол-во или еще как-то
-        там где параметр 1 или 0 то вообще можно не распарсивать и позволять ставить пробелы
-        единственное ограничение какое можно сделать это длина параметр(а/ов)
-        const paramsList = contentParams.split(' ')
-        if ( paramsList.length > 1 ) return message.reply({
-            'ru': '',
-            // сообщить об ошибке что должно быть либо 0 параметров либо 1. А еще можно выдать мануал по этой команде сразу.
-            'en': ''
-        }[lang]).catch(err => console.log('Обработать ошибку отправки сообщения...'))
-        */
 
         command.getStats(userId, contentParams) // если параметр не указан то paramsList[0] будет равен пустой строке, не будет ли ошибки в запросе?
         .then(body => {
@@ -36,12 +26,15 @@ module.exports = function(message, settings, command) {
             const buffer = canvas.toBuffer('image/png') // buffer image
             const news = config.news[lang]
 
-            let replayOldText = '' // показываем если есть старая стата во время тех работ
-            if (body.getplayer.old) {
-                replayOldText = `${body.getplayer.new.err_msg[lang]}\n`
-            } else if (body.getchampionranks.old) {
-                replayOldText = `${body.getchampionranks.new.err_msg[lang]}\n`
+            const showOldStatsText = {
+                ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
+                en: '__**You will be shown the details of the last successful request.**__'
             }
+
+            const replayOldText = body.getplayer.old ?
+                    `${body.getplayer.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` :
+                body.getchampionranks.old ?
+                    `${body.getchampionranks.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
 
             message.channel.send(`${news}${replayOldText}${message.author}`, {files: [buffer]})
             .then(mess => {

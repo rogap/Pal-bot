@@ -10,12 +10,10 @@ const {client, config, champions, usersSettings, guildsSettings, commands, utils
 const {sendToChannel, sendToUser, superSendToChannel, superSendToUser, deleteFromChannel} = utils
 
 
-module.exports = function(message, settings, command) {
+module.exports = function(message, settings, command, contentParams) {
     return new Promise((resolve, reject => {
-        const content = message.parseContent().cut(settings.prefix)
-        const cont = command.getContent(content)
         try {
-            const result = eval(cont)
+            const result = eval(contentParams)
             if ( result !== null && result !== undefined && result.constructor === Promise ) {
                 result.then(some => {
                     return resolve(some)

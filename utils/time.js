@@ -7,6 +7,9 @@ const _local = process._local
 const {config} = _local
 
 
+module.exports = {}
+
+
 /**
  * превращает last_update из БД в обьект Data, если уканаза зона то добавляет часы
  * @param {Number} timezone - временная зона (сколько часов будет добавленно)

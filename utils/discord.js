@@ -187,6 +187,18 @@ Discord.Message.prototype.hasPerm = function(perm) {
  * выполняет базовый парсинг контента из сообщения возвращая текст
  * @returns {String}
  */
-Discord.Message.prototype.parseContent = function () {
+ Discord.Message.prototype.parseContent = function() {
 	return this.content.replace(/^[\\]+/, "").replace(/[\n\r]+/g, " ").trim()
+}
+
+
+/**
+ * выполняет парсинг контента из сообщения и возвращает параметры команды
+ * @returns {String}
+ */
+Discord.Message.prototype.getContent = function() {
+	return this.parseContent() // убираем переводы строк
+	.cutPrefAndCom() // выезает префикс и команду
+	.mentionToId() // заменяем упоминания на id упоминающих, если таковы есть
+	.toString()
 }

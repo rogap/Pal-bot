@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {config} = _local
+const {config, classes} = _local
 const {Details} = classes
 
 

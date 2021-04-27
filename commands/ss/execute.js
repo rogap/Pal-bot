@@ -7,15 +7,11 @@ const _local = process._local
 const {config} = _local
 
 
-module.exports = function(message, settings, command) {
+module.exports = function(message, settings, command, contentParams) {
     return new Promise((resolve, reject) => {
         const userId = message.author.id
         const prop = settings.getProp()
         const {lang} = prop
-
-        const contentFull = message.parseContent().cut(prop.prefix)
-        const contentParams = command.getContent(contentFull)
-        console.log(`contentParams = ${contentParams}`)
 
         command.getStats(userId, contentParams) // если параметр не указан то paramsList[0] будет равен пустой строке, не будет ли ошибки в запросе?
         .then(body => {

@@ -76,7 +76,7 @@ client.on('message', message => {
                 ru: `Не хватает прав для выполнения команды (${command.permissions}).`,
                 en: `Insufficient rights to execute command (${command.permissions}).`
             }
-            return message.reply(replyErr[lang])
+            return message.sendWarning(replyErr[lang])
         }
 
         // выводим в консоль отладочные данные
@@ -100,7 +100,7 @@ client.on('message', message => {
             // сделать норм обработчик ошибок (не проброс)
             console.log(err)
             const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
-            message.channel.send(`:warning: ${message.author}\`\`\`fix\n${errText[lang]}\`\`\``)
+            message.channel.sendWarning(errText[lang])
             .catch(err => {
                 console.log(err)
             })

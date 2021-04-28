@@ -28,8 +28,8 @@ module.exports = {
             en: ['command']
         },
         info: {
-            ru: 'Возвращает это сообщение.',
-            en: 'Returns this message.'
+            ru: 'Возвращает информацию о командах.',
+            en: 'Returns information about commands.'
         },
         files: ['execute', 'details']
     },

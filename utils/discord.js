@@ -229,7 +229,9 @@ Discord.Message.prototype.sendCheckIn = function(text) {
 }
 
 
-Discord.Message.prototype.sendWarning = function(text) {}
+Discord.Message.prototype.sendWarning = function(text) {
+	return this.channes.send(`:warning: ${this.author}\`\`\`fix\n${text}\`\`\``)
+}
 
 
 Discord.Message.prototype.sendError = function(text) {}

@@ -14,7 +14,7 @@ module.exports = function(userId, ...params) {
         sendSite(form)
         .then(response => {
             const body = response.body
-            console.log(body)
+            // console.log(body)
             if (!body.status) return reject(body)
             return resolve(body) // {discord_id, hz_player_name, paladins_id}
         })

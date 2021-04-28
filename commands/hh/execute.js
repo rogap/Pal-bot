@@ -16,7 +16,6 @@ module.exports = function(message, settings, command, contentParams) {
         const chType = message.channel.type
         const toDM = chType == 'text' || chType == 'unknown' || chType == 'category'
 
-
         if (contentParams) {
             // проверяем есть ли такая команда
             // если есть параметры то вызываем функцию details указанной команды
@@ -94,8 +93,8 @@ module.exports = function(message, settings, command, contentParams) {
                 return reject({
                     err,
                     err_msg: {
-                        ru: '1',
-                        en: '1'
+                        ru: 'Ошибка отправки сообщения вам в ЛС.\nОткройте ЛС или напишите данную команду в ЛС.',
+                        en: 'Error sending a message to you in DM.\nOpen DM or write this command in DM.'
                     },
                     log_msg: 'Ошибка отправки....'
                 })

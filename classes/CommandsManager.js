@@ -52,4 +52,9 @@ module.exports = class CommandsManager {
         this.#commands.push(command)
         return this
     }
+
+    // перебирает все команды
+    each(callback) {
+        this.#commands.forEach(com => callback(com)) 
+    }
 }

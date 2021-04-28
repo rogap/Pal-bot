@@ -162,6 +162,21 @@ Discord.Message.prototype.deleteById = function(messId) {
 }
 
 
+Discord.Message.prototype.deleteByIdList = function(...messIdList) {
+	console.log('list: ', messIdList)
+	return new Promise(async (resolve, reject) => {
+		for (let i = 0; i < messIdList.length; i ++) {
+			const messId = messIdList[i]
+			await this.deleteById(messId)
+			.catch(err => {
+				console.log(err)
+			})
+		}
+		return resolve(true)
+	})
+}
+
+
 /**
  * проверяет, является ли пользователь владельцем бота
  * @returns {Boolean}
@@ -202,3 +217,19 @@ Discord.Message.prototype.getContent = function() {
 	.mentionToId() // заменяем упоминания на id упоминающих, если таковы есть
 	.toString()
 }
+
+
+/**
+ * Отвечает автору на канале указанным текстом в формате "check in"
+ * @param {String} text - текст который будет отправлен
+ * @returns {Discord.Message}
+ */
+Discord.Message.prototype.sendCheckIn = function(text) {
+	return this.channel.send(`:white_check_mark: ${this.author}\`\`\`yaml\n${text}\`\`\``)
+}
+
+
+Discord.Message.prototype.sendWarning = function(text) {}
+
+
+Discord.Message.prototype.sendError = function(text) {}

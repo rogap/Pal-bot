@@ -87,6 +87,11 @@ client.on('message', message => {
 
         const contentParams = message.getContent()
         console.log(contentParams)
+
+        // запускаем печатание и сразу же отменяем
+        message.channel.startTyping()
+        message.channel.stopTyping()
+
         command.execute(message, settings, command, contentParams)
         .then(res => {
             console.log(`Команда успешно выполнена (<@${authorId}>).`)
@@ -95,7 +100,10 @@ client.on('message', message => {
             // сделать норм обработчик ошибок (не проброс)
             console.log(err)
             const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
-            message.reply(errText[lang])
+            message.channel.send(`:warning: ${message.author}\`\`\`fix\n${errText[lang]}\`\`\``)
+            .catch(err => {
+                console.log(err)
+            })
         })
     } catch(err) {
         // сделать норм обработчик ошибок

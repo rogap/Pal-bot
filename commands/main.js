@@ -16,6 +16,23 @@ module.exports = {
         path: path.join(__dirname, 'console'),
         files: ['execute'] // список файлов которые нужно будет загрузить для команды
     },
+    hh: {
+        name: 'hh',
+        possibly: ['hh'],
+        order: 1,
+        permissions: ['SEND_MESSAGES'],
+        owner: false,
+        path: path.join(__dirname, 'hh'),
+        params: {
+            ru: ['команда'],
+            en: ['command']
+        },
+        info: {
+            ru: 'Возвращает это сообщение.',
+            en: 'Returns this message.'
+        },
+        files: ['execute', 'details']
+    },
     me: {
         name: 'me',
         possibly: ['me'],

@@ -61,19 +61,23 @@ module.exports = function(message, settings, command, contentParams) {
                 if (com.owner) return; // пропускаем команды админа
                 details.setFields('ru', {
                     name: `${com.possibly[0]}:`,
-                    value: `${com.info.ru}\n[Синонимы команды: "${com.possibly.join('" "')}"]\n[Параметры: "${com.params.ru.join('" "')}"]`
+                    value: `${com.info.ru}\n[Синонимы команды: "${com.possibly.join('", "')}"]\n[Параметры: "${com.params.ru.join('", "')}"]`
                 })
                 .setFields('en', {
                     name: `${com.possibly[0]}:`,
-                    value: `${com.info.en}\n[Synonyms commands: "${com.possibly.join('" "')}"]\n[Parameters: "${com.params.en.join('" "')}"]`
+                    value: `${com.info.en}\n[Synonyms commands: "${com.possibly.join('", "')}"]\n[Parameters: "${com.params.en.join('", "')}"]`
                 })
             })
 
             details.ru.embed.description = `Префикс: **${settings.prefix}**`
             details.en.embed.description = `Prefix: **${settings.prefix}**`
 
-            details.ru.content = config.news.ru
-            details.en.content = config.news.en
+            const contentRep = {
+                ru: `Есть вопросы?, предложения? или хотите быть в курсе событий? - присоединяйтесь к серверу бота: ${config.discordInvate}`,
+                en: `Any questions ?, suggestions? or want to keep abreast of events? - join the bot server: ${config.discordInvate}`
+            }
+            details.ru.content = `${config.news.ru}${contentRep.ru}`
+            details.en.content = `${config.news.en}${contentRep.en}`
 
             message.author.send(details[lang])
             .then(mess => {
@@ -96,7 +100,8 @@ module.exports = function(message, settings, command, contentParams) {
                         ru: 'Ошибка отправки сообщения вам в ЛС.\nОткройте ЛС или напишите данную команду в ЛС.',
                         en: 'Error sending a message to you in DM.\nOpen DM or write this command in DM.'
                     },
-                    log_msg: 'Ошибка отправки....'
+                    log_msg: `Ошибка отправки сообщения в лс ${message.author.id}`,
+                    content: message.content
                 })
             })
         }

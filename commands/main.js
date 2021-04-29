@@ -67,6 +67,108 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute']
     },
+    sh: {
+        name: 'sh',
+        possibly: ['sh', 'история'],
+        order: 3,
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'sh'),
+        params: {
+            ru: ['Ник/id', 'Страница'],
+            en: ['Nickname/id', 'Page']
+        },
+        info: {
+            ru: `Выводит историю матчей указанного игрока.`,
+            en: `Displays the match history of the specified player.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute']
+    },
+    sm: {
+        name: 'sm',
+        possibly: ['sm', 'матч'],
+        order: 3,
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'sm'),
+        params: {
+            ru: ['id матча/Ник/id', 'Матч по счету'],
+            en: ['match id/Nickname/id', 'Match count']
+        },
+        info: {
+            ru: `Выводит детали для указанного матча или последнего матча игрока.`,
+            en: `Displays details for the specified match or the last match of a player.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute']
+    },
+    sp: {
+        name: 'sp',
+        possibly: ['sp', 'сталкер'],
+        order: 3,
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'sp'),
+        params: {
+            ru: ['Ник/id'],
+            en: ['Nickname/id']
+        },
+        info: {
+            ru: `Возвращает статус игрока в реальном времени.`,
+            en: `Returns the player's status in real time.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute']
+    },
+    st: {
+        name: 'st',
+        possibly: ['st', 'топ'],
+        order: 3,
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'st'),
+        params: {
+            ru: ['Ник/id', 'Тип сортировки'],
+            en: ['Nickname/id', '']
+        },
+        info: {
+            ru: `Выводит топ чемпионов с возможностью сортировки.`,
+            en: `Displays top champions with sorting options.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute']
+    },
+    sl: {
+        name: 'sl',
+        possibly: ['sl', 'колода'],
+        order: 3,
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'sl'),
+        params: {
+            ru: ['Ник/id', 'Чемпион', 'Номер колоды'],
+            en: ['Nickname/id', 'Champion', 'Deck number']
+        },
+        info: {
+            ru: `Выводит колоды игрока указанного чемпиона.`,
+            en: `Displays the player's decks of the specified champion.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute']
+    },
+    sc: {
+        name: 'sc',
+        possibly: ['sc', 'чемпион'],
+        order: 3,
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'sc'),
+        params: {
+            ru: ['Ник/id', 'Чемпион'],
+            en: ['Nickname/id', 'Champion']
+        },
+        info: {
+            ru: `Выводит подробную статистику указанного чемпиона.`,
+            en: `Displays detailed statistics for the specified champion.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute']
+    },
     sf: {
         name: 'sf',
         possibly: ['sf'],

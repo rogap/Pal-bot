@@ -18,8 +18,8 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  */
 module.exports = function(body, prop) {
     // console.log(body, prop)
-    const {getplayer, getchampionranks} = body
     try {
+        const {getplayer, getchampionranks} = body
         const playerLastUpdate = getplayer.last_update
         const championsLastUpdate = getchampionranks.last_update
         const player = getplayer.json[0]

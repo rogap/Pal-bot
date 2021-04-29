@@ -66,5 +66,39 @@ module.exports = {
             en: `Displays general account statistics.`
         },
         files: ['details', 'draw', 'getStats', 'execute']
+    },
+    sf: {
+        name: 'sf',
+        possibly: ['sf'],
+        order: 9,
+        permissions: ['SEND_MESSAGES'],
+        owner: false,
+        path: path.join(__dirname, 'sf'),
+        params: {
+            ru: ['Ник/id', 'Страница'],
+            en: ['Nickname/id', 'Page']
+        },
+        info: {
+            ru: `Выводит список друзей в игре.`,
+            en: `Displays a list of friends in the game.`
+        },
+        files: ['details', 'getStats', 'execute']
+    },
+    sb: {
+        name: 'sb',
+        possibly: ['sb'],
+        order: 9,
+        permissions: ['SEND_MESSAGES'],
+        owner: false,
+        path: path.join(__dirname, 'sb'),
+        params: {
+            ru: ['Ник/id', 'Страница'],
+            en: ['Nickname/id', 'Page']
+        },
+        info: {
+            ru: `Выводит список заблокированный игроков указанного аккаунта`,
+            en: `Displays a list of blocked players for the specified account.`
+        },
+        files: ['details', 'getStats', 'execute']
     }
 }

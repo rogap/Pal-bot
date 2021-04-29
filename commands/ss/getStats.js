@@ -8,9 +8,9 @@ const {utils} = _local
 const {formHiRezFunc, sendSite} = utils
 
 
-module.exports = function(userId, ...prams) {
+module.exports = function(userId, ...params) {
     return new Promise((resolve, reject) => {
-        const form = formHiRezFunc('ss', userId, ...prams)
+        const form = formHiRezFunc('ss', userId, ...params)
         sendSite(form)
         .then(response => {
             const body = response.body
@@ -23,7 +23,7 @@ module.exports = function(userId, ...prams) {
                 },
                 log_msg: 'body не был обнаружен или он не является обьектом',
                 body,
-                prams
+                params
             })
 
             if (!body.status) return reject(body)

@@ -230,7 +230,7 @@ Discord.Message.prototype.sendCheckIn = function(text) {
 
 
 Discord.Message.prototype.sendWarning = function(text) {
-	return this.channes.send(`:warning: ${this.author}\`\`\`fix\n${text}\`\`\``)
+	return this.channel.send(`:warning: ${this.author}\`\`\`fix\n${text}\`\`\``)
 }
 
 

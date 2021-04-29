@@ -100,7 +100,7 @@ client.on('message', message => {
             // сделать норм обработчик ошибок (не проброс)
             console.log(err)
             const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
-            message.channel.sendWarning(errText[lang])
+            message.sendWarning(errText[lang])
             .catch(err => {
                 console.log(err)
             })

@@ -10,11 +10,11 @@ const {formHiRezFunc, sendSite} = utils
 
 module.exports = function(userId, ...params) {
     return new Promise((resolve, reject) => {
-        const form = formHiRezFunc('me', userId, ...params)
+        const form = formHiRezFunc('sf', userId, ...params)
         sendSite(form)
         .then(response => {
             const body = response.body
-            // console.log(body)
+            console.log(body)
 
             if (!body || body.constructor != Object) return reject({
                 err_msg: {
@@ -27,11 +27,6 @@ module.exports = function(userId, ...params) {
             })
 
             if (!body.status) return reject(body)
-
-            return resolve(body)
-        })
-        .catch(err => {
-            return reject(err)
         })
     })
 }

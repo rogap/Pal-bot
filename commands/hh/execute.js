@@ -20,10 +20,12 @@ module.exports = function(message, settings, command, contentParams) {
             // проверяем есть ли такая команда
             // если есть параметры то вызываем функцию details указанной команды
             const com = commands.get(contentParams)
-            if (!com) {
-                message.channel.send(`Команда не найдена`)
-                return resolve()
-            }
+            if (!com) return reject({
+                err_msg: {
+                    ru: 'Указанная команда не найдена.',
+                    en: 'The specified command was not found.'
+                }
+            })
 
             const details = com.details(settings, com)[lang]
             message.author.send(details)

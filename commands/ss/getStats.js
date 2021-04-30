@@ -33,7 +33,7 @@ module.exports = function(userId, ...params) {
             // console.log(getchampionranks)
 
             if ( !getplayer.status ) return reject(getplayer)
-            if ( !getchampionranks.status ) return reject(getchampionranks) // возможно стоит пропустить эту проверку
+            // if ( !getchampionranks.status ) return reject(getchampionranks) // возможно стоит пропустить эту проверку
             return resolve(body)
         })
         .catch(err => {

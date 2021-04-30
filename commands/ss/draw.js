@@ -41,15 +41,19 @@ module.exports = function(body, prop) {
         if (!resPlayer.status) throw resPlayer
 
         // рисуем чемпионов
-        const resChampions = drawChampions(ctx, champions, prop)
-        if (!resChampions.status) throw resChampions
+        if (!champions.error) { // если все корректно
+            const resChampions = drawChampions(ctx, champions, prop)
+            if (!resChampions.status) throw resChampions
+        }
 
         return {
             status: true,
-            canvas
+            canvas,
+            id: player.Id, // ActivePlayerId
+            name: player.hz_player_name || player.hz_gamer_tag
         }
     } catch(err) {
-        if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
+        if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
             err,
@@ -71,9 +75,6 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
         const img = config.img.backgrounds[randImgName] // случайный фон
         if ( img ) ctx.drawImage(img, 0, 0, width, height - 50) // рисуем
 
-        const lastUpdatePlayer = playerLastUpdate.updateToDate(timezone).toText()
-        const lastUpdateChamp = championsLastUpdate.updateToDate(timezone).toText()
-
         // рисуем черную полосу снизу
         ctx.fillStyle = black
         ctx.fillRect(0, height - 50, width, 50)
@@ -94,13 +95,19 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
         ctx.textAlign = 'start'
         ctx.fillStyle = red
 
-        const nextUpdateAcc = playerLastUpdate.getNextUpdate('getplayer', timezone)
-        const nextUpdateChamp = championsLastUpdate.getNextUpdate('getchampionranks', timezone)
+        if (playerLastUpdate) {
+            const lastUpdatePlayer = playerLastUpdate.updateToDate(timezone).toText()
+            const nextUpdateAcc = playerLastUpdate.getNextUpdate('getplayer', timezone)
+            const accText = `${translate.Accaunt[lang]}: ${lastUpdatePlayer} | ${translate.Update[lang]}: ${nextUpdateAcc}`
+            ctx.fillText(accText, 20,  height - 30)
+        }
 
-        const accText = `${translate.Accaunt[lang]}: ${lastUpdatePlayer} | ${translate.Update[lang]}: ${nextUpdateAcc}`
-        const champText = `${translate.Champions[lang]}: ${lastUpdateChamp} | ${translate.Update[lang]}: ${nextUpdateChamp}`
-        if ( lastUpdatePlayer ) ctx.fillText(accText, 20,  height - 30)
-        if ( lastUpdateChamp ) ctx.fillText(champText, 20,  height - 10)
+        if (championsLastUpdate) {
+            const lastUpdateChamp = championsLastUpdate.updateToDate(timezone).toText()
+            const nextUpdateChamp = championsLastUpdate.getNextUpdate('getchampionranks', timezone)
+            const champText = `${translate.Champions[lang]}: ${lastUpdateChamp} | ${translate.Update[lang]}: ${nextUpdateChamp}`
+            ctx.fillText(champText, 20,  height - 10)
+        }
 
         return {status: true}
     } catch(err) {
@@ -154,7 +161,9 @@ function drawPlayer(ctx, player, champions, prop) {
         const dateLastLogin = new Date(player.Last_Login_Datetime).addHours(timezone).toText()
         ctx.fillText(`${translate.Last_login[lang]}: ${dateLastLogin}`, 10 + widthInfo / 2, 100)
         ctx.fillStyle = orange
-        ctx.fillText(`KDA: ${champions.kda}`, 10 + widthInfo / 2, 120)
+        if (!champions.error) {
+            ctx.fillText(`KDA: ${champions.kda}`, 10 + widthInfo / 2, 120)
+        }
         ctx.fillStyle = white
         ctx.fillText(`${translate.Client[lang]}: ${player.Platform} - ${player.Name}`, 10, 140)
         const title = player.Title
@@ -163,14 +172,16 @@ function drawPlayer(ctx, player, champions, prop) {
         const padLeftNew = 100
         ctx.fillStyle = red
         ctx.fillText(`${translate.TOTAL[lang]}:`, 35 + padLeftNew, 190)
-        ctx.fillStyle = white
-        ctx.fillText(`${translate.Kills[lang]}: ${champions.kills}`, 10 + padLeftNew, 210)
-        ctx.fillText(`${translate.Deaths[lang]}: ${champions.deaths}`, 10 + padLeftNew, 230)
-        ctx.fillText(`${translate.Assists[lang]}: ${champions.assists}`, 10 + padLeftNew, 250)
-        ctx.fillText(`${translate.Wins[lang]}: ${player.Wins || champions.wins}`, 10 + padLeftNew, 270)
-        ctx.fillText(`${translate.Losses[lang]}: ${player.Losses || champions.losses}`, 10 + padLeftNew, 290)
-        ctx.fillStyle = blue
-        ctx.fillText(`${translate.Winrate[lang]}: ${champions.winrate}%`, 10 + padLeftNew, 310)
+        if (!champions.error) {
+            ctx.fillStyle = white
+            ctx.fillText(`${translate.Kills[lang]}: ${champions.kills}`, 10 + padLeftNew, 210)
+            ctx.fillText(`${translate.Deaths[lang]}: ${champions.deaths}`, 10 + padLeftNew, 230)
+            ctx.fillText(`${translate.Assists[lang]}: ${champions.assists}`, 10 + padLeftNew, 250)
+            ctx.fillText(`${translate.Wins[lang]}: ${player.Wins || champions.wins}`, 10 + padLeftNew, 270)
+            ctx.fillText(`${translate.Losses[lang]}: ${player.Losses || champions.losses}`, 10 + padLeftNew, 290)
+            ctx.fillStyle = blue
+            ctx.fillText(`${translate.Winrate[lang]}: ${champions.winrate}%`, 10 + padLeftNew, 310)
+        }
         
         ctx.fillStyle = red
         ctx.fillText(`${translate.RANKED[lang]}:`, 225 + padLeftNew, 190)

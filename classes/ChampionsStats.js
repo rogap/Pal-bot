@@ -18,6 +18,10 @@ module.exports = class ChampionsStats extends AbstractChampion {
 
     constructor(champions) {
         super()
+        if (!champions.length) {
+            this.error = true
+            return; // если чемпионво нет то ошибка
+        }
         const CHAMPIONS = _local.champions
         this.player_id = champions[0].player_id
         this.timePlayRole = {

@@ -21,11 +21,11 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '```test news```',
-		en: ''
+		ru: '```Пример вывода новости.```',
+		en: '\`\`\`Example of news output.\`\`\`'
 	},
 	colors: { // цвета используемые в canvas
-		red: '#E30F1D',
+		red: '#CC0000',
 		white: '#FFFFFF',
 		blue: '#0088bb',
 		// lightBlue: '#3399CC',

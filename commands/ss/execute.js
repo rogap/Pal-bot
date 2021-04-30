@@ -32,7 +32,8 @@ module.exports = function(message, settings, command, contentParams) {
                 body.getchampionranks.old ?
                     `${body.getchampionranks.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
 
-            message.channel.send(`${news}${replayOldText}${message.author}`, {files: [buffer]})
+            const playerInfo = `\`\`\`md\n[${draw.name}](${draw.id})\`\`\``
+            message.channel.send(`${news}${replayOldText}${playerInfo}${message.author}`, {files: [buffer]})
             .then(mess => {
                 return resolve(mess)
             })

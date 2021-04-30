@@ -8,15 +8,6 @@ const {client, config} = _local
 
 
 client.on('guildDelete', guild => {
-    guild.members.fetch(guild.ownerID)
-    .then(owner => {
-        // при удалении думаю лучше ничего не отправлять
-        // owner.send(123)
-    })
-    .catch(err => {
-        // ошибка отправки сообщения
-    })
-
     client.channels.fetch(config.chNot)
     .then(channel => {
         if (channel) channel.send({
@@ -48,6 +39,7 @@ client.on('guildDelete', guild => {
         })
         .catch((err) => {
             // сделать вывод в логи на сервере
+            console.log(err)
             console.log('Ошибка отправки сообщения при удаленни бота с сервера.')
         })
     })

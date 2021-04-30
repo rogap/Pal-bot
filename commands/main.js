@@ -198,7 +198,7 @@ module.exports = {
             en: ['Nickname/id', 'Page']
         },
         info: {
-            ru: `Выводит список заблокированный игроков указанного аккаунта`,
+            ru: `Выводит список заблокированный игроков указанного аккаунта.`,
             en: `Displays a list of blocked players for the specified account.`
         },
         files: ['details', 'getStats', 'execute']

@@ -65,6 +65,7 @@ client.on('guildCreate', guild => {
     })
     .catch(err => {
         // ошибка отправки сообщения
+        console.log(err)
     })
 
     client.channels.fetch(config.chNot)
@@ -93,6 +94,7 @@ client.on('guildCreate', guild => {
         })
         .catch((err) => {
             // сделать вывод в логи на сервере
+            console.log(err)
             console.log('Ошибка отправки сообщения при добавлении бота на сервер.')
         })
     })

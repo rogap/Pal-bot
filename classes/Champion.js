@@ -5,6 +5,7 @@
 
 const AbstractChampion = require('./AbstractChampion.js')
 const path = require('path')
+const fs = require('fs')
 const { loadImage } = require('canvas')
 
 
@@ -27,15 +28,29 @@ module.exports = class Champion extends AbstractChampion {
         // их так же можно разместить в текстовом файле в папке чемпиона (где картинки)
     }
 
-    loadIcon() { // загружает иконку чемпиона
-        const pathToIcon = path.join(__dirname, '..', 'img', 'champions', this.Name, 'icon.jpg')
+    // загружает иконку чемпиона
+    loadIcon() {
         return new Promise((resolve, reject) => {
+            const pathToIcon = path.join(__dirname, '..', 'champions', this.Name, 'icon.jpg')
             loadImage(pathToIcon)
             .then(img => {
                 this.icon = img
                 return resolve(img)
             })
             .catch(err => reject(err))
+        })
+    }
+
+    // загружает превдонимы чемпионов (альтернативные имена)
+    loadAliases() {
+        return new Promise((resolve, reject) => {
+            const pathToNamesList = path.join(__dirname, '..', 'champions', this.Name, 'aliases')
+            fs.readFile(pathToNamesList, (err, aliases) => {
+                if (err) return reject(err)
+                aliases = aliases.toString()
+                this.aliases = aliases.split(' ').map(champName => champName.trim())
+                return resolve(this.aliases)
+            })
         })
     }
 

@@ -20,8 +20,17 @@ module.exports = function(message, settings, command, contentParams) {
             }
         })
 
+        // Queue	"Team Deathmatch" | Queue	"Onslaught"
+        const gameModeTypes = {
+            ranked: ['ranked', 'ранкед'],
+            siege: ['siege', 'казуал', 'обычка'],
+            deathmatch: ['tdm', 'тдм', 'deathmatch'],
+            onslaught: ['onslaught', 'натиск']
+        }
         const params = contentParams.split(' ')
-        const {nameOrId, page} = params
+        const {nameOrId, champOrType1, champOrType2} = params // champOrType может быть любой порядок
+
+        //
 
         command.getStats(userId, nameOrId)
     })

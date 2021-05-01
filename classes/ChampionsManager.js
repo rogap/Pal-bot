@@ -58,8 +58,8 @@ module.exports = class ChampionsManager extends AbstractChampion {
 
     random(role) {}
 
+    // добавляет чемпиона в базу класса
     add(champion) {
-        // добавляет чемпиона в базу класса
         this.#champions.push(champion)
         this.size = this.#champions.length
 
@@ -71,8 +71,8 @@ module.exports = class ChampionsManager extends AbstractChampion {
         return this.#champions.find(champion => champion.id == id)
     }
 
+    // получает чемпиона по имени
     getByName(nameSearch) {
-        // получает чемпиона по имени
         nameSearch = this.constructor.nameNormalize(nameSearch)
         return this.#champions.find(champion => {
             // перебираем все варрианты языков для имени чемпиона
@@ -82,5 +82,14 @@ module.exports = class ChampionsManager extends AbstractChampion {
             }
             return false
         })
+    }
+
+    // получает чемпиона по псевдониму или имени
+    getByAliases(nameSearch) {
+        nameSearch = this.constructor.nameNormalize(nameSearch)
+        const byName = this.getByName(nameSearch)
+        if (byName) return byName // если найден по имени то возвращаем его
+
+        return this.aliases.find(champAliases => champAliases === nameSearch)
     }
 }

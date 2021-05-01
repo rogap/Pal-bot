@@ -32,7 +32,7 @@ module.exports = new Promise((resolve, reject) => {
 			const CHAMPIONS = await creatingChampions(getchampions, championsCard)
 			_local.champions = CHAMPIONS
 			console.log(`Чемпионы и их данные загруженны (${CHAMPIONS.size})`)
-			// console.log(CHAMPIONS.getByName('androxus'))
+			// console.log(CHAMPIONS.getByAliases('androxus'))
 			// console.log(CHAMPIONS.getById('2438').cards)
 
             if ( !guildSettings.status ) return reject(guildSettings)
@@ -123,6 +123,7 @@ async function creatingChampions(championsInfo, championsCards) {
 
 		const CHAMPION = new Champion( Object.assign(championInfoRU, uniteObj) )
 		await CHAMPION.loadIcon() // загружаем иконку чемпиона
+		await CHAMPION.loadAliases() // загружаем превдонимы чемпионов (альтернативные имена)
 		CHAMPIONS.add(CHAMPION)
 	}
 	return CHAMPIONS

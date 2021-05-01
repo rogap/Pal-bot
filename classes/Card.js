@@ -28,7 +28,7 @@ module.exports = class Card extends AbstractChampion {
 
     loadImg() { // загружает картинку карты
         const format = this.type == 'common' ? 'jpg' : 'png'
-        const pathImg = path.join(__dirname, '..', 'img', 'champions', this.championName, 'cards', this.type, `${this.id}.${format}`)
+        const pathImg = path.join(__dirname, '..', 'champions', this.championName, 'cards', this.type, `${this.id}.${format}`)
         return new Promise((resolve, reject) => {
             loadImage(pathImg)
             .then(img => {

@@ -14,7 +14,7 @@ module.exports = function(userId, ...params) {
         sendSite(form)
         .then(response => {
             const body = response.body
-            console.log(body)
+            // console.log(body)
 
             if (!body || body.constructor != Object) return reject({
                 err_msg: {
@@ -27,6 +27,9 @@ module.exports = function(userId, ...params) {
             })
 
             if (!body.status) return reject(body)
+            const {getmatchdetails} = body
+            if (!getmatchdetails.status) return reject(getmatchdetails)
+            return resolve(body)    
         })
     })
 }

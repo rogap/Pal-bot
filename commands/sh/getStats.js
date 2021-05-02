@@ -28,7 +28,7 @@ module.exports = function(userId, ...params) {
 
             if (!body.status) return reject(body)
             const {getmatchhistory} = body
-            if (!getmatchhistory.status) return reject(body)
+            if (!getmatchhistory.status) return reject(getmatchhistory)
             return resolve(body)
         })
     })

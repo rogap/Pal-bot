@@ -19,7 +19,7 @@ Object.defineProperty(String.prototype, 'cut', {enumerable: false})
  * @returns {String}
  */
 String.prototype.cutPrefAndCom = function() {
-	return this.replace(/^[\!\$\%\^\&\*\-\_\=\+\/\?\.\,\|\`\~]{1}[a-zа-я]{1,30}/, '').trim()
+	return this.replace(/^[\!\$\%\^\&\*\-\_\=\+\/\?\.\,\|\`\~]{1}[a-zа-я]{1,30}/i, '').trim()
 }
 Object.defineProperty(String.prototype, 'cutPrefAndCom', {enumerable: false})
 

@@ -90,6 +90,8 @@ module.exports = class ChampionsManager extends AbstractChampion {
         const byName = this.getByName(nameSearch)
         if (byName) return byName // если найден по имени то возвращаем его
 
-        return this.aliases.find(champAliases => champAliases === nameSearch)
+        return this.#champions.find(champion => {
+            return champion.aliases.find(champAliases => champAliases === nameSearch)
+        })
     }
 }

@@ -21,7 +21,7 @@ module.exports = function(message, settings, command, contentParams) {
         })
 
         const params = contentParams.split(' ')
-        const {nameOrId, pageOrFilter, page} = params
+        const [nameOrId, pageOrFilter, page] = params
         if (pageOrFilter) {
             // хрень эта написана тут что бы если че сразу послать ошибку о не верно указаном параметре
 

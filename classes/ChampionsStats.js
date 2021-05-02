@@ -110,8 +110,8 @@ module.exports = class ChampionsStats extends AbstractChampion {
         return this.#roles
     }
 
+    // получает чемпиона по имени
     getByName(nameSearch) { // такая же функция как у ChampionsManager (можно создать еще 1 класс)
-        // получает чемпиона по имени
         nameSearch = this.constructor.nameNormalize(nameSearch)
         return this.#champions.find(champion => {
             // перебираем все варрианты языков для имени чемпиона
@@ -120,6 +120,17 @@ module.exports = class ChampionsStats extends AbstractChampion {
                 if ( this.constructor.nameNormalize(name) == nameSearch ) return true
             }
             return false
+        })
+    }
+
+    // получает чемпиона по псевдониму или имени
+    getByAliases(nameSearch) { // такая же функция как у ChampionsManager (можно создать еще 1 класс)
+        nameSearch = this.constructor.nameNormalize(nameSearch)
+        const byName = this.getByName(nameSearch)
+        if (byName) return byName // если найден по имени то возвращаем его
+
+        return this.#champions.find(champion => {
+            return champion.aliases.find(champAliases => champAliases === nameSearch)
         })
     }
 }

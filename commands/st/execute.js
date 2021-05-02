@@ -21,7 +21,7 @@ module.exports = function(message, settings, command, contentParams) {
         })
 
         const params = contentParams.split(' ')
-        const {nameOrId, page} = params
+        const [nameOrId, page] = params
 
         command.getStats(userId, nameOrId)
     })

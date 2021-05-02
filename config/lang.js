@@ -43,7 +43,9 @@ module.exports = (function() {
         Bot_creator: {ru: 'Создатель бота', en: 'Bot creator'},
         On_server: {ru: 'На сервере', en: 'On server'},
         Your_settings: {ru: 'Ваши настройки', en: 'Your settings'},
-        Example: {ru: 'Пример', en: 'Example'}
+        Example: {ru: 'Пример', en: 'Example'},
+        Matchhistory: {ru: 'История матчей', en: 'Matchhistory'},
+        Matches: {ru: 'Матчи', en: 'Matches'}
     }
  
     for (let key in words) {

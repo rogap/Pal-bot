@@ -71,8 +71,7 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
     try {
         const {lang, timezone, backgrounds, width, height} = prop
         const imgNum = Math.floor(Math.random() * backgrounds.length)
-        const randImgName = backgrounds[imgNum]
-        const img = config.img.backgrounds[randImgName] // случайный фон
+        const img = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
         if ( img ) ctx.drawImage(img, 0, 0, width, height - 50) // рисуем
 
         // рисуем черную полосу снизу
@@ -80,7 +79,7 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
         ctx.fillRect(0, height - 50, width, 50)
 
         ctx.textAlign = 'end'
-        ctx.font = 'bold 16px GothamSSm_Bold' // Franklin Gothic Medium
+        ctx.font = 'bold 16px GothamSSm_Bold'
         ctx.fillStyle = red
 
         const propsText = ctx.measureText(`${translate.Timezone[lang]}: ${timezone}`)

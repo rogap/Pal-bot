@@ -29,7 +29,7 @@ Object.defineProperty(String.prototype, 'cutPrefAndCom', {enumerable: false})
  * @returns {String}
  */
 String.prototype.getMention = function() {
-	const hasId = this.match(/^(\<\@\!(?<id1>[0-9]{18})\>)|^(?<id2>[0-9]{18}) .?/)
+	const hasId = this.match(/(\<\@\!(?<id1>[0-9]{18})\>)|^(?<id2>[0-9]{18}) .?/)
 	if (hasId === null) return false
 	return hasId.groups.id1 || hasId.groups.id2
 }
@@ -44,6 +44,6 @@ String.prototype.mentionToId = function() {
 	const mention = this.getMention()
 	if (!mention) return this
 	// const reg = new RegExp(`/^(\<\@\!${mention}\>/`)
-	return this.replace(/^(\<\@\![0-9]{18}\>)/, mention)
+	return this.replace(/(\<\@\![0-9]{18}\>)/, mention)
 }
 Object.defineProperty(String.prototype, 'mentionToId', {enumerable: false})

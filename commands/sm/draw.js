@@ -19,7 +19,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 module.exports = function(body, prop) {
     try {
         const {getmatchdetails} = body
-        const macth = getmatchdetails.json
+        const match = getmatchdetails.json
         const width = 1225
         const height = 795
         const canvas = createCanvas(width, height)
@@ -28,17 +28,17 @@ module.exports = function(body, prop) {
         prop.height = height
 
         // рисуем дефолтные
-        const resDefault = drawDefault(ctx, macth, prop)
+        const resDefault = drawDefault(ctx, match, prop)
         if (!resDefault.status) throw resDefault
 
         // рисуем таблицу
-        const resTable = drawTable(ctx, macth, prop)
+        const resTable = drawTable(ctx, match, prop)
         if (!resTable.status) throw resTable
 
         return {
             status: true,
             canvas,
-            matchId: macth[0].Match
+            matchId: match[0].Match
             // name: , // нужно добавить эти данные в php, хотя бы id (но потом)
             // id: 
         }
@@ -57,7 +57,7 @@ module.exports = function(body, prop) {
 }
 
 
-function drawDefault(ctx, macth, prop) {
+function drawDefault(ctx, match, prop) {
     try {
         const {champions} = _local
         const {lang, timezone, backgrounds, width, height} = prop
@@ -69,15 +69,15 @@ function drawDefault(ctx, macth, prop) {
         ctx.fillStyle = black
         ctx.fillRect(0, 0, width, 30) // прямоугольник сверху
 
-        const matchOne = macth[0]
+        const matchOne = match[0]
         // инфа по центру
         let mapImg = null // узнаем карту, получаем ее картинку
         let mapName = ''
-        for (let mapName in maps) {
-            const reg = new RegExp(`${mapName}`, 'i')
+        for (let map in maps) {
+            const reg = new RegExp(`${map}`, 'i')
             const res = matchOne.Map_Game.replace(/'/,'').match(reg)
             if (res) {
-                mapImg = maps[mapName]
+                mapImg = maps[map]
                 mapName = res[0]
                 break
             }
@@ -89,7 +89,7 @@ function drawDefault(ctx, macth, prop) {
         if (mapImg) ctx.drawImage(mapImg, 10, 315, 356, 200) // рисуем карту
         ctx.font = 'bold 20px GothamSSm_Bold'
         ctx.fillStyle = white
-        ctx.fillText(matchOne.Entry_Datetime, 20, 502)
+        ctx.fillText(new Date(matchOne.Entry_Datetime).addHours(timezone).toText(), 20, 502)
 
         const typeMatch = matchOne.name
         ctx.fillStyle = yellow
@@ -145,7 +145,7 @@ function drawDefault(ctx, macth, prop) {
 }
 
 
-function drawTable(ctx, macth, prop) {
+function drawTable(ctx, match, prop) {
     try {
         const {champions} = _local
         const {lang, timezone, backgrounds, width, height} = prop
@@ -172,8 +172,8 @@ function drawTable(ctx, macth, prop) {
             return Math.random() - 0.5 // рандомизируем цвета каждый раз
         })
 
-        for (let i = 0; i < macth.length; i++) {
-            const players = macth[i]
+        for (let i = 0; i < match.length; i++) {
+            const players = match[i]
             //const champName = config.championsCard[players.ChampionId][0].champion_name
             const champName = players.Reference_Name
     

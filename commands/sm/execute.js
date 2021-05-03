@@ -15,18 +15,29 @@ module.exports = function(message, settings, command, contentParams) {
         const {lang} = prop
 
         const params = contentParams.split(' ')
-        let [nameOrId, matchNumber] = params
+        const [firstParam, secondParam, thirdParam] = params
+        const modifierList = ['-f'] // список доступных модификаторов
+        // сделать как в sh
 
-        if (isFinite(nameOrId)) {
-            matchNumber = nameOrId
-            nameOrId = 'me'
-        }
+        //
+        const nameOrIdOrDis = (isFinite(firstParam) && firstParam.length > 9) || firstParam === 'me' || (/^[^0-9\-]/i.test(firstParam) && firstParam !== undefined) ? firstParam :
+            (isFinite(secondParam) && secondParam.length > 9) || secondParam === 'me' || (/^[^0-9\-]/i.test(secondParam) && secondParam !== undefined) ? secondParam :
+            (isFinite(thirdParam) && thirdParam.length > 9) || thirdParam === 'me' || (/^[^0-9\-]/i.test(thirdParam) && thirdParam !== undefined) ? thirdParam : 'me'
 
-        const number = isFinite(matchNumber) ? 
-            matchNumber < 1 ? 1 : matchNumber > 50 ? 50 : Math.floor(matchNumber) : 1
+        // матч по счету в итории матчей (не всегда нужен будет)
+        const matchNumber = isFinite(firstParam) && firstParam > 1 && firstParam < 51 ? Math.floor(firstParam) :
+            isFinite(secondParam) && secondParam > 1 && secondParam < 51 ? Math.floor(secondParam) :
+            isFinite(thirdParam) && thirdParam > 1 && thirdParam < 51 ? Math.floor(thirdParam) : 1
 
-        command.getStats(userId, nameOrId, number)
+        // получаем модификатор
+        const modifier = modifierList.find(mod => mod === firstParam || mod === secondParam || mod === thirdParam)
+
+        // console.log(`nameOrIdOrDis: ${nameOrIdOrDis}; matchNumber: ${matchNumber}; modifier: ${modifier}`)
+        command.getStats(userId, nameOrIdOrDis, matchNumber)
         .then(body => {
+            // console.log(body)
+            const {getmatchdetails} = body
+            const match = getmatchdetails.json
             const draw = command.draw(body, prop)
             if (!draw.status) return reject(draw)
 
@@ -42,8 +53,12 @@ module.exports = function(message, settings, command, contentParams) {
             const replayOldText = body.getmatchdetails.old ?
                     `${body.getmatchdetails.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
 
-            const matchInfo = `\`\`\`md\n[]()<id ${draw.matchId}>\`\`\``
+            const matchInfoText = modifier === '-f' ? // если вывести подробную инфу
+                match.map((pl, i) => `${i+1}. [${pl.Reference_Name}](${pl.playerName})<id ${pl.playerId}> ` +
+                    `[${config.platforms[pl.playerPortalId]}](${pl.playerPortalUserId})`).join('\n') :
+                match.map((pl, i) => `${i+1}. [${pl.Reference_Name}](${pl.playerName})<id ${pl.playerId}>`).join('\n')
 
+            const matchInfo = `\`\`\`md\n[]()<id ${draw.matchId}>\n\n${matchInfoText}\`\`\``
             message.channel.send(`${news}${replayOldText}${message.author}${matchInfo}`, {files: [buffer]})
             .then(mess => {
                 return resolve(mess)

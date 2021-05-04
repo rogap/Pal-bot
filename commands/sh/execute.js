@@ -14,11 +14,12 @@ module.exports = function(message, settings, command, contentParams) {
         const userId = message.author.id
         const prop = settings.getProp()
         const {lang} = prop
+        const modifierList = ['-f'] // список доступных модификаторов
 
         // Queue	"Team Deathmatch" | Queue	"Onslaught"
         const gameModeTypes = {
             ranked: ['ranked', 'ранкед'],
-            siege: ['siege', 'казуал', 'обычка'],
+            siege: ['siege', 'казуал', 'обычка', 'осада'],
             deathmatch: ['tdm', 'тдм', 'deathmatch'],
             onslaught: ['onslaught', 'натиск']
         }
@@ -30,29 +31,42 @@ module.exports = function(message, settings, command, contentParams) {
         }
 
         const params = contentParams.split(' ')
-        const [nameOrId, champOrType1, champOrType2, pageOrNot] = params // champOrType может быть любой порядок
+        const [firstParam, secondParam, thirdParam, fourthParam, fifthParam] = params
+        // firstParam - всегад первым должен быть указан игрок к которому относится дальнейшии параметры
 
         // тип матча
         const modeType = gameModeTypes.find((modeName, mode) => {
-            return mode.find(type => type === champOrType1 || type === champOrType2) ? modeName : false
+            return mode.find(type => type === secondParam || type === thirdParam ||
+                type === fourthParam || type === fifthParam) ? modeName : false
         })
+
         // имя чемпиона
-        const championType = champions.getByAliases(champOrType1 || '') || champions.getByAliases(champOrType2 || '')
+        const championType = champions.getByAliases(secondParam || '') || champions.getByAliases(thirdParam || '') ||
+            champions.getByAliases(fourthParam || '') || champions.getByAliases(fifthParam || '')
+
         // роль чемпиона
         const championRole = championRoles.find((roleName, roles) => {
-            return roles.find(role => role === champOrType1 || role === champOrType2) ? roleName : false
+            return roles.find(role => role === secondParam || role === thirdParam ||
+                role === fourthParam || role === fifthParam) ? roleName : false
         })
-        const pageNum = isFinite(pageOrNot) ? pageOrNot :
-            isFinite(champOrType2) ? champOrType2 :
-            isFinite(champOrType1) ? champOrType1 : 1
+
         // страница которую будем отображать
-        const page = pageNum < 1 ? 1 : pageNum > 5 ? 5 : Math.floor(pageNum)
+        const page = isFinite(secondParam) && secondParam > 0 && secondParam < 6 ? Math.floor(secondParam) :
+            isFinite(thirdParam) && thirdParam > 0 && thirdParam < 6 ? Math.floor(thirdParam) :
+            isFinite(fourthParam) && fourthParam > 0 && fourthParam < 6 ? Math.floor(fourthParam) :
+            isFinite(fifthParam) && fifthParam > 0 && fifthParam < 6 ? Math.floor(fifthParam) : 1
+        
         prop.page = page
 
-        // console.log(`modeType: ${modeType}; championRole: ${championRole}; page: ${page}`)
-        command.getStats(userId, nameOrId)
+        // получаем модификатор
+        const modifier = modifierList.find(mod => mod === secondParam || mod === thirdParam || mod === fourthParam || mod === fifthParam)
+
+        // const cXname = championType ? championType.Name : ''
+        // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; page: ${page}; modifier: ${modifier};`)
+        command.getStats(userId, firstParam)
         .then(body => {
-            const matches = body.getmatchhistory.json
+            const matchesOld = body.getmatchhistory.json
+            const matches = matchesOld.map(m => m) // новый массив
             // console.log(`Всего: ${matches.length}`)
 
             // если указан тип матча то фильтруем по нему
@@ -107,8 +121,17 @@ module.exports = function(message, settings, command, contentParams) {
 
             // список id показаных матчей
             const matchesIds = matchesPage.map(match => match.Match)
+            const fullMatchInfo = getFullMatchInfo(matches) // получаем полную статистику матча | matches matchesOld
             // console.log(matchesIds)
-            const matchesInfo = `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+            const matchesInfo = modifier == '-f' ? `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                `[${translate.Matches[lang]}](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [${translate.Total[lang]}](${matches.length})` +
+                `\n# ID ${{ru: 'матчей', en: 'matches'}[lang]}:\n` +
+                matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + `\n\n# Статистика по ролям матчей (ВСЕХ):\n` +
+                `* <Role>[KDA](winrate) <info: damage / healing / def>:\n${fullMatchInfo.stats('roles')}` +
+                `\n# Статистика по типу матчей (ВСЕХ):\n* <Type>[KDA](winrate) <info: damage / healing / def>:\n` +
+                `${fullMatchInfo.stats('queue')}\n${fullMatchInfo.total}` + '```'
+                    :
+                `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
                 `[${translate.Matches[lang]}](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [${translate.Total[lang]}](${matches.length})` +
                 `\n# ID ${{ru: 'матчей', en: 'matches'}[lang]}:\n` +
                 matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';```'
@@ -145,4 +168,130 @@ module.exports = function(message, settings, command, contentParams) {
             })
         })
     })
+}
+
+
+class _temp {
+    constructor() {
+        this.win = 0
+        this.lose = 0
+        this.kills = 0
+        this.deaths = 0
+        this.assists = 0
+        this.damage = 0
+        this.healing = 0
+        this.damage_mitigated = 0
+    }
+
+    get fullStats() {
+        return `[${this.kda}](${this.winrate}) ${this.info}`
+    }
+
+    get winrate() {
+        if (this.win == 0 && this.lose == 0) return '- 0/0'
+        const prosent = (this.win / (this.win + this.lose) * 100).toFixed(0)
+        const prosentText = isFinite(prosent) ? `${prosent}%` : '0%'
+        return `${prosentText} ${this.win}/${this.lose}`
+    }
+
+    get kda() {
+        return `${this.kills}/${this.deaths}/${this.assists}`
+    }
+
+    get info() {
+        return `<info ${this.damage.goDot()} / ${this.healing.goDot()} / ${this.damage_mitigated.goDot()}>`
+    }
+}
+
+
+class _tempGlobal extends _temp {
+    constructor() {
+        super()
+        this.roles = {
+            flanker: new _temp(),
+            support: new _temp(),
+            frontline: new _temp(),
+            damage: new _temp()
+        }
+
+        this.queue = {
+            ranked: new _temp(),
+            siege: new _temp(),
+            deathmatch: new _temp(),
+            onslaught: new _temp()
+        }
+    }
+
+    get total() {
+        return `# Всего\n* [КДА](${this.kda}); [Винрейт](${this.winrate});\n` +
+            `* [Урона](${this.damage.goDot()}); [Исцеления](${this.healing.goDot()}); [Защиты](${this.damage_mitigated.goDot()});`
+    }
+
+    stats(type) {
+        if (!type) throw {err_msg: {ru: '', en: ''}}
+        let text = ''
+        for (let queueName in this[type]) {
+            const queue = this[type][queueName]
+            const queueNameUpCase = queueName.slice(0, 1).toUpperCase() + queueName.slice(1)
+            text += `<${queueNameUpCase}>${queue.fullStats}\n`
+        }
+        return text
+    }
+}
+
+
+function getFullMatchInfo(matches) {
+    const obj = new _tempGlobal()
+    const {champions} = _local
+    // console.log(`matches.length: ${matches.length}`)
+    matches.forEach(match => {
+        // console.log(match, match.Queue)
+        const queueName = match.Queue.toLowerCase()
+        const queue = queueName.indexOf('ranked') != -1 ? 'ranked' :
+            queueName.indexOf('siege') != -1 ? 'siege' :
+            queueName.indexOf('deathmatch') != -1 ? 'deathmatch' :
+            queueName.indexOf('onslaught') != -1 ? 'onslaught' : false
+
+        const status = match.Win_Status === 'Loss' ? 'lose' : 'win'
+        const kills = match.Kills
+        const deaths = match.Deaths
+        const assists = match.Assists
+        const damage = match.Damage
+        const healing = match.Healing
+        const damage_mitigated = match.Damage_Mitigated
+
+        // глобальные данные
+        obj[status]++
+        obj.kills += kills
+        obj.deaths += deaths
+        obj.assists += assists
+        obj.damage += damage
+        obj.healing += healing
+        obj.damage_mitigated += damage_mitigated
+
+        if (queue) { // если катка из очереди которую мы трекаем
+            obj.queue[queue][status]++
+            obj.queue[queue].kills += kills
+            obj.queue[queue].deaths += deaths
+            obj.queue[queue].assists += assists
+            obj.queue[queue].damage += damage
+            obj.queue[queue].healing += healing
+            obj.queue[queue].damage_mitigated += damage_mitigated
+        }
+
+        const champion = champions.getByName(match.Champion)
+        if (champion) { // если есть чемпион
+            const role = champion.role.en
+            if (role) { // если найдена роль
+                obj.roles[role][status]++
+                obj.roles[role].kills += kills
+                obj.roles[role].deaths += deaths
+                obj.roles[role].assists += assists
+                obj.roles[role].damage += damage
+                obj.roles[role].healing += healing
+                obj.roles[role].damage_mitigated += damage_mitigated
+            }
+        }
+    })
+    return obj
 }

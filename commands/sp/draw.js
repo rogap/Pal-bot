@@ -82,12 +82,12 @@ function drawDefault(ctx, match, prop, last_update) {
 
         ctx.font = 'bold 16px GothamSSm_Bold'
         ctx.fillStyle = blue
-        ctx.fillText('Команда 1', 35, 25)
+        ctx.fillText(`${translate.Team[lang]} 1`, 35, 25)
         ctx.textAlign = 'end'
-        ctx.fillText('Команда 2', width - 35, 25)
-        ctx.fillText(`Карта: `, width / 4, height - 15)
-        ctx.fillText(`Регион: `, width / 4 + width / 2, height - 15)
-        ctx.fillText(`id матча: `, width / 2, 25)
+        ctx.fillText(`${translate.Team[lang]} 2`, width - 35, 25)
+        ctx.fillText(`${translate.Map[lang]}: `, width / 4, height - 15)
+        ctx.fillText(`${translate.Region[lang]}: `, width / 4 + width / 2, height - 15)
+        ctx.fillText(`${translate.Match_id[lang]}: `, width / 2, 25)
         ctx.textAlign = 'start'
         ctx.fillStyle = orange
         ctx.fillText(` ${mapName}`, width / 4, height - 15)
@@ -111,9 +111,9 @@ function drawDefault(ctx, match, prop, last_update) {
             if (player.taskForce == 1) {
                 countTeam1++
                 if (champImg) ctx.drawImage(champImg, 70, 90 * i + 50, 50, 50)
-                ctx.fillText(`Ник: ${player.playerName}`, 130, 90 * i + 65)
-                if (player.Queue == 486) ctx.fillText(`Винрейт: ${winrate}%`, 130, 90 * i + 88)
-                ctx.fillText(`Лвл: ${player.Account_Level}`, 130, 90 * i + 110)
+                ctx.fillText(`${translate.Nickname[lang]}: ${player.playerName}`, 130, 90 * i + 65)
+                if (player.Queue == 486) ctx.fillText(`${translate.Winrate[lang]}: ${winrate}%`, 130, 90 * i + 88)
+                ctx.fillText(`Lvl: ${player.Account_Level}`, 130, 90 * i + 110)
                 ctx.textAlign = 'center'
                 ctx.fillText(player.ChampionLevel, 95, 90 * i + 120)
                 ctx.textAlign = 'start'
@@ -128,10 +128,10 @@ function drawDefault(ctx, match, prop, last_update) {
             } else if (player.taskForce == 2) {
                 if (champImg) ctx.drawImage(champImg, width - 120, 90 * (i - countTeam1) + 50, 50, 50)
                 ctx.textAlign = 'end'
-                ctx.fillText(`Ник: ${player.playerName}`, width - 130, 90 * (i - countTeam1) + 65)
+                ctx.fillText(`${translate.Nickname[lang]}: ${player.playerName}`, width - 130, 90 * (i - countTeam1) + 65)
                 // рисуем винрейт только в рейте, так как он доступен только там
-                if (player.Queue == 486) ctx.fillText(`Винрейт: ${winrate}%`, width - 130, 90 * (i - countTeam1) + 88)
-                ctx.fillText(`Лвл: ${player.Account_Level}`, width - 130, 90 * (i - countTeam1) + 110)
+                if (player.Queue == 486) ctx.fillText(`${translate.Winrate[lang]}: ${winrate}%`, width - 130, 90 * (i - countTeam1) + 88)
+                ctx.fillText(`Lvl: ${player.Account_Level}`, width - 130, 90 * (i - countTeam1) + 110)
                 ctx.textAlign = 'center'
                 ctx.fillText(player.ChampionLevel, width - 95, 90 * (i - countTeam1) + 120)
 

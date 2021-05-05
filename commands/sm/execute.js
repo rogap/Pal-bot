@@ -17,12 +17,11 @@ module.exports = function(message, settings, command, contentParams) {
         const params = contentParams.split(' ')
         const [firstParam, secondParam, thirdParam] = params
         const modifierList = ['-f'] // список доступных модификаторов
-        // сделать как в sh
 
         //
-        const nameOrIdOrDis = (isFinite(firstParam) && firstParam.length > 9) || firstParam === 'me' || (/^[^0-9\-]/i.test(firstParam) && firstParam !== undefined) ? firstParam :
-            (isFinite(secondParam) && secondParam.length > 9) || secondParam === 'me' || (/^[^0-9\-]/i.test(secondParam) && secondParam !== undefined) ? secondParam :
-            (isFinite(thirdParam) && thirdParam.length > 9) || thirdParam === 'me' || (/^[^0-9\-]/i.test(thirdParam) && thirdParam !== undefined) ? thirdParam : 'me'
+        const nameOrIdOrDis = (isFinite(firstParam) && firstParam.length > 6) || firstParam === 'me' || (/^[^0-9\-]/i.test(firstParam) && firstParam !== undefined) ? firstParam :
+            (isFinite(secondParam) && secondParam.length > 6) || secondParam === 'me' || (/^[^0-9\-]/i.test(secondParam) && secondParam !== undefined) ? secondParam :
+            (isFinite(thirdParam) && thirdParam.length > 6) || thirdParam === 'me' || (/^[^0-9\-]/i.test(thirdParam) && thirdParam !== undefined) ? thirdParam : 'me'
 
         // матч по счету в итории матчей (не всегда нужен будет)
         const matchNumber = isFinite(firstParam) && firstParam > 1 && firstParam < 51 ? Math.floor(firstParam) :

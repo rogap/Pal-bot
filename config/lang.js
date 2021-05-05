@@ -7,13 +7,16 @@
 
 
 module.exports = (function() {
+    // было бы не плохо разгруппировать это (пробелами с комантами)
     const words = {
         Position: {ru: 'Позиция', en: 'Position'},
         Tp: {ru: 'От', en: 'Tp'},
         Rank: {ru: 'Ранг', en: 'Rank'},
         Winrate: {ru: 'Винрейт', en: 'Winrate'},
         Losses: {ru: 'Поражений', en: 'Losses'},
+        Loss: {ru: 'Поражение', en: 'Loss'},
         Wins: {ru: 'Побед', en: 'Wins'},
+        Win: {ru: 'Победа', en: 'Win'},
         Ranked: {ru: 'Ранкед', en: 'Ranked'},
         Assists: {ru: 'Ассистов', en: 'Assists'},
         Deaths: {ru: 'Смертей', en: 'Deaths'},
@@ -28,11 +31,17 @@ module.exports = (function() {
         Accaunt: {ru: 'Аккаунт', en: 'Accaunt'},
         Update: {ru: 'Обновится', en: 'Update'},
         Champions: {ru: 'Чемпионы', en: 'Champions'},
+        Champion: {ru: 'Чемпион', en: 'Champion'},
         Timezone: {ru: 'Часовой пояс', en: 'Timezone'},
         Sponsor: {ru: 'Спонсор', en: 'Sponsor'},
         Favorite_champions: {ru: 'Любимые чемпионы', en: 'Favorite champions'},
         Roles: {ru: 'Роли', en: 'Roles'},
         Damage: {ru: 'Урон', en: 'Damage'},
+        Defense: {ru: 'Защита', en: 'Defense'},
+        Healing: {ru: 'Лечение', en: 'Healing'},
+        Dmg_taken: {ru: 'Получено', en: 'Dmg taken'},
+        Obj_assist: {ru: 'Цель', en: 'Obj assist'},
+        Items: {ru: 'Предметы', en: 'Items'},
         Tank: {ru: 'Танк', en: 'Tank'},
         Flank: {ru: 'Фланг', en: 'Flank'},
         Heal: {ru: 'Хилл', en: 'Heal'},
@@ -44,8 +53,20 @@ module.exports = (function() {
         On_server: {ru: 'На сервере', en: 'On server'},
         Your_settings: {ru: 'Ваши настройки', en: 'Your settings'},
         Example: {ru: 'Пример', en: 'Example'},
-        Matchhistory: {ru: 'История матчей', en: 'Matchhistory'},
-        Matches: {ru: 'Матчи', en: 'Matches'}
+        Matchhistory: {ru: 'История матчей', en: 'Match history'},
+        Matches: {ru: 'Матчи', en: 'Matches'},
+        Match_id: {ru: 'Id матча', en: 'Match id'},
+        Region: {ru: 'Регион', en: 'Region'},
+        Minutes: {ru: 'Минуты', en: 'Minutes'},
+        Score: {ru: 'Счет', en: 'Score'},
+        Team: {ru: 'Команда', en: 'Team'},
+        Bans: {ru: 'Баны', en: 'Bans'},
+        Player: {ru: 'Игрок', en: 'Player'},
+        Party: {ru: 'Пати', en: 'Party'},
+        Credits: {ru: 'Кредиты', en: 'Credits'},
+        K_D_A: {ru: 'К/Д/А', en: 'K/D/A'},
+        Map: {ru: 'Карта', en: 'Map'},
+        Nickname: {ru: 'Ник', en: 'Nickname'}
     }
  
     for (let key in words) {

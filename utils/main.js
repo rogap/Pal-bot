@@ -33,3 +33,13 @@ Array.prototype.filterRemove = function(callback) {
     return removedItems
 }
 Object.defineProperty(Array.prototype, 'filterRemove', {enumerable: false})
+
+
+/**
+ * расставляет точки в числе
+ */
+String.prototype.goDot = Number.prototype.goDot = function() {
+	return (this + '').split('').reverse().join('').match(/\d{1,3}/g).reverse().map(n => n.split('').reverse().join('')).join('.') // lol
+}
+Object.defineProperty(String.prototype, 'goDot', {enumerable: false})
+Object.defineProperty(Number.prototype, 'goDot', {enumerable: false})

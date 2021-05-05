@@ -39,21 +39,25 @@ module.exports = function(message, settings, command, contentParams) {
                 }
             } else if (data.status === 1) {
                 replyText = {
-                    ru: 'Игрок находится в меню игры.'
+                    ru: 'Игрок находится в меню игры.',
+                    en: 'The player is in the game menu.'
                 }
             } else if (data.status === 2) {
                 replyText = {
-                    ru: 'Игрок выбирает чемпиона или загружается в матч.'
+                    ru: 'Игрок выбирает чемпиона или загружается в матч.',
+                    en: 'The player selects a champion or loads into the match.'
                 }
             } else if (data.status === 3) {
                 // ниче не делаем
             } else if (data.status === 4) {
                 replyText = {
-                    ru: 'Игрок Online, но блокирует трансляцию состояния игрока.'
+                    ru: 'Игрок Online, но блокирует трансляцию состояния игрока.',
+                    en: `The player is Online, but blocks the broadcast of the player's state.`
                 }
             } else if (data.status === 5) {
                 replyText = {
-                    ru: 'Игрок не найден.'
+                    ru: 'Игрок не найден.',
+                    en: 'Player not found.'
                 }
             } else {
                 // неизвестная ошибка - status должен быть !

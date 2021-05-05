@@ -93,8 +93,8 @@ function drawDefault(ctx, match, prop) {
 
         const typeMatch = matchOne.name
         ctx.fillStyle = yellow
-        ctx.fillText(`${matchOne.Minutes} минут`, 376, 375)
-        ctx.fillText(`Регион: ${matchOne.Region}`, 376, 405)
+        ctx.fillText(`${matchOne.Minutes} ${translate.Minutes[lang]}`, 376, 375)
+        ctx.fillText(`${translate.Region[lang]}: ${matchOne.Region}`, 376, 405)
         ctx.fillText(typeMatch, 376, 435)
         ctx.fillText(mapName, 376, 465)
 
@@ -104,9 +104,9 @@ function drawDefault(ctx, match, prop) {
         const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
 
         ctx.fillStyle = green
-		ctx.fillText('Победа', width / 2 + 70 + centerGoRight, 341)
+		ctx.fillText(translate.Win[lang], width / 2 + 70 + centerGoRight, 341)
 		ctx.fillStyle = red
-		ctx.fillText('Поражение', width / 2 + 70 + centerGoRight, 497)
+		ctx.fillText(translate.Loss[lang], width / 2 + 70 + centerGoRight, 497)
 
         // зеленоватый и красноватый прозрачный фон
 		ctx.fillStyle = 'rgba(50,205,50,0.06)'
@@ -115,13 +115,13 @@ function drawDefault(ctx, match, prop) {
 		ctx.fillRect(0, 515, width, 285)
 
         ctx.fillStyle = white
-        ctx.fillText(`Команда 1 Счет: ${matchOne.Team1Score}`, width / 2 + 70 + centerGoRight, 383)
-        ctx.fillText(`Команда 2 Счет: ${matchOne.Team2Score}`, width / 2 + 70 + centerGoRight, 456)
+        ctx.fillText(`${translate.Team[lang]} 1 ${translate.Score[lang]}: ${matchOne.Team1Score}`, width / 2 + 70 + centerGoRight, 383)
+        ctx.fillText(`${translate.Team[lang]} 2 ${translate.Score[lang]}: ${matchOne.Team2Score}`, width / 2 + 70 + centerGoRight, 456)
         // ctx.drawImage(config.differentImg.vs, width / 2 + 40 + centerGoRight, 386, 50, 50)
 
         ctx.textAlign = "start"
         ctx.fillStyle = yellow
-        if (typeMatch == 'Ranked') ctx.fillText(`Баны:`, 885, 420)
+        if (typeMatch == 'Ranked') ctx.fillText(`${translate.Bans[lang]}:`, 885, 420)
         ctx.fillStyle = white
         ctx.font = 'bold 16px GothamSSm_Bold'
         if (matchOne.Ban_1) ctx.drawImage(champions.getByName(matchOne.Ban_1).icon, 980, 360, 50, 50)
@@ -153,17 +153,17 @@ function drawTable(ctx, match, prop) {
         // ctx.fillStyle = black
         // ctx.fillRect(0, 0, imgWidth, 32)
         ctx.fillStyle = blue
-        ctx.fillText('Чемпион', 10, 20)
-        ctx.fillText('Игрок / ОТ', 140, 20)
-        ctx.fillText('Пати', 365, 20)
-        ctx.fillText('Кредиты', 420, 20)
-        ctx.fillText('K/D/A', 505, 20)
-        ctx.fillText('Урон', 585, 20)
-        ctx.fillText('Защита', 670, 20)
-        ctx.fillText('Лечение', 765, 20)
-        ctx.fillText('Получено', 860, 20)
-        ctx.fillText('Цель', 960, 20)
-        ctx.fillText('Закуп', 1025, 20)
+        ctx.fillText(translate.Champion[lang], 10, 20)
+        ctx.fillText(`${translate.Rank[lang]} / ${translate.TP[lang]} / ${translate.Player[lang]}`, 140, 20)
+        ctx.fillText(translate.Party[lang], 365, 20)
+        ctx.fillText(translate.Credits[lang], 420, 20)
+        ctx.fillText(translate.K_D_A[lang], 505, 20)
+        ctx.fillText(translate.Damage[lang], 585, 20)
+        ctx.fillText(translate.Defense[lang], 670, 20)
+        ctx.fillText(translate.Healing[lang], 765, 20)
+        ctx.fillText(translate.Dmg_taken[lang], 860, 20)
+        ctx.fillText(translate.Obj_assist[lang], 960, 20)
+        ctx.fillText(translate.Items[lang], 1025, 20)
         ctx.fillStyle = white
 
         const party = {}
@@ -174,7 +174,6 @@ function drawTable(ctx, match, prop) {
 
         for (let i = 0; i < match.length; i++) {
             const players = match[i]
-            //const champName = config.championsCard[players.ChampionId][0].champion_name
             const champName = players.Reference_Name
     
             const cnampion = champions.getByName(champName)
@@ -187,7 +186,8 @@ function drawTable(ctx, match, prop) {
             const legendary = cnampion.cards.getById(players.ItemId6)
             if (legendary) ctx.drawImage(legendary.img, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
     
-            ctx.drawImage(config.img.divisions[players.League_Tier], 115, 55 * i + nextTeam, 50, 50) // рисуем ранг
+            const imgDivision = config.img.divisions[players.League_Tier]
+            if (players.name == 'Ranked') ctx.drawImage(imgDivision, 115, 55 * i + nextTeam, 50, 50) // рисуем ранг только в рейте
     
             // рисуем закуп
             const item1 = players.Item_Active_1
@@ -222,7 +222,7 @@ function drawTable(ctx, match, prop) {
             ctx.fillText(players.League_Points || '', 170, 55 * i + nextTeam + 27)
             ctx.fillText(players.playerName, 205, 55 * i + nextTeam + 15)
             ctx.fillStyle = orange
-            ctx.fillText(`lvl: ${players.Account_Level}`, 205, 55 * i + nextTeam + 40)
+            ctx.fillText(`Lvl: ${players.Account_Level}`, 205, 55 * i + nextTeam + 40)
     
             nextTeam += 25
     

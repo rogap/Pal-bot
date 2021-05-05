@@ -65,8 +65,7 @@ module.exports = function(message, settings, command, contentParams) {
         // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; page: ${page}; modifier: ${modifier};`)
         command.getStats(userId, firstParam)
         .then(body => {
-            const matchesOld = body.getmatchhistory.json
-            const matches = matchesOld.map(m => m) // новый массив
+            const matches = body.getmatchhistory.json
             // console.log(`Всего: ${matches.length}`)
 
             // если указан тип матча то фильтруем по нему
@@ -123,18 +122,28 @@ module.exports = function(message, settings, command, contentParams) {
             const matchesIds = matchesPage.map(match => match.Match)
             const fullMatchInfo = getFullMatchInfo(matches) // получаем полную статистику матча | matches matchesOld
             // console.log(matchesIds)
-            const matchesInfo = modifier == '-f' ? `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                `[${translate.Matches[lang]}](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [${translate.Total[lang]}](${matches.length})` +
-                `\n# ID ${{ru: 'матчей', en: 'matches'}[lang]}:\n` +
-                matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + `\n\n# Статистика по ролям матчей (ВСЕХ):\n` +
-                `* <Role>[KDA](winrate) <info: damage / healing / def>:\n${fullMatchInfo.stats('roles')}` +
-                `\n# Статистика по типу матчей (ВСЕХ):\n* <Type>[KDA](winrate) <info: damage / healing / def>:\n` +
-                `${fullMatchInfo.stats('queue')}\n${fullMatchInfo.total}` + '```'
-                    :
-                `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                `[${translate.Matches[lang]}](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [${translate.Total[lang]}](${matches.length})` +
-                `\n# ID ${{ru: 'матчей', en: 'matches'}[lang]}:\n` +
-                matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';```'
+            const matchesInfoDefault = {
+                ru: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                    `[Матчи](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Всего](${matches.length})\n` + 
+                    `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';',
+                en: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                    `[Matches](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Total](${matches.length})\n` + 
+                    `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';'
+                    
+            }
+
+            const matchesInfo = modifier == '-f' ? 
+                ({
+                    ru: matchesInfoDefault.ru + `\n\n# Статистика по ролям:\n` +
+                        `* <Role>[КДА](Винрейт) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').ru}` +
+                        `\n# Статистика по типу очереди матчей:\n* <Queue>[КДА](Винрейт) <info: damage / healing / def>:\n` +
+                        `${fullMatchInfo.stats('queue').ru}\n${fullMatchInfo.total.ru}`,
+                    en: matchesInfoDefault.en + `\n\n# Statistics by roles:\n` +
+                        `* <Role>[K/D/A](Winrate) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').en}` +
+                        `\n# Match queue type statistics:\n* <Queue>[K/D/A](Winrate) <info: damage / healing / def>:\n` +
+                        `${fullMatchInfo.stats('queue').en}\n${fullMatchInfo.total.en}`
+                }[lang] + '```') : ( matchesInfoDefault[lang] + '```')
+            
 
             message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
             .then(mess => {
@@ -223,8 +232,12 @@ class _tempGlobal extends _temp {
     }
 
     get total() {
-        return `# Всего\n* [КДА](${this.kda}); [Винрейт](${this.winrate});\n` +
-            `* [Урона](${this.damage.goDot()}); [Исцеления](${this.healing.goDot()}); [Защиты](${this.damage_mitigated.goDot()});`
+        return {
+            ru: `# Всего\n* [К/Д/А](${this.kda}); [Винрейт](${this.winrate});\n` +
+                `* [Урона](${this.damage.goDot()}); [Исцеления](${this.healing.goDot()}); [Защиты](${this.damage_mitigated.goDot()});`,
+            en: `# Total\n* [K/D/A](${this.kda}); [Winrate](${this.winrate});\n` +
+                `* [Damage](${this.damage.goDot()}); [Healing](${this.healing.goDot()}); [Defense](${this.damage_mitigated.goDot()});`
+        }
     }
 
     stats(type) {
@@ -235,7 +248,10 @@ class _tempGlobal extends _temp {
             const queueNameUpCase = queueName.slice(0, 1).toUpperCase() + queueName.slice(1)
             text += `<${queueNameUpCase}>${queue.fullStats}\n`
         }
-        return text
+        return {
+            ru: text,
+            en: text
+        }
     }
 }
 

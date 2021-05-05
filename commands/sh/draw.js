@@ -118,8 +118,8 @@ function drawTable(ctx, matches, prop) {
         ctx.fillStyle = blue
 
         const tableNames = {
-            ru: ['№', 'Дата/Статус', 'Время', 'Режим', 'У цели', 'КДА', 'Урон', 'Защита', 'Лечение', 'Кредиты'],
-            en: ['№', 'Date/Status', 'Time', 'Queue', 'У цели', 'KDA', 'Damage', 'Defence', 'Healing', 'Credits']
+            ru: ['№', 'Дата/Статус', 'Время', 'Режим', 'У цели', 'К/Д/А', 'Урон', 'Защита', 'Лечение', 'Кредиты'],
+            en: ['№', 'Date/Status', 'Time', 'Queue', 'Obj assist', 'K/D/A', 'Damage', 'Defence', 'Healing', 'Credits']
         }
         // рисуем таблицу для инфы
         ctx.fillText(tableNames[lang][0], pos[0], 20)
@@ -153,25 +153,25 @@ function drawTable(ctx, matches, prop) {
             ctx.fillText(`${match.Healing}`, pos[8], 52 * i + 60)
             ctx.fillStyle = white
             ctx.fillText(`${match.Gold}`, pos[9], 52 * i + 60)
-    
+
             const getStats = match.Win_Status
-            const status = getStats == "Win" ? "Победа" : getStats == "Loss" ? "Поражение" : "-"
-            const statusColor = status == "Победа" ? green : red
-    
+            const status = getStats == 'Win' ? {ru: 'Победа', en: 'Win'} : {ru: 'Поражение', en: 'Loss'}
+            const statusColor = getStats == 'Win' ? green : red
+
             const getQueue = match.Queue
-            const queue = getQueue == "Siege" ? "Осада" : 
-                getQueue == "Siege Training" ? "*Осада" : 
-                getQueue == "Ranked" ? "Ранкед" : 
-                getQueue == "Onslaught" ? "Натиск" : 
-                getQueue == "Onslaught Training" ? "*Натиск" : 
-                getQueue == "Team Deathmatch" ? "Насмерть" : 
-                getQueue == "Team Deathmatch Training" ? "*Насмерть" : 
-                getQueue == "Test Maps" ? "Тестовые" : getQueue
-    
+            const queue = getQueue == 'Siege' ? {ru: 'Осада', en: 'Siege'} :
+                getQueue == 'Siege Training' ? {ru: '*Осада', en: '*Siege'} :
+                getQueue == 'Ranked' ? {ru: 'Ранкед', en: 'Ranked'} :
+                getQueue == 'Onslaught' ? {ru: 'Натиск', en: 'Onslaught'} :
+                getQueue == 'Onslaught Training' ? {ru: '*Натиск', en: '*Onslaught'} :
+                getQueue == 'Team Deathmatch' ? {ru: 'Насмерть', en: 'Deathmatch'} :
+                getQueue == 'Team Deathmatch Training' ? {ru: '*Насмерть', en: '*Deathmatch'} :
+                getQueue == 'Test Maps' ? {ru: 'Тестовые', en: 'Test Maps'} : {ru: getQueue, en: getQueue}
+
             ctx.fillStyle = statusColor
-            ctx.fillText(`${status}`, pos[1], 52 * i + 72) // сатус
+            ctx.fillText(`${status[lang]}`, pos[1], 52 * i + 72) // сатус
             ctx.fillStyle = white
-            ctx.fillText(`${queue}`, pos[3], 52 * i + 60) // Режим
+            ctx.fillText(`${queue[lang]}`, pos[3], 52 * i + 60) // Режим
         }
 
         return {status: true}

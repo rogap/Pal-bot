@@ -59,10 +59,6 @@ module.exports = function(settings, command) {
         value: `Uses the saved nickname of the one you mentioned.\n[If he wrote down his nickname with the command "${comMe}"]`
     })
     .setFields('en', {
-        name: `${comSs} 510112915907543042:`,
-        value: `Uses the saved nickname of the one whose Discord Id you specified.\n[If he wrote down his nickname with the command "${comMe}"]`
-    })
-    .setFields('en', {
         name: `${comSs} ${expleId}:`,
         value: `Displays statistics for the specified player Id.\n[The best way]`
     })

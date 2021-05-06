@@ -4,7 +4,7 @@
  */
 
 
-const res = require('dotenv').config()
+require('dotenv').config()
 const translate = require('./lang')
 const env = process.env
 

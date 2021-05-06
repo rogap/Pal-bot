@@ -66,7 +66,7 @@ module.exports = function(message, settings, command, contentParams) {
                     ru: 'Ваш никнейм успешно записан!',
                     en: 'Your nickname has been successfully registered!'
                 }
-                message.sendCheckIn(replyText[lang])
+                message.sendCheckIn(replyText[lang]) // эту часть удалить можно (переписать на await) -->
                 .then(mess => {
                     return resolve(mess)
                 })
@@ -83,6 +83,7 @@ module.exports = function(message, settings, command, contentParams) {
                         params: contentParams
                     })
                 })
+                // по сюда (потому что тут нужен resolve и return mess) <--
             }
         })
         .catch(err => {

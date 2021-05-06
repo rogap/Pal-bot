@@ -141,7 +141,12 @@ function drawPlayer(ctx, player, champions, prop) {
         // рисуем аватарку
         const avatarId = player.AvatarId
         const avatarImg = config.img.avatars[avatarId] || config.img.avatars[0]
-        if (avatarImg) ctx.drawImage(avatarImg, 5, 10, 95, 95)
+        if (avatarImg) {
+            ctx.drawImage(avatarImg, 5, 10, 95, 95)
+        } else {
+            // если аватрка не найдена то сообщим в логи
+            sendToChannel(config.chLog, `Аватарка не найдена: ${avatarId}`).catch(console.log)
+        }
 
         // рисуем инфу
         ctx.textAlign = 'start'

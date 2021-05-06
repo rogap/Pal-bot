@@ -16,6 +16,23 @@ module.exports = {
         path: path.join(__dirname, 'console'),
         files: ['execute'] // список файлов которые нужно будет загрузить для команды
     },
+    set: {
+        name: 'set',
+        possibly: ['set', 'установить'],
+        order: 1,
+        permissions: ['SEND_MESSAGES'],
+        owner: false,
+        path: path.join(__dirname, 'set'),
+        params: {
+            ru: ['^Для', '^Тип', '^Значение'],
+            en: ['^For', '^Type', '^Value']
+        },
+        info: {
+            ru: 'Меняет настройки языка и временной зоны.',
+            en: 'Changes the settings of the language and the time zone.'
+        },
+        files: ['execute', 'details', 'setData']
+    },
     hh: {
         name: 'hh',
         possibly: ['hh'],
@@ -198,7 +215,7 @@ module.exports = {
             en: ['Nickname/id', 'Page']
         },
         info: {
-            ru: `Выводит список заблокированный игроков указанного аккаунта.`,
+            ru: `Выводит список заблокированных игроков указанного аккаунта.`,
             en: `Displays a list of blocked players for the specified account.`
         },
         files: ['details', 'getStats', 'execute']

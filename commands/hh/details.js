@@ -14,22 +14,22 @@ module.exports = function(settings, command) {
     const comMe = commands.getByName('me').possibly[0]
 
     const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
+    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры`)
     .setFields('ru', {
-        name: `${comHh}:`,
+        name: `${comHh}`,
         value: command.info.ru
     })
     .setFields('ru', {
-        name: `${comHh} ${comMe}:`,
+        name: `${comHh} ${comMe}`,
         value: `Возвращает подробное описание для указанной команды.\n[Это сообщение как пример]`
     })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples:`)
+    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples`)
     .setFields('en', {
-        name: `${comHh}:`,
+        name: `${comHh}`,
         value: command.info.en
     })
     .setFields('en', {
-        name: `${comHh} ${comMe}:`,
+        name: `${comHh} ${comMe}`,
         value: `Returns a detailed description for the specified command.[This message is an example]`
     })
 

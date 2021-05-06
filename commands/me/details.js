@@ -17,28 +17,28 @@ module.exports = function(settings, command) {
     const details = new Details()
     .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
     .setFields('ru', {
-        name: `${comMe}:`,
+        name: `${comMe}`,
         value: `Выведет ваш сохраненный никнейм/id.`
     })
     .setFields('ru', {
-        name: `${comMe} ${expleName}:`,
+        name: `${comMe} ${expleName}`,
         value: `Сохранит ваш никнейм для показа статистик.\n[Аналогично "${comMe} ${expleId}"]`
     })
     .setFields('ru', {
-        name: `${comMe} ${expleId}:`,
+        name: `${comMe} ${expleId}`,
         value: `Сохранит ваш id для показа статистик.\n[Аналогично "${comMe} ${expleName}"]`
     })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples:`)
+    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples`)
     .setFields('en', {
-        name: `${comMe}:`,
+        name: `${comMe}`,
         value: `Will display your saved nickname/id.`
     })
     .setFields('en', {
-        name: `${comMe} ${expleName}:`,
+        name: `${comMe} ${expleName}`,
         value: `Save your nickname for showing statistics.\n[Likewise "${comMe} ${expleId}"]`
     })
     .setFields('en', {
-        name: `${comMe} ${expleId}:`,
+        name: `${comMe} ${expleId}`,
         value: `Save your id for showing statistics.\n[Likewise "${comMe} ${expleName}"]`
     })
 

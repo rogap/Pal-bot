@@ -45,7 +45,7 @@ _local.console = {userUsed, serverUsed, allUsed} // что бы смотреть
  * затем нужно понять какие настройки будем применять - user/server/default
  * получаем обьект настроек (это не класс)
  */
-client.on('message', message => {
+client.on('message', async message => {
     try {
         if ( !_local.launched ) return; // если бот не запущен до конца
         if ( message.author.bot ) return; // если сообщение от бота то игнорим

@@ -215,7 +215,7 @@ Discord.Message.prototype.getContent = function() {
 	return this.parseContent() // убираем переводы строк
 	.cutPrefAndCom() // выезает префикс и команду
 	.mentionToId() // заменяем упоминания на id упоминающих, если таковы есть
-	.toString()
+	.toString().replace(/[ ]+/g, ' ') // убираем двойные пробелы (и более)
 }
 
 
@@ -224,8 +224,22 @@ Discord.Message.prototype.getContent = function() {
  * @param {String} text - текст который будет отправлен
  * @returns {Discord.Message}
  */
-Discord.Message.prototype.sendCheckIn = function(text) {
-	return this.channel.send(`:white_check_mark: ${this.author}\`\`\`yaml\n${text}\`\`\``)
+Discord.Message.prototype.sendCheckIn = async function(text) {
+	return new Promise(async resolve => {
+		this.channel.send(`:white_check_mark: ${this.author}\`\`\`yaml\n${text}\`\`\``)
+		.then(message => {
+			return resolve({
+				status: true,
+				message
+			})
+		})
+		.catch(err => {
+			return resolve({
+				status: false,
+				err
+			})
+		})
+	})
 }
 
 

@@ -16,6 +16,7 @@ module.exports = class CommandsManager {
         // commandSettingList - обьект, ключами которого являются названия команд, а значение это массив (possibly)
         // создает дефолтные команды если ничего не указано,
         // если указаны то создает указанные команды по подобию дефолта и добавляет нехватающие команды
+        if (commandSettingList.constructor === String) commandSettingList = JSON.parse(commandSettingList)
 
         let count = 0
         for (const commandName in CommandsManager.default) {

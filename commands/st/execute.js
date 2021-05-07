@@ -30,11 +30,11 @@ module.exports = async function(message, settings, command, contentParams) {
                 return typeList.find(type => type === typeSort) ? true : false
             })
 
-            console.log(nameOrId, typeSort, checkTypeSort)
+            // console.log(nameOrId, typeSort, checkTypeSort)
             if (!checkTypeSort) return reject({
                 err_msg: {
-                    ru: 'Указан не верный тип сортировки.',
-                    en: ''
+                    ru: 'Указан неверный тип сортировки.',
+                    en: 'Invalid sort type specified.'
                 }
             })
 
@@ -42,7 +42,14 @@ module.exports = async function(message, settings, command, contentParams) {
             const {getchampionranks} = body
             const {ChampionsStats} = classes
             const champions = new ChampionsStats(getchampionranks.json)
-            // if (!champions.error)
+
+            if (champions.error) return reject({
+                body,
+                err_msg: {
+                    ru: 'Чемпионы не найдены.',
+                    en: 'No champions found.'
+                }
+            })
 
             // сортируем
             champions.sortType(typeSort)
@@ -66,7 +73,8 @@ module.exports = async function(message, settings, command, contentParams) {
 
             const matchesInfo = ''
 
-            return await message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
+            const sendResult =  await message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
+            return resolve(sendResult)
         } catch (err) {
             if (err && err.err_msg !== undefined) return reject(err)
             return reject({

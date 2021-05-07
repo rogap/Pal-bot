@@ -5,7 +5,6 @@
 
 const _local = process._local
 const {config, classes} = _local
-const {ChampionsStats} = classes
 const {translate} = config
 const {createCanvas } = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors

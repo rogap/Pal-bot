@@ -38,7 +38,7 @@ module.exports = function(champions, prop, last_update) {
         ctx.fillStyle = blue
         ctx.fillRect(paddingLeft - 2, 30, 2, height - 60)
         const lastUpdate = last_update.updateToDate(timezone).toText()
-        const nextUpdate = last_update.getNextUpdate('getplayer', timezone)
+        const nextUpdate = last_update.getNextUpdate('getchampionranks', timezone)
         const champText = `${translate.Champions[lang]}: ${lastUpdate} | ${translate.Update[lang]}: ${nextUpdate}`
         ctx.fillStyle = red
         ctx.fillText(champText, 20, height - 10)
@@ -65,8 +65,7 @@ module.exports = function(champions, prop, last_update) {
             ctx.fillStyle = white
             ctx.fillText(champion.name.en, 45 + padding, paddingTop)
             ctx.fillStyle = green
-            const exp = champions.parseExp(champion.Worshippers)
-            ctx.fillText(exp.lvl, 160 + padding, paddingTop)
+            ctx.fillText(champion.exp.lvl, 160 + padding, paddingTop)
             ctx.fillStyle = yellow
             ctx.fillText(champion.Minutes, 210 + padding, paddingTop)
             ctx.fillStyle = blue
@@ -80,9 +79,7 @@ module.exports = function(champions, prop, last_update) {
 
         return {
             status: true,
-            canvas,
-            // name: matches[0].playerName,
-            // id: matches[0].playerId
+            canvas
         }
     } catch(err) {
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание

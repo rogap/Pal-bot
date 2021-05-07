@@ -43,6 +43,7 @@ module.exports = class ChampionsStats extends AbstractChampion {
             champ.__proto__ = CHAMP
             champ.winrate = (champ.Wins / (champ.Wins + champ.Losses) * 100).toFixed(0) // %
             champ.kda = ((champ.Kills + champ.Assists / 2) / (champ.Deaths + 1)).toFixed(2)
+            champ.exp = this.parseExp(champ.Worshippers)
 
             delete champ.champion
             delete champ.ret_msg

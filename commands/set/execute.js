@@ -110,10 +110,11 @@ module.exports = async function(message, settings, command, contentParams) {
             settings = SETTINGS.get(setId) // поулчаем новые настройки, что бы сразу ответить на измененном языке
 
             // отправляем сообщение об успешности операции
-            return await message.sendCheckIn({
+            const sendResult = await message.sendCheckIn({
                 ru: 'Настройки были успешно применены.',
                 en: 'The settings have been applied successfully.'
             }[settings.lang])
+            return resolve(sendResult)
         } catch(err) {
             if (err.err_msg !== undefined) return reject(err)
             // иначе другая ошибка, но поидее такой не должно быть

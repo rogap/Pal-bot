@@ -25,6 +25,14 @@ module.exports = function(body, prop) {
         const player = getplayer.json[0]
         const champions = new ChampionsStats(getchampionranks.json)
 
+        if (champions.error) throw {
+            body,
+            err_msg: {
+                ru: 'Чемпионы не найдены.',
+                en: 'No champions found.'
+            }
+        }
+
         const width = 790
         const height = 375
         const canvas = createCanvas(width, height)
@@ -265,23 +273,23 @@ function drawChampions(ctx, champions, prop) {
         ctx.fillStyle = green
         ctx.textAlign = "center"
         if (champSort[0]) {
-            const exp = champions.parseExp(champSort[0].Worshippers)
+            const exp = champSort[0].exp
             ctx.fillText(exp.lvl, 497, 250)
         }
         if (champSort[1]) {
-            const exp = champions.parseExp(champSort[1].Worshippers)
+            const exp = champSort[1].exp
             ctx.fillText(exp.lvl, 557, 250)
         }
         if (champSort[2]) {
-            const exp = champions.parseExp(champSort[2].Worshippers)
+            const exp = champSort[2].exp
             ctx.fillText(exp.lvl, 617, 250)
         }
         if (champSort[3]) {
-            const exp = champions.parseExp(champSort[3].Worshippers)
+            const exp = champSort[3].exp
             ctx.fillText(exp.lvl, 677, 250)
         }
         if (champSort[4]) {
-            const exp = champions.parseExp(champSort[4].Worshippers)
+            const exp = champSort[4].exp
             ctx.fillText(exp.lvl, 737, 250)
         }
 

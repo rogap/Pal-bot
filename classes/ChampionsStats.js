@@ -106,6 +106,25 @@ module.exports = class ChampionsStats extends AbstractChampion {
         return this.#champions.sort((ch1, ch2) => ch2[type] - ch1[type])
     }
 
+    sortType(type) {
+        if (!type) return this.#champions
+        const funcSort = { // функции сортировки
+            lvl: (a, b) => b.Rank - a.Rank,
+            winrate: (a, b) => {
+                const a_win = (a.Wins / (a.Wins + a.Losses) * 100) || 0
+                const b_win = (b.Wins / (b.Wins + b.Losses) * 100) || 0
+                return b_win - a_win
+            },
+            time: (a, b) => b.Minutes - a.Minutes,
+            kda: (a, b) => {
+                const a_kda = (a.Kills + a.Assists / 2) / (a.Deaths + 1)
+                const b_kda = (b.Kills + b.Assists / 2) / (b.Deaths + 1)
+                return b_kda - a_kda
+            }
+        }
+        return this.#champions.sort(funcSort[type])
+    }
+
     get roles() {
         return this.#roles
     }
@@ -132,5 +151,9 @@ module.exports = class ChampionsStats extends AbstractChampion {
         return this.#champions.find(champion => {
             return champion.aliases.find(champAliases => champAliases === nameSearch)
         })
+    }
+
+    each(callback) {
+        return this.#champions.forEach(callback)
     }
 }

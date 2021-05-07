@@ -264,11 +264,26 @@ function drawChampions(ctx, champions, prop) {
 
         ctx.fillStyle = green
         ctx.textAlign = "center"
-        if (champSort[0]) ctx.fillText(champSort[0].Rank, 497, 250)
-        if (champSort[1]) ctx.fillText(champSort[1].Rank, 557, 250)
-        if (champSort[2]) ctx.fillText(champSort[2].Rank, 617, 250)
-        if (champSort[3]) ctx.fillText(champSort[3].Rank, 677, 250)
-        if (champSort[4]) ctx.fillText(champSort[4].Rank, 737, 250)
+        if (champSort[0]) {
+            const exp = champions.parseExp(champSort[0].Worshippers)
+            ctx.fillText(exp.lvl, 497, 250)
+        }
+        if (champSort[1]) {
+            const exp = champions.parseExp(champSort[1].Worshippers)
+            ctx.fillText(exp.lvl, 557, 250)
+        }
+        if (champSort[2]) {
+            const exp = champions.parseExp(champSort[2].Worshippers)
+            ctx.fillText(exp.lvl, 617, 250)
+        }
+        if (champSort[3]) {
+            const exp = champions.parseExp(champSort[3].Worshippers)
+            ctx.fillText(exp.lvl, 677, 250)
+        }
+        if (champSort[4]) {
+            const exp = champions.parseExp(champSort[4].Worshippers)
+            ctx.fillText(exp.lvl, 737, 250)
+        }
 
         ctx.fillStyle = orange
         if (champSort[0]) ctx.fillText(champSort[0].kda, 497, 270)

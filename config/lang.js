@@ -65,6 +65,7 @@ module.exports = (function() {
         Party: {ru: 'Пати', en: 'Party'},
         Credits: {ru: 'Кредиты', en: 'Credits'},
         K_D_A: {ru: 'К/Д/А', en: 'K/D/A'},
+        Kda: {ru: 'Усп', en: 'Kda'}, // Убийства Смерти Помощь - мб есть смысл писать так
         Map: {ru: 'Карта', en: 'Map'},
         Nickname: {ru: 'Ник', en: 'Nickname'}
     }

@@ -20,7 +20,7 @@ module.exports = function(body, prop) {
     try {
         
     } catch(err) {
-        if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
+        if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
             err,

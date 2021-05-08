@@ -6,14 +6,60 @@
 const _local = process._local
 const {config, classes} = _local
 const {Details} = classes
- 
- 
+
+
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
     const comSc = prefix + command.possibly[0]
-    const comMe = commands.getByName('me').possibly[0]
+    const expleName = config.example.name
+    const expleId = config.example.id
 
-    const details = new Details()
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comSc} "Пользователь", *"Чемпион"]`,
+        en: `[${comSc} "User", *"Champion"]`
+    })
+    .setFields({
+        name: {
+            ru: 'Пользователь',
+            en: 'User'
+        },
+        value: {
+            ru: [
+                `Получает статистику указанным способом;`,
+                `1. [Подставить ваш сохраненный ник]: "me";`,
+                `2. [Никнейм в игре]: "${expleName}";`,
+                `3. [ID игрока]: "${expleId}";`,
+                `4. [ID дискорда]: "510112915907543042";`,
+                `5. [Упоминание дискорда]: "@DiscordUser";`
+            ],
+            en: [
+                `Gets statistics in the specified way;`,
+                `1. [Substitute your saved nickname]: "me";`,
+                `2. [Nickname in the game]: "${expleName}";`,
+                `3. [Player ID]: "${expleId}";`,
+                `4. [Discord ID]: "510112915907543042";`,
+                `5. [Discord mention]: "@DiscordUser";`
+            ]
+        }
+    })
+    .setFields({
+        name: {
+            ru: 'Чемпион',
+            en: 'Champion'
+        },
+        value: {
+            ru: [
+                `Чемпион, статистику которого вы хотите получить;`,
+                `1. [Чемпион]: "androxus", "lex";`
+            ],
+            en: [
+                `The champion whose statistics you want to get;`,
+                `1. [Champion]: "androxus", "lex";`
+            ]
+        }
+    })
+    .setExample(`${prefix + comSc} maeve`, `${prefix + comSc} me androxus`, `${prefix + comSc} ${expleName} lex`)
 
     return details
 }

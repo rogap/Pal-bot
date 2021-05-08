@@ -31,5 +31,8 @@ module.exports = function(userId, ...params) {
             if (!getmatchhistory.status) return reject(getmatchhistory)
             return resolve(body)
         })
+        .catch(err => {
+            return reject(err)
+        })
     })
 }

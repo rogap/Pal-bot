@@ -31,5 +31,8 @@ module.exports = function(userId, ...params) {
             if (!getmatchdetails.status) return reject(getmatchdetails)
             return resolve(body)    
         })
+        .catch(err => {
+            return reject(err)
+        })
     })
 }

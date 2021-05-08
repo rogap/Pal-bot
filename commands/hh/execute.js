@@ -5,7 +5,7 @@
 
 const _local = process._local
 const {config, classes} = _local
-const {Details} = classes
+// const {Details} = classes
 
 
 module.exports = function(message, settings, command, contentParams) {
@@ -14,7 +14,7 @@ module.exports = function(message, settings, command, contentParams) {
         // если написано не в лс то должно еще отправить сообщение о том что инфа в лс была отправлена
         const {lang, commands} = settings
         const chType = message.channel.type
-        const toDM = chType == 'text' || chType == 'unknown' || chType == 'category'
+        const toPM = chType == 'text' || chType == 'unknown' || chType == 'category'
 
         if (contentParams) {
             // проверяем есть ли такая команда
@@ -30,10 +30,10 @@ module.exports = function(message, settings, command, contentParams) {
             const details = com.details(settings, com)[lang]
             message.author.send(details)
             .then(mess => {
-                if (toDM) {
+                if (toPM) {
                     message.sendCheckIn({
                         ru: 'Сообщение было отправлено вам в ЛС.',
-                        en: 'A message has been sent to DM.'
+                        en: 'A message has been sent to PM.'
                     }[lang])
                     .catch(err => {
                         // эту ошибку пробрасывать не нужно
@@ -47,7 +47,7 @@ module.exports = function(message, settings, command, contentParams) {
                     err,
                     err_msg: {
                         ru: 'Ошибка отправки сообщения вам в ЛС.\nОткройте ЛС или напишите данную команду в ЛС.',
-                        en: 'Error sending a message to you in DM.\nOpen DM or write this command in DM.'
+                        en: 'Error sending a message to you in PM.\nOpen PM or write this command in PM.'
                     }
                 })
             })
@@ -63,11 +63,11 @@ module.exports = function(message, settings, command, contentParams) {
                 if (com.owner) return; // пропускаем команды админа
                 details.setFields('ru', {
                     name: `${com.possibly[0]}:`,
-                    value: `${com.info.ru}\n[Синонимы команды: "${com.possibly.join('", "')}"]\n[Параметры: "${com.params.ru.join('", "')}"]`
+                    value: `${com.info.ru}\n[Синонимы команды: "${com.possibly.join('", "')}"]\n[Параметры: ${com.params.ru.join(', ')}]`
                 })
                 .setFields('en', {
                     name: `${com.possibly[0]}:`,
-                    value: `${com.info.en}\n[Synonyms commands: "${com.possibly.join('", "')}"]\n[Parameters: "${com.params.en.join('", "')}"]`
+                    value: `${com.info.en}\n[Synonyms commands: "${com.possibly.join('", "')}"]\n[Parameters: ${com.params.en.join(', ')}]`
                 })
             })
 
@@ -83,10 +83,10 @@ module.exports = function(message, settings, command, contentParams) {
 
             message.author.send(details[lang])
             .then(mess => {
-                if (toDM) {
+                if (toPM) {
                     message.sendCheckIn({
                         ru: 'Сообщение было отправлено вам в ЛС.',
-                        en: 'A message has been sent to DM.'
+                        en: 'A message has been sent to PM.'
                     }[lang])
                     .catch(err => {
                         // эту ошибку пробрасывать не нужно
@@ -100,7 +100,7 @@ module.exports = function(message, settings, command, contentParams) {
                     err,
                     err_msg: {
                         ru: 'Ошибка отправки сообщения вам в ЛС.\nОткройте ЛС или напишите данную команду в ЛС.',
-                        en: 'Error sending a message to you in DM.\nOpen DM or write this command in DM.'
+                        en: 'Error sending a message to you in PM.\nOpen PM or write this command in PM.'
                     },
                     log_msg: `Ошибка отправки сообщения в лс ${message.author.id}`,
                     content: message.content
@@ -108,4 +108,32 @@ module.exports = function(message, settings, command, contentParams) {
             })
         }
     })
+}
+
+class Details { // временный фикс, потом перенесу, навреное
+    constructor() {
+        for (let lang in config.langs) {
+            this[lang] = {
+                embed: {
+                    title: '',
+                    fields: [],
+                    footer: {
+                        icon_url: config.emptyIcon,
+                        text: config.copyText
+                    }
+                }
+            }
+        }
+    }
+
+    setTitle(lang, title) {
+        this[lang].embed.title = title
+        return this
+    }
+
+    setFields(lang, field) {
+        field.value = `\`\`\`cs\n${field.value}\`\`\``
+        this[lang].embed.fields.push(field)
+        return this
+    }
 }

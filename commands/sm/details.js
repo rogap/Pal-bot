@@ -10,70 +10,74 @@ const {Details} = classes
  
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
-    const comSm = prefix + command.possibly[0]
-    const comMe = commands.getByName('me').possibly[0]
+    const comSm = command.possibly[0]
     const expleName = config.example.name
     const expleId = config.example.id
 
-    const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
-    .setFields('ru', {
-        name: `${comSm}`,
-        value: `Использует ваш сохраненный никнейм.\n[Если вы его записывали командой "${comMe}"]`
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comSm} ^?"Пользователь", ^?"Матч по счету", ^?"Тип"]`,
+        en: `[${comSm} ^?"User", ^?"Match by score", ^?"Type"]`
     })
-    .setFields('ru', {
-        name: `${comSm} me`,
-        value: `[Работает аналогично "${comSm}". Можно комбинировать и менять местами]`
+    .setFields({
+        name: {
+            ru: 'Пользователь',
+            en: 'User'
+        },
+        value: {
+            ru: [
+                `Получает статистику указанным способом;`,
+                `1. [Подставить ваш сохраненнчй ник]: "me";`,
+                `2. [Никнейм в игре]: "${expleName}";`,
+                `3. [ID игрока]: "${expleId}";`,
+                `4. [ID дискорда]: "510112915907543042";`,
+                `5. [Упоминание дискорда]: "@DiscordUser";`,
+                `6. [ID матча]: "1234567890";`
+            ],
+            en: [
+                `Gets statistics in the specified way;`,
+                `1. [Substitute your saved nickname]: "me";`,
+                `2. [Nickname in the game]: "${expleName}";`,
+                `3. [Player ID]: "${expleId}";`,
+                `4. [Discord ID]: "510112915907543042";`,
+                `5. [Discord mention]: "@DiscordUser";`,
+                `6. [Match ID]: "1234567890";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSm} ${expleName}`,
-        value: `Выводит статистику последнего матча указанного никнейма.\n[Только ПК. Можно комбинировать и менять местами]`
+    .setFields({
+        name: {
+            ru: 'Матч по счету',
+            en: 'Match by score'
+        },
+        value: {
+            ru: [
+                `Позволяет выбрать матч из истории матчей указав какой он по счету;`,
+                `1. [Номер матча]: "2", "30";`
+            ],
+            en: [
+                `Allows you to select a match from the match history by specifying what it is in the score;`,
+                `1. [Match Number]: "2", "30";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSm} @DiscordUser`,
-        value: `Использует сохраненный никнейм того кого вы упомянули.\n[Если он записывал свой никнейм командой "${comMe}". Можно комбинировать и менять местами]`
+    .setFields({
+        name: {
+            ru: 'Тип',
+            en: 'Type'
+        },
+        value: {
+            ru: [
+                `Позволяет вывести дополнительную информацию;`,
+                `1. [Тип выдачи]: "-f";`
+            ],
+            en: [
+                `Allows you to display additional information;`,
+                `1. [Issue type]: "-f";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSm} ${expleId}`,
-        value: `Выводит статистику последнего матча указанного Id игрока.\n[Лучший способ. Можно комбинировать и менять местами]`
-    })
-    .setFields('ru', {
-        name: `${comSm} 1234567890`,
-        value: `Выводит статистику указанного id матча.\n[Лучший способ. Можно комбинировать и менять местами]`
-    })
-    .setFields('ru', {
-        name: `${comSm} me -f`,
-        value: `Позволяет вывести дополнительную информацию.\n[Можно комбинировать и менять местами]`
-    })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples:`)
-    .setFields('en', {
-        name: `${comSm}`,
-        value: `Uses your saved nickname.\n[If you recorded it with the command "${comMe}". Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSm} me`,
-        value: `[Works similarly "${comSm}". Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSm} ${expleName}`,
-        value: `Displays statistics for the last match of the specified nickname.\n[Только ПК. Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSm} @DiscordUser`,
-        value: `Uses the saved nickname of the one you mentioned.\n[Если он записывал свой никнейм командой "${comMe}". Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSm} ${expleId}`,
-        value: `Displays the statistics of the last match of the specified Player Id.\n[The best way. Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSm} 1234567890`,
-        value: `Displays statistics for the specified match id.\n[The best way. Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSm} me -f`,
-        value: `Allows to display additional information.\n[Can be combined and swapped]`
-    })
+    .setExample(`${prefix + comSm}`, `${prefix + comSm} 2 -f`, `${prefix + comSm} ${expleName} 15`)
 
     return details
 }

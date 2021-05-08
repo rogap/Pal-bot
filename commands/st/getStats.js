@@ -29,5 +29,8 @@ module.exports = function(userId, ...params) {
             if (!body.status) return reject(body)
             return resolve(body)
         })
+        .catch(err => {
+            return reject(err)
+        })
     })
 }

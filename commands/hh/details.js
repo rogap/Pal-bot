@@ -10,28 +10,31 @@ const {Details} = classes
  
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
-    const comHh = prefix + command.possibly[0]
+    const comHh = command.possibly[0]
     const comMe = commands.getByName('me').possibly[0]
 
-    const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры`)
-    .setFields('ru', {
-        name: `${comHh}`,
-        value: command.info.ru
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comHh} ?"Команда"]`,
+        en: `[${comHh} ?"Command"]`
     })
-    .setFields('ru', {
-        name: `${comHh} ${comMe}`,
-        value: `Возвращает подробное описание для указанной команды.\n[Это сообщение как пример]`
+    .setFields({
+        name: {
+            ru: 'Команда',
+            en: 'Command'
+        },
+        value: {
+            ru: [
+                `Выводит подробное описание команды (в ЛС);`,
+                `1. [Название команды]: "${comHh}", "${comMe}"`
+            ],
+            en: [
+                `Displays a detailed description of the command (in PM);`,
+                `1. [Название команды]: "${comHh}", "${comMe}"`
+            ]
+        }
     })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples`)
-    .setFields('en', {
-        name: `${comHh}`,
-        value: command.info.en
-    })
-    .setFields('en', {
-        name: `${comHh} ${comMe}`,
-        value: `Returns a detailed description for the specified command.[This message is an example]`
-    })
+    .setExample(`${prefix + comHh}`, `${prefix + comHh} ${comMe}`)
 
     return details
 }

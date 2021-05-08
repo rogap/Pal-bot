@@ -10,62 +10,63 @@ const {Details} = classes
  
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
-    const comSt = prefix + command.possibly[0]
+    const comSt = command.possibly[0]
     const comMe = commands.getByName('me').possibly[0]
     const expleName = config.example.name
     const expleId = config.example.id
 
-    const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
-    .setFields('ru', {
-        name: `${comSt}`,
-        value: `Использует ваш сохраненный никнейм.\n[Если вы его записывали командой "${comMe}"]`
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comSt} ?"Пользователь", ?"Фильтр"]`,
+        en: `[${comSt} ?"User", ?"Filter"]`
     })
-    .setFields('ru', {
-        name: `${comSt} me`,
-        value: `[Работает аналогично "${comSt}"]`
+    .setFields({
+        name: {
+            ru: 'Пользователь',
+            en: 'User'
+        },
+        value: {
+            ru: [
+                `Получает статистику указанным способом;`,
+                `1. [Подставить ваш сохраненнчй ник]: "me";`,
+                `2. [Никнейм в игре]: "${expleName}";`,
+                `3. [ID игрока]: "${expleId}";`,
+                `4. [ID дискорда]: "510112915907543042";`,
+                `5. [Упоминание дискорда]: "@DiscordUser";`
+            ],
+            en: [
+                `Gets statistics in the specified way;`,
+                `1. [Substitute your saved nickname]: "me";`,
+                `2. [Nickname in the game]: "${expleName}";`,
+                `3. [Player ID]: "${expleId}";`,
+                `4. [Discord ID]: "510112915907543042";`,
+                `5. [Discord mention]: "@DiscordUser";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSt} ${expleName}`,
-        value: `Выводит статистику чемпионов указанного никнейма.\n[Только ПК]`
+    .setFields({
+        name: {
+            ru: 'Фильтр',
+            en: 'Filter'
+        },
+        value: {
+            ru: [
+                `Фильтрует по указанному типу;`,
+                `1. [Уровень]: "lvl", "level", "лвл", "уровень";`,
+                `2. [Винрейт]: "winrate", "винрейт";`,
+                `3. [Длительность игры]: "time", "время";`,
+                `4. [KDA]: "kda", "кда";`
+            ],
+            en: [
+                `Filters by the specified type;`,
+                `1. [Level]: "lvl", "level", "лвл", "уровень";`,
+                `2. [Winrate]: "winrate", "винрейт";`,
+                `3. [Duration of the game]: "time", "время";`,
+                `4. [KDA]: "kda", "кда";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSt} @DiscordUser`,
-        value: `Использует сохраненный никнейм того кого вы упомянули.\n[Если он записывал свой никнейм командой "${comMe}"]`
-    })
-    .setFields('ru', {
-        name: `${comSt} ${expleId}`,
-        value: `Выводит статистику чемпионов указанного Id игрока.\n[Лучший способ]`
-    })
-    .setFields('ru', {
-        name: `${comSt} me winrate`,
-        value: `Сортирует чемпионов перед выводом по указанному параметру.\n[Доступные параметры: "winrate", "lvl", "time", "kda"]`
-    })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples:`)
-    .setFields('en', {
-        name: `${comSt}`,
-        value: `Uses your saved nickname.\n[If you recorded it with the command "${comMe}"]`
-    })
-    .setFields('en', {
-        name: `${comSt} me`,
-        value: `[Works similarly "${comSt}"]`
-    })
-    .setFields('en', {
-        name: `${comSt} ${expleName}`,
-        value: `Displays statistics for the champions of the specified nickname.\n[PC only]`
-    })
-    .setFields('en', {
-        name: `${comSt} @DiscordUser`,
-        value: `Uses the saved nickname of the one you mentioned.\n[If he wrote down his nickname with the command "${comMe}"]`
-    })
-    .setFields('en', {
-        name: `${comSt} ${expleId}`,
-        value: `Displays the statistics of the champions of the specified Player Id.\n[The best way]`
-    })
-    .setFields('en', {
-        name: `${comSt} me winrate`,
-        value: `Sorts champions before displaying by the specified parameter.\n[The available options are: "winrate", "lvl", "time", "kda"]`
-    })
+    .setExample(`${prefix + comSt}`, `${prefix + comSt} me lvl`, `${prefix + comSt} ${expleName} winrate`)
 
     return details
 }

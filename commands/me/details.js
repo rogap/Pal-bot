@@ -10,37 +10,39 @@ const {Details} = classes
 
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
-    const comMe = prefix + command.possibly[0]
+    const comMe = command.possibly[0]
+    const comSh = prefix + commands.getByName('sh').possibly[0]
     const expleName = config.example.name
     const expleId = config.example.id
 
-    const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
-    .setFields('ru', {
-        name: `${comMe}`,
-        value: `Выведет ваш сохраненный никнейм/id.`
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comMe} ?"Игрок"]`,
+        en: `[${comMe} ?"Player"]`
     })
-    .setFields('ru', {
-        name: `${comMe} ${expleName}`,
-        value: `Сохранит ваш никнейм для показа статистик.\n[Аналогично "${comMe} ${expleId}"]`
+    .setFields({
+        name: {
+            ru: 'Игрок',
+            en: 'Player'
+        },
+        value: {
+            ru: [
+                `Записывает указанные данные в базу и будет подставлять их в вашей статистике;`,
+                `Это позволит пропускать ввод "никнейма / id" при запросе статистик других команд;`,
+                `Если же ввод "никнейма / id" требуется обязательно в команде то вы можете вместо этого указать ключевое слово "me";`,
+                `1. [Никнейм в игре]: "${expleName}";`,
+                `2. [ID игрока]: "${expleId}";`
+            ],
+            en: [
+                `Writes the specified data to the database and will substitute them in your statistics;`,
+                `This will allow you to skip entering "nickname / id" when requesting statistics from other teams;`,
+                `If entering "nickname / id" is required in the command, then you can specify the keyword "me" instead;`,
+                `1. [Nickname in the game]: "${expleName}";`,
+                `2. [Player ID]: "${expleId}";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comMe} ${expleId}`,
-        value: `Сохранит ваш id для показа статистик.\n[Аналогично "${comMe} ${expleName}"]`
-    })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples`)
-    .setFields('en', {
-        name: `${comMe}`,
-        value: `Will display your saved nickname/id.`
-    })
-    .setFields('en', {
-        name: `${comMe} ${expleName}`,
-        value: `Save your nickname for showing statistics.\n[Likewise "${comMe} ${expleId}"]`
-    })
-    .setFields('en', {
-        name: `${comMe} ${expleId}`,
-        value: `Save your id for showing statistics.\n[Likewise "${comMe} ${expleName}"]`
-    })
+    .setExample(`${prefix + comMe}`, `${prefix + comMe} ${expleName}`, `${prefix + comMe} ${expleId}`, `=`, `${comSh}`, `${comSh} me siege`)
 
     return details
 }

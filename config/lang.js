@@ -18,7 +18,7 @@ module.exports = (function() {
         Wins: {ru: 'Побед', en: 'Wins'},
         Win: {ru: 'Победа', en: 'Win'},
         Ranked: {ru: 'Ранкед', en: 'Ranked'},
-        Assists: {ru: 'Ассистов', en: 'Assists'},
+        Assists: {ru: 'Помощи', en: 'Assists'},
         Deaths: {ru: 'Смертей', en: 'Deaths'},
         Kills: {ru: 'Убийств', en: 'Kills'},
         Total: {ru: 'Всего', en: 'Total'},
@@ -36,6 +36,7 @@ module.exports = (function() {
         Sponsor: {ru: 'Спонсор', en: 'Sponsor'},
         Favorite_champions: {ru: 'Любимые чемпионы', en: 'Favorite champions'},
         Roles: {ru: 'Роли', en: 'Roles'},
+        Role: {ru: 'Роль', en: 'Role'},
         Damage: {ru: 'Урон', en: 'Damage'},
         Defense: {ru: 'Защита', en: 'Defense'},
         Healing: {ru: 'Лечение', en: 'Healing'},
@@ -67,7 +68,9 @@ module.exports = (function() {
         K_D_A: {ru: 'К/Д/А', en: 'K/D/A'},
         Kda: {ru: 'Усп', en: 'Kda'}, // Убийства Смерти Помощь - мб есть смысл писать так
         Map: {ru: 'Карта', en: 'Map'},
-        Nickname: {ru: 'Ник', en: 'Nickname'}
+        Nickname: {ru: 'Ник', en: 'Nickname'},
+        Health: {ru: 'Жизни', en: 'Health'},
+        Speed: {ru: 'Скорость', en: 'Speed'}
     }
  
     for (let key in words) {

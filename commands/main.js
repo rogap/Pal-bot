@@ -24,11 +24,11 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'set'),
         params: {
-            ru: ['^Для', '^Тип', '^Значение'],
-            en: ['^For', '^Type', '^Value']
+            ru: ['^"Для кого"', '^"Тип"', '^"Значение"'],
+            en: ['^"For whom"', '^"Type"', '^"Value"']
         },
         info: {
-            ru: 'Меняет настройки языка и временной зоны.',
+            ru: 'Меняет настройки языка и часового пояса.',
             en: 'Changes the settings of the language and the time zone.'
         },
         files: ['execute', 'details', 'setData']
@@ -41,8 +41,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'hh'),
         params: {
-            ru: ['команда'],
-            en: ['command']
+            ru: ['?"команда"'],
+            en: ['?"command"']
         },
         info: {
             ru: 'Возвращает информацию о командах.',
@@ -58,8 +58,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'me'),
         params: {
-            ru: ['Ник/id'],
-            en: ['Nickname/id']
+            ru: ['?"Ник/id"'],
+            en: ['?"Nickname/id"']
         },
         info: {
             ru: `Сохраняет ваш никнейм для автоматической подстановки его в другие команды.`,
@@ -75,8 +75,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'ss'),
         params: {
-            ru: ['Ник/id'],
-            en: ['Nickname/id']
+            ru: ['?"Ник/id"'],
+            en: ['?"Nickname/id"']
         },
         info: {
             ru: `Выводит общую статистику аккаунта.`,
@@ -92,8 +92,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sh'),
         params: {
-            ru: ['Ник/id', '^Страница', '^Фильтр', '^Тип'],
-            en: ['Nickname/id', '^Page', '^Filter', '^Type']
+            ru: ['?"Ник/id"', '^?"Фильтр"', '^?"Страница"', '^?"Тип"'],
+            en: ['?"Nickname/id"', '^?"Filter"', '^?"Page"', '^?"Type"']
         },
         info: {
             ru: `Выводит историю матчей указанного игрока.`,
@@ -109,8 +109,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sm'),
         params: {
-            ru: ['^id матча/Ник/id', '^Матч по счету', '^Тип'],
-            en: ['^match id/Nickname/id', '^Match count', '^Type']
+            ru: ['^?"id матча/Ник/id"', '^?"Матч по счету"', '^?"Тип"'],
+            en: ['^?"match id/Nickname/id"', '^?"Match count"', '^?"Type"']
         },
         info: {
             ru: `Выводит детали для указанного матча или последнего матча игрока.`,
@@ -126,8 +126,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sp'),
         params: {
-            ru: ['^Ник/id', '^Тип'],
-            en: ['^Nickname/id', '^Type']
+            ru: ['^?"Ник/id"', '^?"Тип"'],
+            en: ['^?"Nickname/id"', '^?"Type"']
         },
         info: {
             ru: `Возвращает статус игрока в реальном времени.`,
@@ -143,8 +143,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'st'),
         params: {
-            ru: ['Ник/id', 'Тип сортировки'],
-            en: ['Nickname/id', '']
+            ru: ['"Ник/id"', '"Тип сортировки"'],
+            en: ['"Nickname/id"', '"Sorting type"']
         },
         info: {
             ru: `Выводит топ чемпионов с возможностью сортировки.`,
@@ -160,8 +160,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sl'),
         params: {
-            ru: ['Ник/id', 'Чемпион', 'Номер колоды'],
-            en: ['Nickname/id', 'Champion', 'Deck number']
+            ru: ['"Ник/id"', '"Чемпион"', '"Номер колоды"'],
+            en: ['"Nickname/id"', '"Champion"', '"Deck number"']
         },
         info: {
             ru: `Выводит колоды игрока указанного чемпиона.`,
@@ -177,8 +177,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sc'),
         params: {
-            ru: ['Ник/id', 'Чемпион'],
-            en: ['Nickname/id', 'Champion']
+            ru: ['"Ник/id"', '*"Чемпион"'],
+            en: ['"Nickname/id"', '*"Champion"']
         },
         info: {
             ru: `Выводит подробную статистику указанного чемпиона.`,
@@ -194,8 +194,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sf'),
         params: {
-            ru: ['Ник/id', 'Страница'],
-            en: ['Nickname/id', 'Page']
+            ru: ['"Ник/id"', '"Страница"'],
+            en: ['"Nickname/id"', '"Page"']
         },
         info: {
             ru: `Выводит список друзей в игре.`,
@@ -211,8 +211,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sb'),
         params: {
-            ru: ['Ник/id', 'Страница'],
-            en: ['Nickname/id', 'Page']
+            ru: ['"Ник/id"', '"Страница"'],
+            en: ['"Nickname/id"', '"Page"']
         },
         info: {
             ru: `Выводит список заблокированных игроков указанного аккаунта.`,

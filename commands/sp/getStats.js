@@ -32,5 +32,8 @@ module.exports = function(userId, ...params) {
 
             return resolve(body)
         })
+        .catch(err => {
+            return reject(err)
+        })
     })
 }

@@ -10,43 +10,68 @@ const {Details} = classes
 
 module.exports = function(settings, command) {
     const {prefix} = settings
-    const comSet = prefix + command.possibly[0]
+    const comSet = command.possibly[0]
 
-    const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
-    .setFields('ru', {
-        name: `${comSet} lang en`,
-        value: `Установит английский язык для вас.\n[Параметры можно менять местами]`
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comSet} ^"Для кого", ^?"Тип", ^?"Значение"]`,
+        en: `[${comSet} ^"For whom", ^?"Type", ^?"Value"]`
     })
-    .setFields('ru', {
-        name: `${comSet} 605378869691940889 lang en`,
-        value: `Установит английский язык для указанного сервера (его id).\n[Параметры можно менять местами]`
+    .setFields({
+        name: {
+            ru: 'Для кого',
+            en: 'For whom'
+        },
+        value: {
+            ru: [
+                `Указывает для кого будут применены настройки (для сервера или для вас);`,
+                `1. [Сервер]: "605378869691940889";`,
+                `2. [Себя]: "me";`
+            ],
+            en: [
+                `Specifies for whom the settings will be applied (for the server or for you);`,
+                `1. [Server]: "605378869691940889";`,
+                `2. [Self]: "me";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSet} me timezone -6`,
-        value: `Установит временную зону для вас на "-6".\n[Параметры можно менять местами]`
+    .setFields({
+        name: {
+            ru: 'Тип',
+            en: 'Type'
+        },
+        value: {
+            ru: [
+                `Указывает на то какий тип данных будет изменен;`,
+                `1. [Язык]: "lang", "язык";`,
+                `2. [Часовой пояс]: "timezone", "time", "время";`
+            ],
+            en: [
+                `Indicates which data type will be changed;`,
+                `1. [Language]: "lang";`,
+                `2. [Time zone]: "timezone", "time";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSet} timezone 3.5 605378869691940889`,
-        value: `Установит временную зону для указанного сервера (по id) на "3.5".\n[Параметры можно менять местами]`
+    .setFields({
+        name: {
+            ru: 'Значение',
+            en: 'Value'
+        },
+        value: {
+            ru: [
+                `Значение которое будет подставленно для указанного типа;`,
+                `1. [Язык]: "ru", "en";`,
+                `2. [Часовой пояс]: "0", "-6", "3";`
+            ],
+            en: [
+                `The value that will be substituted for the specified type;;`,
+                `1. [Language]: "ru", "en";`,
+                `2. [Time zone]: "0", "-6", "3";`
+            ]
+        }
     })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples:`)
-    .setFields('en', {
-        name: `${comSet} lang en:`,
-        value: `Installs English for you.\n[Parameters can be swapped]`
-    })
-    .setFields('en', {
-        name: `${comSet} 605378869691940889 lang en`,
-        value: `Sets the English language for the specified server (its id).\n[Parameters can be swapped]`
-    })
-    .setFields('en', {
-        name: `${comSet} me timezone -6`,
-        value: `Will set the time zone for you to "-6".\n[Parameters can be swapped]`
-    })
-    .setFields('en', {
-        name: `${comSet} timezone 3.5 605378869691940889`,
-        value: `Set the time zone for the specified server (by id) to "3.5".\n[Parameters can be swapped]`
-    })
+    .setExample(`${prefix + comSet} lang en`, `${prefix + comSet} me timezone -6`, `${prefix + comSet} 605378869691940889 lang ru`)
 
     return details
 }

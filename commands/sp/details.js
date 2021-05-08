@@ -11,61 +11,55 @@ const {Details} = classes
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
     const comSp = prefix + command.possibly[0]
-    const comMe = commands.getByName('me').possibly[0]
     const expleName = config.example.name
     const expleId = config.example.id
 
-    const details = new Details()
-    .setTitle('ru', `\`${command.name}\` - ${command.info.ru}\nПримеры:`)
-    .setFields('ru', {
-        name: `${comSp}`,
-        value: `Использует ваш сохраненный никнейм.\n[Если вы его записывали командой "${comMe}"]`
+    const details = new Details(command)
+    .setDescription({
+        ru: `[${comSp} ^?"Пользователь", ^?"Тип"]`,
+        en: `[${comSp} ^?"User", ^?"Type"]`
     })
-    .setFields('ru', {
-        name: `${comSp} me`,
-        value: `[Работает аналогично "${comSp}". Можно комбинировать и менять местами]`
+    .setFields({
+        name: {
+            ru: 'Пользователь',
+            en: 'User'
+        },
+        value: {
+            ru: [
+                `Получает статистику указанным способом;`,
+                `1. [Подставить ваш сохраненнчй ник]: "me";`,
+                `2. [Никнейм в игре]: "${expleName}";`,
+                `3. [ID игрока]: "${expleId}";`,
+                `4. [ID дискорда]: "510112915907543042";`,
+                `5. [Упоминание дискорда]: "@DiscordUser";`
+            ],
+            en: [
+                `Gets statistics in the specified way;`,
+                `1. [Substitute your saved nickname]: "me";`,
+                `2. [Nickname in the game]: "${expleName}";`,
+                `3. [Player ID]: "${expleId}";`,
+                `4. [Discord ID]: "510112915907543042";`,
+                `5. [Discord mention]: "@DiscordUser";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSp} ${expleName}`,
-        value: `Возвращает статус игрока указанного никнейма.\n[Только ПК. Можно комбинировать и менять местами]`
+    .setFields({
+        name: {
+            ru: 'Тип',
+            en: 'Type'
+        },
+        value: {
+            ru: [
+                `Позволяет вывести дополнительную информацию;`,
+                `1. [Тип выдачи]: "-f";`
+            ],
+            en: [
+                `Allows you to display additional information;`,
+                `1. [Issue type]: "-f";`
+            ]
+        }
     })
-    .setFields('ru', {
-        name: `${comSp} @DiscordUser`,
-        value: `Использует сохраненный никнейм того кого вы упомянули.\n[Если он записывал свой никнейм командой "${comMe}". Можно комбинировать и менять местами]`
-    })
-    .setFields('ru', {
-        name: `${comSp} ${expleId}`,
-        value: `Возвращает статус игрока указанного Id игрока.\n[Лучший способ. Можно комбинировать и менять местами]`
-    })
-    .setFields('ru', {
-        name: `${comSp} me -f`,
-        value: `Позволяет вывести дополнительную информацию.\n[Можно комбинировать и менять местами]`
-    })
-    .setTitle('en', `\`${command.name}\` - ${command.info.en}\nExamples:`)
-    .setFields('en', {
-        name: `${comSp}`,
-        value: `Uses your saved nickname.\n[If you recorded it with the command "${comMe}"]`
-    })
-    .setFields('en', {
-        name: `${comSp} me`,
-        value: `[Works similarly "${comSp}". Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSp} ${expleName}`,
-        value: `Returns the player's status for the specified nickname.\n[PC only. Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSp} @DiscordUser`,
-        value: `Uses the saved nickname of the one you mentioned.\n[Если он записывал свой никнейм командой "${comMe}". Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSp} ${expleId}`,
-        value: `Returns the player status of the specified player Id.\n[The best way. Can be combined and swapped]`
-    })
-    .setFields('en', {
-        name: `${comSp} me -f`,
-        value: `Allows to display additional information.\n[Can be combined and swapped]`
-    })
+    .setExample(`${prefix + comSp}`, `${prefix + comSp} me -f`, `${prefix + comSp} ${expleName}`)
 
     return details
 }

@@ -28,5 +28,8 @@ module.exports = function(userId, ...params) {
 
             if (!body.status) return reject(body)
         })
+        .catch(err => {
+            return reject(err)
+        })
     })
 }

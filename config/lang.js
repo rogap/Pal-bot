@@ -55,6 +55,7 @@ module.exports = (function() {
         Your_settings: {ru: 'Ваши настройки', en: 'Your settings'},
         Example: {ru: 'Пример', en: 'Example'},
         Matchhistory: {ru: 'История матчей', en: 'Match history'},
+        Loadouts: {ru: 'Колоды', en: 'Loadouts'},
         Matches: {ru: 'Матчи', en: 'Matches'},
         Match_id: {ru: 'Id матча', en: 'Match id'},
         Region: {ru: 'Регион', en: 'Region'},

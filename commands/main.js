@@ -160,8 +160,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sl'),
         params: {
-            ru: ['"Ник/id"', '"Чемпион"', '"Номер колоды"'],
-            en: ['"Nickname/id"', '"Champion"', '"Deck number"']
+            ru: ['?"Ник/id"', '*^"Чемпион"', '*^?"Номер колоды"'],
+            en: ['?"Nickname/id"', '*^"Champion"', '*^?"Deck number"']
         },
         info: {
             ru: `Выводит колоды игрока указанного чемпиона.`,

@@ -20,10 +20,28 @@ module.exports = class Card extends AbstractChampion {
         this.championName = this.constructor.nameNormalize(this.#data.champion_name)
         this.name = card.card_name
         this.description = card.card_description
+        this.recharge = card.recharge_seconds
     }
 
     get() {
         return this.#data
+    }
+
+    // получает описание карты на указанном языке и убирая 'scale' подстявляя нужно значение исходя из уровня карты
+    getDescriptionLvl(lvl, lang) {
+        const desc = this.description[lang].replace(/^\[[а-яa-z -]+\] /i, '') // убираем принадлежность (то что в [...])
+        const matchArr = desc.match(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)\}/i)
+        if (!matchArr) return false // поидее такого быть не должно
+
+        let scaleText = +matchArr[1]
+        for (let i = 1; i < lvl; i++) {
+            scaleText += +matchArr[2]
+        }
+
+        // фиксим до 2 точек и если 2 нуля в конце то убираем их
+        scaleText = scaleText.toFixed(2)
+        if (scaleText.slice(-2) == "00") scaleText = scaleText.slice(0, -3)
+        return desc.replace(/\{scale=[0-9\.]+\|-?[0-9\.]+\}/i, scaleText)
     }
 
     loadImg() { // загружает картинку карты

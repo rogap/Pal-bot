@@ -57,7 +57,7 @@ function drawDefault(ctx, last_update, prop) {
         const {lang, timezone, backgrounds, width, height} = prop
         const imgNum = Math.floor(Math.random() * backgrounds.length)
         const img = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        if ( img ) ctx.drawImage(img, 0, 30, width, 530) // рисуем
+        if ( img ) ctx.drawImage(img, 0, 30, width, height - 50) // рисуем
 
         ctx.fillStyle = black
         ctx.fillRect(0, 0, width, 30) // прямоугольник сверху

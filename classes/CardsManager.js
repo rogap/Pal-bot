@@ -35,7 +35,13 @@ module.exports = class CardsManager {
 
     getByName(name) {
         name = name.toLowerCase()
-        return this.list.find(card => card.name.toLowerCase() == name)
+        return this.list.find(card => {
+            let check = false
+            for (let lang in config.langs) {
+                if ( card.name[lang].toLowerCase() == name ) check = true
+            }
+            return check ? card : false
+        })
     }
 
     add(card) {

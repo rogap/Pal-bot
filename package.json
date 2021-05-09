@@ -1,0 +1,42 @@
+{
+	"name": "Pal-bot",
+	"version": "6.0.0",
+	"description": "",
+	"main": "main.js",
+	"scripts": {
+		"test": "node main.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rogap/Pal-bot.git"
+	},
+	"keywords": [
+		"paladins bot",
+    	"paladins",
+    	"paladins stats"
+	],
+	"author": {
+		"name": "Vlad",
+		"discord": "https://discord.gg/C2phgzTxH9"
+	},
+	"license": "GNU GPL",
+	"bugs": {
+		"url": "https://discord.gg/C2phgzTxH9"
+	},
+	"homepage": "https://github.com/rogap/pubo",
+	"dependencies": {
+		"canvas": "^2.7.0",
+		"discord.js": "^12.5.3",
+		"fs": "*",
+		"path": "^0.12.7",
+		"random-useragent": "^0.5.0",
+		"request": "^2.88.2"
+	},
+	"devDependencies": {
+		"dotenv": "^8.2.0"
+	},
+	"engines": {
+		"node": "^15.14.0",
+		"npm": "^7.7.6"
+	}
+}

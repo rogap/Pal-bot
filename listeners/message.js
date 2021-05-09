@@ -21,7 +21,7 @@ client.on('message', async message => {
 
         const authorId = message.author.id
         // если включен режим тестирования
-        if ( config.testing && !authorId.isOwner() ) return;
+        if ( config.testing && !message.isOwner() ) return;
         const content = message.parseContent()
         const settings = getSettings(message) // получаем обьект настроек для текущего пользователя
         const {lang, prefix} = settings

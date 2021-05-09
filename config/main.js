@@ -76,7 +76,7 @@ module.exports = {
 	chLog: '696604376034181140', // logs - все виды ошибок в том числе не найденные картинки
 	chNot: '612875033651707905', // notification - старт бота, добавление и удаление серверов
 	prefix: '!',
-	testing: true,
+	testing: false,
 	lang: 'ru', // язык по умолчанию
 	timezone: 0,
 	backgrounds: ['1'], // дефолтный фон

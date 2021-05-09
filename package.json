@@ -1,10 +1,10 @@
 {
 	"name": "Pal-bot",
 	"version": "6.0.0",
-	"description": "",
+	"description": "Paladins Discord Bot",
 	"main": "main.js",
 	"scripts": {
-		"test": "node main.js"
+		"start": "node main.js >> ./log.txt &"
 	},
 	"repository": {
 		"type": "git",

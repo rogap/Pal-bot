@@ -4,7 +4,7 @@
 	"description": "Paladins Discord Bot",
 	"main": "main.js",
 	"scripts": {
-		"start": "node main.js >> ./log.txt &"
+		"start": "node main.js >> ./logs &"
 	},
 	"repository": {
 		"type": "git",
@@ -12,8 +12,8 @@
 	},
 	"keywords": [
 		"paladins bot",
-    	"paladins",
-    	"paladins stats"
+		"paladins",
+		"paladins stats"
 	],
 	"author": {
 		"name": "Vlad",
@@ -30,10 +30,8 @@
 		"fs": "*",
 		"path": "^0.12.7",
 		"random-useragent": "^0.5.0",
-		"request": "^2.88.2"
-	},
-	"devDependencies": {
-		"dotenv": "^8.2.0"
+		"request": "^2.88.2",
+		"dotenv": "^8.6.0"
 	},
 	"engines": {
 		"node": "^15.14.0",

@@ -4,8 +4,9 @@
 
 
 const _local = process._local
-const { client, config, utils } = _local
-const { sendSite } = utils
+const {client, config, utils, classes} = _local
+const {sendSite} = utils
+const {Settings} = classes
 const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
 
 
@@ -125,7 +126,7 @@ function getSettings(message) { // unify
     // если есть настройки пользователя и не включен приоритет
     if (userSettings) return userSettings
 
-    return { // дефолтный обьект настроек для пользователя
+    return new Settings({ // дефолтный обьект настроек для пользователя
         id: authorId,
         type: 'default', // users
         lang: config.lang,
@@ -134,7 +135,7 @@ function getSettings(message) { // unify
         only: null,
         commands: _local.commands,
         backgrounds: config.backgrounds
-    }
+    })
 }
 
 

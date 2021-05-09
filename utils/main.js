@@ -43,3 +43,13 @@ String.prototype.goDot = Number.prototype.goDot = function() {
 }
 Object.defineProperty(String.prototype, 'goDot', {enumerable: false})
 Object.defineProperty(Number.prototype, 'goDot', {enumerable: false})
+
+
+
+
+
+// изменение выдачи логов для удобства
+console.logOrig = console.log // сохраняем оригинал
+console.log = function(...args) {
+    return this.logOrig(`~time/${new Date().toText()}/\t`, ...args)
+}

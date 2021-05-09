@@ -21,8 +21,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '```Пример вывода новости.```',
-		en: '\`\`\`Example of news output.\`\`\`'
+		ru: '\`\`\`Узнать об обновлении можно командой !hh.\`\`\`',
+		en: '\`\`\`To find out about the update, use the command !hh.\`\`\`'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',
@@ -63,18 +63,16 @@ module.exports = {
 	},
 	img: {
 		items: {},
-		// champions: {},
 		maps: {},
 		avatars: {},
-		// legends: {},
 		divisions: [],
 		backgrounds: {},
 		cardFrames: []
 	},
-	chLog: '829025931934695495', // logs - все виды ошибок в том числе не найденные картинки 696604376034181140
-	chNot: '829025931934695495', // notification - старт бота, добавление и удаление серверов 612875033651707905
+	chLog: '696604376034181140', // logs - все виды ошибок в том числе не найденные картинки
+	chNot: '612875033651707905', // notification - старт бота, добавление и удаление серверов
 	prefix: '!',
-	testing: false,
+	testing: true,
 	lang: 'ru', // язык по умолчанию
 	timezone: 0,
 	backgrounds: ['1'], // дефолтный фон

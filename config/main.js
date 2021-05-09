@@ -4,7 +4,11 @@
  */
 
 
-require('dotenv').config()
+try {
+	require('dotenv').config()
+} catch {
+	// не грузим если нет модуля
+}
 const translate = require('./lang')
 const env = process.env
 

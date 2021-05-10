@@ -105,7 +105,7 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
         if (playerLastUpdate) {
             const lastUpdatePlayer = playerLastUpdate.updateToDate(timezone).toText()
             const nextUpdateAcc = playerLastUpdate.getNextUpdate('getplayer', timezone)
-            const accText = `${translate.Accaunt[lang]}: ${lastUpdatePlayer} | ${translate.Update[lang]}: ${nextUpdateAcc}`
+            const accText = `${translate.Account[lang]}: ${lastUpdatePlayer} | ${translate.Update[lang]}: ${nextUpdateAcc}`
             ctx.fillText(accText, 20,  height - 30)
         }
 

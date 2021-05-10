@@ -37,6 +37,7 @@ module.exports = async function(message, settings, command, contentParams) {
             // console.log(body)
             const {getchampionranks} = body
             const {ChampionsStats} = classes
+            // console.log(getchampionranks)
             const champStats = new ChampionsStats(getchampionranks.json)
 
             if (champStats.error) return reject({

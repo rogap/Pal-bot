@@ -28,7 +28,7 @@ module.exports = (function() {
         Played: {ru: 'Сыграно', en: 'Played'},
         Created: {ru: 'Создан', en: 'Created'},
         Level: {ru: 'Уровень', en: 'Level'},
-        Accaunt: {ru: 'Аккаунт', en: 'Accaunt'},
+        Account: {ru: 'Аккаунт', en: 'Account'},
         Update: {ru: 'Обновится', en: 'Update'},
         Champions: {ru: 'Чемпионы', en: 'Champions'},
         Champion: {ru: 'Чемпион', en: 'Champion'},

@@ -54,7 +54,7 @@ module.exports = function(message, settings, command, contentParams) {
         } else {
             // отправляем в лс
             let guildName = ''
-            if (settings.type == 'guilds') guildName = `: ${message.guild.name}` // тут омжет быть ошибка - исправить
+            if (settings.type == 'guilds') guildName = `: ${message.guild.name}` // тут может быть ошибка - исправить
             const details = new Details()
             .setTitle('ru', `Список команд (${settings.type}${guildName}):`)
             .setTitle('en', `Commands list (${settings.type}${guildName}):`)

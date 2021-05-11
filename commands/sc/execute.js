@@ -49,6 +49,12 @@ module.exports = async function(message, settings, command, contentParams) {
             })
 
             const drawChampion = champStats.getByName(champion.Name)
+            if (!drawChampion) return reject({
+                err_msg: {
+                    ru: `У вас нет статистики ${getChampionName}.`,
+                    en: `You have no statistics ${getChampionName}.`
+                }
+            })
             const draw = command.draw(drawChampion, prop, getchampionranks.last_update)
             if (!draw.status) return reject(draw)
 

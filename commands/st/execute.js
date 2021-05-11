@@ -25,13 +25,13 @@ module.exports = async function(message, settings, command, contentParams) {
             const params = contentParams.split(' ')
             const [nameOrId, typeSort] = params
 
-            const checkTypeSort = typeSort === undefined || typeSort === '' ? true :
+            const getTypeSort = typeSort === undefined || typeSort === '' ? 'lvl' :
                 typeSortList.find((typeName, typeList) => {
-                return typeList.find(type => type === typeSort) ? true : false
+                return typeList.find(type => type === typeSort) ? typeName : false
             })
 
-            // console.log(nameOrId, typeSort, checkTypeSort)
-            if (!checkTypeSort) return reject({
+            // console.log(nameOrId, typeSort, getTypeSort)
+            if (!getTypeSort) return reject({
                 err_msg: {
                     ru: 'Указан неверный тип сортировки.',
                     en: 'Invalid sort type specified.'
@@ -52,7 +52,7 @@ module.exports = async function(message, settings, command, contentParams) {
             })
 
             // сортируем
-            champions.sortType(typeSort)
+            champions.sortType(getTypeSort)
             // if (typeSort) champions.sort(funcSort[typeSort])
 
             // рисуем

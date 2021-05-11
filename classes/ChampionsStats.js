@@ -123,7 +123,9 @@ module.exports = class ChampionsStats extends AbstractChampion {
                 return b_kda - a_kda
             }
         }
-        return this.#champions.sort(funcSort[type])
+
+        const func = funcSort[type]
+        return this.#champions = func ? this.#champions.sort(func) : this.#champions
     }
 
     get roles() {

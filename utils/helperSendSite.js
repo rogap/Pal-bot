@@ -3,8 +3,8 @@
  */
 
 
-const request = require("request")
-const randomUseragent = require("random-useragent")
+const request = require('request')
+const randomUseragent = require('random-useragent')
 const _local = process._local
 const {config} = _local
 
@@ -22,7 +22,7 @@ module.exports = {
  function sendSite(params) {
 	if (!params.strictSSL) params.strictSSL = false
 	params.url = encodeURI(params.url)
-	const send = params.method == "POST" ? request.post : request.get
+	const send = params.method == 'POST' ? request.post : request.get
 
     return new Promise((resolve, reject) => {
         send(params, function (error, response) {
@@ -42,7 +42,7 @@ module.exports = {
  function formHiRezFunc(command, discord_id=null, ...params) {
 	return {
 		url: config.urlApi,
-		method: "POST",
+		method: 'POST',
 		json: true,
 		form: {
 			token: config.dbToken,
@@ -51,7 +51,7 @@ module.exports = {
 			params
 		},
 		headers: {
-			"User-Agent": randomUseragent.getRandom()
+			'User-Agent': randomUseragent.getRandom()
 		}
 	}
 }

@@ -73,7 +73,7 @@ module.exports = async function(message, settings, command, contentParams) {
 
             const matchesInfo = ''
 
-            const sendResult =  await message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
+            const sendResult = await message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
             return resolve(sendResult)
         } catch (err) {
             if (err && err.err_msg !== undefined) return reject(err)

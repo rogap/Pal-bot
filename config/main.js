@@ -25,8 +25,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '\`\`\`Узнать об обновлении можно командой !hh.\`\`\`',
-		en: '\`\`\`To find out about the update, use the command !hh.\`\`\`'
+		ru: '\`\`\`cs\nВведите "!hh me" чтобы получить полное описание команды.\`\`\`',
+		en: '\`\`\`cs\nEnter "!hh me" to get the full description of the command\`\`\`'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',

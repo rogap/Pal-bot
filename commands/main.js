@@ -219,5 +219,22 @@ module.exports = {
             en: `Displays a list of blocked players for the specified account.`
         },
         files: ['details', 'getStats', 'execute']
+    },
+    online: {
+        name: 'online',
+        possibly: ['online', 'онлайн'],
+        order: 13,
+        permissions: ['SEND_MESSAGES'],
+        owner: false,
+        path: path.join(__dirname, 'online'),
+        params: {
+            ru: [],
+            en: []
+        },
+        info: {
+            ru: `Показывает количество игроков онлайн в стим.`,
+            en: `Shows the number of players online in steam.`
+        },
+        files: ['execute', 'details']
     }
 }

@@ -53,10 +53,10 @@ client.on('message', async message => {
         let guildName = "ls"
         const guild = message.guild
         if (guild) guildName = guild.name
-        console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${content}`)
+        if (!command.owner) console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${content}`)
 
         const contentParams = message.getContent()
-        console.log(contentParams)
+        if (!command.owner) console.log(contentParams)
 
         // запускаем печатание и сразу же отменяем
         message.channel.startTyping()
@@ -72,7 +72,7 @@ client.on('message', async message => {
                 commandsUsed.count++
             }
 
-            console.log(`Команда успешно выполнена (<@${authorId}>).`)
+            if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
         })
         .catch(err => {
             // сделать норм обработчик ошибок (не проброс)
@@ -80,12 +80,20 @@ client.on('message', async message => {
             const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
             message.sendWarning(errText[lang])
             .catch(err => {
+                if (!command.owner) console.log('~OWNER~')
                 console.log(err)
             })
         })
     } catch(err) {
         // сделать норм обработчик ошибок
+        if (!command.owner) console.log('~OWNER~')
         console.log(err)
+        const errText = err.err_msg || {ru: 'Непредвиденная ошибка...', en: 'Unforeseen error ...'}
+        message.sendWarning(errText[lang])
+        .catch(err => {
+            if (!command.owner) console.log('~OWNER~')
+            console.log(err)
+        })
     }
 })
 

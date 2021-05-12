@@ -19,6 +19,10 @@ module.exports = async function(message, settings, command, contentParams) {
                 lang: ['lang', 'язык'],
                 timezone: ['timezone', 'time', 'время']
             }
+            const langValues = { // сокращения языков
+                ru: ['ru', 'rus', 'russian', 'русский', 'ру', 'рус'],
+                en: ['en', 'eng', 'english']
+            }
 
             const guildId = firstParam && firstParam.length > 17 && firstParam.length < 21 ? firstParam :
                 secondParam && secondParam.length > 17 && secondParam.length < 21 ? secondParam :
@@ -34,15 +38,28 @@ module.exports = async function(message, settings, command, contentParams) {
             })
 
             const setValue = typeValue === 'lang' ?
-                    firstParam && firstParam.length === 2 && !isFinite(firstParam) && firstParam !== 'me' ? firstParam :
-                    secondParam && secondParam.length === 2 && !isFinite(secondParam) && secondParam !== 'me' ? secondParam :
-                    thirdParam && thirdParam.length === 2 && !isFinite(thirdParam) && thirdParam !== 'me' ? thirdParam : false :
+                    firstParam && langValues.find((langName, langList) => {
+                        return langList.find(lang => lang === firstParam) ? langName : false
+                    }) ? langValues.find((langName, langList) => {
+                        return langList.find(lang => lang === firstParam) ? langName : false
+                    }) :
+                    secondParam && langValues.find((langName, langList) => {
+                        return langList.find(lang => lang === secondParam) ? langName : false
+                    }) ? langValues.find((langName, langList) => {
+                        return langList.find(lang => lang === secondParam) ? langName : false
+                    }) :
+                    thirdParam && langValues.find((langName, langList) => {
+                        return langList.find(lang => lang === thirdParam) ? langName : false
+                    }) ? langValues.find((langName, langList) => {
+                        return langList.find(lang => lang === thirdParam) ? langName : false
+                    }) : false :
                 typeValue === 'timezone' ?
                     isFinite(firstParam) && firstParam <= 14 && firstParam >= -12 ? (+firstParam).toFixed(1) :
                     isFinite(secondParam) && secondParam <= 14 && secondParam >= -12 ? (+secondParam).toFixed(1) :
                     isFinite(thirdParam) && thirdParam <= 14 && thirdParam >= -12 ? (+thirdParam).toFixed(1) : false : false
 
             // проверяем корректность данных
+            console.log(`setValue: ${setValue}`)
             const checkSetValue = typeValue === 'lang' ? config.langs.find(lang => lang == setValue) :
                 typeValue === 'timezone' ? setValue >= -12 && setValue <= 14 : false
 

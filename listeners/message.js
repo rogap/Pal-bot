@@ -5,7 +5,7 @@
 
 const _local = process._local
 const {client, config, utils, classes} = _local
-const {sendSite} = utils
+const {sendSite, sendToChannel} = utils
 const {Settings} = classes
 const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
 
@@ -83,6 +83,14 @@ client.on('message', async message => {
                 if (!command.owner) console.log('~OWNER~')
                 console.log(err)
             })
+
+            if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
+                sendToChannel(config.chLog, err.log_msg)
+                .catch(err => {
+                    if (!command.owner) console.log('~OWNER~')
+                    console.log(err)
+                })
+            }
         })
     } catch(err) {
         // сделать норм обработчик ошибок
@@ -94,6 +102,14 @@ client.on('message', async message => {
             if (!command.owner) console.log('~OWNER~')
             console.log(err)
         })
+
+        if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
+            sendToChannel(config.chLog, err.log_msg)
+            .catch(err => {
+                if (!command.owner) console.log('~OWNER~')
+                console.log(err)
+            })
+        }
     }
 })
 

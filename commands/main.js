@@ -131,7 +131,7 @@ module.exports = {
         },
         info: {
             ru: `Возвращает статус игрока в реальном времени.`,
-            en: `Returns the player's status in real time.`
+            en: `Returns the player status in real time.`
         },
         files: ['details', 'draw', 'getStats', 'execute']
     },
@@ -165,7 +165,7 @@ module.exports = {
         },
         info: {
             ru: `Выводит колоды игрока указанного чемпиона.`,
-            en: `Displays the player's decks of the specified champion.`
+            en: `Displays the player decks of the specified champion.`
         },
         files: ['details', 'draw', 'getStats', 'execute']
     },

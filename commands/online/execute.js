@@ -28,7 +28,7 @@ module.exports = async function(message, settings, command, contentParams) {
             const body = response.body
             const count = body.response.player_count
 
-            const sendResult = await message.channel.send({
+            const sendResult = await message.channel.send(`${message.author}` + {
                 ru: `\`\`\`yaml\nОнлайн Steam игроков: ${count}.\`\`\``,
                 en: `\`\`\`yaml\nOnline Steam Players: ${count}.\`\`\``
             }[lang])

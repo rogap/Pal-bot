@@ -31,7 +31,7 @@ module.exports = async function(message, settings, command, contentParams) {
 
             // не должны совпадать
             const nameOrId = firstParam !== getChampionName ? firstParam : 'me'
-            console.log(`nameOrId: ${nameOrId}; getChampionName: ${getChampionName}`)
+            // console.log(`nameOrId: ${nameOrId}; getChampionName: ${getChampionName}`)
 
             const body = await command.getStats(userId, nameOrId)
             // console.log(body)
@@ -43,8 +43,8 @@ module.exports = async function(message, settings, command, contentParams) {
             if (champStats.error) return reject({
                 body,
                 err_msg: {
-                    ru: 'Чемпионы не найдены.',
-                    en: 'No champions found.'
+                    ru: 'Чемпионы не найдены или API Hi-Rez временно недоступно.',
+                    en: 'No champions found or the Hi-Rez API is temporarily unavailable.'
                 }
             })
 

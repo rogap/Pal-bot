@@ -22,6 +22,7 @@ module.exports = class Settings {
 		this.prefix = data.prefix || config.prefix
 		this.backgrounds = data.backgrounds || config.backgrounds
 		this.commands = data.commands
+		if (data.only) this.only = data.only == '1' ? true : false
 	}
 
 	getProp() {

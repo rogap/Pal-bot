@@ -17,10 +17,10 @@ module.exports = class Settings {
 		if (data.backgrounds && data.backgrounds.constructor === String) data.backgrounds = JSON.parse(data.backgrounds)
 
         this.id = data.id
-		this.lang = data.lang || config.lang
-		this.timezone = data.timezone != undefined ? +data.timezone : config.timezone
-		this.prefix = data.prefix || config.prefix
-		this.backgrounds = data.backgrounds || config.backgrounds
+		this.lang = data.lang
+		this.timezone = isFinite(data.timezone) ? +data.timezone : undefined
+		this.prefix = data.prefix
+		this.backgrounds = data.backgrounds
 		this.commands = data.commands
 		if (data.only) this.only = data.only == '1' ? true : false
 	}
@@ -32,5 +32,14 @@ module.exports = class Settings {
 			prefix: this.prefix,
 			backgrounds: this.backgrounds,
 		}
+	}
+
+	// добавляет дефолтные настройки если нет установленных
+	addDefault() {
+		this.lang = this.lang || config.lang
+		this.timezone = this.timezone || config.timezone
+		this.prefix = this.prefix || config.prefix
+		this.backgrounds = this.backgrounds || config.backgrounds
+		return this
 	}
 }

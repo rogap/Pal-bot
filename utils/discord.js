@@ -4,7 +4,8 @@
 
 
 const _local = process._local
-const {Discord, client, config} = _local
+const {Discord, client, config, classes} = _local
+const {Settings} = classes
 
 
 module.exports = {
@@ -249,3 +250,54 @@ Discord.Message.prototype.sendWarning = function(text) {
 
 
 Discord.Message.prototype.sendError = function(text) {}
+
+
+
+/**
+ * получает настройки и команды которые доступны (подходят) пользователю
+ * @returns {Object} - setting {}
+ */
+Discord.Message.prototype.getSettings = function() { // unify
+    const authorId = this.author.id
+    const userSettings = _local.usersSettings.get(authorId)
+    // console.log(userSettings, userSettings.commands.list[0])
+
+    // если есть настройки пользователя и включен приоритет
+    if (userSettings && userSettings.only == 1) return userSettings.addDefault()
+
+    const guild = this.guild
+    if (guild) {
+        // console.log('in guild')
+        const guildSettings = _local.guildsSettings.get(guild.id)
+        // console.log(guildSettings, guild.id)
+        // если есть настройки сервера
+        if (guildSettings) {
+            // console.log('guild has settings')
+            // если пользователь изменял себе другие параметры (не команды) то вернем их тут перекрыв серверные настройки
+            if (userSettings) {
+                // console.log('add user setting in guild setting')
+                // guildSettings.type // хз какой должен быть type в таком случае
+                if (userSettings.lang) guildSettings.lang = userSettings.lang
+                if (userSettings.timezone !== undefined) guildSettings.timezone = userSettings.timezone
+                if (userSettings.backgrounds && userSettings.backgrounds.length) guildSettings.backgrounds = userSettings.backgrounds
+            }
+
+            // добавляем дефолтные настройки если нет установленных
+            return guildSettings.addDefault()
+        }
+    }
+
+    // если есть настройки пользователя и не включен приоритет
+    if (userSettings) return userSettings.addDefault()
+
+    return new Settings({ // дефолтный обьект настроек для пользователя
+        id: authorId,
+        type: 'default', // users
+        lang: config.lang,
+        timezone: config.timezone,
+        prefix: config.prefix,
+        only: null,
+        commands: _local.commands,
+        backgrounds: config.backgrounds
+    })
+}

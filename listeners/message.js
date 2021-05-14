@@ -6,7 +6,6 @@
 const _local = process._local
 const {client, config, utils, classes} = _local
 const {sendSite, sendToChannel} = utils
-const {Settings} = classes
 const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
 
 
@@ -24,7 +23,7 @@ client.on('message', async message => {
         // если включен режим тестирования
         if ( config.testing && !message.isOwner() ) return;
         const content = message.parseContent()
-        const settings = getSettings(message) // получаем обьект настроек для текущего пользователя
+        const settings = message.getSettings() // получаем обьект настроек для текущего пользователя
         const {lang, prefix} = settings
         // console.log(settings)
         // console.log(settings.commands.list[0])
@@ -94,73 +93,21 @@ client.on('message', async message => {
         })
     } catch(err) {
         // сделать норм обработчик ошибок
-        if (!command.owner) console.log('~OWNER~')
         console.log(err)
         const errText = err.err_msg || {ru: 'Непредвиденная ошибка...', en: 'Unforeseen error ...'}
         message.sendWarning(errText[lang])
         .catch(err => {
-            if (!command.owner) console.log('~OWNER~')
             console.log(err)
         })
 
         if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
             sendToChannel(config.chLog, err.log_msg)
             .catch(err => {
-                if (!command.owner) console.log('~OWNER~')
                 console.log(err)
             })
         }
     }
 })
-
-
-/**
- * получает настройки и команды которые доступны (подходят) пользователю
- * @param {Object} message 
- * @returns {Object} - setting {}
- */
-function getSettings(message) { // unify
-    const authorId = message.author.id
-    const userSettings = _local.usersSettings.get(authorId)
-    // console.log(userSettings, userSettings.commands.list[0])
-
-    // если есть настройки пользователя и включен приоритет
-    if (userSettings && userSettings.only == 1) return userSettings
-
-    const guild = message.guild
-    if (guild) {
-        // console.log('in guild')
-        const guildSettings = _local.guildsSettings.get(guild.id)
-        // console.log(guildSettings, guild.id)
-        // если есть настройки сервера
-        if (guildSettings) {
-            // console.log('guild has settings')
-            // если пользователь изменял себе другие параметры (не команды) то вернем их тут перекрыв серверные настройки
-            if (userSettings) {
-                // console.log('add user setting in guild setting')
-                // guildSettings.type // хз какой должен быть type в таком случае
-                if ('lang' in userSettings) guildSettings.lang = userSettings.lang
-                if ('timezone' in userSettings) guildSettings.timezone = userSettings.timezone
-                if ('backgrounds' in userSettings) guildSettings.backgrounds = userSettings.backgrounds
-            }
-            return guildSettings
-        }
-    }
-
-    // если есть настройки пользователя и не включен приоритет
-    if (userSettings) return userSettings
-
-    return new Settings({ // дефолтный обьект настроек для пользователя
-        id: authorId,
-        type: 'default', // users
-        lang: config.lang,
-        timezone: config.timezone,
-        prefix: config.prefix,
-        only: null,
-        commands: _local.commands,
-        backgrounds: config.backgrounds
-    })
-}
 
 
 // отправляет статистические данные на сайт

@@ -260,7 +260,7 @@ Discord.Message.prototype.sendError = function(text) {}
 Discord.Message.prototype.getSettings = function() { // unify
     const authorId = this.author.id
     const userSettings = _local.usersSettings.get(authorId)
-	// console.log(userSettings)
+	console.log(userSettings)
 
     // если есть настройки пользователя и включен приоритет
     if (userSettings && userSettings.only == 1) return userSettings.addDefault()
@@ -270,7 +270,7 @@ Discord.Message.prototype.getSettings = function() { // unify
         const guildSettings = _local.guildsSettings.get(guild.id)
         // если есть настройки сервера
         if (guildSettings) {
-            // console.log(guildSettings)
+            console.log(guildSettings)
             // если пользователь изменял себе другие параметры (не команды) то вернем их тут перекрыв серверные настройки
             if (userSettings) {
                 if (userSettings.lang) guildSettings.lang = userSettings.lang
@@ -278,7 +278,7 @@ Discord.Message.prototype.getSettings = function() { // unify
                 if (userSettings.backgrounds && userSettings.backgrounds.length) guildSettings.backgrounds = userSettings.backgrounds
             }
 
-			// console.log(guildSettings)
+			console.log(guildSettings)
             // добавляем дефолтные настройки если нет установленных
             return guildSettings.addDefault()
         }

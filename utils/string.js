@@ -25,25 +25,10 @@ Object.defineProperty(String.prototype, 'cutPrefAndCom', {enumerable: false})
 
 
 /**
- * проверяет, есть ли упоминание пользователя (или discordId) в строке (в начале)
- * @returns {String}
- */
-String.prototype.getMention = function() {
-	const hasId = this.match(/(\<\@\!(?<id1>[0-9]{18})\>)|^(?<id2>[0-9]{18}) .?/)
-	if (hasId === null) return false
-	return hasId.groups.id1 || hasId.groups.id2
-}
-Object.defineProperty(String.prototype, 'getMention', {enumerable: false})
-
-
-/**
- * вырещает упоминание подставляя туда id упомянутого (если есть)
+ * вырезает упоминание подставляя туда id упомянутого (если есть)
  * @returns {String}
  */
 String.prototype.mentionToId = function() {
-	const mention = this.getMention()
-	if (!mention) return this
-	// const reg = new RegExp(`/^(\<\@\!${mention}\>/`)
-	return this.replace(/(\<\@\![0-9]{18}\>)/, mention)
+	return this.replace(/\<\@([0-9]{18})\>/g, ' $1')
 }
 Object.defineProperty(String.prototype, 'mentionToId', {enumerable: false})

@@ -54,7 +54,7 @@ client.on('message', async message => {
         if (guild) guildName = guild.name
         if (!command.owner) console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${content}`)
 
-        const contentParams = message.getContent()
+        const contentParams = message.getContent(command.owner)
         if (!command.owner) console.log(contentParams)
 
         // запускаем печатание и сразу же отменяем

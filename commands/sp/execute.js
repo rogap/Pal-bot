@@ -85,8 +85,8 @@ module.exports = function(message, settings, command, contentParams) {
                         return reject({
                             err,
                             err_msg: {
-                                ru: '',
-                                en: ''
+                                ru: 'Ошибка отправки сообщения.',
+                                en: 'Error sending the message.'
                             },
                             log_msg: `Ошибка отправки сообщения готового ответа команды "sp" (<@${userId}>).`,
                             content: message.content,
@@ -133,8 +133,8 @@ module.exports = function(message, settings, command, contentParams) {
                         return reject({
                             err,
                             err_msg: {
-                                ru: '',
-                                en: ''
+                                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                                en: 'Something went wrong... Try again or report this error to the bot creator.'
                             },
                             log_msg: `Ошибка отправки сообщения готового ответа команды "sp" (<@${userId}>).`,
                             content: message.content,
@@ -145,8 +145,8 @@ module.exports = function(message, settings, command, contentParams) {
                     // такого быть не может (не должно)
                     return reject({
                         err_msg: {
-                            ru: '',
-                            en: ''
+                            ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                            en: 'Something went wrong... Try again or report this error to the bot creator.'
                         },
                         log_msg: `Ошибка! ОТВЕТ КОТОРОГО БЫТЬ НЕ ДОЛЖНО "sp" (<@${userId}>).`,
                         content: message.content,
@@ -160,8 +160,8 @@ module.exports = function(message, settings, command, contentParams) {
                     err,
                     log_msg: `Ошибка вызова "sp.getStats" команды для пользователя (<@${userId}>).`,
                     err_msg: {
-                        ru: '',
-                        en: ''
+                        ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                        en: 'Something went wrong... Try again or report this error to the bot creator.'
                     },
                     content: message.content,
                     params: contentParams

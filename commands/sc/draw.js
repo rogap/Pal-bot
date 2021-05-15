@@ -77,8 +77,8 @@ module.exports = function(champion, prop, last_update) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Ошибка при обработке данных. Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Error in data processing. Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "sc.draw"'
         }

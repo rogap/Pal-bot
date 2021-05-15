@@ -10,172 +10,184 @@ const {translate} = config
 
 module.exports = function(message, settings, command, contentParams) {
     return new Promise((resolve, reject) => {
-        const {champions} = _local
-        const userId = message.author.id
-        const prop = settings.getProp()
-        const {lang} = prop
-        const modifierList = ['-f'] // список доступных модификаторов
+        try {
+            const {champions} = _local
+            const userId = message.author.id
+            const prop = settings.getProp()
+            const {lang} = prop
+            const modifierList = ['-f'] // список доступных модификаторов
 
-        // Queue	"Team Deathmatch" | Queue	"Onslaught"
-        const gameModeTypes = {
-            ranked: ['ranked', 'ранкед'],
-            siege: ['siege', 'казуал', 'обычка', 'осада'],
-            deathmatch: ['tdm', 'тдм', 'deathmatch'],
-            onslaught: ['onslaught', 'натиск']
-        }
-        const championRoles = {
-            support: ['support', 'поддержка', 'sup', 'heal', 'хил', 'healer'],
-            flanker: ['flanker', 'фланг', 'flank'],
-            frontline: ['frontline', 'танк', 'tank'],
-            damage: ['damage', 'урон', 'dmg']
-        }
-
-        const params = contentParams.split(' ')
-        const [firstParam, secondParam, thirdParam, fourthParam, fifthParam] = params
-        // firstParam - всегад первым должен быть указан игрок к которому относится дальнейшии параметры
-
-        // тип матча
-        const modeType = gameModeTypes.find((modeName, mode) => {
-            return mode.find(type => type === secondParam || type === thirdParam ||
-                type === fourthParam || type === fifthParam) ? modeName : false
-        })
-
-        // имя чемпиона
-        const championType = champions.getByAliases(secondParam || '') || champions.getByAliases(thirdParam || '') ||
-            champions.getByAliases(fourthParam || '') || champions.getByAliases(fifthParam || '')
-
-        // роль чемпиона
-        const championRole = championRoles.find((roleName, roles) => {
-            return roles.find(role => role === secondParam || role === thirdParam ||
-                role === fourthParam || role === fifthParam) ? roleName : false
-        })
-
-        // страница которую будем отображать
-        const page = isFinite(secondParam) && secondParam > 0 && secondParam < 6 ? Math.floor(secondParam) :
-            isFinite(thirdParam) && thirdParam > 0 && thirdParam < 6 ? Math.floor(thirdParam) :
-            isFinite(fourthParam) && fourthParam > 0 && fourthParam < 6 ? Math.floor(fourthParam) :
-            isFinite(fifthParam) && fifthParam > 0 && fifthParam < 6 ? Math.floor(fifthParam) : 1
-        
-        prop.page = page
-
-        // получаем модификатор
-        const modifier = modifierList.find(mod => mod === secondParam || mod === thirdParam || mod === fourthParam || mod === fifthParam)
-
-        // const cXname = championType ? championType.Name : ''
-        // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; page: ${page}; modifier: ${modifier};`)
-        command.getStats(userId, firstParam)
-        .then(body => {
-            const matches = body.getmatchhistory.json
-            // console.log(`Всего: ${matches.length}`)
-
-            // если указан тип матча то фильтруем по нему
-            if (modeType) {
-                matches.filterRemove(match => {
-                    return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(match.Queue)
-                })
+            // Queue	"Team Deathmatch" | Queue	"Onslaught"
+            const gameModeTypes = {
+                ranked: ['ranked', 'ранкед'],
+                siege: ['siege', 'казуал', 'обычка', 'осада'],
+                deathmatch: ['tdm', 'тдм', 'deathmatch'],
+                onslaught: ['onslaught', 'натиск']
             }
-            // console.log(`modeType: ${matches.length}`)
-
-            // если указан фильт по чемпиону то фильтруем
-            if (championType) {
-                matches.filterRemove(match => {
-                    return champions.getByName(match.Champion).Name === championType.Name
-                })
+            const championRoles = {
+                support: ['support', 'поддержка', 'sup', 'heal', 'хил', 'healer'],
+                flanker: ['flanker', 'фланг', 'flank'],
+                frontline: ['frontline', 'танк', 'tank'],
+                damage: ['damage', 'урон', 'dmg']
             }
-            // console.log(`championType: ${matches.length}`)
 
-            // если указана роль чемпиона
-            if (championRole) {
-                matches.filterRemove(match => {
-                    return champions.getByName(match.Champion).role.en === championRole
-                })
-            }
-            // console.log(`championRole: ${matches.length}`)
+            const params = contentParams.split(' ')
+            const [firstParam, secondParam, thirdParam, fourthParam, fifthParam] = params
+            // firstParam - всегад первым должен быть указан игрок к которому относится дальнейшии параметры
 
-            // берем нужную страницу
-            const matchesPage = matches.slice((page-1)*10, (page-1)*10+10)
-
-            if (!matchesPage.length) return reject({
-                err_msg: {
-                    ru: 'Матчи игрока не найдены.',
-                    en: 'Player matches not found.'
-                }
+            // тип матча
+            const modeType = gameModeTypes.find((modeName, mode) => {
+                return mode.find(type => type === secondParam || type === thirdParam ||
+                    type === fourthParam || type === fifthParam) ? modeName : false
             })
 
-            // рисуем
-            const draw = command.draw(matchesPage, prop, body.getmatchhistory.last_update)
-            if (!draw.status) return reject(draw)
+            // имя чемпиона
+            const championType = champions.getByAliases(secondParam || '') || champions.getByAliases(thirdParam || '') ||
+                champions.getByAliases(fourthParam || '') || champions.getByAliases(fifthParam || '')
 
-            const canvas = draw.canvas
-            const buffer = canvas.toBuffer('image/png') // buffer image
-            const news = config.news[lang]
+            // роль чемпиона
+            const championRole = championRoles.find((roleName, roles) => {
+                return roles.find(role => role === secondParam || role === thirdParam ||
+                    role === fourthParam || role === fifthParam) ? roleName : false
+            })
 
-            const showOldStatsText = {
-                ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
-                en: '__**You will be shown the details of the last successful request.**__'
-            }
-
-            const replayOldText = body.getmatchhistory.old ?
-                    `${body.getmatchhistory.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
-
-            // список id показаных матчей
-            const matchesIds = matchesPage.map(match => match.Match)
-            const fullMatchInfo = getFullMatchInfo(matches) // получаем полную статистику матча | matches matchesOld
-            // console.log(matchesIds)
-            const matchesInfoDefault = {
-                ru: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                    `[Матчи](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Всего](${matches.length})\n` + 
-                    `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';',
-                en: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                    `[Matches](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Total](${matches.length})\n` + 
-                    `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';'
-                    
-            }
-
-            const matchesInfo = modifier == '-f' ? 
-                ({
-                    ru: matchesInfoDefault.ru + `\n\n# Статистика по ролям:\n` +
-                        `* <Role>[КДА](Винрейт) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').ru}` +
-                        `\n# Статистика по типу очереди матчей:\n* <Queue>[КДА](Винрейт) <info: damage / healing / def>:\n` +
-                        `${fullMatchInfo.stats('queue').ru}\n${fullMatchInfo.total.ru}`,
-                    en: matchesInfoDefault.en + `\n\n# Statistics by roles:\n` +
-                        `* <Role>[K/D/A](Winrate) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').en}` +
-                        `\n# Match queue type statistics:\n* <Queue>[K/D/A](Winrate) <info: damage / healing / def>:\n` +
-                        `${fullMatchInfo.stats('queue').en}\n${fullMatchInfo.total.en}`
-                }[lang] + '```') : ( matchesInfoDefault[lang] + '```')
+            // страница которую будем отображать
+            const page = isFinite(secondParam) && secondParam > 0 && secondParam < 6 ? Math.floor(secondParam) :
+                isFinite(thirdParam) && thirdParam > 0 && thirdParam < 6 ? Math.floor(thirdParam) :
+                isFinite(fourthParam) && fourthParam > 0 && fourthParam < 6 ? Math.floor(fourthParam) :
+                isFinite(fifthParam) && fifthParam > 0 && fifthParam < 6 ? Math.floor(fifthParam) : 1
             
+            prop.page = page
 
-            message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
-            .then(mess => {
-                return resolve(mess)
+            // получаем модификатор
+            const modifier = modifierList.find(mod => mod === secondParam || mod === thirdParam || mod === fourthParam || mod === fifthParam)
+
+            // const cXname = championType ? championType.Name : ''
+            // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; page: ${page}; modifier: ${modifier};`)
+            command.getStats(userId, firstParam)
+            .then(body => {
+                const matches = body.getmatchhistory.json
+                // console.log(`Всего: ${matches.length}`)
+
+                // если указан тип матча то фильтруем по нему
+                if (modeType) {
+                    matches.filterRemove(match => {
+                        return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(match.Queue)
+                    })
+                }
+                // console.log(`modeType: ${matches.length}`)
+
+                // если указан фильт по чемпиону то фильтруем
+                if (championType) {
+                    matches.filterRemove(match => {
+                        return champions.getByName(match.Champion).Name === championType.Name
+                    })
+                }
+                // console.log(`championType: ${matches.length}`)
+
+                // если указана роль чемпиона
+                if (championRole) {
+                    matches.filterRemove(match => {
+                        return champions.getByName(match.Champion).role.en === championRole
+                    })
+                }
+                // console.log(`championRole: ${matches.length}`)
+
+                // берем нужную страницу
+                const matchesPage = matches.slice((page-1)*10, (page-1)*10+10)
+
+                if (!matchesPage.length) return reject({
+                    err_msg: {
+                        ru: 'Матчи игрока не найдены.',
+                        en: 'Player matches not found.'
+                    }
+                })
+
+                // рисуем
+                const draw = command.draw(matchesPage, prop, body.getmatchhistory.last_update)
+                if (!draw.status) return reject(draw)
+
+                const canvas = draw.canvas
+                const buffer = canvas.toBuffer('image/png') // buffer image
+                const news = config.news[lang]
+
+                const showOldStatsText = {
+                    ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
+                    en: '__**You will be shown the details of the last successful request.**__'
+                }
+
+                const replayOldText = body.getmatchhistory.old ?
+                        `${body.getmatchhistory.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
+
+                // список id показаных матчей
+                const matchesIds = matchesPage.map(match => match.Match)
+                const fullMatchInfo = getFullMatchInfo(matches) // получаем полную статистику матча | matches matchesOld
+                // console.log(matchesIds)
+                const matchesInfoDefault = {
+                    ru: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                        `[Матчи](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Всего](${matches.length})\n` + 
+                        `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';',
+                    en: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                        `[Matches](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Total](${matches.length})\n` + 
+                        `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';'
+                        
+                }
+
+                const matchesInfo = modifier == '-f' ? 
+                    ({
+                        ru: matchesInfoDefault.ru + `\n\n# Статистика по ролям:\n` +
+                            `* <Role>[КДА](Винрейт) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').ru}` +
+                            `\n# Статистика по типу очереди матчей:\n* <Queue>[КДА](Винрейт) <info: damage / healing / def>:\n` +
+                            `${fullMatchInfo.stats('queue').ru}\n${fullMatchInfo.total.ru}`,
+                        en: matchesInfoDefault.en + `\n\n# Statistics by roles:\n` +
+                            `* <Role>[K/D/A](Winrate) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').en}` +
+                            `\n# Match queue type statistics:\n* <Queue>[K/D/A](Winrate) <info: damage / healing / def>:\n` +
+                            `${fullMatchInfo.stats('queue').en}\n${fullMatchInfo.total.en}`
+                    }[lang] + '```') : ( matchesInfoDefault[lang] + '```')
+                
+
+                message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
+                .then(mess => {
+                    return resolve(mess)
+                })
+                .catch(err => {
+                    if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
+                    return reject({
+                        err,
+                        err_msg: {
+                            ru: '',
+                            en: ''
+                        },
+                        log_msg: `Ошибка отправки сообщения готового ответа команды "sh" (<@${userId}>).`,
+                        content: message.content,
+                        params: contentParams
+                    })
+                })
             })
             .catch(err => {
                 if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
                 return reject({
                     err,
+                    log_msg: `Ошибка вызова "sh.getStats" команды для пользователя (<@${userId}>).`,
                     err_msg: {
-                        ru: '',
-                        en: ''
+                        ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                        en: 'Something went wrong... Try again or report this error to the bot creator.'
                     },
-                    log_msg: `Ошибка отправки сообщения готового ответа команды "sh" (<@${userId}>).`,
                     content: message.content,
                     params: contentParams
                 })
             })
-        })
-        .catch(err => {
-            if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
+        } catch(err) {
+            if (err && err.err_msg !== undefined) return reject(err)
             return reject({
                 err,
-                log_msg: `Ошибка вызова "sh.getStats" команды для пользователя (<@${userId}>).`,
                 err_msg: {
-                    ru: '',
-                    en: ''
+                    ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                    en: 'Something went wrong... Try again or report this error to the bot creator.'
                 },
-                content: message.content,
-                params: contentParams
+                log_msg: 'sh.execute'
             })
-        })
+        }
     })
 }
 

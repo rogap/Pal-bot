@@ -43,8 +43,8 @@ module.exports = function(matches, prop, last_update) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "sh.draw"'
         }
@@ -91,8 +91,8 @@ function drawDefault(ctx, last_update, prop) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "sh.drawDefault"'
         }
@@ -181,8 +181,8 @@ function drawTable(ctx, matches, prop) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "sh.drawTable"'
         }

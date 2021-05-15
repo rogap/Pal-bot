@@ -122,8 +122,8 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'omething went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "drawDefault" во время рисования статы (ss)'
         }
@@ -214,8 +214,8 @@ function drawPlayer(ctx, player, champions, prop) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'omething went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "drawPlayer" во время рисования статы (ss)'
         }
@@ -313,8 +313,8 @@ function drawChampions(ctx, champions, prop) {
             status: false,
             err,
             err_msg: {
-                ru: '',
-                en: ''
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'omething went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "drawChampions" во время рисования статы (ss)'
         }

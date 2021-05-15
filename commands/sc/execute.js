@@ -80,8 +80,8 @@ module.exports = async function(message, settings, command, contentParams) {
             return reject({
                 err,
                 err_msg: {
-                    ru: '',
-                    en: ''
+                    ru: 'Ошибка при формировании ответа. Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                    en: 'Error when forming the response. Try again or report this error to the bot creator.'
                 },
                 log_msg: 'Какая-то непредвиденная ошибка поидее'
             })

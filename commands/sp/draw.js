@@ -58,7 +58,7 @@ function drawDefault(ctx, match, prop, last_update) {
         let mapName = ''
         for (let map in maps) {
             const reg = new RegExp(`${map}`, 'i')
-            const res = matchOne.mapGame.replace(/'/,'').match(reg)
+            const res = matchOne.mapGame ? matchOne.mapGame.replace(/'/,'').match(reg) : false
             if (res) {
                 mapImg = maps[map]
                 mapName = res[0]

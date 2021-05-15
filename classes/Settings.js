@@ -36,10 +36,19 @@ module.exports = class Settings {
 
 	// добавляет дефолтные настройки если нет установленных
 	addDefault() {
-		this.lang = this.lang || config.lang
-		this.timezone = this.timezone || config.timezone
-		this.prefix = this.prefix || config.prefix
-		this.backgrounds = this.backgrounds || config.backgrounds
-		return this
+		// const n = {
+		// 	lang: this.lang || config.lang
+		// }
+		const data = {
+			lang: this.lang || config.lang,
+			timezone: this.timezone || config.timezone,
+			prefix: this.prefix || config.prefix,
+			backgrounds: this.backgrounds || config.backgrounds,
+			id: this.id,
+			commands: this.commands
+		}
+
+		if (this.only !== undefined) data.only = this.only
+		return new Settings(data)
 	}
 }

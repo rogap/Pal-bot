@@ -7,10 +7,24 @@ const _local = process._local
 const {config} = _local
 
 
-module.exports = function(message, settings, command, contentParams) {
+module.exports = function(message, settings, command, contentParams='') {
     return new Promise((resolve, reject) => {
         const userId = message.author.id
-        const {lang} = settings
+        const {lang, prefix} = settings
+        const comHH = settings.commands.getByName('hh').possibly[0]
+        const comME = command.possibly[0]
+
+        const check = /^(([0-9]{6,9})|([^0-9].+))$/i.test(contentParams) &&
+            !/[\`\~\!\@\#\$\%\^\&\*\(\)\-\_\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(contentParams)
+
+        if (!contentParams.length || !check) return reject({
+            err_msg: {
+                ru: `Введите корректный Ник или id аккаунта Paladins.\n` +
+                    `=Вы можете получить помощь на сервере бота, командой ${prefix}${comHH} или ${prefix}${comHH} ${comME}`,
+                en: `Enter the correct Nickname or Paladins account id.\n` +
+                    `=You can get help on the bot's server, by command ${prefix}${comHH} or ${prefix}${comHH} ${comME}`
+            }
+        })
 
         command.getStats(userId, contentParams)
         .then(body => {

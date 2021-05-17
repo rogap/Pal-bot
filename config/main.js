@@ -25,8 +25,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '\`\`\`cs\nВведите "!hh me" чтобы получить полное описание команды.\`\`\`',
-		en: '\`\`\`cs\nEnter "!hh me" to get the full description of the command\`\`\`'
+		ru: '\`\`\`yaml\nТеперь вы можете изменять название команд (и не только).\`\`\`',
+		en: '\`\`\`yaml\nNow you can change the name of the teams (and not only).\`\`\`'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',

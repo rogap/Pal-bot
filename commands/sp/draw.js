@@ -99,7 +99,13 @@ function drawDefault(ctx, match, prop, last_update) {
         // перебираем игроков матча и рисуем их инфу
         for (let i = 0; i < match.length; i++) {
             const player = match[i]
-            const champion = champions.getByName(player.ChampionName)
+            const champName = player.ChampionName
+            if (!champName) {
+                console.log(player, matchOne.Match) // показываем игрока и id матча
+                // сообщить на канале об ошибке
+                _local.utils.sendToChannel(config.chLog, 'Не найдено имя чемпиона у команды SP.').catch(console.log)
+            }
+            const champion = champName ? champions.getByName(champName) : {}
             const champImg = champion.icon
             const tier = player.Tier
             const winrate = (player.tierWins / (player.tierWins + player.tierLosses) * 100).toFixed(2) || '-'

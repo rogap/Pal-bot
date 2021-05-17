@@ -210,7 +210,7 @@ class _temp {
 
     get winrate() {
         if (this.win == 0 && this.lose == 0) return '- 0/0'
-        const prosent = (this.win / (this.win + this.lose) * 100).toFixed(0)
+        const prosent = (this.win / (this.win + this.lose) * 100).toFixed(0) || 0
         const prosentText = isFinite(prosent) ? `${prosent}%` : '0%'
         return `${prosentText} ${this.win}/${this.lose}`
     }

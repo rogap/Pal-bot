@@ -194,13 +194,13 @@ function drawPlayer(ctx, player, champions, prop) {
             ctx.fillStyle = blue
             ctx.fillText(`${translate.Winrate[lang]}: ${champions.winrate}%`, 10 + padLeftNew, 310)
         }
-        
+
         ctx.fillStyle = red
         ctx.fillText(`${translate.RANKED[lang]}:`, 225 + padLeftNew, 190)
         ctx.fillStyle = white
         ctx.fillText(`${translate.Wins[lang]}: ${RankedKBM.Wins}`, 200 + padLeftNew, 210)
         ctx.fillText(`${translate.Losses[lang]}: ${RankedKBM.Losses}`, 200 + padLeftNew, 230)
-        const winrateNumRanked = (RankedKBM.Wins / (RankedKBM.Wins + RankedKBM.Losses) * 100).toFixed(0)
+        const winrateNumRanked = ChampionsStats.getWinrate(RankedKBM.Wins, RankedKBM.Losses)
         ctx.fillStyle = blue
         ctx.fillText(`${translate.Winrate[lang]}: ${winrateNumRanked}%`, 200 + padLeftNew, 250)
         ctx.fillStyle = white

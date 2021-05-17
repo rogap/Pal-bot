@@ -41,8 +41,8 @@ module.exports = class ChampionsStats extends AbstractChampion {
         champions.forEach(champ => {
             const CHAMP = CHAMPIONS.getByName(champ.champion) // чемпион с дефолтными данными которые не нужно менять!
             champ.__proto__ = CHAMP
-            champ.winrate = (champ.Wins / (champ.Wins + champ.Losses) * 100).toFixed(0) // %
-            champ.kda = ((champ.Kills + champ.Assists / 2) / (champ.Deaths + 1)).toFixed(2)
+            champ.winrate = this.constructor.getWinrate(champ.Wins, champ.Losses)
+            champ.kda = this.constructor.getKDA(champ.Kills, champ.Deaths, champ.Assists)
             champ.exp = this.parseExp(champ.Worshippers)
 
             delete champ.champion
@@ -64,8 +64,8 @@ module.exports = class ChampionsStats extends AbstractChampion {
 
         this.#champions = champions
         this.size = champions.length
-        this.winrate = (this.wins / (this.wins + this.losses) * 100).toFixed(0) // %
-        this.kda = ((this.kills + this.assists / 2) / (this.deaths + 1)).toFixed(2)
+        this.winrate = this.constructor.getWinrate(this.wins, this.losses)
+        this.kda = this.constructor.getKDA(this.kills, this.deaths, this.assists)
     }
 
     /**
@@ -112,14 +112,14 @@ module.exports = class ChampionsStats extends AbstractChampion {
         const funcSort = { // функции сортировки
             lvl: (a, b) => b.Rank - a.Rank,
             winrate: (a, b) => {
-                const a_win = (a.Wins / (a.Wins + a.Losses) * 100) || 0
-                const b_win = (b.Wins / (b.Wins + b.Losses) * 100) || 0
+                const a_win = this.constructor.getWinrate(a.Wins, a.Losses)
+                const b_win = this.constructor.getWinrate(b.Wins, b.Losses)
                 return b_win - a_win
             },
             time: (a, b) => b.Minutes - a.Minutes,
             kda: (a, b) => {
-                const a_kda = (a.Kills + a.Assists / 2) / (a.Deaths + 1)
-                const b_kda = (b.Kills + b.Assists / 2) / (b.Deaths + 1)
+                const a_kda = this.constructor.getKDA(a.Kills, a.Deaths, a.Assists)
+                const b_kda = this.constructor.getKDA(b.Kills, b.Deaths, b.Assists)
                 return b_kda - a_kda
             }
         }

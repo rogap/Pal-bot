@@ -40,13 +40,19 @@ module.exports = class SettingsManager {
 	}
 
 	get(id) {
-		return this.#collection[id]
+		const settings = this.#collection[id]
+		if (!settings) return false
+		return new Settings({...settings}) // возвращаем всегда новый обьект!
+	}
+
+	set(id, type, value) { // так мы берем всегда новый обьект настроек то дял смены данных нужен такой метод
+		this.#collection[id][type] = value
 	}
 
     each(callback) {
         // перебирает эллементы
         for (let key in this.#collection) {
-            callback(key, this.#collection[key]) // или поменять key и value местами???
+            callback(key, new Settings({...this.#collection[key]})) // или поменять key и value местами???
         }
     }
 }

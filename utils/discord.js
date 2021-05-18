@@ -278,7 +278,7 @@ Discord.Message.prototype.getSettings = function() { // unify
             if (userSettings) {
                 if (userSettings.lang) guildSettings.lang = userSettings.lang
                 if (userSettings.timezone !== undefined) guildSettings.timezone = userSettings.timezone
-                if (userSettings.backgrounds && userSettings.backgrounds.length) guildSettings.backgrounds = userSettings.backgrounds
+                if (userSettings.backgrounds && userSettings.backgrounds.length) guildSettings.backgrounds = [...userSettings.backgrounds]
             }
 
 			// console.log(guildSettings)

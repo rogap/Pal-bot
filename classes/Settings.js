@@ -36,9 +36,12 @@ module.exports = class Settings {
 
 	// добавляет дефолтные настройки если нет установленных
 	addDefault() {
-		// const n = {
-		// 	lang: this.lang || config.lang
-		// }
+		this.lang = this.lang || config.lang
+		this.timezone = this.timezone || config.timezone
+		this.prefix = this.prefix || config.prefix
+		this.backgrounds = this.backgrounds || [...config.backgrounds] // новый массив
+		return this
+
 		const data = {
 			lang: this.lang || config.lang,
 			timezone: this.timezone || config.timezone,
@@ -49,6 +52,6 @@ module.exports = class Settings {
 		}
 
 		if (this.only !== undefined) data.only = this.only
-		return new Settings(data)
+		return new Settings(data) // теперь тут нет смысла возвращать новый обьект
 	}
 }

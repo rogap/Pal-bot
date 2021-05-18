@@ -122,9 +122,10 @@ module.exports = async function(message, settings, command, contentParams) {
                 SETTINGS.add(newSettingsData) // записываем в менеджер
             } else {
                 // иначе применяем новые
-                getSettings[typeValue] = setValue
+                // getSettings[typeValue] = setValue
+                SETTINGS.set(setId, typeValue, setValue)
             }
-            settings = SETTINGS.get(setId) // поулчаем новые настройки, что бы сразу ответить на измененном языке
+            settings = SETTINGS.get(setId) // получаем новые настройки, что бы сразу ответить на измененном языке
 
             // отправляем сообщение об успешности операции
             const sendResult = await message.sendCheckIn({

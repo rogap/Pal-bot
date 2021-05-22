@@ -32,39 +32,130 @@ module.exports = function(message, settings, command, contentParams) {
             }
 
             const params = contentParams.split(' ')
-            const [firstParam, secondParam, thirdParam, fourthParam, fifthParam] = params
-            // firstParam - всегад первым должен быть указан игрок к которому относится дальнейшии параметры
+            const [firstParam, secondParam, thirdParam, fourthParam] = params
+
+            // страница которую будем отображать
+            const page = isFinite(firstParam) && firstParam > 0 && firstParam < 6 ? firstParam :
+                isFinite(secondParam) && secondParam > 0 && secondParam < 6 ? secondParam :
+                isFinite(thirdParam) && thirdParam > 0 && thirdParam < 6 ? thirdParam :
+                isFinite(fourthParam) && fourthParam > 0 && fourthParam < 6 ? fourthParam : false
+
+            const pageShow = prop.page = Math.floor(page) || 1
+
+            // получаем модификатор
+            const modifier = modifierList.find(mod => mod === firstParam || mod === secondParam || mod === thirdParam || mod === fourthParam) || false
+
+
+            const errParams = {
+                ru: `Не верно указаны параметры команды. Смотрите ${'!'}${'hh'} ${'sh'} - для получения детальной информации.`,
+                en: ``
+            }
+            let userNameOrId, filterData
+
+            if (fourthParam) {
+                // если указано 4 параметра то первый параметр это пользователь, а ДРУГОЙ это тип фильтра
+
+                userNameOrId = firstParam
+                if (modifier === fourthParam) {
+                    if (page === thirdParam) {
+                        filterData = secondParam
+                    } else if (page === secondParam) {
+                        filterData = thirdParam
+                    } else {
+                        // ERR
+                        return reject(errParams)
+                    }
+                } else if (modifier === thirdParam) {
+                    if (page === fourthParam) {
+                        filterData = secondParam
+                    } else if (page === secondParam) {
+                        filterData = fourthParam
+                    } else {
+                        // ERR
+                        return reject(errParams)
+                    }
+                } else if (modifier === secondParam) {
+                    if (page === fourthParam) {
+                        filterData = thirdParam
+                    } else if (page === thirdParam) {
+                        filterData = fourthParam
+                    } else {
+                        // ERR
+                        return reject(errParams)
+                    }
+                } else {
+                    // ERR
+                    return reject(errParams)
+                }
+            } else if (thirdParam) {
+                /**
+                 * если указано 3 параметра:
+                 *      если указан page и modifier то ДРУГОЙ (первый) параметр это пользователь
+                 *      если указан page или modifier то первый параметр это пользователь, а ДРУГОЙ это тип фильтра
+                 */
+
+                if (page && modifier) {
+                    userNameOrId = firstParam
+                } else if (page || modifier) {
+                    userNameOrId = firstParam
+                    if (page === thirdParam || modifier === thirdParam) {
+                        filterData = secondParam
+                    } else {
+                        filterData = thirdParam
+                    }
+                } else {
+                    // ERR
+                    return reject(errParams)
+                }
+            } else if (secondParam) {
+                /**
+                 * если указано 2 параметра:
+                 *      если есть page и modifier то пользователь равен ME
+                 *      если есть page или modifier то пользователь равен ДРУГОМУ
+                 *      если нет page и modifier то первый параметр это пользователь, а второй это тип фильтра
+                 */
+
+                if (page && modifier) {
+                    userNameOrId = 'me'
+                } else if (page || modifier) {
+                    userNameOrId = firstParam
+                } else {
+                    userNameOrId = firstParam
+                    filterData = secondParam
+                }
+            } else if (firstParam) {
+                /**
+                 * если указан 1 параметр:
+                 *      если это page или modifier то пользователь равен ME
+                 *      иначе пользователь равен этому параметру
+                 */
+
+                if (page || modifier) {
+                    userNameOrId = 'me'
+                } else {
+                    userNameOrId = firstParam
+                }
+            }
 
             // тип матча
-            const modeType = gameModeTypes.find((modeName, mode) => {
-                return mode.find(type => type === secondParam || type === thirdParam ||
-                    type === fourthParam || type === fifthParam) ? modeName : false
-            })
+            const modeType = filterData ? gameModeTypes.find((modeName, mode) => {
+                return mode.find(type => type === filterData.toLowerCase()) ? modeName : false
+            }) : false
 
             // имя чемпиона
-            const championType = champions.getByAliases(secondParam || '') || champions.getByAliases(thirdParam || '') ||
-                champions.getByAliases(fourthParam || '') || champions.getByAliases(fifthParam || '')
+            const championType = champions.getByAliases(filterData || '')
 
             // роль чемпиона
             const championRole = championRoles.find((roleName, roles) => {
-                return roles.find(role => role === secondParam || role === thirdParam ||
-                    role === fourthParam || role === fifthParam) ? roleName : false
+                return roles.find(role => role === filterData) ? roleName : false
             })
 
-            // страница которую будем отображать
-            const page = isFinite(secondParam) && secondParam > 0 && secondParam < 6 ? Math.floor(secondParam) :
-                isFinite(thirdParam) && thirdParam > 0 && thirdParam < 6 ? Math.floor(thirdParam) :
-                isFinite(fourthParam) && fourthParam > 0 && fourthParam < 6 ? Math.floor(fourthParam) :
-                isFinite(fifthParam) && fifthParam > 0 && fifthParam < 6 ? Math.floor(fifthParam) : 1
-            
-            prop.page = page
 
-            // получаем модификатор
-            const modifier = modifierList.find(mod => mod === secondParam || mod === thirdParam || mod === fourthParam || mod === fifthParam)
+
 
             // const cXname = championType ? championType.Name : ''
-            // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; page: ${page}; modifier: ${modifier};`)
-            command.getStats(userId, firstParam)
+            // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; pageShow: ${pageShow}; modifier: ${modifier};`)
+            command.getStats(userId, userNameOrId)
             .then(body => {
                 const matches = body.getmatchhistory.json
                 // console.log(`Всего: ${matches.length}`)
@@ -94,7 +185,7 @@ module.exports = function(message, settings, command, contentParams) {
                 // console.log(`championRole: ${matches.length}`)
 
                 // берем нужную страницу
-                const matchesPage = matches.slice((page-1)*10, (page-1)*10+10)
+                const matchesPage = matches.slice((pageShow-1)*10, (pageShow-1)*10+10)
 
                 if (!matchesPage.length) return reject({
                     err_msg: {
@@ -125,11 +216,11 @@ module.exports = function(message, settings, command, contentParams) {
                 // console.log(matchesIds)
                 const matchesInfoDefault = {
                     ru: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                        `[Матчи](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Всего](${matches.length})\n` + 
-                        `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';',
+                        `[Матчи](${(pageShow-1)*10}-${matchesIds.length*(pageShow-1)+10}) [Всего](${matches.length})\n` + 
+                        `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(pageShow-1)*10}](${id})`).join('; ') + ';',
                     en: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                        `[Matches](${(page-1)*10}-${matchesIds.length*(page-1)+10}) [Total](${matches.length})\n` + 
-                        `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(page-1)*10}](${id})`).join('; ') + ';'
+                        `[Matches](${(pageShow-1)*10}-${matchesIds.length*(pageShow-1)+10}) [Total](${matches.length})\n` + 
+                        `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(pageShow-1)*10}](${id})`).join('; ') + ';'
                         
                 }
 
@@ -220,7 +311,7 @@ class _temp {
     }
 
     get info() {
-        return `<info ${this.damage.goDot()} / ${this.healing.goDot()} / ${this.damage_mitigated.goDot()}>`
+        return `<info: ${this.damage.goDot()} / ${this.healing.goDot()} / ${this.damage_mitigated.goDot()}>`
     }
 }
 
@@ -255,10 +346,10 @@ class _tempGlobal extends _temp {
     stats(type) {
         if (!type) throw {err_msg: {ru: '', en: ''}}
         let text = ''
-        for (let queueName in this[type]) {
-            const queue = this[type][queueName]
-            const queueNameUpCase = queueName.slice(0, 1).toUpperCase() + queueName.slice(1)
-            text += `<${queueNameUpCase}>${queue.fullStats}\n`
+        for (let typeName in this[type]) {
+            const temp = this[type][typeName]
+            const typeNameUpCase = typeName.slice(0, 1).toUpperCase() + typeName.slice(1)
+            text += `<${typeNameUpCase}>${temp.fullStats}\n`
         }
         return {
             ru: text,

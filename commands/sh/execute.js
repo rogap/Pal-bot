@@ -48,7 +48,7 @@ module.exports = function(message, settings, command, contentParams) {
 
             const errParams = {
                 ru: `Не верно указаны параметры команды. Смотрите ${'!'}${'hh'} ${'sh'} - для получения детальной информации.`,
-                en: ``
+                en: `The command parameters are specified incorrectly. See ${'!'}${'hh'} ${'sh'} - for more detailed information.`
             }
             let userNameOrId, filterData
 

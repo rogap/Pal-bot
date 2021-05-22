@@ -25,8 +25,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '\`\`\`yaml\nТеперь вы можете изменять название команд (и не только).\`\`\`',
-		en: '\`\`\`yaml\nNow you can change the name of the teams (and not only).\`\`\`'
+		ru: "\`\`\`cs\n# !sh - может фильтровать историю матчей по ролям, чемпионам и очереди поиска.\n'Например: !sh me ranked -f\`\`\`",
+		en: "\`\`\`cs\n# !sh - can filter the history of matches by roles, champions, queue.\n'Example: !sh me ranked -f\`\`\`"
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',
@@ -45,6 +45,7 @@ module.exports = {
 		5: 'Steam',
 		9: 'PS4',
 		10: 'Xbox',
+		13: 'Google',
 		22: 'Switch',
 		25: 'Discord',
 		28: 'Epic Games'

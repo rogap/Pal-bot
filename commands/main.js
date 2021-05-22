@@ -194,8 +194,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'sf'),
         params: {
-            ru: ['"Ник/id"', '"Страница"'],
-            en: ['"Nickname/id"', '"Page"']
+            ru: ['?"Ник/id"', '^?"Поиск"', '*^?"Страница"'],
+            en: ['?"Nickname/id"', '^?"Search"', '*^?"Page"']
         },
         info: {
             ru: `Выводит список друзей в игре.`,

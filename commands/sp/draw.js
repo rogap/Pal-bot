@@ -106,7 +106,7 @@ function drawDefault(ctx, match, prop, last_update) {
                 _local.utils.sendToChannel(config.chLog, 'Не найдено имя чемпиона у команды SP.').catch(console.log)
             }
             const champion = champName ? champions.getByName(champName) : {}
-            const champImg = champion.icon
+            const champImg = champion ? champion.icon : undefined
             const tier = player.Tier
             const winrate = (player.tierWins / (player.tierWins + player.tierLosses) * 100).toFixed(2) || '-'
 

@@ -109,9 +109,11 @@ function drawTable(ctx, matches, prop) {
         for (let i = 0; i < matches.length; i++) {
             const match = matches[i]
             const champion = champions.getByName(match.Champion)
-            const img = champion.icon
-            const y = positionY + 52 * i
-            if (img) ctx.drawImage(img, 40, y, 50, 50)
+            if (champion) {
+                const img = champion.icon
+                const y = positionY + 52 * i
+                if (img) ctx.drawImage(img, 40, y, 50, 50)
+            }
         }
 
         const pos = [10, 100, 280, 355, 450, 530, 620, 710, 800, 890]

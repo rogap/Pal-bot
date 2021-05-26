@@ -38,8 +38,12 @@ module.exports = class ChampionsStats extends AbstractChampion {
         this.deaths = 0
         this.assists = 0
 
-        champions.forEach(champ => {
+        champions.forEach((champ, index) => {
             const CHAMP = CHAMPIONS.getByName(champ.champion) // чемпион с дефолтными данными которые не нужно менять!
+            if (!CHAMP) { // пропускаем если нет чемпиона и удаляем его
+                champions.splice(index, 1)
+                return;
+            }
             champ.__proto__ = CHAMP
             champ.winrate = this.constructor.getWinrate(champ.Wins, champ.Losses)
             champ.kda = this.constructor.getKDA(champ.Kills, champ.Deaths, champ.Assists)

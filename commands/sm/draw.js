@@ -175,20 +175,22 @@ function drawTable(ctx, match, prop) {
         for (let i = 0; i < match.length; i++) {
             const players = match[i]
             const champName = players.Reference_Name
-    
+
             const cnampion = champions.getByName(champName)
             let nextTeam = i >= 5 ? 245 : 40
             if (cnampion) { // если есть чемпион то рисуем
                 const img = cnampion.icon
                 if (img) ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
             }
-    
-            const legendary = cnampion.cards.getById(players.ItemId6)
-            if (legendary) ctx.drawImage(legendary.img, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
-    
+
+            if (cnampion) {
+                const legendary = cnampion.cards.getById(players.ItemId6)
+                if (legendary) ctx.drawImage(legendary.img, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
+            }
+
             const imgDivision = config.img.divisions[players.League_Tier]
             if (players.name == 'Ranked') ctx.drawImage(imgDivision, 115, 55 * i + nextTeam, 50, 50) // рисуем ранг только в рейте
-    
+
             // рисуем закуп
             const item1 = players.Item_Active_1
             if (item1) {
@@ -210,22 +212,22 @@ function drawTable(ctx, match, prop) {
                 ctx.drawImage(config.img.items[item4.toLowerCase()], 1175, 55 * i + nextTeam, 40, 40)
                 drawLevelItem(ctx, players.ActiveLevel4, 1175, 55 * i + nextTeam + 43, 10, 3)
             }
-    
+
             const partyId = players.PartyId
             let partyNum = party[partyId]
             if (!partyNum) {
                 party[partyId] = partyNum = partyNumber
                 partyNumber++
             }
-    
+
             // ОТ ЛВЛ и ник
             ctx.fillText(players.League_Points || '', 170, 55 * i + nextTeam + 27)
             ctx.fillText(players.playerName, 205, 55 * i + nextTeam + 15)
             ctx.fillStyle = orange
             ctx.fillText(`Lvl: ${players.Account_Level}`, 205, 55 * i + nextTeam + 40)
-    
+
             nextTeam += 25
-    
+
             ctx.fillStyle = partyColors[partyNum - 1]
             ctx.beginPath()
             ctx.arc(385, 55 * i + nextTeam - 2, 15, 0, 2*Math.PI, false) // круг пати

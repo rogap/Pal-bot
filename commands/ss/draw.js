@@ -232,9 +232,12 @@ function drawChampions(ctx, champions, prop) {
         // рисуем загруженых чемпионов
         let positionX = 470
         for (let i = 0; i < champSort.length; i++) {
-            const img = champSort[i].icon
-            const x = positionX + 60 * i
-            ctx.drawImage(img, x, 180, 50, 50)
+            const champ = champSort[i]
+            if (champ) {
+                const img = champ.icon
+                const x = positionX + 60 * i
+                if (img) ctx.drawImage(img, x, 180, 50, 50)
+            }
         }
 
         // данные для диаграммы

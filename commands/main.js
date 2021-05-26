@@ -24,8 +24,8 @@ module.exports = {
         owner: false,
         path: path.join(__dirname, 'set'),
         params: {
-            ru: ['^"Для кого"', '^"Тип"', '^"Значение"'],
-            en: ['^"For whom"', '^"Type"', '^"Value"']
+            ru: ['^"me/server id"', '^"Тип"', '^"Значение"'],
+            en: ['^"me/server id"', '^"Type"', '^"Value"']
         },
         info: {
             ru: 'Меняет настройки языка и часового пояса.',

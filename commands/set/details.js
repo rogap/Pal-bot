@@ -14,13 +14,13 @@ module.exports = function(settings, command) {
 
     const details = new Details(command)
     .setDescription({
-        ru: `[${comSet} ^"Для кого", ^?"Тип", ^?"Значение"]`,
-        en: `[${comSet} ^"For whom", ^?"Type", ^?"Value"]`
+        ru: `[${comSet} ^"me/server id", ^?"Тип", ^?"Значение"]`,
+        en: `[${comSet} ^"me/server id", ^?"Type", ^?"Value"]`
     })
     .setFields({
         name: {
-            ru: 'Для кого',
-            en: 'For whom'
+            ru: 'me/server id',
+            en: 'me/server id'
         },
         value: {
             ru: [

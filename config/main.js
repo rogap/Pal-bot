@@ -25,8 +25,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: "\`\`\`cs\n# !sh - может фильтровать историю матчей по ролям, чемпионам и очереди поиска.\n'Например: !sh me ranked -f\`\`\`",
-		en: "\`\`\`cs\n# !sh - can filter the history of matches by roles, champions, queue.\n'Example: !sh me ranked -f\`\`\`"
+		ru: '',
+		en: ''
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',

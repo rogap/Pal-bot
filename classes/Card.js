@@ -50,7 +50,7 @@ module.exports = class Card extends AbstractChampion {
         return new Promise((resolve, reject) => {
             loadImage(pathImg)
             .then(img => {
-                this.img = img
+                if (this.type !== 'common') this.img = img // сохраняем только легендарки
                 return resolve(img)
             })
             .catch(err => reject(err))

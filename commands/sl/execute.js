@@ -111,7 +111,7 @@ module.exports = async function(message, settings, command, contentParams) {
             })
 
             // рисуем
-            const draw = command.draw(loadout, champion, prop, getplayerloadouts.last_update)
+            const draw = await command.draw(loadout, champion, prop, getplayerloadouts.last_update)
             if (!draw.status) return reject(draw)
 
             const canvas = draw.canvas

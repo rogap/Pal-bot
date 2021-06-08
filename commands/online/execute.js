@@ -6,7 +6,6 @@
 const _local = process._local
 const {config, utils} = _local
 const {sendSite} = utils
-const {translate} = config
 
 
 module.exports = async function(message, settings, command, contentParams) {

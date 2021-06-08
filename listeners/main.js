@@ -9,6 +9,7 @@ module.exports = (function() {
         require('./guildDelete.js')
         require('./ready.js')
         require('./message.js')
+        require('./button.js')
         console.log('Обработчики успешно загружены.')
         return true
     } catch(err) {

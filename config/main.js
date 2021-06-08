@@ -16,6 +16,8 @@ module.exports = {
 	discordToken: env.DISCORDTOKEN,
 	dbToken: env.DATABASETOKEN,
 	steamKey: env.STEAMKEY,
+	stegPass: 'Paladins',
+	stegText: 'buttons menu',
 	translate,
 	urlApi: 'https://webmyself.ru/pal-bot/api/api.php',
 	discordInvate: 'https://discord.gg/C2phgzTxH9',
@@ -25,8 +27,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '',
-		en: ''
+		ru: 'ВНИМАНИЕ! со временем мы перейдем на использование __**единственной**__ команды **!pal**.\nПривыкайте к кнопочкам :)',
+		en: 'ATTENTION! over time, we will switch to using __**a single**__ command **!pal**.\nGet used to the buttons :)'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',
@@ -76,6 +78,8 @@ module.exports = {
 	},
 	chLog: '696604376034181140', // logs - все виды ошибок в том числе не найденные картинки
 	chNot: '612875033651707905', // notification - старт бота, добавление и удаление серверов
+	chImg: '850723677355769887', // канал для хранения картинок (из-за тупости работы дискорда вынужен делать так)
+	// и не я один: https://support.discord.com/hc/en-us/community/posts/360041728292-Edit-sent-files
 	prefix: '!',
 	testing: false,
 	lang: 'ru', // язык по умолчанию

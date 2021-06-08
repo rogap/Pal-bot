@@ -28,8 +28,8 @@ module.exports = {
 		client.channels.fetch(chId)
 		.then(ch => {
 			ch.send(textMess)
-			.then(() => {
-				return resolve(ch)
+			.then((mess) => {
+				return resolve(mess)
 			})
 			.catch(err => {
 				return reject({
@@ -260,8 +260,8 @@ Discord.Message.prototype.sendError = function(text) {}
  * получает настройки и команды которые доступны (подходят) пользователю
  * @returns {Object} - setting {}
  */
-Discord.Message.prototype.getSettings = function() { // unify
-    const authorId = this.author.id
+Discord.Message.prototype.getSettings = function(id) { // unify
+    const authorId = id || this.author.id
     const userSettings = _local.usersSettings.get(authorId)
 	// console.log(userSettings)
 
@@ -300,4 +300,30 @@ Discord.Message.prototype.getSettings = function() { // unify
         commands: _local.commands,
         backgrounds: config.backgrounds
     })
+}
+
+
+
+client.__defer = async function(data, ephemeral=false) {
+	return this.api.interactions(data.id, data.token).callback.post({
+		data: {
+			type: 6, // defer: 6; think: 5; 
+			data: {
+				flags: ephemeral ? 1 << 6 : null, // че это я пока не понял
+			},
+		},
+	})
+}
+
+
+
+client.__think = async function(data, ephemeral=false) {
+	return this.api.interactions(data.id, data.token).callback.post({
+		data: {
+			type: 5, // defer: 6; think: 5; 
+			data: {
+				flags: ephemeral ? 1 << 6 : null, // че это я пока не понял
+			},
+		},
+	})
 }

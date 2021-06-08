@@ -10,16 +10,30 @@ module.exports = {
     console: {
         name: 'console',
         possibly: ['console', 'con'],
-        order: 0,
         permissions: [],
         owner: true,
         path: path.join(__dirname, 'console'),
         files: ['execute'] // список файлов которые нужно будет загрузить для команды
     },
+    pal: {
+        name: 'pal',
+        possibly: ['pal', 'menu'],
+        permissions: ['SEND_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(__dirname, 'pal'),
+        params: {
+            ru: ['?"Ник/id"'],
+            en: ['?"Nickname/id"']
+        },
+        info: {
+            ru: 'Меню команд',
+            en: 'Command menu'
+        },
+        files: ['execute', 'details', 'buttonExecute', 'mainMenu']
+    },
     set: {
         name: 'set',
         possibly: ['set', 'установить'],
-        order: 1,
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'set'),
@@ -31,12 +45,11 @@ module.exports = {
             ru: 'Меняет настройки языка и часового пояса.',
             en: 'Changes the settings of the language and the time zone.'
         },
-        files: ['execute', 'details', 'setData']
+        files: ['execute', 'details', 'setData', 'buttonExecute']
     },
     hh: {
         name: 'hh',
         possibly: ['hh'],
-        order: 2,
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'hh'),
@@ -53,7 +66,6 @@ module.exports = {
     me: {
         name: 'me',
         possibly: ['me'],
-        order: 3,
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'me'),
@@ -70,7 +82,6 @@ module.exports = {
     ss: {
         name: 'ss',
         possibly: ['ss', 'стата'],
-        order: 4,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'ss'),
@@ -82,12 +93,11 @@ module.exports = {
             ru: `Выводит общую статистику аккаунта.`,
             en: `Displays general account statistics.`
         },
-        files: ['details', 'draw', 'getStats', 'execute']
+        files: ['details', 'draw', 'getStats', 'execute', 'buttonExecute']
     },
     sh: {
         name: 'sh',
         possibly: ['sh', 'история'],
-        order: 5,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sh'),
@@ -99,12 +109,11 @@ module.exports = {
             ru: `Выводит историю матчей указанного игрока.`,
             en: `Displays the match history of the specified player.`
         },
-        files: ['details', 'draw', 'getStats', 'execute']
+        files: ['details', 'draw', 'getStats', 'execute', 'buttonExecute']
     },
     sm: {
         name: 'sm',
         possibly: ['sm', 'матч'],
-        order: 6,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sm'),
@@ -116,12 +125,11 @@ module.exports = {
             ru: `Выводит детали для указанного матча или последнего матча игрока.`,
             en: `Displays details for the specified match or the last match of a player.`
         },
-        files: ['details', 'draw', 'getStats', 'execute']
+        files: ['details', 'draw', 'getStats', 'execute', 'buttonExecute']
     },
     sp: {
         name: 'sp',
         possibly: ['sp', 'сталкер'],
-        order: 7,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sp'),
@@ -133,12 +141,11 @@ module.exports = {
             ru: `Возвращает статус игрока в реальном времени.`,
             en: `Returns the player status in real time.`
         },
-        files: ['details', 'draw', 'getStats', 'execute']
+        files: ['details', 'draw', 'getStats', 'execute', 'buttonExecute']
     },
     st: {
         name: 'st',
         possibly: ['st', 'топ'],
-        order: 8,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'st'),
@@ -155,7 +162,6 @@ module.exports = {
     sl: {
         name: 'sl',
         possibly: ['sl', 'колода'],
-        order: 9,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sl'),
@@ -172,7 +178,6 @@ module.exports = {
     sc: {
         name: 'sc',
         possibly: ['sc', 'чемпион'],
-        order: 10,
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sc'),
@@ -189,7 +194,6 @@ module.exports = {
     sf: {
         name: 'sf',
         possibly: ['sf'],
-        order: 11,
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'sf'),
@@ -206,7 +210,6 @@ module.exports = {
     sb: {
         name: 'sb',
         possibly: ['sb'],
-        order: 12,
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'sb'),
@@ -223,7 +226,6 @@ module.exports = {
     online: {
         name: 'online',
         possibly: ['online', 'онлайн'],
-        order: 13,
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'online'),

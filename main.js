@@ -7,9 +7,12 @@ const Discord = require('discord.js')
 const client = new Discord.Client()
 const path = require('path')
 const config = require(path.join(__dirname, 'config', 'main.js'))
+const StegCloak = require('stegcloak')
+const stegcloak = new StegCloak(true, false)
+const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
 
 // обьект бота, в начале launched = false (все обработчики на паузе)
-const _local = { Discord, client, config, launched: false, timeStart: new Date() }
+const _local = { Discord, client, config, stegcloak, commandsUsed, launched: false, timeStart: new Date() }
 // champions, usersSettings, guildsSettings, commands
 process._local = _local // для передачи данных между скриптами
 

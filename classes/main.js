@@ -19,7 +19,9 @@ module.exports = {
     AbstractChampion: require('./AbstractChampion.js'),
     CardsManager: require('./CardsManager.js'),
     Card: require('./Card.js'),
-    Details: require('./Details.js')
+    Details: require('./Details.js'),
+    Button: require('./Button.js'),
+    ButtonsManager: require('./ButtonsManager.js')
 }
 
 

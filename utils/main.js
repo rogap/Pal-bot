@@ -45,6 +45,20 @@ Object.defineProperty(String.prototype, 'goDot', {enumerable: false})
 Object.defineProperty(Number.prototype, 'goDot', {enumerable: false})
 
 
+/**
+ * проверяет есть ли каждый переданный параметр в текущем массиве
+ * @param {String} text 
+ * @return {Boolean}
+ */
+Array.prototype.has = function(...list) {
+	return list.every(text => {
+		const lowerText = text.toLowerCase()
+		return this.some(el => el.toLowerCase() == lowerText)
+	})
+}
+Object.defineProperty(Array.prototype, 'has', {enumerable: false})
+
+
 
 
 

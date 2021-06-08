@@ -5,7 +5,6 @@
 
 const _local = process._local
 const {config, classes} = _local
-const {Details} = classes
 
 
 module.exports = function(message, settings, command, contentParams) {

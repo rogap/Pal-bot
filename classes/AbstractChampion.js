@@ -3,7 +3,7 @@
  */
 
 
- module.exports = class AbstractChampion {
+module.exports = class AbstractChampion {
     static nameNormalize(name) {
         return name.replace(/[-`' ]+/g, "").toLowerCase()
     }
@@ -23,4 +23,4 @@
     static getKDA(kills, deaths, assists) {
         return ((kills + assists / 2) / (deaths + 1)).toFixed(2)
     }
- }
+}

@@ -4,9 +4,8 @@
 
 
 const _local = process._local
-const {client, config, utils, classes} = _local
+const {client, config, utils, classes, commandsUsed} = _local
 const {sendSite, sendToChannel} = utils
-const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
 
 
 /**
@@ -63,7 +62,6 @@ client.on('message', async message => {
 
         command.execute(message, settings, command, contentParams)
         .then(res => {
-
             // увеличиваем число использований команды, только удачные и не админские
             if (!command.owner) {
                 if (!commandsUsed.commands[command.name]) commandsUsed.commands[command.name] = 0
@@ -74,7 +72,6 @@ client.on('message', async message => {
             if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
         })
         .catch(err => {
-            // сделать норм обработчик ошибок (не проброс)
             console.log(err)
             const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
             message.sendWarning(errText[lang])

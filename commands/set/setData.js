@@ -11,7 +11,8 @@ const {formHiRezFunc, sendSite} = utils
 module.exports = function(userId, ...params) {
     return new Promise((resolve, reject) => {
         try {
-                // user or guild
+            // console.log(userId, params)
+            // user or guild
             // user_id or guild_id
             // type set (lang or timezone)
             // value

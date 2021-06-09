@@ -179,7 +179,7 @@ function setSettings(command, setFor, typeValue, setValue, owner, setId) {
 
 
 function defaultButtons(buttons, guild, owner, lang) {
-    const isOwner = guild ? guild.owner.id == owner : false
+    const isOwner = guild ? guild.owner ? guild.owner.id == owner : false : false
 
     const btn_langServerRU = new Button()
     .setLabel({ru: 'Server RU', en: 'Server RU'}[lang])

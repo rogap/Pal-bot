@@ -18,7 +18,7 @@ client.ws.on('INTERACTION_CREATE', async data => {
         if ( !data.message ) return;
         // console.log(data.data.custom_id)
 
-        const authorId = data.member.user.id
+        const authorId = data.member ? data.member.user ? data.member.user.id : data.user.id : data.user.id
 
         const embeds = data.message.embeds
         if (!embeds) return; // нет embeds

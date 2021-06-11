@@ -71,7 +71,7 @@ client.ws.on('INTERACTION_CREATE', async data => {
         const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
         // console.log(data.message.components)
 
-        client.__defer(data)
+        await client.__defer(data)
         await message.edit({
             content: `<@${hideObjInfo.owner}> ` + {
                 ru: 'Идет обработка команды, пожалуйста подождите...',

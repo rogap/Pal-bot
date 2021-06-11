@@ -304,7 +304,7 @@ Discord.Message.prototype.getSettings = function(id) { // unify
 
 
 
-client.__defer = async function(data, ephemeral=false) {
+client.__defer = async function(data, ephemeral=true) {
 	return this.api.interactions(data.id, data.token).callback.post({
 		data: {
 			type: 6, // defer: 6; think: 5; 

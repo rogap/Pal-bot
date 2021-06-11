@@ -65,5 +65,5 @@ Object.defineProperty(Array.prototype, 'has', {enumerable: false})
 // изменение выдачи логов для удобства
 console.logOrig = console.log // сохраняем оригинал
 console.log = function(...args) {
-    return this.logOrig(`~time/${new Date().toText()}/\t`, ...args)
+    return console.logOrig(`~time/${new Date().toText()}/\t`, ...args)
 }

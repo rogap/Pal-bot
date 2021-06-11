@@ -53,9 +53,6 @@ client.on('message', async message => {
         if (guild) guildName = guild.name
         if (!command.owner) console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${content}`)
 
-        // fix guild ????? - delete this fix !
-        // if (command.name == 'pal' && guild && guild.id == '412269547215650817') return await message.reply('Сори, пока эту команду тут отключу из-за бага...')
-
         const contentParams = message.getContent(command.owner)
         if (!command.owner) console.log(contentParams)
 

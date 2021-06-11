@@ -71,7 +71,8 @@ client.ws.on('INTERACTION_CREATE', async data => {
         const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
         // console.log(data.message.components)
 
-        await client.__defer(data)
+        client.__defer(data).catch(console.log)
+
         await message.edit({
             content: `<@${hideObjInfo.owner}> ` + {
                 ru: 'Идет обработка команды, пожалуйста подождите...',
@@ -126,14 +127,12 @@ client.ws.on('INTERACTION_CREATE', async data => {
                     content: errText[_lang],
                     components: buttonList.get()
                 })
+                .catch(console.log)
             }
 
             if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
                 sendToChannel(config.chLog, err.log_msg)
-                .catch(err => {
-                    if (!command.owner) console.log('~OWNER~')
-                    console.log(err)
-                })
+                .catch(console.log)
             }
         })
     } catch(err) {
@@ -157,13 +156,12 @@ client.ws.on('INTERACTION_CREATE', async data => {
                 content: errText[_lang],
                 components: buttonList.get()
             })
+            .catch(console.log)
         }
 
         if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
             sendToChannel(config.chLog, err.log_msg)
-            .catch(err => {
-                console.log(err)
-            })
+            .catch(console.log)
         }
     }
 })

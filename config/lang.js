@@ -44,6 +44,7 @@ module.exports = (function() {
         Obj_assist: {ru: 'Цель', en: 'Object'},
         Items: {ru: 'Предметы', en: 'Items'},
         Tank: {ru: 'Танк', en: 'Tank'},
+        Front_Line: {ru: 'Танк', en: 'Front Line'},
         Flank: {ru: 'Фланг', en: 'Flank'},
         Heal: {ru: 'Хилл', en: 'Heal'},
         Support: {ru: 'Саппорт', en: 'Support'},

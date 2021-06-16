@@ -269,7 +269,7 @@ function drawChampions(ctx, champions, prop) {
         ctx.fillText(`${translate.Roles[lang]}:`, 540, 20)
         ctx.fillStyle = white
         ctx.fillText(`${translate.Damage[lang]} - ${(timePlayRole.damage / totalTime * 100).toFixed(2)}%`, 640, 54)
-        ctx.fillText(`${translate.Tank[lang]} - ${(timePlayRole.frontline / totalTime * 100).toFixed(2)}%`, 640, 76)
+        ctx.fillText(`${translate.Front_Line[lang]} - ${(timePlayRole.frontline / totalTime * 100).toFixed(2)}%`, 640, 76)
         ctx.fillText(`${translate.Flank[lang]} - ${(timePlayRole.flanker / totalTime * 100).toFixed(2)}%`, 640, 98)
         ctx.fillText(`${translate.Support[lang]} - ${(timePlayRole.support / totalTime * 100).toFixed(2)}%`, 640, 120)
 

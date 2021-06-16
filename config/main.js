@@ -65,7 +65,7 @@ module.exports = {
 			'Silver 5', 'Silver 4', 'Silver 3', 'Silver 2', 'Silver 1',
 			'Gold 5', 'Gold 4', 'Gold 3', 'Gold 2', 'Gold 1',
 			'Platinum 5', 'Platinum 4', 'Platinum 3', 'Platinum 2', 'Platinum 1',
-			'Dimond 5', 'Dimond 4', 'Dimond 3', 'Dimond 2', 'Dimond 1', 'Master', 'GM'
+			'Diamond 5', 'Diamond 4', 'Diamond 3', 'Diamond 2', 'Diamond 1', 'Master', 'GM'
 		]
 	},
 	img: {

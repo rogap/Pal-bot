@@ -33,6 +33,7 @@ module.exports = (function() {
         Champions: {ru: 'Чемпионы', en: 'Champions'},
         Champion: {ru: 'Чемпион', en: 'Champion'},
         Timezone: {ru: 'Часовой пояс', en: 'Timezone'},
+        Hours: {ru: 'Часов', en: 'Hours'},
         Sponsor: {ru: 'Спонсор', en: 'Sponsor'},
         Favorite_champions: {ru: 'Любимые чемпионы', en: 'Favorite champions'},
         Roles: {ru: 'Роли', en: 'Roles'},

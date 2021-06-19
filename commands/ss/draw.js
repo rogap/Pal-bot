@@ -169,7 +169,7 @@ function drawPlayer(ctx, player, champions, prop) {
         ctx.fillStyle = white
         const dateCreate = new Date(player.Created_Datetime).addHours(timezone).toText()
         ctx.fillText(`${translate.Created[lang]}: ${dateCreate}`, 10 + widthInfo / 2, 60)
-        ctx.fillText(`${translate.Played[lang]}: ${player.HoursPlayed} часов`, 10 + widthInfo / 2, 80)
+        ctx.fillText(`${translate.Played[lang]}: ${player.HoursPlayed} ${translate.hours[lang]}`, 10 + widthInfo / 2, 80)
         const dateLastLogin = new Date(player.Last_Login_Datetime).addHours(timezone).toText()
         ctx.fillText(`${translate.Last_login[lang]}: ${dateLastLogin}`, 10 + widthInfo / 2, 100)
         ctx.fillStyle = orange

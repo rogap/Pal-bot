@@ -31,7 +31,7 @@ module.exports = function(lang) {
 
         // 2 line
         const btn_ss = new Button()
-        .setLabel({ru: 'Статистика аккаунта', en: 'Accaunt stats'}[lang])
+        .setLabel({ru: 'Статистика аккаунта', en: 'Account stats'}[lang])
         .setStyle(1)
         .setId('ss')
 

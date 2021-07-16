@@ -84,7 +84,7 @@ async function creatingChampions(championsInfo, championsCards) {
 			cardRU.card_description = cardDescription
 			cardRU.card_name = cardName
 			const CARD = new Card(cardRU)
-			await CARD.loadImg() // загружаем картинку карты
+			// await CARD.loadImg() // загружаем картинку карты
 			CARDS.add(CARD)
 		}
 

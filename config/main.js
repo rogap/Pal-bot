@@ -27,8 +27,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: 'ВНИМАНИЕ! со временем мы перейдем на использование __**единственной**__ команды **!pal**.\nПривыкайте к кнопочкам :)',
-		en: 'ATTENTION! over time, we will switch to using __**a single**__ command **!pal**.\nGet used to the buttons :)'
+		ru: '',
+		en: ''
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',

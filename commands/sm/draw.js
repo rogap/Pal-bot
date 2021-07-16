@@ -7,7 +7,7 @@ const _local = process._local
 const {config, classes} = _local
 const {ChampionsStats} = classes
 const {translate} = config
-const {createCanvas } = require('canvas')
+const { createCanvas, loadImage } = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 
 
@@ -16,7 +16,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = function(body, prop) {
+module.exports = async function(body, prop) {
     try {
         const {getmatchdetails} = body
         const match = getmatchdetails.json
@@ -28,11 +28,11 @@ module.exports = function(body, prop) {
         prop.height = height
 
         // рисуем дефолтные
-        const resDefault = drawDefault(ctx, match, prop)
+        const resDefault = await drawDefault(ctx, match, prop)
         if (!resDefault.status) throw resDefault
 
         // рисуем таблицу
-        const resTable = drawTable(ctx, match, prop)
+        const resTable = await drawTable(ctx, match, prop)
         if (!resTable.status) throw resTable
 
         return {
@@ -57,7 +57,40 @@ module.exports = function(body, prop) {
 }
 
 
-function drawDefault(ctx, match, prop) {
+async function getMap(mapGame) {
+    try {
+        let mapName = ''
+        let pathToImg = config.defaultPathToImg
+        for (let i = 0; i < config.img.maps.length; i++) {
+            const map = config.img.maps[i]
+            if (!map) continue
+            const reg = new RegExp(`${map.name}`, 'i')
+            const res = mapGame ? mapGame.replace(/'/,'').match(reg) : false
+            if (res) {
+                mapName = res[0]
+                pathToImg = map.path
+                break
+            }
+        }
+
+        const res = await loadImage(pathToImg)
+        return [res, mapName]
+    } catch(err) {
+        if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
+        throw {
+            status: false,
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'Ошибка функции "sm.getMap"'
+        }
+    }
+}
+
+
+async function drawDefault(ctx, match, prop) {
     try {
         const {champions} = _local
         const {lang, timezone, backgrounds, width, height} = prop
@@ -71,21 +104,24 @@ function drawDefault(ctx, match, prop) {
 
         const matchOne = match[0]
         // инфа по центру
-        let mapImg = null // узнаем карту, получаем ее картинку
-        let mapName = ''
-        for (let map in maps) {
-            const reg = new RegExp(`${map}`, 'i')
-            const res = matchOne.Map_Game.replace(/'/,'').match(reg)
-            if (res) {
-                mapImg = maps[map]
-                mapName = res[0]
-                break
-            }
-        }
-        if (!mapName) {
-            mapName = matchOne.Map_Game || 'test'
-            mapImg = maps['test maps']
-        }
+        const getMapMatch = await getMap(matchOne.Map_Game)
+        const mapImg = getMapMatch[0]
+        const mapName = mapImg ? getMapMatch[1] : '-'
+        // let mapImg = null // узнаем карту, получаем ее картинку
+        // let mapName = ''
+        // for (let map in maps) {
+        //     const reg = new RegExp(`${map}`, 'i')
+        //     const res = matchOne.Map_Game.replace(/'/,'').match(reg)
+        //     if (res) {
+        //         mapImg = maps[map]
+        //         mapName = res[0]
+        //         break
+        //     }
+        // }
+        // if (!mapName) {
+        //     mapName = matchOne.Map_Game || 'test'
+        //     mapImg = maps['test maps']
+        // }
         if (mapImg) ctx.drawImage(mapImg, 10, 315, 356, 200) // рисуем карту
         ctx.font = 'bold 20px GothamSSm_Bold'
         ctx.fillStyle = white
@@ -145,7 +181,7 @@ function drawDefault(ctx, match, prop) {
 }
 
 
-function drawTable(ctx, match, prop) {
+async function drawTable(ctx, match, prop) {
     try {
         const {champions} = _local
         const {lang, timezone, backgrounds, width, height} = prop
@@ -185,7 +221,10 @@ function drawTable(ctx, match, prop) {
 
             if (cnampion) {
                 const legendary = cnampion.cards.getById(players.ItemId6)
-                if (legendary) ctx.drawImage(legendary.img, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
+                if (legendary) {
+                    const legendaryImg = await legendary.loadImg()
+                    if (legendaryImg) ctx.drawImage(legendaryImg, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
+                }
             }
 
             const imgDivision = config.img.divisions[players.League_Tier]

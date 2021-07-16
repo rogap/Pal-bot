@@ -29,7 +29,7 @@ module.exports = function(message, hideObjInfo, customIdList, settings, command,
             const body = await command.getStats(owner, matchId)
             const {getmatchdetails} = body
             const match = getmatchdetails.json
-            const draw = command.draw(body, prop)
+            const draw = await command.draw(body, prop)
             if (!draw.status) return reject(draw)
 
             const canvas = draw.canvas

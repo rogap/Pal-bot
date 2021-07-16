@@ -25,7 +25,7 @@ module.exports = function(message, settings, command, contentParams) {
 
             // console.log(`nameOrIdOrDis: ${nameOrIdOrDis}; modifier: ${modifier}`)
             command.getStats(userId, nameOrIdOrDis)
-            .then(body => {
+            .then(async body => {
                 // console.log(body)
                 const {getplayerstatus} = body
                 const data = getplayerstatus.json[0]
@@ -98,7 +98,7 @@ module.exports = function(message, settings, command, contentParams) {
                     const match = body.getmatchplayerdetails.json
                     // console.log(match)
 
-                    const draw = command.draw(match, prop, last_update)
+                    const draw = await command.draw(match, prop, last_update)
                     if (!draw.status) return reject(draw)
 
                     const canvas = draw.canvas

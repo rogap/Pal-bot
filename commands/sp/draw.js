@@ -6,7 +6,7 @@
 const _local = process._local
 const {config, classes} = _local
 const {translate} = config
-const {createCanvas } = require('canvas')
+const {createCanvas, loadImage } = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 
 
@@ -15,7 +15,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = function(match, prop, last_update) {
+module.exports = async function(match, prop, last_update) {
     try {
         const width = 952
         const height = 535
@@ -24,7 +24,7 @@ module.exports = function(match, prop, last_update) {
         prop.width = width
         prop.height = height
 
-        const resDefault = drawDefault(ctx, match, prop, last_update)
+        const resDefault = await drawDefault(ctx, match, prop, last_update)
         if (!resDefault.status) throw resDefault
 
         return {
@@ -39,7 +39,7 @@ module.exports = function(match, prop, last_update) {
             err,
             err_msg: {
                 ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                en: 'omething went wrong... Try again or report this error to the bot creator.'
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "sp.draw"'
         }
@@ -47,28 +47,63 @@ module.exports = function(match, prop, last_update) {
 }
 
 
-function drawDefault(ctx, match, prop, last_update) {
+async function getMap(mapGame) {
+    try {
+        let mapName = ''
+        let pathToImg = config.defaultPathToImg
+        for (let i = 0; i < config.img.maps.length; i++) {
+            const map = config.img.maps[i]
+            if (!map) continue
+            const reg = new RegExp(`${map.name}`, 'i')
+            const res = mapGame ? mapGame.replace(/'/,'').match(reg) : false
+            if (res) {
+                mapName = res[0]
+                pathToImg = map.path
+                break
+            }
+        }
+
+        const res = await loadImage(pathToImg)
+        return [res, mapName]
+    } catch(err) {
+        if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
+        throw {
+            status: false,
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'Ошибка функции "sp.getMap"'
+        }
+    }
+}
+
+
+async function drawDefault(ctx, match, prop, last_update) {
     try {
         const {champions} = _local
         const {lang, timezone, backgrounds, width, height} = prop
         const matchOne = match[0]
-        const maps = config.img.maps
+        // const maps = config.img.maps
 
-        let mapImg = null // узнаем карту, получаем ее картинку
-        let mapName = ''
-        for (let map in maps) {
-            const reg = new RegExp(`${map}`, 'i')
-            const res = matchOne.mapGame ? matchOne.mapGame.replace(/'/,'').match(reg) : false
-            if (res) {
-                mapImg = maps[map]
-                mapName = res[0]
-                break
-            }
-        }
-        if (!mapName) {
-            mapName = matchOne.mapGame || 'test'
-            mapImg = maps['test maps']
-        }
+        // let mapImg = null // узнаем карту, получаем ее картинку
+        const getMapMatch = await getMap(matchOne.mapGame)
+        const mapImg = getMapMatch[0]
+        const mapName = mapImg ? getMapMatch[1] : '-'
+        // for (let map in maps) {
+        //     const reg = new RegExp(`${map}`, 'i')
+        //     const res = matchOne.mapGame ? matchOne.mapGame.replace(/'/,'').match(reg) : false
+        //     if (res) {
+        //         mapImg = maps[map]
+        //         mapName = res[0]
+        //         break
+        //     }
+        // }
+        // if (!mapName) {
+        //     mapName = matchOne.mapGame || 'test'
+        //     mapImg = maps['test maps']
+        // }
         if (mapImg) ctx.drawImage(mapImg, 0, 0, width, height)
 
         // затемняющий прозрачный фон
@@ -158,7 +193,7 @@ function drawDefault(ctx, match, prop, last_update) {
             err,
             err_msg: {
                 ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                en: 'omething went wrong... Try again or report this error to the bot creator.'
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "sp.drawDefault"'
         }

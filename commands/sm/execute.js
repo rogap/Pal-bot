@@ -34,11 +34,11 @@ module.exports = function(message, settings, command, contentParams) {
 
             // console.log(`nameOrIdOrDis: ${nameOrIdOrDis}; matchNumber: ${matchNumber}; modifier: ${modifier}`)
             command.getStats(userId, nameOrIdOrDis, matchNumber)
-            .then(body => {
+            .then(async body => {
                 // console.log(body)
                 const {getmatchdetails} = body
                 const match = getmatchdetails.json
-                const draw = command.draw(body, prop)
+                const draw = await command.draw(body, prop)
                 if (!draw.status) return reject(draw)
 
                 const canvas = draw.canvas

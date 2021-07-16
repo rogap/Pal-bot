@@ -16,6 +16,8 @@ const _local = { Discord, client, config, stegcloak, commandsUsed, launched: fal
 // champions, usersSettings, guildsSettings, commands
 process._local = _local // для передачи данных между скриптами
 
+_local.config.defaultPathToImg = path.join(__dirname, 'img', 'maps', 'test maps.png')
+
 _local.classes = require(path.join(__dirname, 'classes', 'main.js')) // мб лучше загружать их после utils??
 
 const utils = require(path.join(__dirname, 'utils', 'main.js'))

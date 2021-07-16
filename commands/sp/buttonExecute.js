@@ -76,7 +76,7 @@ module.exports = function(message, hideObjInfo, customIdList, settings, command,
                 // если игрок в матче
 
                 const match = body.getmatchplayerdetails.json
-                const draw = command.draw(match, prop, last_update)
+                const draw = await command.draw(match, prop, last_update)
                 if (!draw.status) return reject(draw)
 
                 const canvas = draw.canvas

@@ -17,7 +17,7 @@ module.exports = function(message, hideObjInfo, customIdList, settings, command,
             const {lang} = prop
 
             const body = await command.getStats(owner, params)
-            const draw = command.draw(body, prop) // рисуем
+            const draw = await command.draw(body, prop) // рисуем
             if (!draw.status) return reject(draw)
 
             const canvas = draw.canvas

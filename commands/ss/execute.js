@@ -15,8 +15,8 @@ module.exports = function(message, settings, command, contentParams) {
             const {lang} = prop
 
             command.getStats(userId, contentParams) // если параметр не указан то paramsList[0] будет равен пустой строке, не будет ли ошибки в запросе?
-            .then(body => {
-                const draw = command.draw(body, prop) // рисуем
+            .then(async body => {
+                const draw = await command.draw(body, prop) // рисуем
                 if (!draw.status) return reject(draw)
 
                 const canvas = draw.canvas
@@ -43,8 +43,8 @@ module.exports = function(message, settings, command, contentParams) {
                     return reject({
                         err,
                         err_msg: {
-                            ru: '',
-                            en: ''
+                            ru: 'err1',
+                            en: 'err1'
                         },
                         log_msg: `Ошибка отправки сообщения готового ответа команды "ss" (<@${userId}>).`,
                         content: message.content,
@@ -58,8 +58,8 @@ module.exports = function(message, settings, command, contentParams) {
                     err,
                     log_msg: `Ошибка вызова "ss.getStats" команды для пользователя (<@${userId}>).`,
                     err_msg: {
-                        ru: '',
-                        en: ''
+                        ru: 'err2',
+                        en: 'err2'
                     },
                     content: message.content,
                     params: contentParams

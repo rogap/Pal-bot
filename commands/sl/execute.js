@@ -101,7 +101,7 @@ module.exports = async function(message, settings, command, contentParams) {
                 return resolve(sendResult)
             }
 
-            const numberDecks = Math.floor(number) || 0 // выбираем первую колоду если она одна
+            const numberDecks = Math.floor(number) || 1 // выбираем первую колоду если она одна
             const loadout = loadouts[numberDecks - 1] // выбираем колоду
             if (!loadout) return reject({
                 err_msg: {

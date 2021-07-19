@@ -7,7 +7,7 @@ const fs = require('fs')
 const path = require('path')
 // const { loadImage } = require('canvas')
 const _local = process._local
-const timeStart = new Date() // время старта загрузки
+// const timeStart = new Date() // время старта загрузки
 
 
 module.exports = new Promise((resolve, reject) => {

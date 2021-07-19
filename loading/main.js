@@ -24,6 +24,9 @@ module.exports = new Promise((resolve, reject) => {
     ])
     .then(() => {
         // когда загружены все данные чемпионов то можно создать их класс
+        // console.log('\n\n\n')
+        // console.log(process._local.config.img.avatars)
+        // console.log('\n\n\n')
         return resolve({status: true})
     })
     .catch(err => { // есть ли смысл в catch если тут делается просто проброс?

@@ -7,7 +7,7 @@ const _local = process._local
 const {config, classes} = _local
 const {ChampionsStats} = classes
 const {translate} = config
-const {createCanvas } = require('canvas')
+const { createCanvas, loadImage } = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 
 
@@ -16,7 +16,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = function(body, prop) {
+module.exports = async function(body, prop) {
     // console.log(body, prop)
     try {
         const {getplayer, getchampionranks} = body
@@ -45,7 +45,7 @@ module.exports = function(body, prop) {
         if (!resDefault.status) throw resDefault
 
         // рисуем данные игрока
-        const resPlayer = drawPlayer(ctx, player, champions, prop)
+        const resPlayer = await drawPlayer(ctx, player, champions, prop)
         if (!resPlayer.status) throw resPlayer
 
         // рисуем чемпионов
@@ -131,7 +131,7 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
 }
 
 
-function drawPlayer(ctx, player, champions, prop) {
+async function drawPlayer(ctx, player, champions, prop) {
     try {
         const {lang, timezone} = prop
 
@@ -148,7 +148,8 @@ function drawPlayer(ctx, player, champions, prop) {
 
         // рисуем аватарку
         const avatarId = player.AvatarId
-        const avatarImg = config.img.avatars[avatarId] || config.img.avatars[0]
+        const avatarImgPath = config.img.avatars[avatarId] || config.img.avatars[0]
+        const avatarImg = await loadImage(avatarImgPath)
         if (avatarImg) {
             ctx.drawImage(avatarImg, 5, 10, 95, 95)
         } else {

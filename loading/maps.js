@@ -20,7 +20,7 @@ module.exports = new Promise((resolve, reject) => {
         files.forEach(map => {
             // mapList.push( loadImage(path.join(pathToMaps, map)) )
 
-            const match = map.match(/(?<mapName>[a-z ]+)\.png/i)
+            const match = map.match(/(?<mapName>[a-z ]+)\.(png|gif|jpg)/i)
             if ( !match ) return console.log(`Ошибка регулярного выражения loadMaps (1)`, map)
             const groups = match.groups
             if ( !groups ) return console.log(`Ошибка регулярного выражения loadMaps (2)`, map)

@@ -62,6 +62,8 @@ module.exports = function(champions, prop, last_update) {
             const k = jj < i ? i - j : i
             const paddingTop = 22 * k + 50
 
+            if (!champion || !champion.name || !champion.name.en) return;
+
             ctx.fillStyle = white
             ctx.fillText(champion.name.en, 45 + padding, paddingTop)
             ctx.fillStyle = green

@@ -278,23 +278,23 @@ function drawChampions(ctx, champions, prop) {
         ctx.textAlign = "center"
         if (champSort[0]) {
             const exp = champSort[0].exp
-            ctx.fillText(exp.lvl, 497, 250)
+            if (exp && exp.lvl) ctx.fillText(exp.lvl, 497, 250)
         }
         if (champSort[1]) {
             const exp = champSort[1].exp
-            ctx.fillText(exp.lvl, 557, 250)
+            if (exp && exp.lvl) ctx.fillText(exp.lvl, 557, 250)
         }
         if (champSort[2]) {
             const exp = champSort[2].exp
-            ctx.fillText(exp.lvl, 617, 250)
+            if (exp && exp.lvl) ctx.fillText(exp.lvl, 617, 250)
         }
         if (champSort[3]) {
             const exp = champSort[3].exp
-            ctx.fillText(exp.lvl, 677, 250)
+            if (exp && exp.lvl) ctx.fillText(exp.lvl, 677, 250)
         }
         if (champSort[4]) {
             const exp = champSort[4].exp
-            ctx.fillText(exp.lvl, 737, 250)
+            if (exp && exp.lvl) ctx.fillText(exp.lvl, 737, 250)
         }
 
         ctx.fillStyle = orange

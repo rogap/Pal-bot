@@ -49,7 +49,7 @@ module.exports = {
     },
     hh: {
         name: 'hh',
-        possibly: ['hh'],
+        possibly: ['hh', 'помощь', 'help'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'hh'),
@@ -81,7 +81,7 @@ module.exports = {
     },
     ss: {
         name: 'ss',
-        possibly: ['ss', 'стата'],
+        possibly: ['ss', 'стата', 'stats'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'ss'),
@@ -97,7 +97,7 @@ module.exports = {
     },
     sh: {
         name: 'sh',
-        possibly: ['sh', 'история'],
+        possibly: ['sh', 'история', 'history'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sh'),
@@ -113,7 +113,7 @@ module.exports = {
     },
     sm: {
         name: 'sm',
-        possibly: ['sm', 'матч'],
+        possibly: ['sm', 'матч', 'match'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sm'),
@@ -129,7 +129,7 @@ module.exports = {
     },
     sp: {
         name: 'sp',
-        possibly: ['sp', 'сталкер'],
+        possibly: ['sp', 'сталкер', 'live'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sp'),
@@ -145,7 +145,7 @@ module.exports = {
     },
     st: {
         name: 'st',
-        possibly: ['st', 'топ'],
+        possibly: ['st', 'топ', 'top'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'st'),
@@ -161,7 +161,7 @@ module.exports = {
     },
     sl: {
         name: 'sl',
-        possibly: ['sl', 'колода'],
+        possibly: ['sl', 'колода', 'deck'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sl'),
@@ -177,7 +177,7 @@ module.exports = {
     },
     sc: {
         name: 'sc',
-        possibly: ['sc', 'чемпион'],
+        possibly: ['sc', 'чемпион', 'champion'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
         path: path.join(__dirname, 'sc'),
@@ -193,7 +193,7 @@ module.exports = {
     },
     sf: {
         name: 'sf',
-        possibly: ['sf'],
+        possibly: ['sf', 'дрезья', 'friends', 'friend'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'sf'),
@@ -209,7 +209,7 @@ module.exports = {
     },
     sb: {
         name: 'sb',
-        possibly: ['sb'],
+        possibly: ['sb', 'blocks', 'block'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(__dirname, 'sb'),

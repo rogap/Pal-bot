@@ -48,7 +48,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
         // если указан тип матча то фильтруем по нему
         if (modeType) {
             matches.filterRemove(match => {
-                return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(match.Queue)
+                return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(matchQueue)
             })
         }
         // console.log(`modeType: ${matches.length}`)
@@ -309,7 +309,8 @@ function getFullMatchInfo(matches) {
     // console.log(`matches.length: ${matches.length}`)
     matches.forEach(match => {
         // console.log(match, match.Queue)
-        const queueName = match.Queue.toLowerCase()
+        const matchQueue = match.Queue || ''
+        const queueName = matchQueue.toLowerCase()
         const queue = queueName.indexOf('ranked') != -1 ? 'ranked' :
             queueName.indexOf('siege') != -1 ? 'siege' :
             queueName.indexOf('deathmatch') != -1 ? 'deathmatch' :

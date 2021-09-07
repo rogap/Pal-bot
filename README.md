@@ -87,7 +87,6 @@ Friends of the account
 * And also MongoDB - `sudo apt update` and then `sudo apt install -y mongodb`
 * Create an empty `logs` folder in the root folder, if it is not there
 * Create a file `.env` and write the following settings there, substituting their values together with zeros:
-
 ```
 DISCORDTOKEN=00000000000000000000000000000000000000000000000000000000000
 STEAMKEY=0000000000000000000000000000000
@@ -97,6 +96,7 @@ DBNAME=admin
 DBHOST=localhost
 DBPORT=27017
 ```
+* When the bot is already running, enter the command in the chat `!con _local.utils.setSlashCommands()` to register slash commands globally. Please note that you will need to change the creator's ID in the config.
 
 ## Original Authors
 

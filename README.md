@@ -85,6 +85,7 @@ Friends of the account
 * Clone the repository and install all the dependencies
 * For correct operation, you will need to additionally install `pm2` - `sudo npm install pm2@latest -g`
 * And also MongoDB - `sudo apt update` and then `sudo apt install -y mongodb`
+* Create an empty `logs` folder in the root folder, if it is not there
 
 ## Original Authors
 

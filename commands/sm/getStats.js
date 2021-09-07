@@ -37,6 +37,11 @@ module.exports = async function(userId, nameOrId, matchId, matchNumber=1) {
         const typeData = parse(nameOrId) // тип данных
         let userSavedData = null // сохраненыне данные из БД
 
+        if (typeData == 'me') {
+            const model = _local.models.usersNicknames
+            userSavedData = ( await model.find({id: userId}) )[0]
+        }
+
         if (typeData == 'match') { // если есть id матча то сразу поулчаем его
             const fetchGetmatchdetails = await _local.hirez.getmatchdetails(nameOrId)
             if (!fetchGetmatchdetails.status) throw fetchGetmatchdetails

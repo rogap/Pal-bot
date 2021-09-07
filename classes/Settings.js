@@ -29,11 +29,11 @@ module.exports = class Settings {
 
 	getProp() {
 		return {
-			lang: this.lang,
-			timezone: this.timezone,
-			prefix: this.prefix,
-			backgrounds: this.backgrounds, // delete!!!
-			params: this.params
+			lang: this.lang || config.lang,
+			timezone: this.timezone || config.timezone,
+			prefix: this.prefix || config.prefix,
+			backgrounds: this.backgrounds || [...config.backgrounds], // delete!!!
+			params: this.params || {}
 		}
 	}
 

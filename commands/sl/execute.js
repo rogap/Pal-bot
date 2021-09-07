@@ -4,134 +4,211 @@
 
 
 const _local = process._local
-const {config, classes} = _local
-const {translate} = config
+const {Discord, config, stegcloak, utils} = _local
+const {sendToChannel} = utils
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
-module.exports = async function(message, settings, command, contentParams) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const {champions} = _local
-            const userId = message.author.id
-            const prop = settings.getProp()
-            const {lang, timezone} = prop
+module.exports = async (userId, settings, command, userNameOrId, champion, number) => {
+    try {
+        const {champions} = _local
+        const prop = settings.getProp()
+        const {lang, timezone} = prop
+        if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
-            const params = contentParams.split(' ')
-            const [firstParam, secondParam, thirdParam,] = params
-
-            /**
-             * если нет третьего параметра то:
-             *  1. не указан ник, но указан чемпион и номер
-             *  2. не указан номер но указан ник и чемпион
-             *      если номер не найден среди параметров, то занчит первый параметр это ник, а второй это чемпион
-             *      если номер найден, то вторым параметром из известных будет имя чемпиона
-             * 
-             * если есть только 1 параметр, то это полюбому должен быть чемпион
-             * 
-             * если указано 3 параметра то первым полюбому будет ник/id/me, а остальные 2 -> сначала найдем число
-             */
-
-            const number = isFinite(firstParam) && firstParam > 0 && firstParam < 7 ? firstParam :
-                isFinite(secondParam) && secondParam > 0 && secondParam < 7 ? secondParam :
-                isFinite(thirdParam) && thirdParam > 0 && thirdParam < 7 ? thirdParam : undefined
-
-            const nameOrId = thirdParam !== undefined && thirdParam !== '' ? firstParam : // если есть все 3 параметра то первый 100% ник
-                secondParam === undefined || secondParam === '' ? 'me' : // если есть только 1 параметр то он полюбому должен быть чемпионом
-                number ? 'me' : firstParam
-
-            const championOfParam = firstParam !== number && firstParam !== nameOrId ? firstParam :
-                secondParam !== number && secondParam !== nameOrId ? secondParam :
-                thirdParam !== number && thirdParam !== nameOrId ? thirdParam : undefined
-
-            // console.log(`nameOrId: ${nameOrId}; championOfParam: ${championOfParam}; number: ${number}`)
-            const champion = champions.getByAliases(championOfParam)
-
-            if (!champion) return reject({
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) {
+            throw {
+                err: 'Введен не корректный ник',
+                status: false,
                 err_msg: {
-                    ru: 'Укажите имя чемпиона корректно.',
-                    en: `Enter the champion's name correctly.`
+                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                    en: `Enter the correct Nickname or Paladins account id.`
                 }
-            })
-
-            const body = await command.getStats(userId, nameOrId)
-            // console.log(body)
-            const {getplayerloadouts} = body
-            // фильтруем оставляя нужного чемпиона
-            const loadouts = getplayerloadouts.json.filter(ld => ld.ChampionId == champion.id)
-            // console.log(champion.id, loadouts)
-
-            if (!loadouts.length) return reject({
-                err_msg: {
-                    ru: 'Колоды для указанного чемпиона не найдены.',
-                    en: 'No decks found for the specified champion.'
-                }
-            })
-
-            const news = config.news[lang]
-            const showOldStatsText = {
-                ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
-                en: '__**You will be shown the details of the last successful request.**__'
             }
-
-            const replayOldText = body.getplayerloadouts.old ?
-                    `${body.getplayerloadouts.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
-
-            // если пользователь не указал колоду, а выбрать нужно ( их > 1)
-            if (!number && loadouts.length > 1) {
-                let repText = {
-                    ru: `\`\`\`md\n# Выберите одну из колод:\n* [№](имя колоды)\n`,
-                    en: `\`\`\`md\n# Choose one of the decks:\n* [№](deck name)\n`
-                }[lang]
-                for (let i = 0; i < loadouts.length; i++) {
-                    repText += `[${i+1}](${loadouts[i].DeckName})\n`
-                }
-
-                repText += `> >\n`
-                repText += {
-                    ru: `# Что бы выбрать нужную колоду допишите ее номер после имени чемпиона. Пример:\n`,
-                    en: `# To select the desired deck, add its number after the name of the champion. Example:\n`
-                }[lang]
-                repText += `!sl me ${champion.Name} 1\n`
-                const lastUpdate = getplayerloadouts.last_update.updateToDate(timezone).toText()
-                const nextUpdate = getplayerloadouts.last_update.getNextUpdate('getplayerloadouts', timezone)
-                const updateTex = `${translate.Loadouts[lang]}: ${lastUpdate} | ${translate.Update[lang]}: ${nextUpdate}`
-                repText += `* ${updateTex}`
-                repText += `\`\`\``
-                const sendResult =  await message.channel.send(`${news}${replayOldText}${message.author}${repText}`)
-                return resolve(sendResult)
-            }
-
-            const numberDecks = Math.floor(number) || 1 // выбираем первую колоду если она одна
-            const loadout = loadouts[numberDecks - 1] // выбираем колоду
-            if (!loadout) return reject({
-                err_msg: {
-                    ru: `Указанной колоды нет, у пользователя ${loadouts.length} колод.`,
-                    en: `There is no specified deck, the user has ${loadouts.length} decks.`
-                }
-            })
-
-            // рисуем
-            const draw = await command.draw(loadout, champion, prop, getplayerloadouts.last_update)
-            if (!draw.status) return reject(draw)
-
-            const canvas = draw.canvas
-            const buffer = canvas.toBuffer('image/png') // buffer image
-
-            const sendResult =  await message.channel.send(`${news}${replayOldText}${message.author}`, {files: [buffer]})
-            return resolve(sendResult)
-        } catch(err) {
-            if (err.err_msg !== undefined) return reject(err)
-            // иначе другая ошибка, но поидее такой не должно быть
-            return reject({
-                err,
-                log_msg: 'Ошибка при выполнении sl.execute.',
-                err_msg: {
-                    ru: 'Произошла ошибка во время выполнения команды (execute).\n' +
-                        'Воспользуйтесь командой позже или получите информацию на сервере бота.',
-                    en: 'An error occurred while executing the command (execute).\n' +
-                        `Use the command later or get the information on the bot's server.`
-                }
-            })
         }
-    })
+
+        const body = await command.getStats(userId, userNameOrId)
+        // console.log(body)
+        const {getplayerloadouts} = body
+        const championList = [...new Set( getplayerloadouts.data?.map(lod => lod.ChampionName) || [] )].map(name => champions.getByName(name))
+        if (championList[0] == undefined) championList.shift()
+
+        const buttonsLine_1 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setCustomId('pal')
+            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            .setStyle('DANGER')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sl')
+            .setLabel({en: 'Update your Champion decks', ru: 'Обновить колоды чемпионов'}[lang])
+            .setStyle('SUCCESS')
+        )
+
+        const championsFilterOpts = []
+        championList.forEach((champion, i) => {
+            const count = Math.floor(i / 25) // массив по счету
+            if (!(i % 25)) championsFilterOpts.push([]) // новый массив
+            championsFilterOpts[count].push({
+                label: {en: champion.Name.en, ru: champion.Name.ru}[lang],
+                description: {en: `Show the decks of the selected champion`, ru: `Показать колоды выбранного чемпиона`}[lang],
+                value: champion.name.en
+            })
+        })
+        const championsOpt = []
+        championsFilterOpts.forEach((optList, i) => {
+            championsOpt.push(
+                new MessageActionRow()
+                .addComponents(
+                    new MessageSelectMenu()
+                        .setCustomId(`sl_champion_${i}`)
+                        .setPlaceholder({en: 'Choose a champion', ru: 'Выбрать чемпиона'}[lang])
+                        .addOptions(optList)
+                )
+            )
+        })
+
+        if (!champion) {
+            const hideObjInfo = {
+                owner: userId,
+                params: userNameOrId || 'me'
+            }
+            const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+            return {
+                content: {en: 'Choose a champion.', ru: 'Выберите чемпиона.'}[lang],
+                components: [buttonsLine_1, ...championsOpt],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
+            }
+        }
+
+        // фильтруем оставляя нужного чемпиона
+        const loadouts = getplayerloadouts.data.filter(ld => ld.ChampionId == champion.id)
+
+        const hideObjInfo = {
+            owner: userId,
+            params: body.playerId || body.playerName || userNameOrId || 'me'
+        }
+        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+
+        if (!loadouts.length) return {
+            content: {
+                ru: `Колоды для ${champion.Name.en} не найдены.`,
+                en: `No decks were found for ${champion.Name.en}.`
+            }[lang],
+            components: [buttonsLine_1, ...championsOpt],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136'
+            }]
+        }
+
+        const news = config.news[lang]
+        const showOldStatsText = {
+            ru: 'Аккаунт скрыт или API временно не работает.\n__**Вам будут показаны данные последнего удачного запроса.**__',
+            en: 'The account is hidden or the API is temporarily not working.\n__**You will be shown the details of the last successful request.**__'
+        }
+
+        const replayOldText = body.getplayerloadouts.old ?
+                `${showOldStatsText[lang]}\n` : ''
+
+        // если пользователь не указал колоду, а выбрать нужно ( их > 1)
+        if (!number && loadouts.length > 1) {
+            const buttonList = []
+            if (loadouts.length > 5) {
+                const buttonsLine_2 = new MessageActionRow()
+                const buttonsLine_3 = new MessageActionRow()
+                for (let i = 0; i < loadouts.length; i++) {
+                    const loadout = loadouts[i]
+                    const bt = i >= 3 ? buttonsLine_3 : buttonsLine_2
+                    bt.addComponents(
+                        new MessageButton()
+                        .setCustomId(`sl_card_${i+1}_${champion.id}`)
+                        .setLabel(loadout.DeckName)
+                        .setStyle('PRIMARY')
+                    )
+                }
+                buttonList.push(buttonsLine_2)
+                buttonList.push(buttonsLine_3)
+            } else {
+                const buttonsLine_2 = new MessageActionRow()
+                for (let i = 0; i < loadouts.length; i++) {
+                    const loadout = loadouts[i]
+                    buttonsLine_2.addComponents(
+                        new MessageButton()
+                        .setCustomId(`sl_card_${i+1}_${champion.id}`)
+                        .setLabel(loadout.DeckName)
+                        .setStyle('PRIMARY')
+                    )
+                }
+                buttonList.push(buttonsLine_2)
+            }
+
+            return {
+                content: {
+                    ru: `Выберите одну из колод:`,
+                    en: `Choose one of the decks:`
+                }[lang],
+                components: [buttonsLine_1, ...buttonList],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
+            }
+        }
+
+        const numberDecks = Math.floor(number) || 1 // выбираем первую колоду если она одна
+        const loadout = loadouts[numberDecks - 1] // выбираем колоду
+        if (!loadout) {
+            return {
+                content: {
+                    ru: `Указанной колоды нет, у пользователя ${loadouts.length} колод.\nВыберите одну из колод:`,
+                    en: `There is no specified deck, the user has ${loadouts.length} decks.\nChoose one of the decks:`
+                }[lang],
+                components: [buttonsLine_1, ...championsOpt],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
+            }
+        }
+
+        // рисуем
+        const draw = await command.draw(loadout, champion, prop, getplayerloadouts.lastUpdate)
+        if (!draw.status) throw draw
+
+        const canvas = draw.canvas
+        const buffer = canvas.toBuffer('image/png') // buffer image
+        const statsImg = await sendToChannel(config.chImg, {files: [buffer]})
+        const attachment = statsImg.attachments.last()
+
+        const matchesInfo = `\`\`\`md\n[${body.playerName}](${body.playerId})<${champion?.name?.en||''} ${draw.name}>\`\`\``
+
+        return {
+            content: `${news}${replayOldText}${matchesInfo}`,
+            components: [buttonsLine_1, ...championsOpt],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136',
+                image: {
+                    url: attachment.url
+                }
+            }]
+        }
+    } catch(err) {
+        if (err.err_msg !== undefined) throw err
+        // иначе другая ошибка, но поидее такой не должно быть
+        throw {
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'sl.execute'
+        }
+    }
 }

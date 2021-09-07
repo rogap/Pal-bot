@@ -15,7 +15,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = async function(match, prop, last_update) {
+module.exports = async (match, prop, last_update) => {
     try {
         const width = 952
         const height = 535
@@ -51,20 +51,18 @@ async function getMap(mapGame) {
     try {
         let mapName = ''
         let pathToImg = config.defaultPathToImg
-        for (let i = 0; i < config.img.maps.length; i++) {
-            const map = config.img.maps[i]
-            if (!map) continue
-            const reg = new RegExp(`${map.name}`, 'i')
-            const res = mapGame ? mapGame.replace(/'/,'').match(reg) : false
-            if (res) {
-                mapName = res[0]
-                pathToImg = map.path
+
+        for (let mapName in config.img.maps) {
+            const reg = new RegExp(`${mapName}`, 'i')
+            const exp = mapGame ? mapGame.replace(/'/,'').match(reg) : false
+            if (exp) {
+                pathToImg = config.img.maps[mapName]
                 break
             }
         }
 
         const res = await loadImage(pathToImg)
-        return [res, mapName]
+        return {img: res, name: mapName}
     } catch(err) {
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
@@ -89,21 +87,9 @@ async function drawDefault(ctx, match, prop, last_update) {
 
         // let mapImg = null // узнаем карту, получаем ее картинку
         const getMapMatch = await getMap(matchOne.mapGame)
-        const mapImg = getMapMatch[0]
-        const mapName = mapImg ? getMapMatch[1] : '-'
-        // for (let map in maps) {
-        //     const reg = new RegExp(`${map}`, 'i')
-        //     const res = matchOne.mapGame ? matchOne.mapGame.replace(/'/,'').match(reg) : false
-        //     if (res) {
-        //         mapImg = maps[map]
-        //         mapName = res[0]
-        //         break
-        //     }
-        // }
-        // if (!mapName) {
-        //     mapName = matchOne.mapGame || 'test'
-        //     mapImg = maps['test maps']
-        // }
+        const mapImg = getMapMatch.img
+        const mapName = mapImg ? getMapMatch.name : '-'
+
         if (mapImg) ctx.drawImage(mapImg, 0, 0, width, height)
 
         // затемняющий прозрачный фон
@@ -135,13 +121,14 @@ async function drawDefault(ctx, match, prop, last_update) {
         for (let i = 0; i < match.length; i++) {
             const player = match[i]
             const champName = player.ChampionName
-            if (!champName) {
-                console.log(player, matchOne.Match) // показываем игрока и id матча
+            // if (!champName) {
+                // console.log(player, matchOne.Match) // показываем игрока и id матча
                 // сообщить на канале об ошибке
-                _local.utils.sendToChannel(config.chLog, 'Не найдено имя чемпиона у команды SP.').catch(console.log)
-            }
+                // _local.utils.sendToChannel(config.chLog, 'Не найдено имя чемпиона у команды SP.').catch(console.log)
+            // }
             const champion = champName ? champions.getByName(champName) : {}
-            const champImg = champion ? champion.icon : undefined
+            const champImgSrc = champion ? champion.icon : undefined
+            const champImg = await loadImage(champImgSrc)
             const tier = player.Tier
             const winrate = (player.tierWins / (player.tierWins + player.tierLosses) * 100).toFixed(2) || '-'
 
@@ -163,7 +150,8 @@ async function drawDefault(ctx, match, prop, last_update) {
                 const rankImgHeight = tier == 26 ? 304 : tier == 27 ? 332 : 256
                 // const imgPaddingY = tier == 26 ? -15 : tier == 27 ? -20 : 0
                 const imgPaddingY = 0
-                const divisionImg = config.img.divisions[tier]
+                const divisionImgSrc = config.img.divisions[tier]
+                const divisionImg = await loadImage(divisionImgSrc)
                 ctx.drawImage(divisionImg, 0, 90 * i + 45 + imgPaddingY, rankImgWidth / 3.7, rankImgHeight / 3.7)
             } else if (player.taskForce == 2) {
                 if (champImg) ctx.drawImage(champImg, width - 120, 90 * (i - countTeam1) + 50, 50, 50)
@@ -180,7 +168,8 @@ async function drawDefault(ctx, match, prop, last_update) {
                 const rankImgHeight = tier == 26 ? 304 : tier == 27 ? 332 : 256
                 // const imgPaddingY = tier == 26 ? -15 : tier == 27 ? -20 : 0
                 const imgPaddingY = 0
-                const divisionImg = config.img.divisions[tier]
+                const divisionImgSrc = config.img.divisions[tier]
+                const divisionImg = await loadImage(divisionImgSrc)
                 ctx.drawImage(divisionImg, width - 70, 90 * (i - countTeam1) + 45 + imgPaddingY, rankImgWidth / 3.7, rankImgHeight / 3.7)
             }
         }

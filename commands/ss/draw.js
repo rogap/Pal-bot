@@ -7,7 +7,7 @@ const _local = process._local
 const {config, classes} = _local
 const {ChampionsStats} = classes
 const {translate} = config
-const { createCanvas, loadImage } = require('canvas')
+const {createCanvas, loadImage} = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 
 
@@ -20,18 +20,18 @@ module.exports = async function(body, prop) {
     // console.log(body, prop)
     try {
         const {getplayer, getchampionranks} = body
-        const playerLastUpdate = getplayer.last_update
-        const championsLastUpdate = getchampionranks.last_update
-        const player = getplayer.json[0]
-        const champions = new ChampionsStats(getchampionranks.json)
+        const playerLastUpdate = getplayer.lastUpdate
+        const championsLastUpdate = getchampionranks.lastUpdate
+        const player = getplayer.data
+        const champions = new ChampionsStats(getchampionranks.data)
 
-        if (champions.error) throw {
-            body,
-            err_msg: {
-                ru: 'Чемпионы не найдены.',
-                en: 'No champions found.'
-            }
-        }
+        // if (champions.error) throw {
+        //     body,
+        //     err_msg: {
+        //         ru: 'Чемпионы не найдены.',
+        //         en: 'No champions found.'
+        //     }
+        // }
 
         const width = 790
         const height = 375
@@ -41,7 +41,7 @@ module.exports = async function(body, prop) {
         prop.height = height
 
         // рисуем дефолтные
-        const resDefault = drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop)
+        const resDefault = await drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop)
         if (!resDefault.status) throw resDefault
 
         // рисуем данные игрока
@@ -50,7 +50,7 @@ module.exports = async function(body, prop) {
 
         // рисуем чемпионов
         if (!champions.error) { // если все корректно
-            const resChampions = drawChampions(ctx, champions, prop)
+            const resChampions = await drawChampions(ctx, champions, prop)
             if (!resChampions.status) throw resChampions
         }
 
@@ -75,11 +75,12 @@ module.exports = async function(body, prop) {
 }
 
 
-function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
+async function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
     try {
         const {lang, timezone, backgrounds, width, height} = prop
         const imgNum = Math.floor(Math.random() * backgrounds.length)
-        const img = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
+        const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
+        const img = await loadImage(imgSrc)
         if ( img ) ctx.drawImage(img, 0, 0, width, height - 50) // рисуем
 
         // рисуем черную полосу снизу
@@ -102,19 +103,19 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
         ctx.textAlign = 'start'
         ctx.fillStyle = red
 
-        if (playerLastUpdate) {
-            const lastUpdatePlayer = playerLastUpdate.updateToDate(timezone).toText()
-            const nextUpdateAcc = playerLastUpdate.getNextUpdate('getplayer', timezone)
-            const accText = `${translate.Account[lang]}: ${lastUpdatePlayer} | ${translate.Update[lang]}: ${nextUpdateAcc}`
-            ctx.fillText(accText, 20,  height - 30)
-        }
+        // if (playerLastUpdate) {
+        //     const lastUpdatePlayer = playerLastUpdate.addHours(timezone).toText()
+        //     const nextUpdateAcc = playerLastUpdate.getNextUpdate('getplayer', timezone)
+        //     const accText = `${translate.Account[lang]}: ${lastUpdatePlayer} | ${translate.Update[lang]}: ${nextUpdateAcc}`
+        //     ctx.fillText(accText, 20,  height - 30)
+        // }
 
-        if (championsLastUpdate) {
-            const lastUpdateChamp = championsLastUpdate.updateToDate(timezone).toText()
-            const nextUpdateChamp = championsLastUpdate.getNextUpdate('getchampionranks', timezone)
-            const champText = `${translate.Champions[lang]}: ${lastUpdateChamp} | ${translate.Update[lang]}: ${nextUpdateChamp}`
-            ctx.fillText(champText, 20,  height - 10)
-        }
+        // if (championsLastUpdate) {
+        //     const lastUpdateChamp = new Date(championsLastUpdate).addHours(timezone).toText()
+        //     const nextUpdateChamp = new Date(championsLastUpdate).getNextUpdate('getchampionranks', timezone)
+        //     const champText = `${translate.Champions[lang]}: ${lastUpdateChamp} | ${translate.Update[lang]}: ${nextUpdateChamp}`
+        //     ctx.fillText(champText, 20,  height - 10)
+        // }
 
         return {status: true}
     } catch(err) {
@@ -123,7 +124,7 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
             err,
             err_msg: {
                 ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                en: 'omething went wrong... Try again or report this error to the bot creator.'
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "drawDefault" во время рисования статы (ss)'
         }
@@ -133,17 +134,19 @@ function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
 
 async function drawPlayer(ctx, player, champions, prop) {
     try {
-        const {lang, timezone} = prop
+        const {lang, timezone, params} = prop
+        const consoleStats = params?.ss?.console || false
 
-        const RankedKBM = player.RankedKBM || {}
-        const Tier_RankedKBM = player.Tier_RankedKBM
-        const rankNum = Tier_RankedKBM == 26 && RankedKBM.Rank <= 100 && RankedKBM.Rank > 0 ? 27 : Tier_RankedKBM
+        const ranked = (consoleStats ? player.RankedController : player.RankedKBM) || {}
+        const tier = consoleStats ? player.Tier_RankedController : player.Tier_RankedKBM
+        const rankNum = tier == 26 && ranked.Rank <= 100 && ranked.Rank > 0 ? 27 : tier
         const rankImgWidth = rankNum == 26 ? 264 : rankNum == 27 ? 264 : 256
         const rankImgHeight = rankNum == 26 ? 304 : rankNum == 27 ? 332 : 256
         const imgPaddingY = rankNum == 26 ? -15 : rankNum == 27 ? -20 : 0
 
         // рисуем картинку ранга
-        const divisionImg = config.img.divisions[rankNum]
+        const divisionImgSrc = config.img.divisions[rankNum]
+        const divisionImg = await loadImage(divisionImgSrc)
         if (divisionImg) ctx.drawImage(divisionImg, 5, 200 + imgPaddingY, rankImgWidth / 2.6, rankImgHeight / 2.6)
 
         // рисуем аватарку
@@ -165,8 +168,10 @@ async function drawPlayer(ctx, player, champions, prop) {
         ctx.fillStyle = red
         ctx.fillText(`${player.hz_player_name || player.hz_gamer_tag} (${player.Region})`, 10 + widthInfo / 2, 20)
         ctx.fillStyle = green
-        const getParseExp = champions.parseExp(player.Total_XP)
-        ctx.fillText(`${translate.Level[lang]}: ${getParseExp.lvl}`, 10 + widthInfo / 2, 40)
+        if (!champions.error) {
+            const getParseExp = champions.parseExp(player.Total_XP)
+            ctx.fillText(`${translate.Level[lang]}: ${getParseExp.lvl}`, 10 + widthInfo / 2, 40)
+        }
         ctx.fillStyle = white
         const dateCreate = new Date(player.Created_Datetime).addHours(timezone).toText()
         ctx.fillText(`${translate.Created[lang]}: ${dateCreate}`, 10 + widthInfo / 2, 60)
@@ -199,15 +204,15 @@ async function drawPlayer(ctx, player, champions, prop) {
         ctx.fillStyle = red
         ctx.fillText(`${translate.RANKED[lang]}:`, 225 + padLeftNew, 190)
         ctx.fillStyle = white
-        ctx.fillText(`${translate.Wins[lang]}: ${RankedKBM.Wins}`, 200 + padLeftNew, 210)
-        ctx.fillText(`${translate.Losses[lang]}: ${RankedKBM.Losses}`, 200 + padLeftNew, 230)
-        const winrateNumRanked = ChampionsStats.getWinrate(RankedKBM.Wins, RankedKBM.Losses)
+        ctx.fillText(`${translate.Wins[lang]}: ${ranked.Wins}`, 200 + padLeftNew, 210)
+        ctx.fillText(`${translate.Losses[lang]}: ${ranked.Losses}`, 200 + padLeftNew, 230)
+        const winrateNumRanked = ChampionsStats.getWinrate(ranked.Wins, ranked.Losses)
         ctx.fillStyle = blue
         ctx.fillText(`${translate.Winrate[lang]}: ${winrateNumRanked}%`, 200 + padLeftNew, 250)
         ctx.fillStyle = white
         ctx.fillText(`${translate.Rank[lang]}: ${config.ranks[lang][rankNum]}`, 200 + padLeftNew, 270)
-        ctx.fillText(`${translate.TP[lang]}: ${RankedKBM.Points}`, 200 + padLeftNew, 290)
-        if (RankedKBM.Rank) ctx.fillText(`${translate.Position[lang]}: ${ RankedKBM.Rank }`, 200 + padLeftNew, 310)
+        ctx.fillText(`${translate.TP[lang]}: ${ranked.Points}`, 200 + padLeftNew, 290)
+        if (ranked.Rank) ctx.fillText(`${translate.Position[lang]}: ${ ranked.Rank }`, 200 + padLeftNew, 310)
 
         return {status: true}
     } catch (err) {
@@ -216,7 +221,7 @@ async function drawPlayer(ctx, player, champions, prop) {
             err,
             err_msg: {
                 ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                en: 'omething went wrong... Try again or report this error to the bot creator.'
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "drawPlayer" во время рисования статы (ss)'
         }
@@ -224,7 +229,7 @@ async function drawPlayer(ctx, player, champions, prop) {
 }
 
 
-function drawChampions(ctx, champions, prop) {
+async function drawChampions(ctx, champions, prop) {
     try {
         const {lang} = prop
         const {timePlayRole} = champions
@@ -235,7 +240,8 @@ function drawChampions(ctx, champions, prop) {
         for (let i = 0; i < champSort.length; i++) {
             const champ = champSort[i]
             if (champ) {
-                const img = champ.icon
+                const imgSrc = champ.icon
+                const img = await loadImage(imgSrc)
                 const x = positionX + 60 * i
                 if (img) ctx.drawImage(img, x, 180, 50, 50)
             }
@@ -318,7 +324,7 @@ function drawChampions(ctx, champions, prop) {
             err,
             err_msg: {
                 ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                en: 'omething went wrong... Try again or report this error to the bot creator.'
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
             },
             log_msg: 'Ошибка функции "drawChampions" во время рисования статы (ss)'
         }

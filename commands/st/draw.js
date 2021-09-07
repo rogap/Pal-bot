@@ -6,7 +6,7 @@
 const _local = process._local
 const {config, classes} = _local
 const {translate} = config
-const {createCanvas } = require('canvas')
+const {createCanvas, loadImage} = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 
 
@@ -15,7 +15,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = function(champions, prop, last_update) {
+module.exports = async (champions, prop, last_update) => {
     try {
         const {lang, timezone, backgrounds} = prop
         const width = 980
@@ -27,8 +27,9 @@ module.exports = function(champions, prop, last_update) {
         ctx.font = 'bold 16px GothamSSm_Bold'
 
         const imgNum = Math.floor(Math.random() * backgrounds.length)
-        const img = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        if ( img ) ctx.drawImage(img, 0, 30, width, height - 30) // рисуем
+        const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
+        const img = await loadImage(imgSrc)
+        if (img) ctx.drawImage(img, 0, 30, width, height - 30) // рисуем
 
         // черные полосы сверху и снизу
         ctx.fillStyle = black
@@ -37,11 +38,11 @@ module.exports = function(champions, prop, last_update) {
 
         ctx.fillStyle = blue
         ctx.fillRect(paddingLeft - 2, 30, 2, height - 60)
-        const lastUpdate = last_update.updateToDate(timezone).toText()
-        const nextUpdate = last_update.getNextUpdate('getchampionranks', timezone)
-        const champText = `${translate.Champions[lang]}: ${lastUpdate} | ${translate.Update[lang]}: ${nextUpdate}`
-        ctx.fillStyle = red
-        ctx.fillText(champText, 20, height - 10)
+        // const lastUpdate = last_update.updateToDate(timezone).toText()
+        // const nextUpdate = last_update.getNextUpdate('getchampionranks', timezone)
+        // const champText = `${translate.Champions[lang]}: ${lastUpdate} | ${translate.Update[lang]}: ${nextUpdate}`
+        // ctx.fillStyle = red
+        // ctx.fillText(champText, 20, height - 10)
 
         // рисуем заголовки таблицы
         ctx.fillStyle = blue

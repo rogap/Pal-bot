@@ -3,6 +3,7 @@
  */
 
 
+const moment = require("moment")
 const _local = process._local
 const {config} = _local
 
@@ -103,3 +104,26 @@ String.prototype.getNextUpdate = Number.prototype.getNextUpdate = function(type,
 }
 Object.defineProperty(String.prototype, "getNextUpdate", {enumerable: false})
 Object.defineProperty(Number.prototype, "getNextUpdate", {enumerable: false})
+
+
+/**
+ * возвращает дату в utc
+ */
+Date.prototype.utc = function() {
+	return moment().utc().format("YYYYMMDDHHmmss").updateToDate()
+}
+Object.defineProperty(Date.prototype, "utc", {enumerable: false})
+
+
+/**
+ * проверяет last_update из БД на то закончилось ли время обновления для статы
+ * вернет true если время не вышло
+ */
+String.prototype.checkTime = Number.prototype.checkTime = function(type) {
+	const dateNow = new Date().utc()
+	const time = config.timeLimit[type]
+	if (!time) return true
+	return dateNow - this < time
+}
+Object.defineProperty(String.prototype, "checkTime", {enumerable: false})
+Object.defineProperty(Number.prototype, "checkTime", {enumerable: false})

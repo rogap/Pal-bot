@@ -4,77 +4,100 @@
 
 
 const _local = process._local
-const {config} = _local
+const {Discord, config, stegcloak, utils} = _local
+const {sendToChannel} = utils
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
-module.exports = function(message, settings, command, contentParams) {
-    return new Promise((resolve, reject) => {
-        try {
-            const userId = message.author.id
-            const prop = settings.getProp()
-            const {lang} = prop
+module.exports = async (userId, settings, command, nameOrId, modifier) => {
+    try {
+        const prop = settings.getProp()
+        const {lang, params} = prop
+        if (nameOrId && nameOrId.mentionToId) nameOrId = nameOrId.mentionToId()
 
-            command.getStats(userId, contentParams) // если параметр не указан то paramsList[0] будет равен пустой строке, не будет ли ошибки в запросе?
-            .then(async body => {
-                const draw = await command.draw(body, prop) // рисуем
-                if (!draw.status) return reject(draw)
-
-                const canvas = draw.canvas
-                const buffer = canvas.toBuffer('image/png') // buffer image
-                const news = config.news[lang]
-
-                const showOldStatsText = {
-                    ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
-                    en: '__**You will be shown the details of the last successful request.**__'
-                }
-
-                const replayOldText = body.getplayer.old ?
-                        `${body.getplayer.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` :
-                    body.getchampionranks.old ?
-                        `${body.getchampionranks.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
-
-                const playerInfo = `\`\`\`md\n[${draw.name}](${draw.id})\`\`\``
-                message.channel.send(`${news}${replayOldText}${playerInfo}${message.author}`, {files: [buffer]})
-                .then(mess => {
-                    return resolve(mess)
-                })
-                .catch(err => {
-                    if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
-                    return reject({
-                        err,
-                        err_msg: {
-                            ru: 'err1',
-                            en: 'err1'
-                        },
-                        log_msg: `Ошибка отправки сообщения готового ответа команды "ss" (<@${userId}>).`,
-                        content: message.content,
-                        params: contentParams
-                    })
-                })
-            })
-            .catch(err => {
-                if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
-                return reject({
-                    err,
-                    log_msg: `Ошибка вызова "ss.getStats" команды для пользователя (<@${userId}>).`,
-                    err_msg: {
-                        ru: 'err2',
-                        en: 'err2'
-                    },
-                    content: message.content,
-                    params: contentParams
-                })
-            })
-        } catch(err) {
-            if (err.err_msg !== undefined) return reject(err)
-            return reject({
-                err,
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) {
+            throw {
+                err: 'Введен не корректный ник',
+                status: false,
                 err_msg: {
-                    ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                    en: 'omething went wrong... Try again or report this error to the bot creator.'
-                },
-                log_msg: 'ss.execute'
-            })
+                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                    en: `Enter the correct Nickname or Paladins account id.`
+                }
+            }
         }
-    })
+
+        const body = await command.getStats(userId, nameOrId, modifier)
+        if (!body.status) throw body
+
+        const draw = await command.draw(body, prop) // рисуем
+        if (!draw.status) throw draw
+
+        const canvas = draw.canvas
+        const buffer = canvas.toBuffer('image/png') // buffer image
+        const news = config.news[lang]
+
+        const showOldStatsText = {
+            ru: 'Аккаунт скрыт или API временно не работает.\n__**Вам будут показаны данные последнего удачного запроса.**__',
+            en: 'The account is hidden or the API is temporarily not working.\n__**You will be shown the details of the last successful request.**__'
+        }
+
+        const replayOldText = body.getplayer.old ?
+                `${showOldStatsText[lang]}\n` :
+            body.getchampionranks.old ?
+                `${showOldStatsText[lang]}\n` : ''
+
+        const playerInfo = `\`\`\`md\n[${draw.name}](${draw.id})\`\`\``
+
+        const hideObjInfo = {
+            owner: userId,
+            params: draw.id || draw.name || nameOrId || 'me'
+        }
+        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+
+        const consoleStats = params?.ss?.console || false
+        const buttonsLine_1 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setCustomId('pal')
+            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            .setStyle('DANGER')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('ss' + (consoleStats ? '_console' : ''))
+            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setStyle('SUCCESS')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('ss' + (consoleStats ? '' : '_console'))
+            .setLabel({en: 'Console stats', ru: 'Статистика консоли'}[lang])
+            .setStyle(consoleStats ? 'SUCCESS' : 'PRIMARY')
+        )
+
+        const statsImg = await sendToChannel(config.chImg, {files: [buffer]})
+        const attachment = statsImg.attachments.last()
+
+        return {
+            content: `${news}${replayOldText}${playerInfo}`,
+            components: [buttonsLine_1],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136',
+                image: {
+                    url: attachment.url
+                }
+            }]
+        }
+    } catch(err) {
+        if (err.err_msg !== undefined) throw err
+        throw {
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'omething went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'ss.execute'
+        }
+    }
 }

@@ -3,8 +3,9 @@
  */
 
 
+const _local = process._local
 const path = require('path')
-const pathToDefaultCommands = path.join(__dirname, '..', 'commands', 'main.js')
+const pathToDefaultCommands = path.join(_local.path, 'commands', 'main.js')
 const Command = require('./Command.js')
 
 
@@ -44,6 +45,16 @@ module.exports = class CommandsManager {
         return this.#commands.find(com => com.name == commandName)
     }
 
+    getBySlashName(commandName, group, subcommand) {
+        return this.#commands.find(com => {
+            const slashSub = com.slashSub || new Set()
+            const slashGroup = com.slashGroup || new Set()
+            const checkGroup = group ? slashGroup.has(group) : true
+            const checkSub = subcommand ? slashGroup.has(subcommand) : true
+            return com.slashName == commandName && checkGroup && checkSub
+        })
+    }
+
     has(text) {
         text = text.toLowerCase()
         return this.#commands.some(com => com.has(text))
@@ -57,5 +68,9 @@ module.exports = class CommandsManager {
     // перебирает все команды
     each(callback) {
         this.#commands.forEach(com => callback(com)) 
+    }
+
+    get list() {
+        return this.#commands
     }
 }

@@ -7,10 +7,10 @@ const _local = process._local
 const {client, config} = _local
 
 
-client.on('guildDelete', guild => {
-    client.channels.fetch(config.chNot)
-    .then(channel => {
-        if (channel) channel.send({
+client.on('guildDelete', async guild => {
+    try {
+        const channel = await client.channels.fetch(config.chNot)
+        await channel.send({
             embed: {
                 title: `${guild.name} (${guild.id})`,
                 description: '__удален__',
@@ -37,10 +37,8 @@ client.on('guildDelete', guild => {
                 ]
             }
         })
-        .catch((err) => {
-            // сделать вывод в логи на сервере
-            console.log(err)
-            console.log('Ошибка отправки сообщения при удаленни бота с сервера.')
-        })
-    })
+    } catch(err) {
+        console.log('Ошибка отправки сообщения при удаленни бота с сервера:')
+        console.log(err)
+    }
 })

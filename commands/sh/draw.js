@@ -6,7 +6,7 @@
 const _local = process._local
 const {config} = _local
 const {translate} = config
-const {createCanvas } = require('canvas')
+const {createCanvas, loadImage} = require('canvas')
 const {red, white, blue, black, purple, orange, green, yellow} = config.colors
 
 
@@ -15,7 +15,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = function(matches, prop, last_update) {
+module.exports = async (matches, prop, last_update) => {
     try {
         const width = 980
         const height = 580
@@ -25,10 +25,10 @@ module.exports = function(matches, prop, last_update) {
         prop.height = height
 
         // рисуем дефолтные
-        const resDefault = drawDefault(ctx, last_update, prop)
+        const resDefault = await drawDefault(ctx, last_update, prop)
         if (!resDefault.status) throw resDefault
 
-        const resTdable = drawTable(ctx, matches, prop)
+        const resTdable = await drawTable(ctx, matches, prop)
         if (!resTdable.status) throw resTdable
 
         return {
@@ -52,11 +52,12 @@ module.exports = function(matches, prop, last_update) {
 }
 
 
-function drawDefault(ctx, last_update, prop) {
+async function drawDefault(ctx, last_update, prop) {
     try {
         const {lang, timezone, backgrounds, width, height} = prop
         const imgNum = Math.floor(Math.random() * backgrounds.length)
-        const img = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
+        const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
+        const img = await loadImage(imgSrc)
         if ( img ) ctx.drawImage(img, 0, 30, width, height - 50) // рисуем
 
         ctx.fillStyle = black
@@ -79,10 +80,10 @@ function drawDefault(ctx, last_update, prop) {
         ctx.textAlign = 'start'
         ctx.fillStyle = red
 
-        const lastUpdateMatches = last_update.updateToDate(timezone).toText()
-        const nextUpdateMatches = last_update.getNextUpdate('getmatchhistory', timezone)
-        const matchesText = `${translate.Matchhistory[lang]}: ${lastUpdateMatches} | ${translate.Update[lang]}: ${nextUpdateMatches}`
-        ctx.fillText(matchesText, 20,  height - 10)
+        // const lastUpdateMatches = last_update.updateToDate(timezone).toText()
+        // const nextUpdateMatches = last_update.getNextUpdate('getmatchhistory', timezone)
+        // const matchesText = `${translate.Matchhistory[lang]}: ${lastUpdateMatches} | ${translate.Update[lang]}: ${nextUpdateMatches}`
+        // ctx.fillText(matchesText, 20,  height - 10)
 
         return {status: true}
     } catch(err) {
@@ -100,7 +101,7 @@ function drawDefault(ctx, last_update, prop) {
 }
 
 
-function drawTable(ctx, matches, prop) {
+async function drawTable(ctx, matches, prop) {
     try {
         const {champions} = _local
         const {lang, timezone, page} = prop
@@ -110,7 +111,8 @@ function drawTable(ctx, matches, prop) {
             const match = matches[i]
             const champion = champions.getByName(match.Champion)
             if (champion) {
-                const img = champion.icon
+                const imgSrc = champion.icon
+                const img = await loadImage(imgSrc)
                 const y = positionY + 52 * i
                 if (img) ctx.drawImage(img, 40, y, 50, 50)
             }

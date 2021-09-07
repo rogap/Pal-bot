@@ -5,6 +5,14 @@
 
 module.exports = class AbstractChampion {
     static nameNormalize(name) {
+        if (!name) return ''
+        if (name.constructor === Object) {
+            const obj = {}
+            for (const lang in name) {
+                obj[lang] = name[lang].replace(/[-`' ]+/g, "").toLowerCase()
+            }
+            return obj
+        }
         return name.replace(/[-`' ]+/g, "").toLowerCase()
     }
 

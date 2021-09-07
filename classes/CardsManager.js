@@ -8,44 +8,42 @@ const {config} = _local
 
 
 module.exports = class CardsManager {
+    #cards
     constructor() {
+        this.#cards = new Map()
         this.size = 0
-        this.list = []
     }
 
-    get legendary() {
-        // возвращает легендарные карты
+    // получить все карты чемпиона
+    getByChampion(championId) {}
+
+    // получить карту по id
+    get(id) {
+        // return this.list.find(card => card.id == id)
+        return this.#cards.get(id)
     }
 
-    get common() {
-        // возвращает обычные карты
-    }
-
-    get ids() {
-        // возвращает список id карт
-    }
-
-    names(lang=config.lang) {
-        // возвращает список имен карт
-    }
-
-    getById(id) {
-        return this.list.find(card => card.id == id)
-    }
-
-    getByName(name) {
-        name = name.toLowerCase()
-        return this.list.find(card => {
-            let check = false
-            for (let lang in config.langs) {
-                if ( card.name[lang].toLowerCase() == name ) check = true
-            }
-            return check ? card : false
-        })
-    }
+    // получить карту по имени
+    // getByName(name) {
+    //     name = name.toLowerCase()
+    //     return this.list.find(card => {
+    //         let check = false
+    //         for (let lang in config.langs) {
+    //             if ( card.name[lang].toLowerCase() == name ) check = true
+    //         }
+    //         return check ? card : false
+    //     })
+    // }
 
     add(card) {
-        this.list.push(card)
-        this.size = this.list.length
+        if ( this.#cards.get(card.id) ) return false
+        this.#cards.set(card.id, card)
+        this.size = this.#cards.size
+        return this
+
+        // if ( this.get(card.id) ) return false // карта уже есть
+        // this.list.push(card)
+        // this.size = this.list.length
+        // return card
     }
 }

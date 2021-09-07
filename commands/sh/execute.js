@@ -4,282 +4,226 @@
 
 
 const _local = process._local
-const {config, classes} = _local
-const {translate} = config
+const {Discord, config, stegcloak, utils} = _local
+const {sendToChannel} = utils
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
-module.exports = function(message, settings, command, contentParams) {
-    return new Promise((resolve, reject) => {
-        try {
-            const {champions} = _local
-            const userId = message.author.id
-            const prop = settings.getProp()
-            const {lang} = prop
-            const modifierList = ['-f'] // список доступных модификаторов
+module.exports = async (userId, settings, command, userNameOrId, pageShow, championType, championRole, modeType, modifier) => {
+    try {
+        // console.log(userNameOrId, pageShow, championType, championRole, modeType, modifier)
+        const {champions} = _local
+        const prop = settings.getProp()
+        const {lang, params} = prop
+        const isFull = params?.sh?.full // || modifier == '-f'
+        if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
-            // Queue	"Team Deathmatch" | Queue	"Onslaught"
-            const gameModeTypes = {
-                ranked: ['ranked', 'ранкед'],
-                siege: ['siege', 'казуал', 'обычка', 'осада'],
-                deathmatch: ['tdm', 'тдм', 'deathmatch'],
-                onslaught: ['onslaught', 'натиск']
-            }
-            const championRoles = {
-                support: ['support', 'поддержка', 'sup', 'heal', 'хил', 'healer'],
-                flanker: ['flanker', 'фланг', 'flank'],
-                frontline: ['frontline', 'танк', 'tank'],
-                damage: ['damage', 'урон', 'dmg']
-            }
-
-            const params = contentParams.split(' ')
-            const [firstParam, secondParam, thirdParam, fourthParam] = params
-
-            // страница которую будем отображать
-            const page = isFinite(firstParam) && firstParam > 0 && firstParam < 6 ? firstParam :
-                isFinite(secondParam) && secondParam > 0 && secondParam < 6 ? secondParam :
-                isFinite(thirdParam) && thirdParam > 0 && thirdParam < 6 ? thirdParam :
-                isFinite(fourthParam) && fourthParam > 0 && fourthParam < 6 ? fourthParam : false
-
-            const pageShow = prop.page = Math.floor(page) || 1
-
-            // получаем модификатор
-            const modifier = modifierList.find(mod => mod === firstParam || mod === secondParam || mod === thirdParam || mod === fourthParam) || false
-
-
-            const errParams = {
-                ru: `Не верно указаны параметры команды. Смотрите ${'!'}${'hh'} ${'sh'} - для получения детальной информации.`,
-                en: `The command parameters are specified incorrectly. See ${'!'}${'hh'} ${'sh'} - for more detailed information.`
-            }
-            let userNameOrId, filterData
-
-            if (fourthParam) {
-                // если указано 4 параметра то первый параметр это пользователь, а ДРУГОЙ это тип фильтра
-
-                userNameOrId = firstParam
-                if (modifier === fourthParam) {
-                    if (page === thirdParam) {
-                        filterData = secondParam
-                    } else if (page === secondParam) {
-                        filterData = thirdParam
-                    } else {
-                        // ERR
-                        return reject(errParams)
-                    }
-                } else if (modifier === thirdParam) {
-                    if (page === fourthParam) {
-                        filterData = secondParam
-                    } else if (page === secondParam) {
-                        filterData = fourthParam
-                    } else {
-                        // ERR
-                        return reject(errParams)
-                    }
-                } else if (modifier === secondParam) {
-                    if (page === fourthParam) {
-                        filterData = thirdParam
-                    } else if (page === thirdParam) {
-                        filterData = fourthParam
-                    } else {
-                        // ERR
-                        return reject(errParams)
-                    }
-                } else {
-                    // ERR
-                    return reject(errParams)
-                }
-            } else if (thirdParam) {
-                /**
-                 * если указано 3 параметра:
-                 *      если указан page и modifier то ДРУГОЙ (первый) параметр это пользователь
-                 *      если указан page или modifier то первый параметр это пользователь, а ДРУГОЙ это тип фильтра
-                 */
-
-                if (page && modifier) {
-                    userNameOrId = firstParam
-                } else if (page || modifier) {
-                    userNameOrId = firstParam
-                    if (page === thirdParam || modifier === thirdParam) {
-                        filterData = secondParam
-                    } else {
-                        filterData = thirdParam
-                    }
-                } else {
-                    // ERR
-                    return reject(errParams)
-                }
-            } else if (secondParam) {
-                /**
-                 * если указано 2 параметра:
-                 *      если есть page и modifier то пользователь равен ME
-                 *      если есть page или modifier то пользователь равен ДРУГОМУ
-                 *      если нет page и modifier то первый параметр это пользователь, а второй это тип фильтра
-                 */
-
-                if (page && modifier) {
-                    userNameOrId = 'me'
-                } else if (page || modifier) {
-                    userNameOrId = firstParam
-                } else {
-                    userNameOrId = firstParam
-                    filterData = secondParam
-                }
-            } else if (firstParam) {
-                /**
-                 * если указан 1 параметр:
-                 *      если это page или modifier то пользователь равен ME
-                 *      иначе пользователь равен этому параметру
-                 */
-
-                if (page || modifier) {
-                    userNameOrId = 'me'
-                } else {
-                    userNameOrId = firstParam
-                }
-            }
-
-            // тип матча
-            const modeType = filterData ? gameModeTypes.find((modeName, mode) => {
-                return mode.find(type => type === filterData.toLowerCase()) ? modeName : false
-            }) : false
-
-            // имя чемпиона
-            const championType = champions.getByAliases(filterData || '')
-
-            // роль чемпиона
-            const championRole = championRoles.find((roleName, roles) => {
-                return roles.find(role => role === filterData) ? roleName : false
-            })
-
-
-
-
-            // const cXname = championType ? championType.Name : ''
-            // console.log(`modeType: ${modeType}; cXname: ${cXname}; role: ${championRole}; pageShow: ${pageShow}; modifier: ${modifier};`)
-            command.getStats(userId, userNameOrId)
-            .then(body => {
-                const matches = body.getmatchhistory.json
-                // console.log(`Всего: ${matches.length}`)
-
-                // если указан тип матча то фильтруем по нему
-                if (modeType) {
-                    matches.filterRemove(match => {
-                        return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(match.Queue)
-                    })
-                }
-                // console.log(`modeType: ${matches.length}`)
-
-                // если указан фильт по чемпиону то фильтруем
-                if (championType) {
-                    matches.filterRemove(match => {
-                        return champions.getByName(match.Champion).Name === championType.Name
-                    })
-                }
-                // console.log(`championType: ${matches.length}`)
-
-                // если указана роль чемпиона
-                if (championRole) {
-                    matches.filterRemove(match => {
-                        return champions.getByName(match.Champion).role.en === championRole
-                    })
-                }
-                // console.log(`championRole: ${matches.length}`)
-
-                // берем нужную страницу
-                const matchesPage = matches.slice((pageShow-1)*10, (pageShow-1)*10+10)
-
-                if (!matchesPage.length) return reject({
-                    err_msg: {
-                        ru: 'Матчи игрока не найдены.',
-                        en: 'Player matches not found.'
-                    }
-                })
-
-                // рисуем
-                const draw = command.draw(matchesPage, prop, body.getmatchhistory.last_update)
-                if (!draw.status) return reject(draw)
-
-                const canvas = draw.canvas
-                const buffer = canvas.toBuffer('image/png') // buffer image
-                const news = config.news[lang]
-
-                const showOldStatsText = {
-                    ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
-                    en: '__**You will be shown the details of the last successful request.**__'
-                }
-
-                const replayOldText = body.getmatchhistory.old ?
-                        `${body.getmatchhistory.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
-
-                // список id показаных матчей
-                const matchesIds = matchesPage.map(match => match.Match)
-                const fullMatchInfo = getFullMatchInfo(matches) // получаем полную статистику матча | matches matchesOld
-                // console.log(matchesIds)
-                const matchesInfoDefault = {
-                    ru: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                        `[Матчи](${(pageShow-1)*10}-${matchesIds.length*(pageShow-1)+10}) [Всего](${matches.length})\n` + 
-                        `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(pageShow-1)*10}](${id})`).join('; ') + ';',
-                    en: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
-                        `[Matches](${(pageShow-1)*10}-${matchesIds.length*(pageShow-1)+10}) [Total](${matches.length})\n` + 
-                        `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(pageShow-1)*10}](${id})`).join('; ') + ';'
-                        
-                }
-
-                const matchesInfo = modifier == '-f' ? 
-                    ({
-                        ru: matchesInfoDefault.ru + `\n\n# Статистика по ролям:\n` +
-                            `* <Role>[КДА](Винрейт) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').ru}` +
-                            `\n# Статистика по типу очереди матчей:\n* <Queue>[КДА](Винрейт) <info: damage / healing / def>:\n` +
-                            `${fullMatchInfo.stats('queue').ru}\n${fullMatchInfo.total.ru}`,
-                        en: matchesInfoDefault.en + `\n\n# Statistics by roles:\n` +
-                            `* <Role>[K/D/A](Winrate) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').en}` +
-                            `\n# Match queue type statistics:\n* <Queue>[K/D/A](Winrate) <info: damage / healing / def>:\n` +
-                            `${fullMatchInfo.stats('queue').en}\n${fullMatchInfo.total.en}`
-                    }[lang] + '```') : ( matchesInfoDefault[lang] + '```')
-                
-
-                message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
-                .then(mess => {
-                    return resolve(mess)
-                })
-                .catch(err => {
-                    if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
-                    return reject({
-                        err,
-                        err_msg: {
-                            ru: '',
-                            en: ''
-                        },
-                        log_msg: `Ошибка отправки сообщения готового ответа команды "sh" (<@${userId}>).`,
-                        content: message.content,
-                        params: contentParams
-                    })
-                })
-            })
-            .catch(err => {
-                if (err.err_msg !== undefined) return reject(err) // проброс ошибки если есть описание
-                return reject({
-                    err,
-                    log_msg: `Ошибка вызова "sh.getStats" команды для пользователя (<@${userId}>).`,
-                    err_msg: {
-                        ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                        en: 'Something went wrong... Try again or report this error to the bot creator.'
-                    },
-                    content: message.content,
-                    params: contentParams
-                })
-            })
-        } catch(err) {
-            if (err && err.err_msg !== undefined) return reject(err)
-            return reject({
-                err,
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) {
+            throw {
+                err: 'Введен не корректный ник',
+                status: false,
                 err_msg: {
-                    ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                    en: 'Something went wrong... Try again or report this error to the bot creator.'
-                },
-                log_msg: 'sh.execute'
+                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                    en: `Enter the correct Nickname or Paladins account id.`
+                }
+            }
+        }
+
+        if (modeType == 'all') modeType = null
+        if (championRole == 'all') championRole = championType = null
+
+        const body = await command.getStats(userId, userNameOrId)
+        if (!body.status) throw body
+        const getmatchhistory = body.getmatchhistory
+        const matches = getmatchhistory.data
+        const hasMatchesNoFilter = !!matches.length
+
+        const hideObjInfo = {
+            owner: userId,
+            params: body.playerId || body.playerName || userNameOrId || 'me'
+        }
+        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        // console.log(`Всего: ${matches.length}`)
+
+        // если указан тип матча то фильтруем по нему
+        if (modeType) {
+            matches.filterRemove(match => {
+                return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(match.Queue)
             })
         }
-    })
+        // console.log(`modeType: ${matches.length}`)
+
+        // если указан фильтр по чемпиону то фильтруем
+        if (championType) {
+            matches.filterRemove(match => {
+                return champions.getByName(match.Champion).Name.en.toLowerCase() === championType.toLowerCase()
+            })
+        }
+        // console.log(`championType: ${matches.length}`)
+
+        // если указана роль чемпиона
+        if (championRole) {
+            matches.filterRemove(match => {
+                return champions.getByName(match.Champion).role.en.toLowerCase() === championRole.toLowerCase()
+            })
+        }
+        // console.log(`championRole: ${matches.length}`)
+
+        // берем нужную страницу
+        const matchesPage = matches.slice((pageShow-1)*10, (pageShow-1)*10+10)
+
+        const buttonsLine_1 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setCustomId('pal')
+            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            .setStyle('DANGER')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sh')
+            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setStyle('SUCCESS')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sh_full')
+            .setLabel({en: 'Show more', ru: 'Показать больше'}[lang])
+            .setStyle(isFull ? 'SUCCESS' : 'PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sh_filters')
+            .setLabel({en: 'Filters', ru: 'Фильтры'}[lang])
+            .setStyle('PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sh_reset')
+            .setLabel({en: 'Reset filters', ru: 'Сбросить фильтры'}[lang])
+            .setStyle('DANGER')
+            .setDisabled(!(params?.sh?.full || params?.sh?.mode || params?.sh?.champion))
+        )
+
+        if (!matchesPage.length) {
+            return {
+                content: {
+                    ru: `Матчи игрока не найдены${hasMatchesNoFilter ? ' (из-за наложеных фильтров)' : ''}.`,
+                    en: `Player matches not found${hasMatchesNoFilter ? ' (because of the imposed filters)' : ''}.`
+                }[lang],
+                components: [buttonsLine_1],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
+            }
+        }
+
+        prop.page = pageShow
+        // рисуем
+        const draw = await command.draw(matchesPage, prop, getmatchhistory.lastUpdate)
+        if (!draw.status) throw draw
+
+        const canvas = draw.canvas
+        const buffer = canvas.toBuffer('image/png') // buffer image
+        const news = config.news[lang]
+
+        const showOldStatsText = {
+            ru: 'Аккаунт скрыт или API временно не работает.\n__**Вам будут показаны данные последнего удачного запроса.**__',
+            en: 'The account is hidden or the API is temporarily not working.\n__**You will be shown the details of the last successful request.**__'
+        }
+
+        const replayOldText = body.getmatchhistory.old ?
+                `${showOldStatsText[lang]}\n` : ''
+
+        // список id показаных матчей
+        const matchesIds = matchesPage.map(match => match.Match)
+        const fullMatchInfo = getFullMatchInfo(matches) // получаем полную статистику матча | matches matchesOld
+        // console.log(matchesIds)
+        const matchesInfoDefault = {
+            ru: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                `[Матчи](${(pageShow-1)*10}-${matchesIds.length*(pageShow-1)+10}) [Всего](${matches.length})\n` + 
+                `# ID матчей:\n` + matchesIds.map((id, i) => `[${i+1+(pageShow-1)*10}](${id})`).join('; ') + ';',
+            en: `\`\`\`md\n* <For>[${draw.name}](${draw.id})\n\n` +
+                `[Matches](${(pageShow-1)*10}-${matchesIds.length*(pageShow-1)+10}) [Total](${matches.length})\n` + 
+                `# ID matches:\n` + matchesIds.map((id, i) => `[${i+1+(pageShow-1)*10}](${id})`).join('; ') + ';'
+                
+        }
+
+        const matchesInfo = isFull ? 
+            ({
+                ru: matchesInfoDefault.ru + `\n\n# Статистика по ролям:\n` +
+                    `* <Role>[КДА](Винрейт) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').ru}` +
+                    `\n# Статистика по типу очереди матчей:\n* <Queue>[КДА](Винрейт) <info: damage / healing / def>:\n` +
+                    `${fullMatchInfo.stats('queue').ru}\n${fullMatchInfo.total.ru}`,
+                en: matchesInfoDefault.en + `\n\n# Statistics by roles:\n` +
+                    `* <Role>[K/D/A](Winrate) <info: damage / healing / defense>:\n${fullMatchInfo.stats('roles').en}` +
+                    `\n# Match queue type statistics:\n* <Queue>[K/D/A](Winrate) <info: damage / healing / def>:\n` +
+                    `${fullMatchInfo.stats('queue').en}\n${fullMatchInfo.total.en}`
+            }[lang] + '```') : ( matchesInfoDefault[lang] + '```')
+
+        const pageListOpt = []
+        for (let i = 0; i < matches.length; i+=10) {
+            const page = (i / 10 + 1) + ''
+            pageListOpt.push({
+                label: {en: `Page ${page}`, ru: `Страница ${page}`}[lang],
+                description: {en: `Shows the history of matches from the specified page`, ru: `Покажет историю матчей с указанной страницы`}[lang],
+                value: page
+            })
+        }
+
+        const buttonsLine_2 = new MessageActionRow()
+        .addComponents(
+            new MessageSelectMenu()
+                .setCustomId('sh_page')
+                .setPlaceholder({en: 'Select a page', ru: 'Выберите страницу'}[lang])
+                .addOptions(pageListOpt)
+        )
+
+        const matchListOpt = []
+        for (let i = 0; i < matchesPage.length && i < 10; i++) {
+            const match = matchesPage[i]
+            const num = (i+1) + (pageShow-1) * 10
+            matchListOpt.push({
+                label: {en: `Match number ${num}`, ru: `Матч номер ${num}`}[lang],
+                description: {en: 'Shows the statistics of the specified match', ru: 'Покажет статистику указанного матча'}[lang],
+                value: match.Match + ''
+            })
+        }
+
+        const buttonsLine_3 = new MessageActionRow()
+        .addComponents(
+            new MessageSelectMenu()
+                .setCustomId('sm')
+                .setPlaceholder({en: 'Show the match history', ru: 'Показать историю матча'}[lang])
+                .addOptions(matchListOpt)
+        )
+
+        const statsImg = await sendToChannel(config.chImg, {files: [buffer]})
+        const attachment = statsImg.attachments.last()
+
+        return {
+            content: `${news}${replayOldText}${matchesInfo}`,
+            components: [buttonsLine_1, buttonsLine_2, buttonsLine_3],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136',
+                image: {
+                    url: attachment.url
+                }
+            }]
+        }
+    } catch(err) {
+        if (err && err.err_msg !== undefined) throw err
+        throw {
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'sh.execute'
+        }
+    }
 }
 
 

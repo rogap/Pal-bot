@@ -1,0 +1,58 @@
+[
+  {
+    "id": "605378869691940889",
+    "lang": "ru",
+    "timezone": null,
+    "prefix": null,
+    "commands": null,
+    "backgrounds": "[\"3\", \"4\", \"5\", \"6\"]"
+  },
+  {
+    "id": "321376904638889984",
+    "lang": null,
+    "timezone": null,
+    "prefix": null,
+    "commands": "{\"me\": [\"me\", \"я\"], \"sm\": [\"sm\", \"ласт\"], \"sp\": [\"sp\", \"щас\", \"сейчас\"], \"ss\": [\"ss\", \"стата\", \"атата\"]}",
+    "backgrounds": "[\"1\", \"2\", \"3\", \"4\", \"5\", \"6\"]"
+  },
+  {
+    "id": "637707515114815508",
+    "lang": "ru",
+    "timezone": null,
+    "prefix": null,
+    "commands": null,
+    "backgrounds": null
+  },
+  {
+    "id": "799304126470291457",
+    "lang": "en",
+    "timezone": null,
+    "prefix": null,
+    "commands": null,
+    "backgrounds": null
+  },
+  {
+    "id": "629003306563403778",
+    "lang": "en",
+    "timezone": null,
+    "prefix": null,
+    "commands": null,
+    "backgrounds": null
+  },
+  {
+    "id": "695359246732099616",
+    "lang": "en",
+    "timezone": null,
+    "prefix": null,
+    "commands": null,
+    "backgrounds": null
+  },
+  {
+    "id": "726448373514895412",
+    "lang": "en",
+    "timezone": null,
+    "prefix": null,
+    "commands": null,
+    "backgrounds": null
+  }
+]

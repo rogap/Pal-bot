@@ -7,9 +7,10 @@ const _local = process._local
 const {client, config} = _local
 
 
-client.on('guildCreate', guild => {
-    guild.members.fetch(guild.ownerID)
-    .then(owner => {
+client.on('guildCreate', async guild => {
+    try {
+        const owner = await guild.members.fetch(guild.ownerID)
+
         const guildSettings = _local.guildsSettings.get(guild.id) // получаем настройки сервера
         const settings = guildSettings ? guildSettings : {
             lang: config.lang,
@@ -20,7 +21,7 @@ client.on('guildCreate', guild => {
         const instaledLang = lang == 'ru' ? ':flag_ru:' : ':flag_us:'
 
         // отправляет приветственное сообщение с информацией создателю сервера (нужно предупредить об этом)
-        owner.send({
+        await owner.send({
             embed: {
                 description: `**Server name:** ${guild.name}\ \n**Server id:** ${guild.id}`,
                 thumbnail: {
@@ -67,15 +68,14 @@ client.on('guildCreate', guild => {
                 ]
             }
         })
-    })
-    .catch(err => {
-        // ошибка отправки сообщения
+    } catch(err) {
+        console.log(`Ошибка отправки сообщения ОВНЕРУ: ${guild.ownerID}:`)
         console.log(err)
-    })
+    }
 
-    client.channels.fetch(config.chNot)
-    .then(channel => {
-        if (channel) channel.send({
+    try {
+        const channel = await client.channels.fetch(config.chNot)
+        await channel.send({
             embed: {
                 title: `${guild.name} (${guild.id})`,
                 description: '__добавлен__',
@@ -97,12 +97,10 @@ client.on('guildCreate', guild => {
                 ]
             }
         })
-        .catch((err) => {
-            // сделать вывод в логи на сервере
-            console.log(err)
-            console.log('Ошибка отправки сообщения при добавлении бота на сервер.')
-        })
-    })
+    } catch(err) {
+        console.log(`Ошибка отправки сообщения на канал сервера:`)
+        console.log(err)
+    }
 })
 
 // сделать изменение дефолтных настроек если на сервере указана локализация не RU и не EU (регион)

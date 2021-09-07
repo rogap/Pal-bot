@@ -5,39 +5,28 @@
 
 const fs = require('fs')
 const path = require('path')
-const { loadImage } = require('canvas')
 const _local = process._local
 const timeStart = new Date() // время старта загрузки
 
 
-module.exports = new Promise((resolve, reject) => {
-    const pathToDivisions = path.join(__dirname, '..', 'img', 'divisions')
-    fs.readdir(pathToDivisions, (err, files) => {
-        if (err) return reject(err)
+module.exports = (async () => {
+    try {
+        const pathToDivisions = path.join(_local.path, 'img', 'divisions')
+        const files = await fs.readdirSync(pathToDivisions)
 
-        const divisionList = []
-        files.forEach(division => {
-            divisionList.push( loadImage(path.join(pathToDivisions, division)) )
+        files.forEach(img => {
+            const parse = path.parse(img)
+            _local.config.img.divisions[parse.name] = path.join(pathToDivisions, img)
         })
 
-        Promise.all(divisionList)
-        .then(divisionsImgs => {
-            divisionsImgs.forEach(division => {
-                const match = division.src.match(/(?<num>\d+)\.(png|gif|jpg)/i)
-                if ( !match ) return console.log(`Ошибка регулярного выражения loadDivisions (1)`, division)
-                const groups = match.groups
-                if ( !groups ) return console.log(`Ошибка регулярного выражения loadDivisions (2)`, division)
-                const num = groups.num
-                if ( !num ) return console.log(`Ошибка регулярного выражения loadDivisions (3)`, division)
-
-                _local.config.img.divisions[num] = division
-            })
-
-            console.log(`Дивизионы загруженны (${divisionsImgs.length}) (${new Date - timeStart}ms)`)
-            return resolve({status: true})
-        })
-        .catch(err => {
-            return reject(err)
-        })
-    })
-})
+        console.log(`\tДивизионы загруженны (${files.length}) (${new Date - timeStart}ms)`)
+        return {status: true}
+    } catch(err) {
+        console.log('\n ~ Ошибка загрузки дивизионов ~\n')
+        if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
+        return {
+            status: false,
+            err
+        }
+    }
+})();

@@ -13,57 +13,63 @@ module.exports = class ChampionsManager extends AbstractChampion {
         this.size = 0
     }
 
-    get healers() {
+    static getRole(role) {
+        return role.replace(/Paladins /i, '').replace(/[ ]/ig, '').trim().toLowerCase()
+    }
+
+    get championsByRole() {
+        const supports = [],
+            frontlines = [],
+            damages = [],
+            flanks = []
+
+        this.#champions.forEach(champion => {
+            if (champion.role.en == 'flanker') flanks.push(champion)
+            if (champion.role.en == 'damage') damages.push(champion)
+            if (champion.role.en == 'support') supports.push(champion)
+            if (champion.role.en == 'frontline') frontlines.push(champion)
+        })
+
         return {
-            list: [],
-            names: []
+            supports,
+            frontlines,
+            damages,
+            flanks
         }
     }
 
-    get tanks() {
-        return {
-            list: [],
-            names: []
-        }
+    get supports() {
+        return []
+    }
+
+    get frontlines() {
+        return []
     }
 
     get damages() {
-        return {
-            list: [],
-            names: []
-        }
+        return []
     }
 
     get flanks() {
-        return {
-            list: [],
-            names: []
-        }
+        return []
     }
 
     get champions() {
-        return {
-            list: [],
-            names: []
-        }
+        return this.#champions
     }
 
     sort(type) { // type or function??!!
         //
     }
 
-    avatars(type) {
-        // возвращает аватарки чемпионов
-    }
-
     random(role) {}
 
     // добавляет чемпиона в базу класса
     add(champion) {
+        if ( this.getById(champion.id) ) return false
         this.#champions.push(champion)
         this.size = this.#champions.length
-
-        // после добавления чемпиона можно сортировать массив что бы они были по алфавиту (engl)
+        return this
     }
 
     getById(id) {

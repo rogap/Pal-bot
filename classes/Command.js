@@ -3,6 +3,7 @@
  */
 
 
+const _local = process._local
 const path = require('path')
 
 
@@ -15,6 +16,8 @@ module.exports = class Command {
         this.owner = params.owner
         this.params = params.params
         this.info = params.info
+        this.slashName = params.slashName
+        this.path = params.path
 
         params.files.forEach(filename => {
             const pathToCommand = params.path
@@ -34,5 +37,55 @@ module.exports = class Command {
         const commandName = (text.match(/^[^\s]+/i) || [])[0]
         if (!commandName) return false
         return this.possibly.some(name => name == commandName)
+    }
+
+    // добавляет использование команды в статистику
+    async used() {
+        const model = _local.models.commandsStats
+        const find = await model.find()
+        const corrent = find.length - 1
+        const lastDay = find[corrent < 0 ? 0 : corrent]
+        const date = new Date()
+        const newDayNow = !lastDay ? true : new Date(lastDay.date).getUTCDate() != new Date().getUTCDate()
+
+        let servers = 0
+        let users = 0
+        _local.client.guilds.cache.forEach(guild => {
+            servers++
+            users += guild.memberCount
+        })
+
+        let usedCommands = lastDay && !newDayNow ? lastDay.usedCommands : 0
+        usedCommands++
+        const timeWork = date - _local.timeStart
+        const commandsStats = lastDay && !newDayNow ? lastDay.commandsStats : {}
+        if (!commandsStats[this.name]) commandsStats[this.name] = 0
+        commandsStats[this.name]++
+
+        if (!lastDay || newDayNow) {
+            // если данных нет то сейвим (или новый день)
+            const save = new model({
+                servers,
+                users,
+                usedCommands,
+                commandsStats,
+                // limitAPI,
+                timeWork,
+                date
+            })
+
+            await save.save()
+        } else {
+            // если есть данные то изменяем их и сохраняем (старый день)
+            await model.findByIdAndUpdate(lastDay._id, {
+                servers,
+                users,
+                usedCommands,
+                commandsStats,
+                // limitAPI,
+                timeWork,
+                // date
+            })
+        }
     }
 }

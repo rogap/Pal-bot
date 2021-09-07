@@ -16,19 +16,26 @@ module.exports = {
 	discordToken: env.DISCORDTOKEN,
 	dbToken: env.DATABASETOKEN,
 	steamKey: env.STEAMKEY,
+	devId: env.DEVID,
+	authKey: env.AUTHKEY,
+	database: {
+		name: env.DBNAME,
+		host: env.DBHOST,
+		port: env.DBPORT
+	},
 	stegPass: 'Paladins',
 	stegText: 'buttons menu',
 	translate,
-	urlApi: 'https://webmyself.ru/pal-bot/api/api.php',
+	siteUrl: 'https://webmyself.ru/pal-bot/',
 	discordInvate: 'https://discord.gg/C2phgzTxH9',
-	siteSupport: 'https://webmyself.ru/pal-bot/',
+	// siteSupport: 'https://webmyself.ru/pal-bot/',
 	botIcon: 'https://cdn.discordapp.com/icons/605378869691940889/c52df036ebee94381bcc325b20cb7b90.png?size=128',
 	emptyIcon: 'https://raw.githubusercontent.com/rogap/Pal-bot/new/img/empty.png',
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '',
-		en: ''
+		ru: '(локальный тест обновы перед переносом на сервер)',
+		en: '(local test of the update before transferring to the server)'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',
@@ -82,7 +89,7 @@ module.exports = {
 	// и не я один: https://support.discord.com/hc/en-us/community/posts/360041728292-Edit-sent-files
 	prefix: '!',
 	testing: false,
-	lang: 'ru', // язык по умолчанию
+	lang: 'en', // язык по умолчанию
 	timezone: 0,
 	backgrounds: ['1'], // дефолтный фон
 	langs: { // для перевода языка в числовой вид
@@ -98,5 +105,20 @@ module.exports = {
 		name: 'mutu',
 		id: 3368378
 	},
-	timeLimit: null
+	timeLimit: {
+		getdataused: 0,
+		gethirezserverstatus: 1000 * 60 * 10,
+		searchplayers: 1000 * 60 * 5,
+		getchampions: 1000 * 60 * 60 * 24 * 3650,
+		getchampioncards: 1000 * 60 * 60 * 24 * 3650,
+		getplayer: 1000 * 60 * 3,
+		getitems: 1000 * 60 * 60 * 24 * 3650,
+		getchampionranks: 1000 * 60 * 60 * 1,
+		getplayerloadouts: 1000 * 60 * 10,
+		getplayerstatus: 1000 * 10,
+		getmatchhistory: 1000 * 60,
+		getmatchdetails: 1000 * 60 * 60 * 24 * 3650,
+		getmatchplayerdetails: 1000 * 30,
+		getfriends: 1000 * 60 * 5
+	}
 }

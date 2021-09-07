@@ -4,127 +4,178 @@
 
 
 const _local = process._local
-const {config, classes} = _local
-const {Details} = classes
+const {Discord, config, stegcloak, classes, utils} = _local
+const {sendToChannel} = utils
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
-module.exports = function(message, settings, command, contentParams) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const userId = message.author.id
-            const prop = settings.getProp()
-            const {lang, timezone} = prop
+module.exports = async (userId, settings, command, nameOrId, pageShow, search) => {
+    try {
+        const prop = settings.getProp()
+        const {lang, params} = prop
+        const isBlockUsers = params?.sf?.block
+        const news = config.news[lang]
+        const body = await command.getStats(userId, nameOrId)
+        const {getfriends} = body
+        const accaunts = getfriends.data || []
+        if (nameOrId && nameOrId.mentionToId) nameOrId = nameOrId.mentionToId()
 
-            const params = contentParams.split(' ')
-            const [firstParam, secondParam, thirdParam] = params
-
-            /**
-             * если есть thirdParam то firstParam полюбому должен указывать на пользователя с которого получить инфу нужно
-             * 
-             * если secondParam является числом то это указание страницы, firstParam в таком случае будет указывать на пользователя
-             * 
-             * если secondParam не число то page=1 и повторяем ситуацию 1
-             * 
-             * если secondParam не указан то получаем инфу самого пользователя и page=1
-             * 
-             * 
-             * если 3 параметра:
-             *      первый это пользователь
-             *      второй или третий это search
-             * 
-             * если 2 параметра:
-             *      первые это пользователь
-             *      второй это page, если его нет то search
-             * 
-             * если 1 параметр:
-             *      может быть page, тогда пользователь = me, в рпотивном случае пользователь = первому параметру
-             */
-
-
-            const page = thirdParam ? thirdParam : secondParam && isFinite(secondParam) && secondParam <= 50 ? secondParam : 
-                firstParam && isFinite(firstParam) && firstParam <= 50 ? firstParam : false
-            const pageShow = Math.floor(page) || 1
-
-            const nameOrId = !secondParam && page ? 'me' : firstParam
-            const search = thirdParam && page === thirdParam ? secondParam :
-                thirdParam && page === secondParam ? thirdParam :
-                secondParam && !page ? secondParam : false
-
-
-            // const nameOrId = thirdParam || secondParam ? firstParam : isFinite(firstParam) && firstParam > 9999 ? firstParam : 'me'
-            // const page = thirdParam ? thirdParam : secondParam && isFinite(secondParam) && secondParam <= 50 ? 
-            //     secondParam : firstParam && isFinite(firstParam) && firstParam <= 50 ? firstParam : 1
-            // const search = secondParam && !isFinite(secondParam) ? secondParam : false
-            console.log(`nameOrId: ${nameOrId}; search: ${search}; pageShow: ${pageShow}`)
-
-            const body = await command.getStats(userId, nameOrId)
-            // console.log(body, body.getfriends.json.length)
-            const {getfriends} = body
-            const accaunts = getfriends.json || []
-            // console.log(accaunts.length, accaunts)
-            const friends = accaunts.filter(user => {
-                const name = user.name || ''
-                const id = user.player_id || ''
-                // с учетом сортировки, если есть
-                const reg = new RegExp(`${search}`, 'i')
-                if (search) return user.status === 'Friend' && (name.match(reg) || (id+'').match(search))
-                return user.status === 'Friend' // без учета сортирвоки
-            })
-
-            if (!friends.length) return reject({
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) {
+            throw {
+                err: 'Введен не корректный ник',
+                status: false,
                 err_msg: {
+                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                    en: `Enter the correct Nickname or Paladins account id.`
+                }
+            }
+        }
+
+        const friends = accaunts.filter(user => {
+            const name = user.name || ''
+            const id = user.player_id || ''
+            // с учетом сортировки, если есть
+            const reg = new RegExp(`${search}`, 'i')
+            const typeShow = isBlockUsers ? 'Blocked' : 'Friend'
+            if (search) return user.status === typeShow && (name.match(reg) || (id+'').match(search))
+            return user.status === typeShow // без учета сортирвоки
+        })
+
+        const hideObjInfo = {
+            owner: userId,
+            params: body.playerId || body.playerName || nameOrId || 'me'
+        }
+        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+
+        const buttonsLine_1 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setCustomId('pal')
+            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            .setStyle('DANGER')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sf')
+            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setStyle('SUCCESS')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sf_block')
+            .setLabel((!isBlockUsers ? 
+                {en: 'Show blocked users', ru: 'Показать заблокированных'} : 
+                {en: 'Show friends', ru: 'Показать друзей'})[lang])
+            .setStyle('PRIMARY')
+        )
+
+        if (!friends.length) {
+            return {
+                content: {
                     ru: `Друзья не найдены.`,
                     en: `No friends found.`
-                }
-            })
+                }[lang],
+                components: [buttonsLine_1],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
+            }
+        }
 
-            const pageCount = Math.ceil( friends.length / 20 )
-            if ( pageCount < pageShow ) return reject({
-                err_msg: {
+        const pageCount = Math.ceil( friends.length / 20 )
+        if ( pageCount < pageShow ) {
+            return {
+                content: {
                     ru: `У пользователя ${pageCount} страниц.`,
                     en: `The user has ${pageCount} pages.`
-                }
-            })
-
-            let answerText = {
-                ru: `\`\`\`md\n# Всего ${friends.length} друзей (${pageCount} страниц)\n[id](name)<portal flag>\n> >\n`,
-                en: `\`\`\`md\n# Total ${friends.length} friends (${pageCount} pages)\n[id](name)<portal flag>\n> >\n`
-            }[lang]
-            for (let i = 0 + (pageShow - 1) * 20; friends.length > i && i < 20 * pageShow; i++) {
-                const user = friends[i]
-                const portal = config.platforms[user.portal_id] || user.portal_id
-                const flag = user.friend_flags == 1 ? {ru: 'в друзьях', en: 'in friends'}[lang] :
-                    user.friend_flags == 2 ? {ru: 'исходящая заявка', en: 'outgoing request'}[lang] : user.friend_flags
-
-                answerText += `${i + 1}. [${user.player_id}](${user.name})<${portal} ${flag}>\n`
+                }[lang],
+                components: [buttonsLine_1],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
             }
-
-            if (friends.length > 20) {
-                answerText += {
-                    ru: `> >\n# Показаны не все друзья. Страница ${pageShow} из ${pageCount}\n`,
-                    en: `> >\n# Not all friends are shown. Page ${pageShow} of ${pageCount}\n`
-                }[lang]
-            }
-            const time = getfriends.last_update.updateToDate(timezone).toText()
-            const timeUpdate = getfriends.last_update.getNextUpdate('getfriends', timezone)
-            answerText += {
-                ru: `> >\r\n* Друзья: ${time} | Обновится: ${timeUpdate} | timezone: ${timezone}`,
-                en: `> >\r\n* Friends: ${time} | Updated: ${timeUpdate} | timezone: ${timezone}`
-            }[lang]
-            answerText += '```'
-
-            const sendResult = await message.channel.send(`${message.author}${answerText}`)
-            return resolve(sendResult)
-        } catch(err) {
-            if (err && err.err_msg !== undefined) return reject(err)
-            return reject({
-                err,
-                err_msg: {
-                    ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                    en: 'Something went wrong... Try again or report this error to the bot creator.'
-                },
-                log_msg: 'sf.execute'
-            })
         }
-    })
+
+        let answerText = {
+            ru: `\`\`\`md\n# Всего ${friends.length} друзей (${pageCount} страниц)\n[id](name)<portal flag>\n> >\n`,
+            en: `\`\`\`md\n# Total ${friends.length} friends (${pageCount} pages)\n[id](name)<portal flag>\n> >\n`
+        }[lang]
+        for (let i = 0 + (pageShow - 1) * 20; friends.length > i && i < 20 * pageShow; i++) {
+            const user = friends[i]
+            const portal = config.platforms[user.portal_id] || user.portal_id
+            const flag = user.friend_flags == 1 ? {ru: 'в друзьях', en: 'in friends'}[lang] :
+                user.friend_flags == 2 ? {ru: 'исходящая заявка', en: 'outgoing request'}[lang] : user.friend_flags
+
+            answerText += `${i + 1}. [${user.player_id}](${user.name})<${portal} ${flag}>\n`
+        }
+
+        if (friends.length > 20) {
+            answerText += {
+                ru: `> >\n# Показаны не все друзья. Страница ${pageShow} из ${pageCount}\n`,
+                en: `> >\n# Not all friends are shown. Page ${pageShow} of ${pageCount}\n`
+            }[lang]
+        }
+        // const time = getfriends.last_update.updateToDate(timezone).toText()
+        // const timeUpdate = getfriends.last_update.getNextUpdate('getfriends', timezone)
+        // answerText += {
+        //     ru: `> >\r\n* Друзья: ${time} | Обновится: ${timeUpdate} | timezone: ${timezone}`,
+        //     en: `> >\r\n* Friends: ${time} | Updated: ${timeUpdate} | timezone: ${timezone}`
+        // }[lang]
+        answerText += '```'
+
+        const pageOptions = [[]]
+        for (let i = 0; i < friends.length;) {
+            i += 20
+            const j = (i / 20) + ''
+            if (j < 25) {
+                pageOptions[0].push({
+                    label: {en: `Page ${j}`, ru: `Страница ${j}`}[lang],
+                    description: {en: `Go to the specified page`, ru: `Перейти на указанную страницу`}[lang],
+                    value: j
+                })
+            } else {
+                if (j == 25) pageOptions.push([])
+                pageOptions[1].push({
+                    label: {en: `Page ${j}`, ru: `Страница ${j}`}[lang],
+                    description: {en: `Go to the specified page`, ru: `Перейти на указанную страницу`}[lang],
+                    value: j
+                })
+            }
+        }
+
+        const pageOpt = []
+        for (let i = 0; i < pageOptions.length; i++) {
+            const opt = pageOptions[i]
+            pageOpt.push(
+                new MessageActionRow()
+                .addComponents(
+                    new MessageSelectMenu()
+                        .setCustomId('sf_page')
+                        .setPlaceholder({en: 'Go to the page...', ru: 'Перейти на страницу...'}[lang])
+                        .addOptions(opt)
+                )
+            )
+        }
+
+        return {
+            content: `${news}${answerText}`,
+            components: [buttonsLine_1, ...pageOpt],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136'
+            }]
+        }
+    } catch(err) {
+        if (err && err.err_msg !== undefined) throw err
+        throw {
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'sf.execute'
+        }
+    }
 }

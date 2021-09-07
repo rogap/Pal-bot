@@ -4,52 +4,43 @@
 
 
 const _local = process._local
-const {utils} = _local
-const {formHiRezFunc, sendSite} = utils
+const {utils, config} = _local
+const fs = require('fs')
 
 
-module.exports = function(userId, ...params) {
-    return new Promise((resolve, reject) => {
-        try {
-            // console.log(userId, params)
-            // user or guild
-            // user_id or guild_id
-            // type set (lang or timezone)
-            // value
+module.exports = async function(userId, params) {
+    try {
+        const typeSetting = params.typeFor == 'user' ? 'user_setting.json' : 'guild_setting.json'
+        const pathToSettings = path.join(_local.pathMain, 'config', 'json', typeSetting)
 
-            const form = formHiRezFunc('set', userId, ...params)
-            sendSite(form)
-            .then(response => {
-                const body = response.body
-                // console.log(body)
-
-                if (!body || body.constructor != Object) return reject({
-                    err_msg: {
-                        ru: 'Ошибка получения данных! повторите команду снова или через некоторое время.',
-                        en: 'Data retrieval error! repeat the command again or after a while.'
-                    },
-                    log_msg: 'body не был обнаружен или он не является обьектом',
-                    body,
-                    params
-                })
-
-                if (!body.status) return reject(body)
-
-                return resolve(body)
-            })
-            .catch(err => {
-                return reject(err)
-            })
-        } catch(err) {
-            if (err && err.err_msg !== undefined) return reject(err)
-            return reject({
-                err,
-                err_msg: {
-                    ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                    en: 'Something went wrong... Try again or report this error to the bot creator.'
-                },
-                log_msg: 'set.setData'
-            })
+        const getSettings = JSON.parse( await fs.readFileSync(pathToSettings) )
+        const findSetting = getSettings.find(item => item.id == params.id)
+        const setSetting = findSetting || {
+            id: params.id,
+            lang: config.lang,
+            timezone: config.timezone,
+            prefix: config.prefix,
+            backgrounds: config.backgrounds
         }
-    })
+
+        if (params.typeFor == 'user') setSetting.only = setSetting.only || null
+
+        // применяем настройки
+        setSetting[params.typeValue] = params.value
+
+        // записываем в файл (сохраняем)
+        await fs.writeFileSync(pathToSettings, JSON.stringify(setSetting))
+
+        return {status: true}
+    } catch(err) {
+        if (err && err.err_msg !== undefined) throw err
+        throw {
+            err,
+            err_msg: {
+                ru: 'Что-то пошло не так... Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Something went wrong... Try again or report this error to the bot creator.'
+            },
+            log_msg: 'set.setData'
+        }
+    }
 }

@@ -5,22 +5,21 @@
 
 const _local = process._local
 const {Discord, client, config, utils, classes, stegcloak, commandsUsed} = _local
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 const {sendToChannel} = utils
 const {Button, ButtonsManager} = classes
 
 
-client.ws.on('INTERACTION_CREATE', async data => {
-    let _mess = null
-    let _lang = config.lang
+client.on('interactionCreate', async interaction => {
     try {
-        if ( !_local.launched ) return; // если бот не запущен до конца
-        if ( data.application_id != client.user.id ) return; // если кнопка не текущего бота
-        if ( !data.message ) return;
-        // console.log(data.data.custom_id)
+        if (!_local.launched) return; // если бот не запущен до конца
+        if (interaction.user.bot) return; // пропускаем ботов
+        if (!interaction.isButton() && !interaction.isSelectMenu()) return;
+        console.log('click')
 
-        const authorId = data.member ? data.member.user ? data.member.user.id : data.user.id : data.user.id
+        const authorId = interaction.user.id
+        const embeds = interaction.message.embeds
 
-        const embeds = data.message.embeds
         if (!embeds) return; // нет embeds
         const embed = embeds[0]
         if (!embed) return; // нет embed
@@ -37,131 +36,104 @@ client.ws.on('INTERACTION_CREATE', async data => {
 
         // тут над будет выслать скрытое сообщение "вызовите свою команду меню"
         if (hideObjInfo.owner != authorId) {
-            return client.__defer(data)
+            return await interaction.reply({
+                content: 'Скрытая команда - вызовите свое меню', // можно выдать кнопку с предложением вызвать команду
+                ephemeral: true
+            })
         }
 
-        // console.log(data.message.embeds)
-        // data.guild_id
-        // data.channel_id
-        // console.log(data.member.user)
-
-        const buttonData = data.data
-        const ch = await client.channels.fetch(data.channel_id)
-        if (!ch) return;
-        const message = new Discord.Message(client, data.message, ch)
-        _mess = message
-        const settings = message.getSettings(authorId) // получаем обьект настроек для текущего пользователя
+        const settings = interaction.message.getSettings(authorId) // получаем обьект настроек для текущего пользователя
         // console.log(settings)
-        _lang = settings.lang
+        const {lang} = settings
 
-        const getCustomIdList = buttonData.custom_id.split('_')
-        const customNameCommand = getCustomIdList[0] || ''
-        const customIdList = getCustomIdList.splice(1)
-        const command = settings.commands.getByName(customNameCommand)
+        const [commandName, commandBranch_1, commandBranch_2, commandBranch_3] = interaction.customId.split('_')
+        const branches = [commandBranch_1, commandBranch_2, commandBranch_3]
+        const values = interaction.values // выбранные эллементы у select menu
+        const command = settings.commands.getByName(commandName)
         if (!command) return; // команда не найдена
 
         // можно проверить права (а можно и не проверять), но лучше проверить
 
         // выводим в консоль отладочные данные
         let guildName = 'ls'
-        const guild = message.guild
+        const guild = interaction.message.guild
         if (guild) guildName = guild.name
-        if (!command.owner) console.log(`>B> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${buttonData.custom_id}`)
+        if (!command.owner) console.log(`>B> ${guildName} <#${interaction.channel.id}> <@${authorId}>\ \n> ${commandName}`)
 
         const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
-        // console.log(data.message.components)
 
-        client.__defer(data).catch(console.log)
+        // тут нужно добавить в массив ( new Set ) то что это сообщение уже редачится и что бы его нажатия игнорились !!!
+        await interaction.deferUpdate().catch(console.log) // откладываем ответ
 
-        await message.edit({
+        const buttonsLine_1 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setURL(config.discordInvate)
+            .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+            .setStyle('LINK')
+        )
+
+        await interaction.editReply({
             content: `<@${hideObjInfo.owner}> ` + {
                 ru: 'Идет обработка команды, пожалуйста подождите...',
-                en: 'The command is being processed, please wait...'}[_lang],
-            components: [],
+                en: 'The command is being processed, please wait...'}[lang],
+            components: [buttonsLine_1],
             embed: {
                 description: `||${hideInfo}||`,
                 color: '2F3136'
             }
-        })
+        }).catch(console.log)
 
-        command.buttonExecute(message, hideObjInfo, customIdList, settings, command, data)
-        .then(res => {
-            if (res && res.status === 1) {
-                const commandName = res.name
+        // тут из 'массива' уже можно удалить эти данные
 
-                // увеличиваем число использований команды, только удачные и не админские
-                if (!command.owner && commandName) {
-                    if (!commandsUsed.commands[commandName]) commandsUsed.commands[commandName] = 0
-                    commandsUsed.commands[commandName]++
-                    commandsUsed.count++
-                }
-
-                if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
-            } else if (res && res.status === 2) {
-                if (!command.owner) console.log(`Был осуществлен переход внутри меню (<@${authorId}>).`)
-            } else {
-                console.log('Какая-то ошибка поидее...')
-            }
-        })
-        .catch(err => {
-            console.log(err)
-
-            if (_mess && err) {
-                const errText = err.err_msg || {
-                    ru: 'Необработанная ошибка, вы можете сообщить о ней на сервере бота.',
-                    en: `An unhandled error, you can report it on the bot's server.`
-                }
-
-                const btn_discord = new Button()
-                .setLabel({ru: 'Дискорд бота', en: 'Bot discord'}[_lang])
-                .setURL('https://discord.gg/C2phgzTxH9')
-
-                const btn_menu = new Button()
-                .setLabel({ru: 'Меню', en: 'Menu'}[_lang])
-                .setStyle(4)
-                .setId('pal')
-
-                const buttonList = new ButtonsManager([btn_discord, btn_menu])
-
-                _mess.edit({
-                    content: errText[_lang],
-                    components: buttonList.get()
-                })
-                .catch(console.log)
-            }
-
-            if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
-                sendToChannel(config.chLog, err.log_msg)
-                .catch(console.log)
-            }
-        })
+        const res = await command.button(interaction, settings, command, hideObjInfo, branches, values)
+        if (res && res.status === 1) {
+            await command.used()
+            if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
+        } else if (res && res.status === 2) {
+            if (!command.owner) console.log(`Был осуществлен переход внутри команды (${command.name}) (<@${authorId}>).`)
+        } else {
+            console.log('Какая-то ошибка поидее...')
+        }
     } catch(err) {
         console.log(err)
+        const authorId = interaction.user.id
+        const settings = Discord.Message.prototype.getSettings.call(interaction, authorId) // получаем обьект настроек для текущего пользователя
+        const {lang} = settings
+        try {
+            // создаем кнопку меню и кнопку помощи
+            const buttonsLine_1 = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                .setCustomId('pal')
+                .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+                .setStyle('DANGER')
+            )
+            .addComponents(
+                new MessageButton()
+                .setURL(config.discordInvate)
+                .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+                .setStyle('LINK')
+            )
 
-        if (_mess && err) {
-            const errText = err.err_msg || {ru: 'Непредвиденная ошибка...', en: 'Unforeseen error ...'}
+            const errText = err.err_msg || {ru: 'Неизвестная ошибка...', en: 'Unknown error...'}
 
-            const btn_discord = new Button()
-            .setLabel({ru: 'Дискорд бота', en: 'Bot discord'}[_lang])
-            .setURL('https://discord.gg/C2phgzTxH9')
-
-            const btn_menu = new Button()
-            .setLabel({ru: 'Меню', en: 'Menu'}[_lang])
-            .setStyle(4)
-            .setId('pal')
-
-            const buttonList = new ButtonsManager([btn_discord, btn_menu])
-
-            _mess.edit({
-                content: errText[_lang],
-                components: buttonList.get()
+            await interaction.editReply({
+                content: errText[lang],
+                components: [buttonsLine_1]
             })
-            .catch(console.log)
+        } catch(err2) {
+            console.log('\nОШИБКА ОТПРАВКИ error-button СООБЩЕНИЯ:\n')
+            console.log(err2)
         }
 
         if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
-            sendToChannel(config.chLog, err.log_msg)
-            .catch(console.log)
+            try {
+                await sendToChannel(config.chLog, err.log_msg)
+            } catch(err3) {
+                console.log('\nОШИБКА ОТПРАВКИ ЛОГОВ НА СЕРВЕР БОТА:\n')
+                console.log(err3)
+            }
         }
     }
 })

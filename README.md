@@ -1,45 +1,94 @@
 # Pal-bot
 
-Бот выдачи статистики по игре Paladins.
+[RU README](README_RU)
 
-[Веб-страница](https://webmyself.ru/pal-bot/) бота. 
-[Добавить](https://discordapp.com/oauth2/authorize?client_id=626327927050600448&permissions=2147534912&scope=bot%20applications.commands) бота на сервер.
+Discord bot for issuing statistics on the Paladins game.
 
-Заходите на наш [Discord-сервер](https://discord.gg/C2phgzTxH9) - там всегда можно быстро узнать о предстоящих обновлениях, сообщить об ошибках или получить другую помощь/информацию.
+[Add](https://discordapp.com/oauth2/authorize?client_id=626327927050600448&permissions=2147534912&scope=bot%20applications.commands) to Discord server.
+
+Visit our [Discord server](https://discord.gg/C2phgzTxH9) - there you can always quickly find out about upcoming updates, report bugs or get other help/information.
+
+You can also run the bot yourself by following the [Instructions](#installation)
+
+You can get detailed information about the commands by using the command `hh`, example: `!hh ss`
 
 ## Commands
 
-* [set](#set)
 * [hh](#hh)
 * [me](#me)
+* [pal](#pal)
+* [set](#set)
+* [se](#se)
 * [ss](#ss)
 * [sh](#sh)
 * [sm](#sm)
 * [sp](#sp)
 * [st](#st)
-* [sl](#sl)
 * [sc](#sc)
+* [sl](#sl)
 * [sf](#sc)
-* [sb](#sc)
 
-## Parameter Options
+### hh
 
-[?] - Не обязательный параметр (но написать следующий параметр пропустив этот нельзя).
-[^] - Параметр можно менять местами с другими такими же параметрами.
-[*] - Указывает что этот параметр может принудительно пропустить первый параметр.
+Sends a list of commands to the DM
 
-## Descriptions
+### me
 
-`Описание команд напишу позже, смотрете их в самом боте.`
+Allows you to save your nickname for substituting it into teams automatically
+
+### pal
+
+Opens the main menu with the buttons
+
+### set
+
+Settings
+
+### se
+
+Search for players among all platforms
+
+### ss
+
+Account statistics
+
+### sh
+
+Player's Match History
+
+### sm
+
+Information about the last or specific match
+
+### sp
+
+Player status in the game
+
+### st
+
+Top Account Champions
+
+### sc
+
+Championship statistics
+
+### sl
+
+Account Decks
+
+### sf
+
+Friends of the account
+
+## installation
+
+* Clone the repository and install all the dependencies
+* For correct operation, you will need to additionally install `pm2` - `sudo npm install pm2@latest -g`
 
 ## Original Authors
 
-* Владислав Алексеев ([rogup](https://github.com/rogap))
+* [rogup](https://github.com/rogap)
 
 ## Contacts
 
 * [Discord](https://discord.gg/C2phgzTxH9)
-
-## License
-
-GNU GPL

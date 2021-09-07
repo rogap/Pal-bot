@@ -4,7 +4,11 @@
 	"description": "Paladins Discord Bot",
 	"main": "main.js",
 	"scripts": {
-		"start": "node main.js >> ./logs &"
+		"start": "pm2 start main.js",
+		"stop": "pm2 stop main",
+		"restart": "pm2 restart main",
+		"info": "pm2 info main",
+		"monit": "pm2 monit"
 	},
 	"repository": {
 		"type": "git",
@@ -16,7 +20,7 @@
 		"paladins stats"
 	],
 	"author": {
-		"name": "Vlad",
+		"name": "rogap",
 		"discord": "https://discord.gg/C2phgzTxH9"
 	},
 	"license": "GNU GPL",
@@ -25,17 +29,20 @@
 	},
 	"homepage": "https://github.com/rogap/pubo",
 	"dependencies": {
-		"canvas": "^2.7.0",
-		"discord.js": "^12.5.3",
+		"canvas": "^2.8.0",
+		"discord.js": "^13.1.0",
 		"dotenv": "^8.6.0",
 		"fs": "*",
+		"md5": "2.3.0",
+		"moment": "2.27.0",
+		"mongoose": "^5.13.5",
 		"path": "^0.12.7",
 		"random-useragent": "^0.5.0",
 		"request": "^2.88.2",
 		"stegcloak": "^1.1.1"
 	},
 	"engines": {
-		"node": "^15.14.0",
-		"npm": "^7.7.6"
+		"node": "^16.6.1",
+		"npm": "^7.20.3"
 	}
 }

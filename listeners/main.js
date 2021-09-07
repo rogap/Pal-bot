@@ -10,6 +10,7 @@ module.exports = (function() {
         require('./ready.js')
         require('./message.js')
         require('./button.js')
+        require('./slash.js')
         console.log('Обработчики успешно загружены.')
         return true
     } catch(err) {

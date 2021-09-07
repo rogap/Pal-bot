@@ -4,8 +4,7 @@
 
 
 const _local = process._local
-const {Discord, client, config, classes} = _local
-const {Settings} = classes
+const {Discord, client, config} = _local
 
 
 module.exports = {
@@ -230,7 +229,7 @@ Discord.Message.prototype.getContent = function(owner=false) {
  */
 Discord.Message.prototype.sendCheckIn = async function(text) {
 	return new Promise(async resolve => {
-		this.channel.send(`:white_check_mark: ${this.author}\`\`\`yaml\n${text}\`\`\``)
+		this.channel.send(`:white_check_mark::white_check_mark::white_check_mark: \`\`\`yaml\n${text}\`\`\``)
 		.then(message => {
 			return resolve({
 				status: true,
@@ -247,8 +246,14 @@ Discord.Message.prototype.sendCheckIn = async function(text) {
 }
 
 
-Discord.Message.prototype.sendWarning = function(text) {
-	return this.channel.send(`:warning: ${this.author}\`\`\`fix\n${text}\`\`\``)
+Discord.Message.prototype.sendWarning = function(text, objectMessage) {
+	const content = `:warning::warning::warning: \`\`\`fix\n${text}\`\`\``
+	if (objectMessage) {
+		objectMessage.content = content
+		return this.reply(objectMessage)
+	}
+	return this.reply(content)
+	// return this.channel.send(content)
 }
 
 
@@ -262,7 +267,7 @@ Discord.Message.prototype.sendError = function(text) {}
  */
 Discord.Message.prototype.getSettings = function(id) { // unify
     const authorId = id || this.author.id
-    const userSettings = _local.usersSettings.get(authorId)
+    const userSettings = _local.userSettings.get(authorId)
 	// console.log(userSettings)
 
     // если есть настройки пользователя и включен приоритет
@@ -270,7 +275,7 @@ Discord.Message.prototype.getSettings = function(id) { // unify
 
     const guild = this.guild
     if (guild) {
-        const guildSettings = _local.guildsSettings.get(guild.id)
+        const guildSettings = _local.guildSettings.get(guild.id)
         // если есть настройки сервера
         if (guildSettings) {
             // console.log(guildSettings)
@@ -278,17 +283,22 @@ Discord.Message.prototype.getSettings = function(id) { // unify
             if (userSettings) {
                 if (userSettings.lang) guildSettings.lang = userSettings.lang
                 if (userSettings.timezone !== undefined) guildSettings.timezone = userSettings.timezone
-                if (userSettings.backgrounds && userSettings.backgrounds.length) guildSettings.backgrounds = [...userSettings.backgrounds]
+                // if (userSettings.backgrounds && userSettings.backgrounds.length) guildSettings.backgrounds = [...userSettings.backgrounds]
             }
 
 			// console.log(guildSettings)
             // добавляем дефолтные настройки если нет установленных
-            return guildSettings.addDefault()
+            guildSettings.addDefault()
+			guildSettings.params = userSettings.params
+			return guildSettings
         }
     }
 
     // если есть настройки пользователя и не включен приоритет
     if (userSettings) return userSettings.addDefault()
+
+	const {classes} = _local
+	const {Settings} = classes
 
     return new Settings({ // дефолтный обьект настроек для пользователя
         id: authorId,
@@ -298,7 +308,8 @@ Discord.Message.prototype.getSettings = function(id) { // unify
         prefix: config.prefix,
         only: null,
         commands: _local.commands,
-        backgrounds: config.backgrounds
+		params: userSettings.params || {}
+        // backgrounds: config.backgrounds
     })
 }
 

@@ -3,28 +3,24 @@
  */
 
 
-const AbstractChampion = require('./AbstractChampion.js')
+const _local = process._local
 const path = require('path')
-const { loadImage } = require('canvas')
 
 
-module.exports = class Card extends AbstractChampion {
-    #data
-
+module.exports = class Card {
     constructor(card) {
-        super()
-        this.#data = card
-        this.id = this.#data.card_id2
-        this.type = this.#data.rarity.toLowerCase()
-        this.championId = this.#data.champion_id
-        this.championName = this.constructor.nameNormalize(this.#data.champion_name)
-        this.name = card.card_name
-        this.description = card.card_description
+        this.id = card.ItemId
+        this.type = this.getType(card.item_type)
+        this.championId = card.champion_id
+        this.name = card.DeviceName
+        this.championName = _local.champions.getById(this.championId).name
+        this.description = card.Description
+        this.shortDesc = card.ShortDesc
         this.recharge = card.recharge_seconds
     }
 
-    get() {
-        return this.#data
+    getType(item_type) {
+        return item_type.match(/talents/i) ? 'legendary' : 'common'
     }
 
     // получает описание карты на указанном языке и убирая 'scale' подстявляя нужно значение исходя из уровня карты
@@ -44,16 +40,9 @@ module.exports = class Card extends AbstractChampion {
         return desc.replace(/\{scale=[0-9\.]+\|-?[0-9\.]+\}/i, scaleText)
     }
 
-    loadImg() { // загружает картинку карты
+    async loadImg() { // загружает картинку карты
         const format = this.type == 'common' ? 'jpg' : 'png'
-        const pathImg = path.join(__dirname, '..', 'champions', this.championName, 'cards', this.type, `${this.id}.${format}`)
-        return new Promise((resolve, reject) => {
-            loadImage(pathImg)
-            .then(img => {
-                // if (this.type !== 'common') this.img = img // сохраняем только легендарки
-                return resolve(img)
-            })
-            .catch(err => reject(err))
-        })
+        const pathImg = path.join(_local.path, 'champions', this.championName.en, 'cards', this.type, `${this.id}.${format}`)
+        return this.img = pathImg
     }
 }

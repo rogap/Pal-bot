@@ -20,8 +20,8 @@ module.exports = {
     CardsManager: require('./CardsManager.js'),
     Card: require('./Card.js'),
     Details: require('./Details.js'),
-    Button: require('./Button.js'),
-    ButtonsManager: require('./ButtonsManager.js')
+    Hirez: require('./Hirez.js'),
+    API: require('./API.js')
 }
 
 

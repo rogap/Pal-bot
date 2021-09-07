@@ -4,87 +4,163 @@
 
 
 const _local = process._local
-const {config, classes} = _local
-const {Details} = classes
+const {Discord, config, stegcloak, classes, utils} = _local
+const {sendToChannel} = utils
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
-module.exports = async function(message, settings, command, contentParams) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const {champions} = _local
-            const userId = message.author.id
-            const prop = settings.getProp()
-            const {lang} = prop
+module.exports = async (userId, settings, command, userNameOrId, champion) => {
+    try {
+        const prop = settings.getProp()
+        const {lang} = prop
+        const news = config.news[lang]
+        if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
-            const params = contentParams.split(' ')
-            const [firstParam, secondParam] = params
-            // может быть 1 параметр - чемпион
-            const getChampionName = secondParam !== undefined && secondParam !== '' ? secondParam : firstParam
-            const champion = champions.getByAliases(getChampionName)
-
-            if (!champion) return reject({
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) {
+            throw {
+                err: 'Введен не корректный ник',
+                status: false,
                 err_msg: {
-                    ru: 'Введите корректное название чемпиона.',
-                    en: 'Enter the correct champion name.'
+                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                    en: `Enter the correct Nickname or Paladins account id.`
                 }
-            })
-
-            // не должны совпадать
-            const nameOrId = firstParam !== getChampionName ? firstParam : 'me'
-            // console.log(`nameOrId: ${nameOrId}; getChampionName: ${getChampionName}`)
-
-            const body = await command.getStats(userId, nameOrId)
-            // console.log(body)
-            const {getchampionranks} = body
-            const {ChampionsStats} = classes
-            // console.log(getchampionranks)
-            const champStats = new ChampionsStats(getchampionranks.json)
-
-            if (champStats.error) return reject({
-                body,
-                err_msg: {
-                    ru: 'Чемпионы не найдены или API Hi-Rez временно недоступно.',
-                    en: 'No champions found or the Hi-Rez API is temporarily unavailable.'
-                }
-            })
-
-            const drawChampion = champStats.getByName(champion.Name)
-            if (!drawChampion) return reject({
-                err_msg: {
-                    ru: `У вас нет статистики ${getChampionName}.`,
-                    en: `You have no statistics ${getChampionName}.`
-                }
-            })
-            const draw = command.draw(drawChampion, prop, getchampionranks.last_update)
-            if (!draw.status) return reject(draw)
-
-            const canvas = draw.canvas
-            const buffer = canvas.toBuffer('image/png') // buffer image
-            const news = config.news[lang]
-
-            const showOldStatsText = {
-                ru: '__**Вам будут показаны данные последнего удачного запроса.**__',
-                en: '__**You will be shown the details of the last successful request.**__'
             }
-
-            const replayOldText = body.getchampionranks.old ?
-                    `${body.getchampionranks.new.err_msg[lang]}\n${showOldStatsText[lang]}\n` : ''
-
-            // const matchesInfo = ` ${drawChampion.lore[lang]}`
-            const matchesInfo = ''
-
-            const sendResult =  await message.channel.send(`${news}${replayOldText}${message.author}${matchesInfo}`, {files: [buffer]})
-            return resolve(sendResult)
-        } catch (err) {
-            if (err && err.err_msg !== undefined) return reject(err)
-            return reject({
-                err,
-                err_msg: {
-                    ru: 'Ошибка при формировании ответа. Попробуйте снова или сообщите об этой ошибке создателю бота.',
-                    en: 'Error when forming the response. Try again or report this error to the bot creator.'
-                },
-                log_msg: 'Какая-то непредвиденная ошибка поидее'
-            })
         }
-    })
+
+        const buttonsLine_1 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setCustomId('pal')
+            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            .setStyle('DANGER')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('sc')
+            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setStyle('SUCCESS')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('st')
+            .setLabel({en: 'To the statistics of champions', ru: 'К статистике чемпионов'}[lang])
+            .setStyle('PRIMARY')
+        )
+
+        const championsFilterOpts = []
+        _local.champions.champions.forEach((champion, i) => {
+            const count = Math.floor(i / 25) // массив по счету
+            if (!(i % 25)) championsFilterOpts.push([]) // новый массив
+            championsFilterOpts[count].push({
+                label: {en: champion.Name.en, ru: champion.Name.ru}[lang],
+                description: {en: `Filter by the selected champion`, ru: `Фильтр по выбранному чемпиону`}[lang],
+                value: champion.name.en
+            })
+        })
+        const championsOpt = []
+        championsFilterOpts.forEach((optList, i) => {
+            championsOpt.push(
+                new MessageActionRow()
+                .addComponents(
+                    new MessageSelectMenu()
+                        .setCustomId(`sc_champion_${i}`)
+                        .setPlaceholder({en: 'Select a champion', ru: 'Выберите чемпиона'}[lang])
+                        .addOptions(optList)
+                )
+            )
+        })
+
+        if (!champion) {
+            const hideObjInfo = {
+                owner: userId,
+                params: userNameOrId || 'me'
+            }
+            const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+
+            return {
+                content: `${news}${{
+                    ru: `Выберите чемпиона`,
+                    en: `Choose a champion`
+                }[lang]}`,
+                components: [buttonsLine_1, ...championsOpt],
+                embeds: [{
+                    description: `||${hideInfo}||`,
+                    color: '2F3136'
+                }]
+            }
+    }
+
+        const body = await command.getStats(userId, userNameOrId)
+        const {getchampionranks} = body
+
+        const hideObjInfo = {
+            owner: userId,
+            params: body.playerId || body.playerName || userNameOrId || 'me'
+        }
+        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+
+        const {ChampionsStats} = classes
+        const champions = new ChampionsStats(getchampionranks.data)
+
+        if (champions.error) throw {
+            body,
+            err_msg: {
+                ru: 'Чемпионы не найдены.',
+                en: 'No champions found.'
+            }
+        }
+
+        const drawChampion = champions.getByName(champion.name.en)
+        if (!drawChampion) return {
+            content: `${news}${{
+                ru: `У вас нет статистики ${champion?.name?.en}.`,
+                en: `You have no statistics ${champion?.name?.en}.`
+            }[lang]}`,
+            components: [buttonsLine_1, ...championsOpt],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136'
+            }]
+        }
+        const draw = await command.draw(drawChampion, prop, getchampionranks.lastUpdate)
+        if (!draw.status) throw draw
+
+        const canvas = draw.canvas
+        const buffer = canvas.toBuffer('image/png') // buffer image
+
+        const showOldStatsText = {
+            ru: 'Аккаунт скрыт или API временно не работает.\n__**Вам будут показаны данные последнего удачного запроса.**__',
+            en: 'The account is hidden or the API is temporarily not working.\n__**You will be shown the details of the last successful request.**__'
+        }
+
+        const replayOldText = body.getchampionranks.old ?
+                `${showOldStatsText[lang]}\n` : ''
+
+        const matchesInfo = `\`\`\`md\n[${body.playerName}](${body.playerId})<${champion?.name?.en||''}>\`\`\``
+
+        const statsImg = await sendToChannel(config.chImg, {files: [buffer]})
+        const attachment = statsImg.attachments.last()
+
+        return {
+            content: `${news}${replayOldText}${matchesInfo}`,
+            components: [buttonsLine_1, ...championsOpt],
+            embeds: [{
+                description: `||${hideInfo}||`,
+                color: '2F3136',
+                image: {
+                    url: attachment.url
+                }
+            }]
+        }
+    } catch (err) {
+        if (err && err.err_msg !== undefined) throw err
+        throw {
+            err,
+            err_msg: {
+                ru: 'Ошибка при формировании ответа. Попробуйте снова или сообщите об этой ошибке создателю бота.',
+                en: 'Error when forming the response. Try again or report this error to the bot creator.'
+            },
+            log_msg: 'Какая-то непредвиденная ошибка поидее'
+        }
+    }
 }

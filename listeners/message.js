@@ -4,7 +4,8 @@
 
 
 const _local = process._local
-const {client, config, utils, classes, commandsUsed} = _local
+const {Discord, client, config, utils, classes, commandsUsed} = _local
+const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 const {sendSite, sendToChannel} = utils
 
 
@@ -13,7 +14,7 @@ const {sendSite, sendToChannel} = utils
  * затем нужно понять какие настройки будем применять - user/server/default
  * получаем обьект настроек (это не класс)
  */
-client.on('message', async message => {
+client.on('messageCreate', async message => {
     try {
         if ( !_local.launched ) return; // если бот не запущен до конца
         if ( message.author.bot ) return; // если сообщение от бота то игнорим
@@ -44,7 +45,7 @@ client.on('message', async message => {
                 ru: `Не хватает прав для выполнения команды (${command.permissions}).`,
                 en: `Insufficient rights to execute command (${command.permissions}).`
             }
-            return message.sendWarning(replyErr[lang])
+            return await message.sendWarning(replyErr[lang])
         }
 
         // выводим в консоль отладочные данные
@@ -57,51 +58,45 @@ client.on('message', async message => {
         if (!command.owner) console.log(contentParams)
 
         // запускаем печатание и сразу же отменяем
-        message.channel.startTyping()
-        message.channel.stopTyping()
+        message.channel.sendTyping().catch(console.log)
 
-        command.execute(message, settings, command, contentParams)
-        .then(res => {
-            // увеличиваем число использований команды, только удачные и не админские
-            if (!command.owner) {
-                if (!commandsUsed.commands[command.name]) commandsUsed.commands[command.name] = 0
-                commandsUsed.commands[command.name]++
-                commandsUsed.count++
-            }
+        // выполняем команду
+        await command.command(message, settings, command, contentParams)
 
-            if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
-        })
-        .catch(err => {
-            console.log(err)
-            const errText = err.err_msg || {ru: 'Необработанная ошибка...', en: 'Unhandled error ...'}
-            message.sendWarning(errText[lang])
-            .catch(err => {
-                if (!command.owner) console.log('~OWNER~')
-                console.log(err)
-            })
-
-            if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
-                sendToChannel(config.chLog, err.log_msg)
-                .catch(err => {
-                    if (!command.owner) console.log('~OWNER~')
-                    console.log(err)
-                })
-            }
-        })
+        // увеличиваем число использований команды, только удачные и не админские
+        await command.used()
+        if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
     } catch(err) {
-        // сделать норм обработчик ошибок
-        console.log(err)
-        const errText = err.err_msg || {ru: 'Непредвиденная ошибка...', en: 'Unforeseen error ...'}
-        message.sendWarning(errText[lang])
-        .catch(err => {
-            console.log(err)
-        })
-
-        if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
-            sendToChannel(config.chLog, err.log_msg)
-            .catch(err => {
-                console.log(err)
-            })
+        console.log(err, 'ERR777')
+        const errText = err.err_msg || {ru: 'Неизвестная ошибка...', en: 'Unknown error...'}
+        try {
+            const settings = message.getSettings() // получаем обьект настроек для текущего пользователя
+            const {lang} = settings
+            // создаем кнопку меню и кнопку помощи
+            const buttonsLine_1 = new MessageActionRow()
+            // .addComponents( // без embed не пашет
+            //     new MessageButton()
+            //     .setCustomId('pal')
+            //     .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            //     .setStyle('PRIMARY')
+            // )
+            .addComponents(
+                new MessageButton()
+                .setURL(config.discordInvate)
+                .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+                .setStyle('LINK')
+            )
+            await message.sendWarning(errText[lang], {components: [buttonsLine_1]})
+        } catch(err2) {
+            console.log('\nОШИБКА ОТПРАВКИ sendWarning СООБЩЕНИЯ:\n')
+            console.log(err2)
+        }
+        try {
+            if (!err || !err.log_msg) return; // отправка логов на сервер бота (уведомления)
+            await sendToChannel(config.chLog, err.log_msg)
+        } catch(err3) {
+            console.log('\nОШИБКА ОТПРАВКИ ЛОГОВ НА СЕРВЕР БОТА:\n')
+            console.log(err3)
         }
     }
 })
@@ -156,4 +151,4 @@ function sendStatsToSite() {
 }
 
 
-setInterval(sendStatsToSite, 60000) // отправляем данные на сайт каждую минуту
+// setInterval(sendStatsToSite, 60000) // отправляем данные на сайт каждую минуту

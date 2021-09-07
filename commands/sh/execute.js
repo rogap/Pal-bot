@@ -105,7 +105,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             .setDisabled(!(params?.sh?.full || params?.sh?.mode || params?.sh?.champion))
         )
 
-        if (!matchesPage.length) {
+        if (!matchesPage.length || !matchesPage[0].Queue) {
             return {
                 content: {
                     ru: `Матчи игрока не найдены${hasMatchesNoFilter ? ' (из-за наложеных фильтров)' : ''}.`,

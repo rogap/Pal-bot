@@ -27,7 +27,7 @@ client.on('interactionCreate', async interaction => {
 
         // увеличиваем число использований команды, только удачные и не админские
         await command.used()
-        console.log(`Команда slash (${commandName}) успешно выполнена (<@${authorId}>).`)
+        console.log(`Команда slash (${command.name}) успешно выполнена (<@${authorId}>).`)
     } catch(err) {
         console.log(err)
         const authorId = interaction.user.id

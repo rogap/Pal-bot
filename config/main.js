@@ -34,8 +34,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '(локальный тест обновы перед переносом на сервер)',
-		en: '(local test of the update before transferring to the server)'
+		ru: '```md\n#Жмите кнопки и исслудуйте новое!```',
+		en: '```md\n#Press the buttons and explore new things!```'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',

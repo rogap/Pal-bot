@@ -82,6 +82,7 @@
 
 * Клонируйте репозиторий и установите все зависимости
 * Для корректной работы вам понадобится дополнительно установить `pm2` - `sudo npm install pm2@latest -g`
+* А так же MongoDB - `sudo apt update` а затем `sudo apt install -y mongodb`
 
 ## Original Authors
 

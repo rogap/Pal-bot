@@ -1,6 +1,6 @@
 # Pal-bot
 
-[RU README](README_RU)
+[RU README](https://github.com/rogap/Pal-bot/blob/master/README_RU.md)
 
 Discord bot for issuing statistics on the Paladins game.
 
@@ -86,6 +86,17 @@ Friends of the account
 * For correct operation, you will need to additionally install `pm2` - `sudo npm install pm2@latest -g`
 * And also MongoDB - `sudo apt update` and then `sudo apt install -y mongodb`
 * Create an empty `logs` folder in the root folder, if it is not there
+* Create a file `.env` and write the following settings there, substituting their values together with zeros:
+
+```
+DISCORDTOKEN=00000000000000000000000000000000000000000000000000000000000
+STEAMKEY=0000000000000000000000000000000
+DEVID=0000
+AUTHKEY=0000000000000000000000000000000
+DBNAME=admin
+DBHOST=localhost
+DBPORT=27017
+```
 
 ## Original Authors
 

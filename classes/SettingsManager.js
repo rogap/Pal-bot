@@ -64,17 +64,22 @@ module.exports = class SettingsManager {
 		const model = _local.models[this.type == 'user' ? 'userSettings' : 'guildSettings']
 		// console.log('БЫЛО', this.#collection[id][type], value)
 		if (!this.#collection[id]) {
+			console.log('save')
 			this.#collection[id] = {}
 			const newOpt = {id}
 			newOpt[type] = value
 			this.#collection[id][type] = value // меняем локально
 			const save = await new model(newOpt)
 			await save.save()
+			console.log(this.#collection[id])
+		} else {
+			console.log('update', type, value)
+			this.#collection[id][type] = value // меняем локально
+			const newOpt = {}
+			newOpt[type] = value
+			await model.updateOne({id: id}, newOpt) // меняем в БД
+			console.log(this.#collection[id])
 		}
-		this.#collection[id][type] = value // меняем локально
-		const newOpt = {}
-		newOpt[type] = value
-		await model.updateOne({id: id}, newOpt) // меняем в БД
 	}
 
     each(callback) {

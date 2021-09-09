@@ -13,7 +13,6 @@ module.exports = async (userId, settings, command, userNameOrId) => {
     try {
         const prop = settings.getProp()
         const {lang} = prop
-        const writeList = new Set([424, 425, 427, 428, 437, 444, 452, 453, 469])
         if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
         if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) {
@@ -49,19 +48,6 @@ module.exports = async (userId, settings, command, userNameOrId) => {
         const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''
         const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
         const matchId = data.Match
-
-        if (data.Match != 0 && !writeList.has(data.match_queue_id)) {
-            // текущая очередь не поддерживается
-            return {
-                content: {en: 'A player in the match lobby. The current mode is not supported.', 
-                    ru: 'Игрок в лобби матча. Текущий режим не поддерживается.'}[lang],
-                components: [buttonsLine_1],
-                embeds: [{
-                    color: '2F3136',
-                    fields: hideInfo
-                }]
-            }
-        }
 
         let replyText = ''
         if (data.status === 0) {
@@ -116,7 +102,21 @@ module.exports = async (userId, settings, command, userNameOrId) => {
         } else if (matchId) {
             // если игрок в матче getmatchplayerdetails (data.match_queue_id)
             const match = body.getmatchplayerdetails.json
-            // console.log(match)
+
+            if (!match[0].Queue && match[0].ret_msg && match.length == 1) {
+                // текущая очередь не поддерживается
+                return {
+                    content: {
+                        en: 'A player in the match lobby. The current mode is not supported.', 
+                        ru: 'Игрок в лобби матча. Текущий режим не поддерживается.'
+                    }[lang],
+                    components: [buttonsLine_1],
+                    embeds: [{
+                        color: '2F3136',
+                        fields: hideInfo
+                    }]
+                }
+            }
 
             const draw = await command.draw(match, prop, lastUpdate)
             if (!draw.status) throw draw

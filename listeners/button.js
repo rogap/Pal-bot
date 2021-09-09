@@ -15,14 +15,18 @@ client.on('interactionCreate', async interaction => {
         if (!_local.launched) return; // если бот не запущен до конца
         if (interaction.user.bot) return; // пропускаем ботов
         if (!interaction.isButton() && !interaction.isSelectMenu()) return;
-        console.log('click')
 
         const authorId = interaction.user.id
         const embeds = interaction.message.embeds
+        
+        const replyNotEmbed = {
+            ru: '"Embed" был удален - вызовите новое сообщение.',
+            en: '"Embed" has been deleted - call a new message.'
+        }[lang]
 
-        if (!embeds) return; // нет embeds
+        if (!embeds) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embeds
         const embed = embeds[0]
-        if (!embed) return; // нет embed
+        if (!embed) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embed
         const embedDescription = embed.description
         if (!embedDescription) return; // поле не заполнено
         const match = embedDescription.match(/^\|\|(?<steg>.+?)\|\|$/)
@@ -37,7 +41,10 @@ client.on('interactionCreate', async interaction => {
         // тут над будет выслать скрытое сообщение "вызовите свою команду меню"
         if (hideObjInfo.owner != authorId) {
             return await interaction.reply({
-                content: 'Скрытая команда - вызовите свое меню', // можно выдать кнопку с предложением вызвать команду
+                content: {
+                    ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
+                    en: `In order to use the buttons, you need to call your team (you can not click on other people's buttons).`
+                }[lang], // можно выдать кнопку с предложением вызвать команду
                 ephemeral: true
             })
         }

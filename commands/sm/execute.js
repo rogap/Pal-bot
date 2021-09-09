@@ -45,18 +45,15 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
             (matchNumber && !isFinite(matchNumber)) || 
             (matchNumber && matchNumber > 50)
         ) {
-            const hideObjInfo = {
-                owner: userId,
-                params: userNameOrId || 'me'
-            }
-            const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+            const hideInfoParams = (userNameOrId || 'me') + ''
+            const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
             return {
                 content: `:warning::warning::warning: \`\`\`fix\n
                     ${{en: 'Incorrect data was entered.', ru: 'Введены не корректные данные.'}[lang]}\`\`\``,
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -87,22 +84,19 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
         const statsImg = await sendToChannel(config.chImg, {files: [buffer]})
         const attachment = statsImg.attachments.last()
 
-        const hideObjInfo = {
-            owner: userId,
-            params: body.playerId || body.playerName || userNameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
         const matchInfo = `\`\`\`md\n[]()<id ${draw.matchId}>\n\n${matchInfoText}\`\`\``
 
         return {
             content: `${news}${replayOldText}${matchInfo}`,
             components: [buttonsLine_1],
             embeds: [{
-                description: `||${hideInfo}||`,
                 color: '2F3136',
                 image: {
                     url: attachment.url
-                }
+                },
+                fields: hideInfo
             }]
         }
     } catch(err) {

@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, utils} = _local
+const {Discord, config, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -38,20 +38,15 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
         const matches = getmatchhistory.data
         const hasMatchesNoFilter = !!matches.length
 
-        const hideObjInfo = {
-            owner: userId,
-            params: body.playerId || body.playerName || userNameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
-        // console.log(`Всего: ${matches.length}`)
+        const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
 
         // если указан тип матча то фильтруем по нему
         if (modeType) {
             matches.filterRemove(match => {
-                return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(matchQueue)
+                return new RegExp(`^([a-z ]+)?${modeType}([a-z ]+)?$`, 'i').test(match.Queue)
             })
         }
-        // console.log(`modeType: ${matches.length}`)
 
         // если указан фильтр по чемпиону то фильтруем
         if (championType) {
@@ -59,7 +54,6 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
                 return champions.getByName(match.Champion).Name.en.toLowerCase() === championType.toLowerCase()
             })
         }
-        // console.log(`championType: ${matches.length}`)
 
         // если указана роль чемпиона
         if (championRole) {
@@ -67,7 +61,6 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
                 return champions.getByName(match.Champion).role.en.toLowerCase() === championRole.toLowerCase()
             })
         }
-        // console.log(`championRole: ${matches.length}`)
 
         // берем нужную страницу
         const matchesPage = matches.slice((pageShow-1)*10, (pageShow-1)*10+10)
@@ -113,8 +106,8 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
                 }[lang],
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -206,11 +199,11 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             content: `${news}${replayOldText}${matchesInfo}`,
             components: [buttonsLine_1, buttonsLine_2, buttonsLine_3],
             embeds: [{
-                description: `||${hideInfo}||`,
                 color: '2F3136',
                 image: {
                     url: attachment.url
-                }
+                },
+                fields: hideInfo
             }]
         }
     } catch(err) {

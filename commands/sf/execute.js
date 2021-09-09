@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, classes, utils} = _local
+const {Discord, config, classes, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -41,11 +41,8 @@ module.exports = async (userId, settings, command, nameOrId, pageShow, search) =
             return user.status === typeShow // без учета сортирвоки
         })
 
-        const hideObjInfo = {
-            owner: userId,
-            params: body.playerId || body.playerName || nameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (body.playerId || body.playerName || nameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
 
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
@@ -77,8 +74,8 @@ module.exports = async (userId, settings, command, nameOrId, pageShow, search) =
                 }[lang],
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -92,8 +89,8 @@ module.exports = async (userId, settings, command, nameOrId, pageShow, search) =
                 }[lang],
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -163,8 +160,8 @@ module.exports = async (userId, settings, command, nameOrId, pageShow, search) =
             content: `${news}${answerText}`,
             components: [buttonsLine_1, ...pageOpt],
             embeds: [{
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }]
         }
     } catch(err) {

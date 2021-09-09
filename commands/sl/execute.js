@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, utils} = _local
+const {Discord, config, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -71,17 +71,14 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         })
 
         if (!champion) {
-            const hideObjInfo = {
-                owner: userId,
-                params: userNameOrId || 'me'
-            }
-            const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+            const hideInfoParams = (userNameOrId || 'me') + ''
+            const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
             return {
                 content: {en: 'Choose a champion.', ru: 'Выберите чемпиона.'}[lang],
                 components: [buttonsLine_1, ...championsOpt],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -89,11 +86,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         // фильтруем оставляя нужного чемпиона
         const loadouts = getplayerloadouts.data.filter(ld => ld.ChampionId == champion.id)
 
-        const hideObjInfo = {
-            owner: userId,
-            params: body.playerId || body.playerName || userNameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
 
         if (!loadouts.length) return {
             content: {
@@ -102,8 +96,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
             }[lang],
             components: [buttonsLine_1, ...championsOpt],
             embeds: [{
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }]
         }
 
@@ -155,8 +149,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                 }[lang],
                 components: [buttonsLine_1, ...buttonList],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -171,8 +165,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                 }[lang],
                 components: [buttonsLine_1, ...championsOpt],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -192,11 +186,11 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
             content: `${news}${replayOldText}${matchesInfo}`,
             components: [buttonsLine_1, ...championsOpt],
             embeds: [{
-                description: `||${hideInfo}||`,
                 color: '2F3136',
                 image: {
                     url: attachment.url
-                }
+                },
+                fields: hideInfo
             }]
         }
     } catch(err) {

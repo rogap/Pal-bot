@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {client, config, classes, stegcloak, utils} = _local
+const {client, config, classes, utils} = _local
 const {Button, ButtonsManager} = classes
 const {sendToChannel} = utils
 

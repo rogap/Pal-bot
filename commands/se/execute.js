@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, classes, utils} = _local
+const {Discord, config, classes, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -47,22 +47,13 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow=1) => 
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
-        // .addComponents(
-        //     new MessageButton()
-        //     .setCustomId('se')
-        //     .setLabel({en: 'Update', ru: 'Обновить'}[lang])
-        //     .setStyle('SUCCESS')
-        // )
 
         const body = await command.getStats(userId, userNameOrId)
         const {searchplayers} = body
         const searchPlayerList = searchplayers.data
 
-        const hideObjInfo = {
-            owner: userId,
-            params: userNameOrId
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (userNameOrId|| 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
         const showOldStatsText = {
             ru: 'Аккаунт скрыт или API временно не работает.\n__**Вам будут показаны данные последнего удачного запроса.**__',
             en: 'The account is hidden or the API is temporarily not working.\n__**You will be shown the details of the last successful request.**__'
@@ -82,8 +73,8 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow=1) => 
                 }[lang],
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -92,8 +83,8 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow=1) => 
             content: `${news}${replayOldText}${matchesInfo}${{en: 'No players were found.', ru: 'Игроков не найдено.'}[lang]}`,
             components: [buttonsLine_1],
             embeds: [{
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }]
         }
 
@@ -152,8 +143,8 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow=1) => 
             content: `${news}${replayOldText}${matchesInfo}${repText}`,
             components: [buttonsLine_1, ...pageOpt],
             embeds: [{
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }]
         }
     } catch (err) {

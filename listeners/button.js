@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, client, config, utils, classes, stegcloak, commandsUsed} = _local
+const {Discord, client, config, utils, classes, commandsUsed} = _local
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 const {sendToChannel} = utils
 const {Button, ButtonsManager} = classes
@@ -17,6 +17,8 @@ client.on('interactionCreate', async interaction => {
         if (!interaction.isButton() && !interaction.isSelectMenu()) return;
 
         const authorId = interaction.user.id
+        const settings = interaction.message.getSettings(authorId) // получаем обьект настроек для текущего пользователя
+        const {lang} = settings
         const embeds = interaction.message.embeds
         
         const replyNotEmbed = {
@@ -27,16 +29,17 @@ client.on('interactionCreate', async interaction => {
         if (!embeds) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embeds
         const embed = embeds[0]
         if (!embed) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embed
-        const embedDescription = embed.description
-        if (!embedDescription) return; // поле не заполнено
-        const match = embedDescription.match(/^\|\|(?<steg>.+?)\|\|$/)
-        if (!match) return; // если ничего не найдено
-        const matchGroups = match.groups
-        if (!matchGroups) return;
-        const steg = matchGroups.steg
-        const stegReveal = stegcloak.reveal(steg, config.stegPass)
-        const hideObjInfo = JSON.parse(stegReveal)
-        // console.log(hideObjInfo)
+
+        const fields = embed.fields
+        if (!fields) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embed
+        const fieldOwner = fields[0]?.value?.mentionToId()
+        const fieldFor = fields[1]?.value
+        if (!fieldOwner || !fieldFor) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embed
+
+        const hideObjInfo = {
+            owner: fieldOwner,
+            params: fieldFor
+        }
 
         // тут над будет выслать скрытое сообщение "вызовите свою команду меню"
         if (hideObjInfo.owner != authorId) {
@@ -48,10 +51,6 @@ client.on('interactionCreate', async interaction => {
                 ephemeral: true
             })
         }
-
-        const settings = interaction.message.getSettings(authorId) // получаем обьект настроек для текущего пользователя
-        // console.log(settings)
-        const {lang} = settings
 
         const [commandName, commandBranch_1, commandBranch_2, commandBranch_3] = interaction.customId.split('_')
         const branches = [commandBranch_1, commandBranch_2, commandBranch_3]
@@ -67,7 +66,7 @@ client.on('interactionCreate', async interaction => {
         if (guild) guildName = guild.name
         if (!command.owner) console.log(`>B> ${guildName} <#${interaction.channel.id}> <@${authorId}>\ \n> ${commandName}`)
 
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfo = [{name: 'owner', value: `<@${fieldOwner}>`, inline: true}, {name: 'for', value: fieldFor, inline: true}]
 
         // тут нужно добавить в массив ( new Set ) то что это сообщение уже редачится и что бы его нажатия игнорились !!!
         await interaction.deferUpdate().catch(console.log) // откладываем ответ
@@ -86,8 +85,8 @@ client.on('interactionCreate', async interaction => {
                 en: 'The command is being processed, please wait...'}[lang],
             components: [buttonsLine_1],
             embed: {
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }
         }).catch(console.log)
 

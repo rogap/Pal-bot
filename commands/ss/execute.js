@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, utils} = _local
+const {Discord, config, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -48,11 +48,8 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
 
         const playerInfo = `\`\`\`md\n[${draw.name}](${draw.id})\`\`\``
 
-        const hideObjInfo = {
-            owner: userId,
-            params: draw.id || draw.name || nameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (draw.id || draw.name || nameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
 
         const consoleStats = params?.ss?.console || false
         const buttonsLine_1 = new MessageActionRow()
@@ -82,11 +79,11 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
             content: `${news}${replayOldText}${playerInfo}`,
             components: [buttonsLine_1],
             embeds: [{
-                description: `||${hideInfo}||`,
                 color: '2F3136',
                 image: {
                     url: attachment.url
-                }
+                },
+                fields: hideInfo
             }]
         }
     } catch(err) {

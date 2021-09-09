@@ -14,11 +14,11 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches=[]
         const guildId = guild ? guild.id : false
         const [typeValue, setFor, setValue=values[0]] = branches
         const setId = setFor == 'server' && guild ? guild.id : userId
-        // console.log(hideObjInfo, branches, values)
+        const nameOrId = hideObjInfo.params
         const optLang = typeValue == 'lang' ? setValue : null
         const optTimezone = typeValue == 'timezone' ? setValue : null
 
-        const exe =  await command.execute(userId, guildId, settings, setFor, setId, optLang, optTimezone)
+        const exe =  await command.execute(userId, guildId, settings, nameOrId, setFor, setId, optLang, optTimezone)
         const iter =  await interaction.editReply(exe)
 
         return {status: 1, name: 'set', interaction: iter}

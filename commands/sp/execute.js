@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, classes, stegcloak, utils} = _local
+const {Discord, config, classes, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -46,11 +46,8 @@ module.exports = async (userId, settings, command, userNameOrId) => {
             .setStyle('SUCCESS')
         )
 
-        const hideObjInfo = {
-            owner: userId,
-            params: body.playerId || body.playerName || userNameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
         const matchId = data.Match
 
         if (data.Match != 0 && !writeList.has(data.match_queue_id)) {
@@ -60,8 +57,8 @@ module.exports = async (userId, settings, command, userNameOrId) => {
                     ru: 'Игрок в лобби матча. Текущий режим не поддерживается.'}[lang],
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -112,8 +109,8 @@ module.exports = async (userId, settings, command, userNameOrId) => {
                 content: `${news}\`\`\`yaml\n${replyText[lang]}\`\`\``,
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         } else if (matchId) {
@@ -150,11 +147,11 @@ module.exports = async (userId, settings, command, userNameOrId) => {
                 content: `${news}${replayOldText}${matchesInfo}`,
                 components: [buttonsLine_1],
                 embeds: [{
-                    description: `||${hideInfo}||`,
                     color: '2F3136',
                     image: {
                         url: attachment.url
-                    }
+                    },
+                    fields: hideInfo
                 }]
             }
         }

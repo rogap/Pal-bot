@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, client, config, utils, classes, stegcloak, commandsUsed} = _local
+const {Discord, client, config, utils, classes, commandsUsed} = _local
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 const {sendToChannel} = utils
 
@@ -36,12 +36,6 @@ client.on('interactionCreate', async interaction => {
         try {
             // создаем кнопку меню и кнопку помощи
             const buttonsLine_1 = new MessageActionRow()
-            // .addComponents(
-            //     new MessageButton()
-            //     .setCustomId('pal')
-            //     .setLabel({en: 'Menu', ru: 'Меню'}[lang])
-            //     .setStyle('PRIMARY')
-            // )
             .addComponents(
                 new MessageButton()
                 .setURL(config.discordInvate)

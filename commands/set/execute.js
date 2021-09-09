@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, client, config, stegcloak} = _local
+const {Discord, client, config} = _local
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
@@ -16,15 +16,13 @@ const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
  * @param {String} setId - serverId / userId
  * @returns {Object}
  */
-module.exports = async (userId, guildId, settings, setFor, setId, optLang, optTimezone) => {
+module.exports = async (userId, guildId, settings, nameOrId, setFor, setId, optLang, optTimezone) => {
     try {
         let {lang} = settings
         const news = config.news[lang]
-        const hideObjInfo = {
-            owner: userId,
-            params: 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+
+        const hideInfoParams = nameOrId || 'me'
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
         const isAdministrator = await isAdmin(userId, guildId)
 
         const optionsTimezone = [{
@@ -106,8 +104,8 @@ module.exports = async (userId, guildId, settings, setFor, setId, optLang, optTi
                 }[lang]}\`\`\``,
                 components: [buttonsLine_1, buttonsLine_2, buttonsLine_3, buttonsLine_4],
                 embeds: [{
-                    description: `||${hideInfo}||`,
-                    color: '2F3136'
+                    color: '2F3136',
+                    fields: hideInfo
                 }]
             }
         }
@@ -159,8 +157,8 @@ module.exports = async (userId, guildId, settings, setFor, setId, optLang, optTi
             content: `${news}\n${statusMess}`,
             components: [buttonsLine_1, buttonsLine_2, buttonsLine_3, buttonsLine_4],
             embeds: [{
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }]
         }
     } catch(err) {

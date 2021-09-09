@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, utils} = _local
+const {Discord, config, utils} = _local
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 const {sendSite} = utils
 const randomUseragent = require('random-useragent')
@@ -31,11 +31,7 @@ module.exports = async (userId, settings, contentParams) => {
             }
         }
 
-        const hideObjInfo = {
-            owner: userId,
-            params: nameOrId
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: nameOrId, inline: true}]
 
         const steamCountPlayers = await getSteamData()
         const steamInfo = {
@@ -115,8 +111,8 @@ module.exports = async (userId, settings, contentParams) => {
             content: `${news}\n${steamInfo[lang]}`,
             components: [buttonsLine_1, buttonsLine_2, buttonsLine_3],
             embeds: [{
-                description: `||${hideInfo}||`,
-                color: '2F3136'
+                color: '2F3136',
+                fields: hideInfo
             }]
         }
     } catch(err) {

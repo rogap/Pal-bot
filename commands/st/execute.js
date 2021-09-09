@@ -4,7 +4,7 @@
 
 
 const _local = process._local
-const {Discord, config, stegcloak, classes, utils} = _local
+const {Discord, config, classes, utils} = _local
 const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
@@ -29,11 +29,8 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
         const body = await command.getStats(userId, nameOrId)
         const {getchampionranks} = body
 
-        const hideObjInfo = {
-            owner: userId,
-            params: body.playerId || body.playerName || nameOrId || 'me'
-        }
-        const hideInfo = stegcloak.hide(JSON.stringify(hideObjInfo), config.stegPass, config.stegText)
+        const hideInfoParams = (body.playerId || body.playerName || nameOrId || 'me') + ''
+        const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
 
         const {ChampionsStats} = classes
         const champions = new ChampionsStats(getchampionranks.data)
@@ -123,11 +120,11 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
             content: `${news}${replayOldText}${matchesInfo}`,
             components: [buttonsLine_1, buttonsLine_2],
             embeds: [{
-                description: `||${hideInfo}||`,
                 color: '2F3136',
                 image: {
                     url: attachment.url
-                }
+                },
+                fields: hideInfo
             }]
         }
     } catch (err) {

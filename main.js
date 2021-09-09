@@ -14,8 +14,6 @@ const client = new Discord.Client({ intents: [
 
 const path = require('path')
 const config = require(path.join(__dirname, 'config', 'main.js'))
-const StegCloak = require('stegcloak')
-const stegcloak = new StegCloak(true, false)
 
 const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
 
@@ -24,7 +22,6 @@ const _local = {
     Discord,
     client,
     config,
-    stegcloak,
     commandsUsed,
     launched: false,
     timeStart: new Date(),

@@ -39,7 +39,7 @@ module.exports = async function(userId, contentParams) {
             await model.findByIdAndUpdate(oldData[0]._id, saveData)
         } else {
             // если данных нет то сохраняем
-            const save = await model.save(saveData)
+            const save = await new model(saveData)
             await save.save()
         }
 

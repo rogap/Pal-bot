@@ -26,7 +26,7 @@ module.exports = class Card {
     // получает описание карты на указанном языке и убирая 'scale' подстявляя нужно значение исходя из уровня карты
     getDescriptionLvl(lvl, lang) {
         const desc = this.description[lang].replace(/^\[[а-яa-z -]+\] /i, '') // убираем принадлежность (то что в [...])
-        const matchArr = desc.match(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)\}/i)
+        const matchArr = desc.match(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)s?\}/i)
         if (!matchArr) return false // поидее такого быть не должно
 
         let scaleText = +matchArr[1]
@@ -37,7 +37,22 @@ module.exports = class Card {
         // фиксим до 2 точек и если 2 нуля в конце то убираем их
         scaleText = scaleText.toFixed(2)
         if (scaleText.slice(-2) == "00") scaleText = scaleText.slice(0, -3)
-        return desc.replace(/\{scale=[0-9\.]+\|-?[0-9\.]+\}/i, scaleText)
+
+        const retDesc = desc.replace(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)s?\}/i, scaleText)
+        if ( retDesc.match(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)s?\}/i) ) {
+            const matchArr = retDesc.match(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)s?\}/i)
+            if (!matchArr) return false // поидее такого быть не должно
+
+            let scaleText = +matchArr[1]
+            for (let i = 1; i < lvl; i++) {
+                scaleText += +matchArr[2]
+            }
+
+            // фиксим до 2 точек и если 2 нуля в конце то убираем их
+            scaleText = scaleText.toFixed(2)
+            return retDesc.replace(/\{scale ?= ?([0-9\.]+)\|(-?[0-9\.]+)s?\}/i, scaleText)
+        }
+        return retDesc
     }
 
     async loadImg() { // загружает картинку карты

@@ -43,8 +43,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         .addComponents(
             new MessageButton()
             .setCustomId('sl')
-            .setLabel({en: 'Update your Champion decks', ru: 'Обновить колоды чемпионов'}[lang])
-            .setStyle('SUCCESS')
+            .setLabel({en: 'To the selection of champions (Update)', ru: 'К выбору чемпионов (Обновить)'}[lang])
+            .setStyle('SECONDARY')
         )
 
         const championsFilterOpts = []
@@ -111,43 +111,45 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                 `${showOldStatsText[lang]}\n` : ''
 
         // если пользователь не указал колоду, а выбрать нужно ( их > 1)
-        if (!number && loadouts.length > 1) {
-            const buttonList = []
-            if (loadouts.length > 5) {
-                const buttonsLine_2 = new MessageActionRow()
-                const buttonsLine_3 = new MessageActionRow()
-                for (let i = 0; i < loadouts.length; i++) {
-                    const loadout = loadouts[i]
-                    const bt = i >= 3 ? buttonsLine_3 : buttonsLine_2
-                    bt.addComponents(
-                        new MessageButton()
-                        .setCustomId(`sl_card_${i+1}_${champion.id}`)
-                        .setLabel(loadout.DeckName)
-                        .setStyle('PRIMARY')
-                    )
-                }
-                buttonList.push(buttonsLine_2)
-                buttonList.push(buttonsLine_3)
-            } else {
-                const buttonsLine_2 = new MessageActionRow()
-                for (let i = 0; i < loadouts.length; i++) {
-                    const loadout = loadouts[i]
-                    buttonsLine_2.addComponents(
-                        new MessageButton()
-                        .setCustomId(`sl_card_${i+1}_${champion.id}`)
-                        .setLabel(loadout.DeckName)
-                        .setStyle('PRIMARY')
-                    )
-                }
-                buttonList.push(buttonsLine_2)
+        const buttonList = []
+        if (loadouts.length > 5) {
+            const buttonsLine_2 = new MessageActionRow()
+            const buttonsLine_3 = new MessageActionRow()
+            for (let i = 0; i < loadouts.length; i++) {
+                const loadout = loadouts[i]
+                const bt = i >= 3 ? buttonsLine_3 : buttonsLine_2
+                bt.addComponents(
+                    new MessageButton()
+                    .setCustomId(`sl_card_${i+1}_${champion.id}`)
+                    .setLabel(loadout.DeckName || 'null')
+                    .setStyle('PRIMARY')
+                )
             }
+            buttonList.push(buttonsLine_2)
+            buttonList.push(buttonsLine_3)
+        } else {
+            const buttonsLine_2 = new MessageActionRow()
+            for (let i = 0; i < loadouts.length; i++) {
+                const loadout = loadouts[i]
+                buttonsLine_2.addComponents(
+                    new MessageButton()
+                    .setCustomId(`sl_card_${i+1}_${champion.id}`)
+                    .setLabel(loadout.DeckName || 'null')
+                    .setStyle('PRIMARY')
+                )
+            }
+            buttonList.push(buttonsLine_2)
+        }
 
+        if (!number && loadouts.length > 1) {
+            const componentsEnd = [buttonsLine_1]
+            if (buttonList.length) componentsEnd.push(...buttonList)
             return {
                 content: {
                     ru: `Выберите одну из колод:`,
                     en: `Choose one of the decks:`
                 }[lang],
-                components: [buttonsLine_1, ...buttonList],
+                components: componentsEnd,
                 embeds: [{
                     color: '2F3136',
                     fields: hideInfo
@@ -158,12 +160,14 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         const numberDecks = Math.floor(number) || 1 // выбираем первую колоду если она одна
         const loadout = loadouts[numberDecks - 1] // выбираем колоду
         if (!loadout) {
+            const componentsEnd = [buttonsLine_1]
+            if (buttonList.length) componentsEnd.push(...buttonList)
             return {
                 content: {
                     ru: `Указанной колоды нет, у пользователя ${loadouts.length} колод.\nВыберите одну из колод:`,
                     en: `There is no specified deck, the user has ${loadouts.length} decks.\nChoose one of the decks:`
                 }[lang],
-                components: [buttonsLine_1, ...championsOpt],
+                components: componentsEnd,
                 embeds: [{
                     color: '2F3136',
                     fields: hideInfo
@@ -182,9 +186,11 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
 
         const matchesInfo = `\`\`\`md\n[${body.playerName}](${body.playerId})<${champion?.name?.en||''} ${draw.name}>\`\`\``
 
+        const componentsEnd = [buttonsLine_1]
+        if (buttonList.length) componentsEnd.push(...buttonList)
         return {
             content: `${news}${replayOldText}${matchesInfo}`,
-            components: [buttonsLine_1, ...championsOpt],
+            components: componentsEnd,
             embeds: [{
                 color: '2F3136',
                 image: {

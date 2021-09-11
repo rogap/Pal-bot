@@ -66,7 +66,7 @@ module.exports = async (champions, prop, last_update) => {
             if (!champion || !champion.name || !champion.name.en) return;
 
             ctx.fillStyle = white
-            ctx.fillText(champion.name.en, 45 + padding, paddingTop)
+            ctx.fillText(champion.Name.en, 45 + padding, paddingTop)
             ctx.fillStyle = green
             ctx.fillText(champion.exp.lvl, 160 + padding, paddingTop)
             ctx.fillStyle = yellow

@@ -12,21 +12,21 @@
 
 ## Commands
 
-* [hh](#hh)
+* [help](#help)
 * [me](#me)
-* [pal](#pal)
-* [set](#set)
-* [se](#se)
-* [ss](#ss)
-* [sh](#sh)
-* [sm](#sm)
-* [sp](#sp)
-* [st](#st)
-* [sc](#sc)
-* [sl](#sl)
-* [sf](#sc)
+* [menu](#menu)
+* [setting](#setting)
+* [search](#search)
+* [stats](#stats)
+* [history](#history)
+* [last](#last)
+* [current](#current)
+* [champions](#champions)
+* [champion](#champion)
+* [deck](#deck)
+* [friends](#friends)
 
-### hh
+### help
 
 Отправляет список команд в ЛС
 
@@ -34,47 +34,47 @@
 
 Позволяет сохранить свой ник для подстановки его в команды автоматически
 
-### pal
+### menu
 
 Вызывает главное меню с кнопками
 
-### set
+### setting
 
 Настройки
 
-### se
+### search
 
 Поиск игроков среди всех платформ
 
-### ss
+### stats
 
 Статистика аккаунта
 
-### sh
+### history
 
 История матчей игрока
 
-### sm
+### last
 
 Информация о последнем или конкретном матче
 
-### sp
+### current
 
 Статус игркоа в игре
 
-### st
+### champions
 
 Топ чемпионов аккаунта
 
-### sc
+### champion
 
 Статистика чемпиона
 
-### sl
+### deck
 
 Колоды аккаунта
 
-### sf
+### friends
 
 Друзья аккаунта
 

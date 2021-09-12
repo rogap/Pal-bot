@@ -16,13 +16,13 @@ module.exports = {
         path: path.join(_local.path, 'commands', 'console'),
         files: ['command'] // список файлов которые нужно будет загрузить для команды
     },
-    pal: {
-        name: 'pal',
+    menu: {
+        name: 'menu',
         slashName: 'menu',
-        possibly: ['pal', 'menu'],
+        possibly: ['menu', 'pal'],
         permissions: ['SEND_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'pal'),
+        path: path.join(_local.path, 'commands', 'menu'),
         params: {
             ru: ['?"Ник/id"'],
             en: ['?"Nickname/id"']
@@ -33,13 +33,13 @@ module.exports = {
         },
         files: ['execute', 'details', 'command', 'button', 'slash', 'getSlash']
     },
-    set: {
-        name: 'set',
+    setting: {
+        name: 'setting',
         slashName: 'setting',
-        possibly: ['set', 'установить'],
+        possibly: ['setting', 'set', 'установить'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'set'),
+        path: path.join(_local.path, 'commands', 'setting'),
         params: {
             ru: ['^"me/server id"', '^"Тип"', '^"Значение"'],
             en: ['^"me/server id"', '^"Type"', '^"Value"']
@@ -50,12 +50,12 @@ module.exports = {
         },
         files: ['execute', 'details', 'setData', 'button', 'slash', 'getSlash', 'command']
     },
-    hh: {
-        name: 'hh',
-        possibly: ['hh', 'помощь', 'help'],
+    help: {
+        name: 'help',
+        possibly: ['help', 'помощь', 'hh'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'hh'),
+        path: path.join(_local.path, 'commands', 'help'),
         params: {
             ru: ['?"команда"'],
             en: ['?"command"']
@@ -83,13 +83,13 @@ module.exports = {
         },
         files: ['details', 'getStats', 'execute', 'saveStats', 'command', 'slash', 'getSlash']
     },
-    se: {
-        name: 'se',
+    search: {
+        name: 'search',
         slashName: 'search',
-        possibly: ['se', 'поиск', 'search'],
+        possibly: ['search', 'поиск', 'se'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'se'),
+        path: path.join(_local.path, 'commands', 'search'),
         params: {
             ru: ['"Ник/id"'],
             en: ['"Nickname/id"']
@@ -100,14 +100,14 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
     },
-    ss: {
-        name: 'ss',
+    stats: {
+        name: 'stats',
         slashName: 'stats',
         // slashSub: new Set(['pc', 'player', 'steam']),
-        possibly: ['ss', 'стата', 'stats'],
+        possibly: ['stats', 'стата', 'ss'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'ss'),
+        path: path.join(_local.path, 'commands', 'stats'),
         params: {
             ru: ['?"Ник/id"'],
             en: ['?"Nickname/id"']
@@ -118,13 +118,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
     },
-    sh: {
-        name: 'sh',
+    history: {
+        name: 'history',
         slashName: 'history',
-        possibly: ['sh', 'история', 'history'],
+        possibly: ['history', 'история', 'sh'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'sh'),
+        path: path.join(_local.path, 'commands', 'history'),
         params: {
             ru: ['?"Ник/id"', '^?"Фильтр"', '^?"Страница"', '^?"Тип"'],
             en: ['?"Nickname/id"', '^?"Filter"', '^?"Page"', '^?"Type"']
@@ -135,13 +135,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
     },
-    sm: {
-        name: 'sm',
+    last: {
+        name: 'last',
         slashName: 'last',
-        possibly: ['sm', 'матч', 'match'],
+        possibly: ['last', 'sm', 'матч', 'match'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'sm'),
+        path: path.join(_local.path, 'commands', 'last'),
         params: {
             ru: ['^?"id матча/Ник/id"', '^?"Матч по счету"', '^?"Тип"'],
             en: ['^?"match id/Nickname/id"', '^?"Match count"', '^?"Type"']
@@ -152,13 +152,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
     },
-    sp: {
-        name: 'sp',
+    current: {
+        name: 'current',
         slashName: 'current',
-        possibly: ['sp', 'сталкер', 'live'],
+        possibly: ['current', 'sp', 'сталкер', 'live'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'sp'),
+        path: path.join(_local.path, 'commands', 'current'),
         params: {
             ru: ['^?"Ник/id"', '^?"Тип"'],
             en: ['^?"Nickname/id"', '^?"Type"']
@@ -169,13 +169,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
     },
-    st: {
-        name: 'st',
+    champions: {
+        name: 'champions',
         slashName: 'champions',
-        possibly: ['st', 'топ', 'top'],
+        possibly: ['champions', 'st', 'топ', 'top'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'st'),
+        path: path.join(_local.path, 'commands', 'champions'),
         params: {
             ru: ['"Ник/id"', '"Тип сортировки"'],
             en: ['"Nickname/id"', '"Sorting type"']
@@ -186,13 +186,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'command', 'slash', 'getSlash', 'button']
     },
-    sl: {
-        name: 'sl',
+    deck: {
+        name: 'deck',
         slashName: 'lodouts',
-        possibly: ['sl', 'колода', 'deck'],
+        possibly: ['deck', 'колода', 'sl'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'sl'),
+        path: path.join(_local.path, 'commands', 'deck'),
         params: {
             ru: ['?"Ник/id"', '*^"Чемпион"', '*^?"Номер колоды"'],
             en: ['?"Nickname/id"', '*^"Champion"', '*^?"Deck number"']
@@ -203,13 +203,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
     },
-    sc: {
-        name: 'sc',
+    champion: {
+        name: 'champion',
         slashName: 'champion',
-        possibly: ['sc', 'чемпион', 'champion'],
+        possibly: ['champion', 'чемпион', 'sc'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'sc'),
+        path: path.join(_local.path, 'commands', 'champion'),
         params: {
             ru: ['"Ник/id"', '*"Чемпион"'],
             en: ['"Nickname/id"', '*"Champion"']
@@ -220,13 +220,13 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'command', 'slash', 'getSlash', 'button']
     },
-    sf: {
-        name: 'sf',
+    friends: {
+        name: 'friends',
         slashName: 'friends',
-        possibly: ['sf', 'друзья', 'friends', 'friend'],
+        possibly: ['friends', 'друзья', 'friend', 'sf'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
-        path: path.join(_local.path, 'commands', 'sf'),
+        path: path.join(_local.path, 'commands', 'friends'),
         params: {
             ru: ['?"Ник/id"', '^?"Поиск"', '*^?"Страница"'],
             en: ['?"Nickname/id"', '^?"Search"', '*^?"Page"']

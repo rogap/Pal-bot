@@ -14,21 +14,21 @@ You can get detailed information about the commands by using the command `hh`, e
 
 ## Commands
 
-* [hh](#hh)
+* [help](#help)
 * [me](#me)
-* [pal](#pal)
-* [set](#set)
-* [se](#se)
-* [ss](#ss)
-* [sh](#sh)
-* [sm](#sm)
-* [sp](#sp)
-* [st](#st)
-* [sc](#sc)
-* [sl](#sl)
-* [sf](#sc)
+* [menu](#menu)
+* [setting](#setting)
+* [search](#search)
+* [stats](#stats)
+* [history](#history)
+* [last](#last)
+* [current](#current)
+* [champions](#champions)
+* [champion](#champion)
+* [deck](#deck)
+* [friends](#friends)
 
-### hh
+### help
 
 Sends a list of commands to the DM
 
@@ -36,47 +36,47 @@ Sends a list of commands to the DM
 
 Allows you to save your nickname for substituting it into teams automatically
 
-### pal
+### menu
 
 Opens the main menu with the buttons
 
-### set
+### setting
 
 Settings
 
-### se
+### search
 
 Search for players among all platforms
 
-### ss
+### stats
 
 Account statistics
 
-### sh
+### history
 
 Player's Match History
 
-### sm
+### last
 
 Information about the last or specific match
 
-### sp
+### current
 
 Player status in the game
 
-### st
+### champions
 
 Top Account Champions
 
-### sc
+### champion
 
 Championship statistics
 
-### sl
+### deck
 
 Account Decks
 
-### sf
+### friends
 
 Friends of the account
 

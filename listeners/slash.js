@@ -51,11 +51,12 @@ client.on('interactionCreate', async interaction => {
             })
         } catch(err2) {
             console.log('\nОШИБКА ОТПРАВКИ error-slash СООБЩЕНИЯ:\n')
-            console.log(err2)
+            console.log(JSON.stringify(err2))
         }
 
         if (err && err.log_msg) { // отправка логов на сервер бота (уведомления)
             try {
+                if (err?.err) console.log(JSON.stringify(err.err))
                 await sendToChannel(config.chLog, err.log_msg)
             } catch(err3) {
                 console.log('\nОШИБКА ОТПРАВКИ ЛОГОВ НА СЕРВЕР БОТА:\n')

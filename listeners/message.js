@@ -89,10 +89,11 @@ client.on('messageCreate', async message => {
             await message.sendWarning(errText[lang], {components: [buttonsLine_1]})
         } catch(err2) {
             console.log('\nОШИБКА ОТПРАВКИ sendWarning СООБЩЕНИЯ:\n')
-            console.log(err2)
+            console.log(JSON.stringify(err2))
         }
         try {
             if (!err || !err.log_msg) return; // отправка логов на сервер бота (уведомления)
+            if (err?.err) console.log(JSON.stringify(err.err))
             await sendToChannel(config.chLog, err.log_msg)
         } catch(err3) {
             console.log('\nОШИБКА ОТПРАВКИ ЛОГОВ НА СЕРВЕР БОТА:\n')

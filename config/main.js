@@ -14,7 +14,6 @@ const env = process.env
 
 module.exports = {
 	discordToken: env.DISCORDTOKEN,
-	dbToken: env.DATABASETOKEN,
 	steamKey: env.STEAMKEY,
 	devId: env.DEVID,
 	authKey: env.AUTHKEY,
@@ -23,8 +22,6 @@ module.exports = {
 		host: env.DBHOST,
 		port: env.DBPORT
 	},
-	stegPass: 'Paladins',
-	stegText: 'buttons menu',
 	translate,
 	siteUrl: 'https://webmyself.ru/pal-bot/',
 	discordInvate: 'https://discord.gg/C2phgzTxH9',

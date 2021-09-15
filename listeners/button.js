@@ -55,7 +55,7 @@ client.on('interactionCreate', async interaction => {
         const [commandName, commandBranch_1, commandBranch_2, commandBranch_3] = interaction.customId.split('_')
         const branches = [commandBranch_1, commandBranch_2, commandBranch_3]
         const values = interaction.values // выбранные эллементы у select menu
-        const command = settings.commands.getByName(commandName)
+        const command = settings.commands.get(commandName)
         if (!command) return; // команда не найдена
 
         // можно проверить права (а можно и не проверять), но лучше проверить

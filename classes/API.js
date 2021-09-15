@@ -23,7 +23,7 @@ module.exports = class API {
 
     async getchampions(lang=1) {
         const model = models.getchampions
-        const data = await model.find({lang})
+        const data = await model.find({lang}).lean ()
 
         if (data.length > 1) console.log('КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ ЧЕМПИОНОВ (getchampions)')
         const getchampions = data[0]
@@ -34,7 +34,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getchampions', lang)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getchampions) {
+                getchampions.old = true
+                return getchampions
+            } else {
+                throw newData
+            }
+        }
 
         // если getchampions был, то обновим данные, если нет, то сохраним
         if (getchampions) {
@@ -57,7 +64,7 @@ module.exports = class API {
 
     async getitems(lang=1) {
         const model = models.getitems
-        const data = await model.find({lang})
+        const data = await model.find({lang}).lean ()
 
         if (data.length > 1) console.log('КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ ЧЕМПИОНОВ (getitems)')
         const getitems = data[0]
@@ -68,7 +75,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getitems', lang)
-        if (!newData.status) throw newData
+        if (!newData.status) {
+            if (getitems) {
+                getitems.old = true
+                return getitems
+            } else {
+                throw newData
+            }
+        }
 
         // если getitems был, то обновим данные, если нет, то сохраним
         if (getitems) {
@@ -91,7 +105,7 @@ module.exports = class API {
 
     async searchplayers(name) {
         const model = models.searchplayers
-        const data = await model.find({name})
+        const data = await model.find({name}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (searchplayers) ${name}`)
         const searchplayers = data[0]
@@ -102,7 +116,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('searchplayers', name)
-        if (!newData.status) throw newData
+        if (!newData.status) {
+            if (searchplayers) {
+                searchplayers.old = true
+                return searchplayers
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]) {
             if (searchplayers) {
@@ -139,7 +160,7 @@ module.exports = class API {
         const findObj = {}
         const typeValue = isID ? 'id' : 'name'
         findObj[typeValue] = isID ? nameOrId : {$regex: new RegExp(nameOrId, 'i')} // lovercase
-        const data = await model.find(findObj)
+        const data = await model.find(findObj).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getplayer) ${nameOrId}`)
         const getplayer = data[0]
@@ -150,7 +171,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getplayer', nameOrId)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getplayer) {
+                getplayer.old = true
+                return getplayer
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]?.Id) {
             if (getplayer) {
@@ -192,7 +220,7 @@ module.exports = class API {
     
     async getchampionranks(id) {
         const model = models.getchampionranks
-        const data = await model.find({id})
+        const data = await model.find({id}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getchampionranks) ${id}`)
         const getchampionranks = data[0]
@@ -203,7 +231,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getchampionranks', id)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getchampionranks) {
+                getchampionranks.old = true
+                return getchampionranks
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]) {
             if (getchampionranks) {
@@ -237,7 +272,7 @@ module.exports = class API {
 
     async getplayerloadouts(id, langSearch=1) {
         const model = models.getplayerloadouts
-        const data = await model.find({id})
+        const data = await model.find({id}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getplayerloadouts) ${id}`)
         const getplayerloadouts = data[0]
@@ -248,7 +283,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getplayerloadouts', id, langSearch)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getplayerloadouts) {
+                getplayerloadouts.old = true
+                return getplayerloadouts
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0] || !newData?.data[0]?.ChampionName) {
             if (getplayerloadouts) {
@@ -282,7 +324,7 @@ module.exports = class API {
 
     async getplayerstatus(playerId) {
         const model = models.getplayerstatus
-        const data = await model.find({id: playerId})
+        const data = await model.find({id: playerId}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getplayerstatus) ${playerId}`)
         const getplayerstatus = data[0]
@@ -293,7 +335,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getplayerstatus', playerId)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getplayerstatus) {
+                getplayerstatus.old = true
+                return getplayerstatus
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]) {
             if (getplayerstatus) {
@@ -328,7 +377,7 @@ module.exports = class API {
 
     async getmatchplayerdetails(id) {
         const model = models.getmatchplayerdetails
-        const data = await model.find({id})
+        const data = await model.find({id}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getmatchplayerdetails) ${id}`)
         const getmatchplayerdetails = data[0]
@@ -339,7 +388,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getmatchplayerdetails', id)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getmatchplayerdetails) {
+                getmatchplayerdetails.old = true
+                return getmatchplayerdetails
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]) {
             if (getmatchplayerdetails) {
@@ -373,7 +429,7 @@ module.exports = class API {
 
     async getmatchhistory(id) {
         const model = models.getmatchhistory
-        const data = await model.find({id})
+        const data = await model.find({id}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getmatchhistory) ${id}`)
         const getmatchhistory = data[0]
@@ -384,7 +440,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getmatchhistory', id)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getmatchhistory) {
+                getmatchhistory.old = true
+                return getmatchhistory
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0] || newData?.data[0]?.ret_msg) {
             if (getmatchhistory) {
@@ -418,7 +481,7 @@ module.exports = class API {
 
     async getmatchdetails(id) {
         const model = models.getmatchdetails
-        const data = await model.find({id})
+        const data = await model.find({id}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getmatchdetails) ${id}`)
         const getmatchdetails = data[0]
@@ -429,7 +492,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getmatchdetails', id)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getmatchdetails) {
+                getmatchdetails.old = true
+                return getmatchdetails
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]) {
             if (getmatchdetails) {
@@ -463,7 +533,7 @@ module.exports = class API {
 
     async getfriends(id) {
         const model = models.getfriends
-        const data = await model.find({id})
+        const data = await model.find({id}).lean ()
 
         if (data.length > 1) console.log(`КАКОГОТО ХРЕНА БОЛЕЕ 1 СТАТЫ (getfriends) ${id}`)
         const getfriends = data[0]
@@ -474,7 +544,14 @@ module.exports = class API {
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getfriends', id)
-        if (!newData.status) throw newData
+        if (!newData.status)  {
+            if (getfriends) {
+                getfriends.old = true
+                return getfriends
+            } else {
+                throw newData
+            }
+        }
 
         if (!newData?.data[0]) {
             if (getfriends) {

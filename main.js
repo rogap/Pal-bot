@@ -15,14 +15,11 @@ const client = new Discord.Client({ intents: [
 const path = require('path')
 const config = require(path.join(__dirname, 'config', 'main.js'))
 
-const commandsUsed = {commands: {}, count: 0} // список команд и кол-во их использований (для статистики)
-
 // обьект бота, в начале launched = false (все обработчики на паузе)
 const _local = {
     Discord,
     client,
     config,
-    commandsUsed,
     launched: false,
     timeStart: new Date(),
     path: __dirname,

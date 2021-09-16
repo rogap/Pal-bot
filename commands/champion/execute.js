@@ -30,19 +30,19 @@ module.exports = async (userId, settings, command, userNameOrId, champion) => {
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sc')
+            .setCustomId('champion')
             .setLabel({en: 'Update', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('st')
+            .setCustomId('champions')
             .setLabel({en: 'To the statistics of champions', ru: 'К статистике чемпионов'}[lang])
             .setStyle('PRIMARY')
         )
@@ -63,7 +63,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion) => {
                 new MessageActionRow()
                 .addComponents(
                     new MessageSelectMenu()
-                        .setCustomId(`sc_champion_${i}`)
+                        .setCustomId(`champion_champion_${i}`)
                         .setPlaceholder({en: 'Select a champion', ru: 'Выберите чемпиона'}[lang])
                         .addOptions(optList)
                 )

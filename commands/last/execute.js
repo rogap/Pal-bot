@@ -29,13 +29,13 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sh')
+            .setCustomId('history')
             .setLabel({en: 'Back to history', ru: 'Назад к истории'}[lang])
             .setStyle('SECONDARY')
         )
@@ -63,6 +63,26 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
         // console.log(body)
         const {getmatchdetails} = body
         const match = getmatchdetails.data
+
+        if (!match.length) {
+            // если нет матчей
+            const news = config.news[lang]
+            const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''
+            const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
+
+            return {
+                content: `${news}${{
+                    ru: '**У игрока нет матчей.**',
+                    en: '**The player has no matches.**'
+                }[lang]}`,
+                components: [buttonsLine_1],
+                embeds: [{
+                    color: '2F3136',
+                    fields: hideInfo
+                }]
+            }
+        }
+
         const draw = await command.draw(body, prop)
         if (!draw.status) throw draw
 

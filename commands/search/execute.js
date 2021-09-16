@@ -43,7 +43,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow=1) => 
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )

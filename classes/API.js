@@ -21,7 +21,7 @@ module.exports = class API {
     // лимиты обновлений функций
     static limits = config.timeLimit
 
-    async getchampions(lang=1) {
+    async getchampions(lang=1, update=false) {
         const model = models.getchampions
         const data = await model.find({lang}).lean ()
 
@@ -30,7 +30,7 @@ module.exports = class API {
         if (getchampions) getchampions.status = true
 
         // если есть данные то проверим их корректность по времени и если норм от вернем их
-        if (getchampions && getchampions.lastUpdate.checkTime('getchampions')) return getchampions
+        if (!update && getchampions && getchampions.lastUpdate.checkTime('getchampions')) return getchampions
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getchampions', lang)
@@ -62,7 +62,7 @@ module.exports = class API {
         return newData
     }
 
-    async getitems(lang=1) {
+    async getitems(lang=1, update=false) {
         const model = models.getitems
         const data = await model.find({lang}).lean ()
 
@@ -71,7 +71,7 @@ module.exports = class API {
         if (getitems) getitems.status = true
 
         // если есть данные то проверим их корректность по времени и если норм от вернем их
-        if (getitems && getitems.lastUpdate.checkTime('getitems')) return getitems
+        if (!update && getitems && getitems.lastUpdate.checkTime('getitems')) return getitems
 
         // если данных нет то запросим у хайрезов
         const newData = await this.#api.ex('getitems', lang)

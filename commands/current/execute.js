@@ -34,13 +34,13 @@ module.exports = async (userId, settings, command, userNameOrId) => {
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sp')
+            .setCustomId('current')
             .setLabel({en: 'Update', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )

@@ -70,19 +70,19 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('st')
+            .setCustomId('champions')
             .setLabel({en: 'Update', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sc')
+            .setCustomId('champion')
             .setLabel({en: 'Choose a champion', ru: 'Выбрать чемпиона'}[lang])
             .setStyle('PRIMARY')
         )
@@ -90,7 +90,7 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
         const buttonsLine_2 = new MessageActionRow()
         .addComponents(
             new MessageSelectMenu()
-                .setCustomId('st_sort')
+                .setCustomId('champions_sort')
                 .setPlaceholder({en: 'Sorted by...', ru: 'Сортировать по...'}[lang])
                 .addOptions([
                     {

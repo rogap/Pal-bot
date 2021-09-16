@@ -55,19 +55,19 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('ss' + (consoleStats ? '_console' : ''))
+            .setCustomId('stats' + (consoleStats ? '_console' : ''))
             .setLabel({en: 'Update', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('ss' + (consoleStats ? '' : '_console'))
+            .setCustomId('stats' + (consoleStats ? '' : '_console'))
             .setLabel({en: 'Console stats', ru: 'Статистика консоли'}[lang])
             .setStyle(consoleStats ? 'SUCCESS' : 'PRIMARY')
         )

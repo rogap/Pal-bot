@@ -5,6 +5,7 @@
 
 const _local = process._local
 const {config} = _local
+const AbstractChampion = require('./AbstractChampion.js')
 
 
 module.exports = class CardsManager {
@@ -15,7 +16,21 @@ module.exports = class CardsManager {
     }
 
     // получить все карты чемпиона
-    getByChampion(championId) {}
+    getByChampion(nameOrId) {
+        const championId = isFinite(nameOrId) ? nameOrId : null
+        const championName = typeof(nameOrId) == 'string' ? AbstractChampion.nameNormalize(nameOrId) : null
+        const cardsList = []
+        if (championId) {
+            this.#cards.forEach(card => {
+                if (card.championId == championId) cardsList.push(card)
+            })
+        } else {
+            this.#cards.forEach(card => {
+                if (AbstractChampion.nameNormalize(card.championName.en) == championName) cardsList.push(card)
+            })
+        }
+        return cardsList
+    }
 
     // получить карту по id
     get(id) {

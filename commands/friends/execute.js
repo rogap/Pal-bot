@@ -47,19 +47,19 @@ module.exports = async (userId, settings, command, nameOrId, pageShow, search) =
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sf')
+            .setCustomId('friends')
             .setLabel({en: 'Update', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sf_block')
+            .setCustomId('friends_block')
             .setLabel((!isBlockUsers ? 
                 {en: 'Show blocked users', ru: 'Показать заблокированных'} : 
                 {en: 'Show friends', ru: 'Показать друзей'})[lang])

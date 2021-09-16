@@ -36,13 +36,13 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('pal')
+            .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
-            .setCustomId('sl')
+            .setCustomId('deck')
             .setLabel({en: 'To the selection of champions (Update)', ru: 'К выбору чемпионов (Обновить)'}[lang])
             .setStyle('SECONDARY')
         )
@@ -63,7 +63,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                 new MessageActionRow()
                 .addComponents(
                     new MessageSelectMenu()
-                        .setCustomId(`sl_champion_${i}`)
+                        .setCustomId(`deck_champion_${i}`)
                         .setPlaceholder({en: 'Choose a champion', ru: 'Выбрать чемпиона'}[lang])
                         .addOptions(optList)
                 )
@@ -120,7 +120,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                 const bt = i >= 3 ? buttonsLine_3 : buttonsLine_2
                 bt.addComponents(
                     new MessageButton()
-                    .setCustomId(`sl_card_${i+1}_${champion.id}`)
+                    .setCustomId(`deck_card_${i+1}_${champion.id}`)
                     .setLabel(loadout.DeckName || 'null')
                     .setStyle('PRIMARY')
                 )
@@ -133,7 +133,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                 const loadout = loadouts[i]
                 buttonsLine_2.addComponents(
                     new MessageButton()
-                    .setCustomId(`sl_card_${i+1}_${champion.id}`)
+                    .setCustomId(`deck_card_${i+1}_${champion.id}`)
                     .setLabel(loadout.DeckName || 'null')
                     .setStyle('PRIMARY')
                 )

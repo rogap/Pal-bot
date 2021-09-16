@@ -142,8 +142,8 @@ module.exports = class Hirez {
                 status: false,
                 err: body,
                 err_msg: {
-                    ru: 'Ошибка запроса.',
-                    en: 'Request error.'
+                    ru: 'Ошибка API запроса. Возможно API временно недоступно.',
+                    en: 'Request API error. The API may be temporarily unavailable.'
                 }
             }
 

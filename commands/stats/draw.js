@@ -61,6 +61,7 @@ module.exports = async function(body, prop) {
             name: player.hz_player_name || player.hz_gamer_tag
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
@@ -119,6 +120,7 @@ async function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
 
         return {status: true}
     } catch(err) {
+        console.log(JSON.stringify(err))
         throw {
             status: false,
             err,
@@ -216,6 +218,7 @@ async function drawPlayer(ctx, player, champions, prop) {
 
         return {status: true}
     } catch (err) {
+        console.log(JSON.stringify(err))
         throw {
             status: false,
             err,
@@ -319,6 +322,7 @@ async function drawChampions(ctx, champions, prop) {
 
         return {status: true}
     } catch (err) {
+        console.log(JSON.stringify(err))
         throw {
             status: false,
             err,

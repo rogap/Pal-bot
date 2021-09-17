@@ -128,6 +128,7 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
             }]
         }
     } catch (err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

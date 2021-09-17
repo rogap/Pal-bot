@@ -14,6 +14,7 @@ module.exports = async (message, settings, command, contentParams) => {
         const exe = await command.execute(userId, settings, command, contentParams)
         return await message.reply(exe)
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

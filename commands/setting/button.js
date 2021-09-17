@@ -23,6 +23,7 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches=[]
 
         return {status: 1, name: 'set', interaction: iter}
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && (err.err_msg !== undefined || err.log_msg !== undefined)) throw err
         throw {
             err,

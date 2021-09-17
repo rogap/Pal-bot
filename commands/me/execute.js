@@ -9,7 +9,7 @@ const _local = process._local
 module.exports = async (userId, settings, command, contentParams='') => {
     try {
         const {lang, prefix} = settings
-        const comHH = settings.commands.getByName('hh').possibly[0]
+        const comHH = settings.commands.getByName('help').possibly[0]
         const comME = command.possibly[0]
 
         if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(contentParams) 
@@ -57,6 +57,7 @@ module.exports = async (userId, settings, command, contentParams='') => {
             }
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

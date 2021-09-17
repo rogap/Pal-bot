@@ -98,7 +98,7 @@ module.exports = {
             ru: `Поиск аккаунтов консолей и других платформ.`,
             en: `Search for accounts of consoles and other platforms.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
+        files: ['details', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
     },
     stats: {
         name: 'stats',

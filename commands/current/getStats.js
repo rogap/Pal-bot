@@ -93,6 +93,7 @@ module.exports = async (userId, nameOrId) => {
             status: true
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

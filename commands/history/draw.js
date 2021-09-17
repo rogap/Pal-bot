@@ -38,6 +38,7 @@ module.exports = async (matches, prop, last_update) => {
             id: matches[0].playerId
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
@@ -87,6 +88,7 @@ async function drawDefault(ctx, last_update, prop) {
 
         return {status: true}
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
@@ -180,6 +182,7 @@ async function drawTable(ctx, matches, prop) {
 
         return {status: true}
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,

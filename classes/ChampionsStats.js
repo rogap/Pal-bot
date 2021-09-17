@@ -72,40 +72,6 @@ module.exports = class ChampionsStats extends AbstractChampion {
         this.kda = this.constructor.getKDA(this.kills, this.deaths, this.assists)
     }
 
-    /**
-     * Преобразаует опыт в более детальную инфу
-     * @param {Number} exp - опыт ирока или чемпиона
-     * @return {Object} {
-     * 		lvl - уровень
-     * 		expTo - сколько осталось опыта до апа лвла
-     * 		expFrom - сколько сейчас опыта (на текущем уровне)
-     * 		expLvl - сколько требуется В ОБЩЕМ опыта для апа этого уровня
-     * 		progress - кол-во проценков опыта уровня
-     * 	}
-     */
-    parseExp(exp) {
-        exp += 20000
-        let lvl = 0
-        let exp1to30 = 20000
-        let expNeedToNextLvl = 0 // сколько опыта нужно до следующего лвла
-        while (exp > exp1to30 && lvl < 50) { // с 1 по 30 лвл нужно каждый раз на 20 000 опыта больше
-            exp -= exp1to30
-            exp1to30 += 20000
-            lvl++
-        }
-        expNeedToNextLvl = exp1to30 - exp
-
-        const exptAfter48 = 1000000
-        while (exp > exptAfter48) {
-            exp -= exptAfter48
-            lvl++
-        }
-        if ( lvl > 50 ) expNeedToNextLvl = exptAfter48 - exp
-        const expLvl = lvl > 50 ? exptAfter48 : exp1to30 // сколько нужно опыта до следующего лвла (всего)
-        const progress = (exp / expLvl * 100).toFixed(2)
-        return {lvl: lvl || 1, expTo: expNeedToNextLvl, expFrom: exp, expLvl, progress}
-    }
-
     sort(type='Minutes') {
         if ( !(type in this.#champions[0]) ) throw new ReferenceError(`Обьект чемпиона не имеет параметра "${type}".`)
         return this.#champions.sort((ch1, ch2) => ch2[type] - ch1[type])
@@ -162,5 +128,9 @@ module.exports = class ChampionsStats extends AbstractChampion {
 
     each(callback) {
         return this.#champions.forEach(callback)
+    }
+
+    get list() {
+        return this.#champions
     }
 }

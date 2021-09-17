@@ -85,6 +85,7 @@ module.exports = async (champions, prop, last_update) => {
             canvas
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,

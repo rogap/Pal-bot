@@ -93,6 +93,7 @@ module.exports = async (message, settings, command, contentParams) => {
         const exe = await command.execute(userId, guildId_real, settings, setFor, setId, optLang, optTimezone)
         return await message.reply(exe)
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

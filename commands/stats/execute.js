@@ -87,6 +87,7 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
             }]
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err
         throw {
             err,

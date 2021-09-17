@@ -200,6 +200,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
             }]
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err
         // иначе другая ошибка, но поидее такой не должно быть
         throw {

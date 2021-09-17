@@ -84,6 +84,7 @@ module.exports = async (loadout, champion, prop, lastUpdate) => {
             name: loadout.DeckName
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,

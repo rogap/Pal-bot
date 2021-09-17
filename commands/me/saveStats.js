@@ -45,6 +45,7 @@ module.exports = async function(userId, contentParams) {
 
         return saveData
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

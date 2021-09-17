@@ -13,6 +13,7 @@ module.exports = async (message, settings, command, contentParams) => {
 
         return eval(contentParams)
     } catch(err) {
+        console.log(JSON.stringify(err))
         console.log(`\nCONSOLE Ошибка выполнения CONSOLE:\n\n${contentParams}\n\nEND\n`)
         console.log(err)
     }

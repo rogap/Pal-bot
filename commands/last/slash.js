@@ -17,6 +17,7 @@ module.exports = async (interaction, settings, command) => {
         const exe = await command.execute(userId, settings, command, nameOrId, matchId, numberOpt)
         return await interaction.editReply(exe)
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,

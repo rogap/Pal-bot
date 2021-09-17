@@ -43,6 +43,7 @@ module.exports = async function(body, prop) {
             // id: 
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
@@ -74,6 +75,7 @@ async function getMap(mapGame) {
         const res = await loadImage(pathToImg)
         return {img: res, name: mapName}
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
@@ -163,6 +165,7 @@ async function drawDefault(ctx, match, prop) {
 
         return {status: true}
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,
@@ -290,6 +293,7 @@ async function drawTable(ctx, match, prop) {
 
         return {status: true}
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
         throw {
             status: false,

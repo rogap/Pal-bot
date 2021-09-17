@@ -20,6 +20,7 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
             name: 'pal'
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && (err.err_msg !== undefined || err.log_msg !== undefined)) throw err
         throw {
             err,

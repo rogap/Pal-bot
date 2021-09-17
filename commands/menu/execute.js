@@ -116,6 +116,7 @@ module.exports = async (userId, settings, contentParams) => {
             }]
         }
     } catch(err) {
+        console.log(JSON.stringify(err))
         if (err && err.err_msg !== undefined) throw err
         throw {
             err,
@@ -144,7 +145,7 @@ async function getSteamData() {
 
         return count
     } catch(err) {
-        console.log(err)
+        console.log(JSON.stringify(err))
         return '-err-'
     }
 }

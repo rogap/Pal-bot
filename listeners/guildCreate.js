@@ -22,7 +22,7 @@ client.on('guildCreate', async guild => {
 
         // отправляет приветственное сообщение с информацией создателю сервера (нужно предупредить об этом)
         await owner.send({
-            embed: {
+            embeds: [{
                 description: `**Server name:** ${guild.name}\ \n**Server id:** ${guild.id}`,
                 thumbnail: {
                     url: guild.iconURL()
@@ -66,7 +66,7 @@ client.on('guildCreate', async guild => {
                             'Enjoy your use.'
                     }
                 ]
-            }
+            }]
         })
     } catch(err) {
         console.log(`Ошибка отправки сообщения ОВНЕРУ: ${guild.ownerID}:`)
@@ -76,7 +76,7 @@ client.on('guildCreate', async guild => {
     try {
         const channel = await client.channels.fetch(config.chNot)
         await channel.send({
-            embed: {
+            embeds: [{
                 title: `${guild.name} (${guild.id})`,
                 description: '__добавлен__',
                 color: '#22BE2D',
@@ -95,7 +95,7 @@ client.on('guildCreate', async guild => {
                         inline: true
                     }
                 ]
-            }
+            }]
         })
     } catch(err) {
         console.log(`Ошибка отправки сообщения на канал сервера:`)

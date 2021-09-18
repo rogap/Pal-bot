@@ -11,7 +11,7 @@ client.on('guildDelete', async guild => {
     try {
         const channel = await client.channels.fetch(config.chNot)
         await channel.send({
-            embed: {
+            embeds: [{
                 title: `${guild.name} (${guild.id})`,
                 description: '__удален__',
                 color: '#C71F1D',
@@ -35,7 +35,7 @@ client.on('guildDelete', async guild => {
                         inline: true
                     }
                 ]
-            }
+            }]
         })
     } catch(err) {
         console.log('Ошибка отправки сообщения при удаленни бота с сервера:')

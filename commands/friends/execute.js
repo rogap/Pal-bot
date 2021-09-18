@@ -149,7 +149,7 @@ module.exports = async (userId, settings, command, nameOrId, pageShow, search) =
                 new MessageActionRow()
                 .addComponents(
                     new MessageSelectMenu()
-                        .setCustomId('sf_page')
+                        .setCustomId(`friends_page_${i}`)
                         .setPlaceholder({en: 'Go to the page...', ru: 'Перейти на страницу...'}[lang])
                         .addOptions(opt)
                 )

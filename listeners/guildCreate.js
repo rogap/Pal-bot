@@ -9,9 +9,9 @@ const {client, config} = _local
 
 client.on('guildCreate', async guild => {
     try {
-        const owner = await guild.members.fetch(guild.ownerID)
+        const owner = await guild.members.fetch(guild.ownerId)
 
-        const guildSettings = _local.guildsSettings.get(guild.id) // получаем настройки сервера
+        const guildSettings = _local.guildSettings.get(guild.id) // получаем настройки сервера
         const settings = guildSettings ? guildSettings : {
             lang: config.lang,
             prefix: config.prefix
@@ -69,7 +69,7 @@ client.on('guildCreate', async guild => {
             }]
         })
     } catch(err) {
-        console.log(`Ошибка отправки сообщения ОВНЕРУ: ${guild.ownerID}:`)
+        console.log(`Ошибка отправки сообщения ОВНЕРУ: ${guild.ownerId}:`)
         console.log(err)
     }
 
@@ -85,13 +85,13 @@ client.on('guildCreate', async guild => {
                 },
                 fields: [
                     {
-                        name: 'Region',
-                        value: guild.region,
+                        name: 'Owner',
+                        value: `<@${guild.ownerId}>`,
                         inline: true
                     },
                     {
                         name: 'member count',
-                        value: guild.memberCount,
+                        value: (guild.memberCount + ''),
                         inline: true
                     }
                 ]

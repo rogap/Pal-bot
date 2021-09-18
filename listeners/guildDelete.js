@@ -25,13 +25,13 @@ client.on('guildDelete', async guild => {
                 },
                 fields: [
                     {
-                        name: 'Region',
-                        value: guild.region,
+                        name: 'Owner',
+                        value: `<@${guild.ownerId}>`,
                         inline: true
                     },
                     {
                         name: 'member count',
-                        value: guild.memberCount,
+                        value: (guild.memberCount + ''),
                         inline: true
                     }
                 ]

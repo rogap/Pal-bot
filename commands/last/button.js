@@ -18,7 +18,10 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
         const matchId = values[0] ? values[0] : null
         const userNameOrId = hideObjInfo.params
 
-        const exe =  await command.execute(userId, settings, command, userNameOrId, matchId, null)
+        const [type, val] = branches
+        const matchNumber = (type == 'next' ? +val + 1 : val - 1) || 1
+
+        const exe =  await command.execute(userId, settings, command, userNameOrId, matchId, matchNumber)
         const iter =  await interaction.editReply(exe)
 
         return {

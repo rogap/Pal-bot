@@ -39,6 +39,18 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
             .setLabel({en: 'Back to history', ru: 'Назад к истории'}[lang])
             .setStyle('SECONDARY')
         )
+        .addComponents(
+            new MessageButton()
+            .setCustomId(`last_prev_${matchNumber}`)
+            .setLabel({en: 'Previous match', ru: 'Предыдущий матч'}[lang])
+            .setStyle('PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId(`last_next_${matchNumber}`)
+            .setLabel({en: 'Next match', ru: 'Следующий матч'}[lang])
+            .setStyle('PRIMARY')
+        )
 
         if ( (matchId && !isFinite(matchId)) || 
             (matchId && (matchId+'').length < 9) || 
@@ -59,6 +71,7 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
         }
 
         // console.log(`userNameOrId: ${userNameOrId}; matchNumber: ${matchNumber}; modifier: ${modifier}`)
+        console.log(userId, userNameOrId, matchId, matchNumber)
         const body = await command.getStats(userId, userNameOrId, matchId, matchNumber)
         // console.log(body)
         const {getmatchdetails} = body

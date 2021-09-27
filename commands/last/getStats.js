@@ -19,6 +19,7 @@ function parse(nameOrId) {
 
 module.exports = async function(userId, nameOrId, matchId, matchNumber=1) {
     try {
+        matchNumber = matchNumber || 1
         if (matchId) {
             const fetchGetmatchdetails = await _local.hirez.getmatchdetails(matchId)
             if (!fetchGetmatchdetails.status) throw fetchGetmatchdetails

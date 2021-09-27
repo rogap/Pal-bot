@@ -80,7 +80,7 @@ module.exports = class ChampionsStats extends AbstractChampion {
     sortType(type) {
         if (!type) return this.#champions
         const funcSort = { // функции сортировки
-            lvl: (a, b) => b.Rank - a.Rank,
+            lvl: (a, b) => b.exp.lvl - a.exp.lvl,
             winrate: (a, b) => {
                 const a_win = this.constructor.getWinrate(a.Wins, a.Losses)
                 const b_win = this.constructor.getWinrate(b.Wins, b.Losses)

@@ -42,7 +42,7 @@ module.exports = async (userId, settings, contentParams) => {
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
-            .setCustomId('seting')
+            .setCustomId('setting')
             .setLabel({en: 'Options', ru: 'Настройки'}[lang])
             .setStyle('PRIMARY')
         )

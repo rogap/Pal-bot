@@ -91,3 +91,21 @@ setInterval(async () => { // очистка кэша
         console.log(err)
     }
 }, 1000 * 60 * 60 * 3) // каждые 3 часа
+
+
+setInterval(async () => { // данные на сервере (запись в имя голосовых каналов)
+    try {
+        const find = await _local.models.commandsStats.find()
+        const data = find[find.length - 1]
+
+        const chUsers = await client.channels.fetch(config.chShowUsers)
+        const chServers = await client.channels.fetch(config.chShowServers)
+        const chCommands = await client.channels.fetch(config.chShowCommands)
+
+        await chUsers.setName(`Users: ${data.users}`)
+        await chServers.setName(`Servers: ${data.servers}`)
+        await chCommands.setName(`Used: ${data.usedCommands}`)
+    } catch(err) {
+        console.log(err)
+    }
+}, 1000 * 60) // каждую минуту

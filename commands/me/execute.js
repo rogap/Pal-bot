@@ -12,8 +12,7 @@ module.exports = async (userId, settings, command, contentParams='') => {
         const comHH = settings.commands.getByName('help').possibly[0]
         const comME = command.possibly[0]
 
-        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(contentParams) 
-            || (contentParams && isFinite(contentParams)) ) throw {
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(contentParams) ) throw {
             err_msg: {
                 ru: `Введите корректный Ник или id аккаунта Paladins.\n` +
                     `=Вы можете получить помощь на сервере бота, командой ${prefix}${comHH} или ${prefix}${comHH} ${comME}`,

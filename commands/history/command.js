@@ -139,7 +139,7 @@ module.exports = async (message, settings, command, contentParams) => {
         }) : false
 
         // имя чемпиона
-        const championType = champions.getByAliases(filterData || '')
+        const championType = champions.getByAliases(filterData || '')?.Name?.en
 
         // роль чемпиона
         const championRole = championRoles.find((roleName, roles) => {

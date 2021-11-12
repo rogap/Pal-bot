@@ -95,6 +95,7 @@ DBHOST=localhost
 DBPORT=27017
 ```
 * Когда бот будет уже запущен введите в чат команду `!con _local.utils.setSlashCommands()` для регистрации слеш команд глобально. Учтите что нужно будет сменить ID создателя в конфинге.
+* Обновление данных о чемпионах и предметах делается командой: `!con _local.utils.updateChampionsAndItems()`,
 
 ## Original Authors
 

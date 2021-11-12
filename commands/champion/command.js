@@ -13,12 +13,8 @@ module.exports = async (message, settings, command, contentParams) => {
         const userId = message.author.id
         const prop = settings.getProp()
         const {lang} = prop
-        const [userNameOrIdOpt, championNameOpt] = contentParams.split(' ')
-
-        const championName = (!championNameOpt ? userNameOrIdOpt : championNameOpt) || ''
-        const userNameOrId = !championNameOpt ? 'me' : userNameOrIdOpt
-
-        const champion = championName ? champions.getByAliases(championName) : null
+        const [userNameOrId, championNameOpt] = contentParams.split(' ')
+        const champion = champions.getByAliases(championNameOpt)
 
         const exe = await command.execute(userId, settings, command, userNameOrId, champion)
         return await message.reply(exe)

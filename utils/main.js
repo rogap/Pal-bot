@@ -13,7 +13,7 @@ module.exports = Object.assign(
 	require('./time.js'),
 	require('./discord.js'),
 	require('./helperSendSite.js'),
-	{setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames}
+	{setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems}
 )
 
 
@@ -245,4 +245,18 @@ async function saveUserNicnames() {
 		await save.save()
 	}
 	console.log('end')
+}
+
+
+async function updateChampionsAndItems() {
+	try {
+		console.log('\tЗапущенно обновление...')
+		await _local.hirez.getchampions(1, 1)
+		await _local.hirez.getchampions(11, 1)
+		await _local.hirez.getitems(1, 1)
+		await _local.hirez.getitems(11, 1)
+		console.log('Обновление успешно завершено!')
+	} catch(e) {
+		console.log('\tОшибка при обновлении:', e)
+	}
 }

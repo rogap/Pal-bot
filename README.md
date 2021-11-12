@@ -97,6 +97,7 @@ DBHOST=localhost
 DBPORT=27017
 ```
 * When the bot is already running, enter the command in the chat `!con _local.utils.setSlashCommands()` to register slash commands globally. Please note that you will need to change the creator's ID in the config.
+* Updating data about champions and items is done by the team: `!con _local.utils.updateChampionsAndItems()`,
 
 ## Original Authors
 

@@ -12,7 +12,7 @@ const client = new Discord.Client({ intents: [
     Intents.FLAGS.GUILD_MESSAGE_TYPING,
     Intents.FLAGS.DIRECT_MESSAGES,
     Intents.FLAGS.DIRECT_MESSAGE_TYPING
-] })
+], partials: ["CHANNEL"] })
 
 const path = require('path')
 const config = require(path.join(__dirname, 'config', 'main.js'))

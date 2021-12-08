@@ -28,7 +28,7 @@ module.exports = async (champions, prop, last_update) => {
 
         const imgNum = Math.floor(Math.random() * backgrounds.length)
         const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        const img = await loadImage(imgSrc)
+        const img = await loadImage(imgSrc).catch(console.log)
         if (img) ctx.drawImage(img, 0, 30, width, height - 30) // рисуем
 
         // черные полосы сверху и снизу

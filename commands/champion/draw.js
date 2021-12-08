@@ -26,7 +26,7 @@ module.exports = async (champion, prop, lastUpdate) => {
 
         const imgNum = Math.floor(Math.random() * backgrounds.length)
         const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        const img = await loadImage(imgSrc)
+        const img = await loadImage(imgSrc).catch(console.log)
         if ( img ) ctx.drawImage(img, 0, 0, width, height - 30) // рисуем
 
         ctx.fillStyle = black
@@ -45,7 +45,7 @@ module.exports = async (champion, prop, lastUpdate) => {
         // ctx.fillText(`${{ru: 'Сыграно минут', en: 'Played for about minutes'}[lang]}: ${champion.Minutes}`, 200, 60 + 5)
 
         const iconSrc = champion.icon
-        const icon = await loadImage(iconSrc)
+        const icon = await loadImage(iconSrc).catch(console.log)
         if (icon) ctx.drawImage(icon, 10, 30, 180, 180)
         ctx.fillStyle = green
         ctx.fillText(`${translate.Health[lang]}: ${champion.health}`, 10, 230)

@@ -58,7 +58,7 @@ async function drawDefault(ctx, last_update, prop) {
         const {lang, timezone, backgrounds, width, height} = prop
         const imgNum = Math.floor(Math.random() * backgrounds.length)
         const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        const img = await loadImage(imgSrc)
+        const img = await loadImage(imgSrc).catch(console.log)
         if ( img ) ctx.drawImage(img, 0, 30, width, height - 50) // рисуем
 
         ctx.fillStyle = black
@@ -114,7 +114,7 @@ async function drawTable(ctx, matches, prop) {
             const champion = champions.getByName(match.Champion)
             if (champion) {
                 const imgSrc = champion.icon
-                const img = await loadImage(imgSrc)
+                const img = await loadImage(imgSrc).catch(console.log)
                 const y = positionY + 52 * i
                 if (img) ctx.drawImage(img, 40, y, 50, 50)
             }

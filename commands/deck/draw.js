@@ -25,7 +25,7 @@ module.exports = async (loadout, champion, prop, lastUpdate) => {
 
         const imgNum = Math.floor(Math.random() * backgrounds.length)
         const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        const img = await loadImage(imgSrc)
+        const img = await loadImage(imgSrc).catch(console.log)
         if (img) ctx.drawImage(img, 0, 0, width, height - 60) // рисуем
 
         // рисуем название колоды
@@ -53,11 +53,11 @@ module.exports = async (loadout, champion, prop, lastUpdate) => {
             if (!card) return; // если карта не найдена то пропускаем ее
 
             // const cardImg = card.img
-            const cardImg = await loadImage(card.img)
+            const cardImg = await loadImage(card.img).catch(console.log)
             if (cardImg) ctx.drawImage(cardImg, i * (10 + 314) + 48, 150, 256, 196) // рисуем картинки карт
 
             const cardFramesSrc = config.img.cardFrames[item.Points - 1] // получаем картинку фрейма карты
-            const cardFrames = await loadImage(cardFramesSrc)
+            const cardFrames = await loadImage(cardFramesSrc).catch(console.log)
             if (cardFrames) ctx.drawImage(cardFrames, i * (10 + 314) + 20, 100, 314, 479)
 
             //

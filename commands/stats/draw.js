@@ -81,7 +81,7 @@ async function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
         const {lang, timezone, backgrounds, width, height} = prop
         const imgNum = Math.floor(Math.random() * backgrounds.length)
         const imgSrc = config.img.backgrounds[backgrounds[imgNum]] // случайный фон
-        const img = await loadImage(imgSrc)
+        const img = await loadImage(imgSrc).catch(console.log)
         if ( img ) ctx.drawImage(img, 0, 0, width, height - 50) // рисуем
 
         // рисуем черную полосу снизу
@@ -148,13 +148,13 @@ async function drawPlayer(ctx, player, champions, prop) {
 
         // рисуем картинку ранга
         const divisionImgSrc = config.img.divisions[rankNum]
-        const divisionImg = await loadImage(divisionImgSrc)
+        const divisionImg = await loadImage(divisionImgSrc).catch(console.log)
         if (divisionImg) ctx.drawImage(divisionImg, 5, 200 + imgPaddingY, rankImgWidth / 2.6, rankImgHeight / 2.6)
 
         // рисуем аватарку
         const avatarId = player.AvatarId
         const avatarImgPath = config.img.avatars[avatarId] || config.img.avatars[0]
-        const avatarImg = await loadImage(avatarImgPath)
+        const avatarImg = await loadImage(avatarImgPath).catch(console.log)
         if (avatarImg) {
             ctx.drawImage(avatarImg, 5, 10, 95, 95)
         } else {
@@ -244,7 +244,7 @@ async function drawChampions(ctx, champions, prop) {
             const champ = champSort[i]
             if (champ) {
                 const imgSrc = champ.icon
-                const img = await loadImage(imgSrc)
+                const img = await loadImage(imgSrc).catch(console.log)
                 const x = positionX + 60 * i
                 if (img) ctx.drawImage(img, x, 180, 50, 50)
             }

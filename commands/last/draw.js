@@ -72,7 +72,7 @@ async function getMap(mapGame) {
             }
         }
 
-        const res = await loadImage(pathToImg)
+        const res = await loadImage(pathToImg).catch(console.log)
         return {img: res, name: mapName}
     } catch(err) {
         console.log(JSON.stringify(err))
@@ -147,19 +147,19 @@ async function drawDefault(ctx, match, prop) {
         ctx.fillStyle = white
         ctx.font = 'bold 16px GothamSSm_Bold'
         if (matchOne.Ban_1) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_1).icon)
+            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_1).icon).catch(console.log)
             ctx.drawImage(imgChamp, 980, 360, 50, 50)
         }
         if (matchOne.Ban_2) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_2).icon)
+            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_2).icon).catch(console.log)
             ctx.drawImage(imgChamp, 1040, 360, 50, 50)
         }
         if (matchOne.Ban_3) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_3).icon)
+            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_3).icon).catch(console.log)
             ctx.drawImage(imgChamp, 980, 420, 50, 50)
         }
         if (matchOne.Ban_4) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_4).icon)
+            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_4).icon).catch(console.log)
             ctx.drawImage(imgChamp, 1040, 420, 50, 50)
         }
 
@@ -215,7 +215,7 @@ async function drawTable(ctx, match, prop) {
             let nextTeam = i >= 5 ? 245 : 40
             if (cnampion) { // если есть чемпион то рисуем
                 const imgSrc = cnampion.icon
-                const img = await loadImage(imgSrc)
+                const img = await loadImage(imgSrc).catch(console.log)
                 if (img) ctx.drawImage(img, 10, 55 * i + nextTeam, 50, 50) // рисуем иконки чемпионов
             }
 
@@ -223,7 +223,7 @@ async function drawTable(ctx, match, prop) {
             if (cnampion) {
                 const legendary = _local.cards.get(players.ItemId6)
                 if (legendary) {
-                    const legendaryImg =  await loadImage(legendary.img)
+                    const legendaryImg =  await loadImage(legendary.img).catch(console.log)
                     if (legendaryImg) ctx.drawImage(legendaryImg, 65, 55 * i + nextTeam, 50, 50) // рисуем легендарки
                 }
             }
@@ -235,25 +235,25 @@ async function drawTable(ctx, match, prop) {
             // рисуем закуп
             const item1 = players.Item_Active_1
             if (item1) {
-                const img = await loadImage( config.img.items[item1.toLowerCase()] )
+                const img = await loadImage( config.img.items[item1.toLowerCase()] ).catch(console.log)
                 ctx.drawImage(img, 1025, 55 * i + nextTeam, 40, 40)
                 drawLevelItem(ctx, players.ActiveLevel1, 1025, 55 * i + nextTeam + 43, 10, 3)
             }
             const item2 = players.Item_Active_2
             if (item2) {
-                const img = await loadImage( config.img.items[item2.toLowerCase()] )
+                const img = await loadImage( config.img.items[item2.toLowerCase()] ).catch(console.log)
                 ctx.drawImage(img, 1075, 55 * i + nextTeam, 40, 40)
                 drawLevelItem(ctx, players.ActiveLevel2, 1075, 55 * i + nextTeam + 43, 10, 3)
             }
             const item3 = players.Item_Active_3
             if (item3) {
-                const img = await loadImage( config.img.items[item3.toLowerCase()] )
+                const img = await loadImage( config.img.items[item3.toLowerCase()] ).catch(console.log)
                 ctx.drawImage(img, 1125, 55 * i + nextTeam, 40, 40)
                 drawLevelItem(ctx, players.ActiveLevel3, 1125, 55 * i + nextTeam + 43, 10, 3)
             }
             const item4 = players.Item_Active_4
             if (item4) {
-                const img = await loadImage( config.img.items[item4.toLowerCase()] )
+                const img = await loadImage( config.img.items[item4.toLowerCase()] ).catch(console.log)
                 ctx.drawImage(img, 1175, 55 * i + nextTeam, 40, 40)
                 drawLevelItem(ctx, players.ActiveLevel4, 1175, 55 * i + nextTeam + 43, 10, 3)
             }

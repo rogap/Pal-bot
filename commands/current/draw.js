@@ -62,7 +62,7 @@ async function getMap(mapGame) {
             }
         }
 
-        const res = await loadImage(pathToImg)
+        const res = await loadImage(pathToImg).catch(console.log)
         return {img: res, name: mapName}
     } catch(err) {
         console.log(JSON.stringify(err))
@@ -130,7 +130,7 @@ async function drawDefault(ctx, match, prop, last_update) {
             // }
             const champion = champName ? champions.getByName(champName) : {}
             const champImgSrc = champion ? champion.icon : undefined
-            const champImg = await loadImage(champImgSrc)
+            const champImg = await loadImage(champImgSrc).catch(console.log)
             const tier = player.Tier
             const winrate = (player.tierWins / (player.tierWins + player.tierLosses) * 100).toFixed(2) || '-'
 
@@ -153,7 +153,7 @@ async function drawDefault(ctx, match, prop, last_update) {
                 // const imgPaddingY = tier == 26 ? -15 : tier == 27 ? -20 : 0
                 const imgPaddingY = 0
                 const divisionImgSrc = config.img.divisions[tier]
-                const divisionImg = await loadImage(divisionImgSrc)
+                const divisionImg = await loadImage(divisionImgSrc).catch(console.log)
                 ctx.drawImage(divisionImg, 0, 90 * i + 45 + imgPaddingY, rankImgWidth / 3.7, rankImgHeight / 3.7)
             } else if (player.taskForce == 2) {
                 if (champImg) ctx.drawImage(champImg, width - 120, 90 * (i - countTeam1) + 50, 50, 50)
@@ -171,7 +171,7 @@ async function drawDefault(ctx, match, prop, last_update) {
                 // const imgPaddingY = tier == 26 ? -15 : tier == 27 ? -20 : 0
                 const imgPaddingY = 0
                 const divisionImgSrc = config.img.divisions[tier]
-                const divisionImg = await loadImage(divisionImgSrc)
+                const divisionImg = await loadImage(divisionImgSrc).catch(console.log)
                 ctx.drawImage(divisionImg, width - 70, 90 * (i - countTeam1) + 45 + imgPaddingY, rankImgWidth / 3.7, rankImgHeight / 3.7)
             }
         }

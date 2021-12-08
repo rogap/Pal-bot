@@ -1,3 +1,4 @@
+'use strict';
 /**
  * запуск бота
  */
@@ -109,3 +110,24 @@ setInterval(async () => { // данные на сервере (запись в �
         console.log(err)
     }
 }, 1000 * 60) // каждую минуту
+
+
+
+// const memory = []
+// const bytesToMb = bytes => Math.round(bytes / 1000, 2) / 1000
+// const { memoryUsage } = require('process')
+// setInterval(() => {
+//     // if (memory.length >= 10) memory.shift()
+//     console.clear()
+//     const usage = process.memoryUsage()
+//     const row = {
+//         rss: bytesToMb(usage.rss),
+//         heapTotal: bytesToMb(usage.heapTotal),
+//         heapUsed: bytesToMb(usage.heapUsed),
+//         external: bytesToMb(usage.external), // c++
+//         stack: bytesToMb(usage.rss - usage.heapTotal)
+//     }
+
+//     memory.push(row)
+//     console.table(memory)
+// }, 1000)

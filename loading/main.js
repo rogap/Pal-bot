@@ -36,7 +36,7 @@ module.exports = (async () => {
 
     const championCards = await require('./championCards.js')
     if (!championCards.status) throw championCards
-    
+
     const settings = await require('./settings.js')
     if (!settings.status) throw settings
 

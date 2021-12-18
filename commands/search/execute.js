@@ -130,7 +130,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow=1) => 
                 new MessageActionRow()
                 .addComponents(
                     new MessageSelectMenu()
-                        .setCustomId('se_page')
+                        .setCustomId(`se_page_${i}`)
                         .setPlaceholder({en: 'Go to the page...', ru: 'Перейти на страницу...'}[lang])
                         .addOptions(opt)
                 )

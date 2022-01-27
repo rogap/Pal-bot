@@ -46,7 +46,7 @@ client.on('interactionCreate', async interaction => {
             return await interaction.reply({
                 content: {
                     ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
-                    en: `In order to use the buttons, you need to call your team (you can not click on other people's buttons).`
+                    en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).`
                 }[lang], // можно выдать кнопку с предложением вызвать команду
                 ephemeral: true
             })

@@ -13,7 +13,10 @@ module.exports = Object.assign(
 	require('./time.js'),
 	require('./discord.js'),
 	require('./helperSendSite.js'),
-	{setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems, updateNewChampion}
+	{
+		setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems, 
+		updateNewChampion, getPlayerAvatar
+	}
 )
 
 
@@ -339,5 +342,22 @@ async function updateNewChampion() {
 		}
 	} catch(e) {
 		console.log('\tОшибка при обновлении нового чемпиона:', e)
+	}
+}
+
+
+async function getPlayerAvatar(nameOrId) {
+	// получает данные аватара по id или имени
+	try {
+		const getplayer = await _local.hirez.getplayer(nameOrId)
+		if (!getplayer.status) throw getplayer
+		const players = getplayer.data
+		if (!players) return `Ничего не найдено для **${nameOrId}**`
+		const player = players[0]
+		if (!player) return `Нет данных для **${nameOrId}**`
+
+		return `${player.AvatarId}\n${player.AvatarURL}`
+	} catch(e) {
+		console.log('\tОшибка при получении аватара игрока.', e)
 	}
 }

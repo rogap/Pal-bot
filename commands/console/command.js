@@ -10,6 +10,13 @@ const path = require('path/posix')
 module.exports = async (message, settings, command, contentParams) => {
     try {
         const _local = process._local
+
+        if (contentParams?.startsWith('avatar')) {
+            const nameOrId = contentParams?.slice(6).trim() || 'me'
+            const text = await _local.utils.getPlayerAvatar(nameOrId)
+            return await message.reply(text)
+        }
+
         const {client, config, champions, usersSettings, guildsSettings, commands, utils} = _local
         const {sendToChannel, sendToUser, superSendToChannel, superSendToUser, deleteFromChannel} = utils
 

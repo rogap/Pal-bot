@@ -156,11 +156,20 @@ async function drawDefault(ctx, match, prop) {
         }
         if (matchOne.Ban_3) {
             const imgChamp = await loadImage(champions.getByName(matchOne.Ban_3).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 980, 420, 50, 50)
+            ctx.drawImage(imgChamp, 1100, 360, 50, 50)
         }
+
         if (matchOne.Ban_4) {
             const imgChamp = await loadImage(champions.getByName(matchOne.Ban_4).icon).catch(console.log)
+            ctx.drawImage(imgChamp, 980, 420, 50, 50)
+        }
+        if (matchOne.Ban_5) {
+            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_5).icon).catch(console.log)
             ctx.drawImage(imgChamp, 1040, 420, 50, 50)
+        }
+        if (matchOne.Ban_6) {
+            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_6).icon).catch(console.log)
+            ctx.drawImage(imgChamp, 1100, 420, 50, 50)
         }
 
         return {status: true}

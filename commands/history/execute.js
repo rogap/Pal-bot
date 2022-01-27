@@ -180,7 +180,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             matchListOpt.push({
                 label: {en: `Match number ${num}`, ru: `Матч номер ${num}`}[lang],
                 description: {en: 'Shows the statistics of the specified match', ru: 'Покажет статистику указанного матча'}[lang],
-                value: match.Match + ''
+                value: match.Match + '_' + num
             })
         }
 

@@ -15,11 +15,16 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
         const userId = interaction.user.id
         const prop = settings.getProp()
         const {lang, params} = prop
-        const matchId = values[0] ? values[0] : null
+        const matchDate = values[0] ? values[0] : ''
+        const [matchId, num] = matchDate.split('_')
         const userNameOrId = hideObjInfo.params
 
         const [type, val] = branches
-        const matchNumber = (type == 'next' ? +val + 1 : val - 1) || 1
+        const nextNum = val || num
+        // console.log(nextNum)
+        const matchNumber = (type == 'next' ? +nextNum + 1 : type == 'prev' ? nextNum - 1 : nextNum) || 1
+        // const matchNumber = (type == 'next' ? +num + 1 : num - 1) || 1
+        // console.log(branches, values)
 
         const exe =  await command.execute(userId, settings, command, userNameOrId, matchId, matchNumber)
         const iter =  await interaction.editReply(exe)

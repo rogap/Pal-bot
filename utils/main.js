@@ -13,7 +13,7 @@ module.exports = Object.assign(
 	require('./time.js'),
 	require('./discord.js'),
 	require('./helperSendSite.js'),
-	{setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems}
+	{setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems, updateNewChampion}
 )
 
 
@@ -248,7 +248,7 @@ async function saveUserNicnames() {
 }
 
 
-async function updateChampionsAndItems() {
+async function updateChampionsAndItems() { // обновляет данные в БД
 	try {
 		console.log('\tЗапущенно обновление...')
 		await _local.hirez.getchampions(1, 1)
@@ -258,5 +258,86 @@ async function updateChampionsAndItems() {
 		console.log('Обновление успешно завершено!')
 	} catch(e) {
 		console.log('\tОшибка при обновлении:', e)
+	}
+}
+
+
+async function updateNewChampion() {
+	// создает файлы нового чемпиона, не обновляет, удалить старые если нужно обновить
+	// обновлять стоит только после обновления updateChampionsAndItems
+	try {
+		// получаем список чемпионов и сверяем есть ли такая папка у нас
+		// создаем структуру папок для каждого не найденного чемпиона и качаем его аватарку + даем ей имя + нужный размер и формат
+		// получаем items и фильтруем по чемпионам которых нам нужно найти
+		// при этом сразу же скачиваем картинки в нужные папки нужных чемпионов и даем нужные имена
+		// с помощью ffmpeg редактируем и изменяем скачанные файлы
+
+		const getchampions = await _local.hirez.getchampions(1)
+		if (!getchampions.status) throw getchampions
+		const axios = require('axios').default
+		const AbstractChampion = _local.classes.AbstractChampion
+		const champions = getchampions.data
+	
+		const toUpdateChampions = []
+		for (let i = 0; i < champions.length; i++) {
+			const champion = champions[i]
+			const name = AbstractChampion.nameNormalize(champion.Name)
+			const dirPath = path.join(_local.path, 'champions', name)
+			try {
+				await fs.statSync(dirPath)
+				console.log(`yes: ${name}`)
+			} catch(err) {
+				console.log(`no: ${name}`)
+				toUpdateChampions.push({name, id: champion.id})
+
+				// создаем структуру папок
+				await fs.mkdirSync(dirPath)
+				await fs.mkdirSync(path.join(dirPath, 'ability'))
+				await fs.mkdirSync(path.join(dirPath, 'cards'))
+				await fs.appendFileSync(path.join(dirPath, 'aliases'), '')
+				await fs.mkdirSync(path.join(dirPath, 'cards', 'common'))
+				await fs.mkdirSync(path.join(dirPath, 'cards', 'legendary'))
+
+				// качаем аватарку чемпиона
+				console.log(champion.ChampionIcon_URL)
+				const fetchData = await axios({
+					url: champion.ChampionIcon_URL,
+					method: 'GET',
+					responseType: 'stream'
+				})
+				fetchData.data.pipe(fs.createWriteStream(path.join(dirPath, 'icon.jpg')))
+			}
+		}
+
+		if (!toUpdateChampions.length) return console.log('Обновлять нечего.')
+		console.log(toUpdateChampions)
+
+		const getitems = await _local.hirez.getitems(1)
+		if (!getitems.status) throw getitems
+		const items = getitems.data
+
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i]
+			const find = toUpdateChampions.find(el => {
+				if (el.id == item.champion_id) return el
+			})
+			if ( !find ) continue
+			const dirPath = path.join(_local.path, 'champions', find.name)
+
+			const isLegendary = item.item_type.toLowerCase().indexOf('talents')
+			if (isLegendary != -1) {
+				// леги пропускаем?
+				console.log(item)
+			} else {
+				const fetchData = await axios({
+					url: item.itemIcon_URL,
+					method: 'GET',
+					responseType: 'stream'
+				})
+				fetchData.data.pipe(fs.createWriteStream(path.join(dirPath, 'cards', 'common', `${item.ItemId}.jpg`)))
+			}
+		}
+	} catch(e) {
+		console.log('\tОшибка при обновлении нового чемпиона:', e)
 	}
 }

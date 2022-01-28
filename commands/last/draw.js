@@ -120,7 +120,12 @@ async function drawDefault(ctx, match, prop) {
         ctx.fillText(`${matchOne.Minutes} ${translate.Minutes[lang]}`, 376, 375)
         ctx.fillText(`${translate.Region[lang]}: ${matchOne.Region}`, 376, 405)
         ctx.fillText(typeMatch, 376, 435)
+        const hasReplay = matchOne.hasReplay != 'n'
+        const replayText = hasReplay ? {ru: 'есть', en: 'has'} : {ru: 'нету', en: 'no'}
+        ctx.fillStyle = hasReplay ? green : red
+        ctx.fillText(`Replay: ${replayText[lang]}`, 376, 465)
         ctx.textAlign = "center"
+        ctx.fillStyle = yellow
         ctx.fillText(mapName, 376 - 213, 465 - 130)
 
         const winStatus = matchOne.Win_Status == 'Winner'

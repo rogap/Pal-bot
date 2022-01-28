@@ -60,7 +60,7 @@ module.exports = async function(body, prop) {
 
 async function getMap(mapGame) {
     try {
-        let mapName = ''
+        let mapNameScope = ''
         let pathToImg = config.defaultPathToImg
 
         for (let mapName in config.img.maps) {
@@ -68,12 +68,13 @@ async function getMap(mapGame) {
             const exp = mapGame ? mapGame.replace(/'/,'').match(reg) : false
             if (exp) {
                 pathToImg = config.img.maps[mapName]
+                mapNameScope = mapName
                 break
             }
         }
 
         const res = await loadImage(pathToImg).catch(console.log)
-        return {img: res, name: mapName}
+        return {img: res, name: mapNameScope}
     } catch(err) {
         console.log(JSON.stringify(err))
         if (err.err_msg !== undefined) throw err // проброс ошибки если есть описание
@@ -119,9 +120,9 @@ async function drawDefault(ctx, match, prop) {
         ctx.fillText(`${matchOne.Minutes} ${translate.Minutes[lang]}`, 376, 375)
         ctx.fillText(`${translate.Region[lang]}: ${matchOne.Region}`, 376, 405)
         ctx.fillText(typeMatch, 376, 435)
-        ctx.fillText(mapName, 376, 465)
-
         ctx.textAlign = "center"
+        ctx.fillText(mapName, 376 - 213, 465 - 130)
+
         const winStatus = matchOne.Win_Status == 'Winner'
         const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
 

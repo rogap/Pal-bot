@@ -126,7 +126,7 @@ async function drawDefault(ctx, match, prop) {
         ctx.fillText(`Replay: ${replayText[lang]}`, 376, 465)
         ctx.textAlign = "center"
         ctx.fillStyle = yellow
-        ctx.fillText(mapName, 376 - 213, 465 - 130)
+        ctx.fillText(mapName, 376 - 213, 465 - 125)
 
         const winStatus = matchOne.Win_Status == 'Winner'
         const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
@@ -143,8 +143,13 @@ async function drawDefault(ctx, match, prop) {
 		ctx.fillRect(0, 515, width, 285)
 
         ctx.fillStyle = white
-        ctx.fillText(`${translate.Team[lang]} 1 ${translate.Score[lang]}: ${matchOne.Team1Score}`, width / 2 + 70 + centerGoRight, 383)
-        ctx.fillText(`${translate.Team[lang]} 2 ${translate.Score[lang]}: ${matchOne.Team2Score}`, width / 2 + 70 + centerGoRight, 456)
+        if (winStatus && matchOne.TaskForce == 2) {
+            ctx.fillText(`${translate.Team[lang]} 2 ${translate.Score[lang]}: ${matchOne.Team2Score}`, width / 2 + 70 + centerGoRight, 383)
+            ctx.fillText(`${translate.Team[lang]} 1 ${translate.Score[lang]}: ${matchOne.Team1Score}`, width / 2 + 70 + centerGoRight, 456)
+        } else {
+            ctx.fillText(`${translate.Team[lang]} 1 ${translate.Score[lang]}: ${matchOne.Team1Score}`, width / 2 + 70 + centerGoRight, 383)
+            ctx.fillText(`${translate.Team[lang]} 2 ${translate.Score[lang]}: ${matchOne.Team2Score}`, width / 2 + 70 + centerGoRight, 456)
+        }
         // ctx.drawImage(config.differentImg.vs, width / 2 + 40 + centerGoRight, 386, 50, 50)
 
         ctx.textAlign = "start"

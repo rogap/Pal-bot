@@ -113,7 +113,7 @@ module.exports = {
 		getchampioncards: 1000 * 60 * 60 * 24 * 3650,
 		getplayer: 1000 * 60 * 3,
 		getitems: 1000 * 60 * 60 * 24 * 3650,
-		getchampionranks: 1000 * 60 * 60 * 1,
+		getchampionranks: 1000 * 60 * 5,
 		getplayerloadouts: 1000 * 60 * 10,
 		getplayerstatus: 1000 * 10,
 		getmatchhistory: 1000 * 60,

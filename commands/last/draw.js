@@ -122,7 +122,7 @@ async function drawDefault(ctx, match, prop) {
         ctx.fillText(mapName, 376, 465)
 
         ctx.textAlign = "center"
-        // const winStatus = matchOne.Win_Status == 'Winner'
+        const winStatus = matchOne.Win_Status == 'Winner'
         const centerGoRight = typeMatch == 'Ranked' ? 0 : 190
 
         ctx.fillStyle = green
@@ -146,30 +146,58 @@ async function drawDefault(ctx, match, prop) {
         if (typeMatch == 'Ranked') ctx.fillText(`${translate.Bans[lang]}:`, 885, 420)
         ctx.fillStyle = white
         ctx.font = 'bold 16px GothamSSm_Bold'
-        if (matchOne.Ban_1) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_1).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 980, 360, 50, 50)
-        }
-        if (matchOne.Ban_2) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_2).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 1040, 360, 50, 50)
-        }
-        if (matchOne.Ban_3) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_3).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 1100, 360, 50, 50)
-        }
+        if (winStatus && matchOne.TaskForce == 2) {
+            if (matchOne.Ban_2) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_2).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 980, 360, 50, 50)
+            }
+            if (matchOne.Ban_4) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_4).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1040, 360, 50, 50)
+            }
+            if (matchOne.Ban_5) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_5).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1100, 360, 50, 50)
+            }
 
-        if (matchOne.Ban_4) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_4).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 980, 420, 50, 50)
-        }
-        if (matchOne.Ban_5) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_5).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 1040, 420, 50, 50)
-        }
-        if (matchOne.Ban_6) {
-            const imgChamp = await loadImage(champions.getByName(matchOne.Ban_6).icon).catch(console.log)
-            ctx.drawImage(imgChamp, 1100, 420, 50, 50)
+            if (matchOne.Ban_1) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_1).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 980, 420, 50, 50)
+            }
+            if (matchOne.Ban_3) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_3).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1040, 420, 50, 50)
+            }
+            if (matchOne.Ban_6) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_6).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1100, 420, 50, 50)
+            }
+        } else {
+            if (matchOne.Ban_1) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_1).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 980, 360, 50, 50)
+            }
+            if (matchOne.Ban_3) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_3).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1040, 360, 50, 50)
+            }
+            if (matchOne.Ban_6) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_6).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1100, 360, 50, 50)
+            }
+
+            if (matchOne.Ban_2) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_2).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 980, 420, 50, 50)
+            }
+            if (matchOne.Ban_4) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_4).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1040, 420, 50, 50)
+            }
+            if (matchOne.Ban_5) {
+                const imgChamp = await loadImage(champions.getByName(matchOne.Ban_5).icon).catch(console.log)
+                ctx.drawImage(imgChamp, 1100, 420, 50, 50)
+            }
         }
 
         return {status: true}

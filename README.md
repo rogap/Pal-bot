@@ -82,6 +82,9 @@ Friends of the account
 
 ## installation
 
+Installation should be done only if you want to get your own bot.
+You can use an existing bot without installing it.
+
 * Clone the repository and install all the dependencies
 * For correct operation, you will need to additionally install `pm2` - `sudo npm install pm2@latest -g`
 * And also MongoDB - `sudo apt update` and then `sudo apt install -y mongodb`

@@ -159,7 +159,12 @@ async function drawPlayer(ctx, player, champions, prop) {
             ctx.drawImage(avatarImg, 5, 10, 95, 95)
         } else {
             // если аватрка не найдена то сообщим в логи
-            sendToChannel(config.chLog, `Аватарка не найдена: ${avatarId}`).catch(console.log)
+            _local.utils.sendToChannel(config.chLog, `Аватарка не найдена: ${avatarId}`).catch(console.log)
+        }
+
+        if (!config.img.avatars[avatarId]) {
+            _local.utils.sendToChannel(config.chLog, `Аватарка не найдена: ${avatarId}\n${player.AvatarURL}`)
+            .catch(console.log)
         }
 
         // рисуем инфу

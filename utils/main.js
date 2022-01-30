@@ -15,7 +15,7 @@ module.exports = Object.assign(
 	require('./helperSendSite.js'),
 	{
 		setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems, 
-		updateNewChampion, getPlayerAvatar
+		updateNewChampion, getPlayerAvatar, fixDublicate
 	}
 )
 
@@ -359,5 +359,16 @@ async function getPlayerAvatar(nameOrId) {
 		return `${player.AvatarId}\n${player.AvatarURL}`
 	} catch(e) {
 		console.log('\tОшибка при получении аватара игрока.', e)
+	}
+}
+
+
+async function fixDublicate() { // удаляет дубликаты в записях в БД
+	const sessions = await _local.models.session.find()
+	if (sessions.length > 1) {
+		sessions.forEach(el => {
+			console.log(el, el._id)
+			el.remove()
+		})
 	}
 }

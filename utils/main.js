@@ -15,7 +15,7 @@ module.exports = Object.assign(
 	require('./helperSendSite.js'),
 	{
 		setSlashCommands, saveUserSettings, saveGuildSettings, saveUserNicnames, updateChampionsAndItems, 
-		updateNewChampion, getPlayerAvatar, fixDublicate
+		updateNewChampion, getPlayerAvatar, fixDublicate, getAllMatch
 	}
 )
 
@@ -370,5 +370,33 @@ async function fixDublicate() { // удаляет дубликаты в запи
 			console.log(el, el._id)
 			el.remove()
 		})
+	}
+}
+
+
+async function getAllMatch() { // для расчета среднего времени
+	const allMatches = await _local.models.getmatchdetails.find()
+	const types = []
+
+	allMatches.forEach(el => {
+		const match = el.data[0]
+
+		// match.name == 'Ranked'
+		types.push([[match.name], [match.Match_Duration]])
+		// match.Match_Duration // секунды
+	})
+
+	// console.log(types)
+	const matchCounter = {}
+	types.forEach(el => {
+		if (!matchCounter[el[0]]) matchCounter[el[0]] = {time: 0, count: 0}
+		matchCounter[el[0]].time += +el[1]
+		matchCounter[el[0]].count++
+	})
+	// console.log(matchCounter)
+	// console.log(`Всего: ${allMatches.length}`)
+	return {
+		len: allMatches.length,
+		data: matchCounter
 	}
 }

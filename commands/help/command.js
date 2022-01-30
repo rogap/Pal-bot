@@ -68,9 +68,6 @@ module.exports = async (message, settings, command, contentParams) => {
             }
 
             if (contentParams && contentParams.length >= 18) {
-                details.ru.content = `${config.news.ru}`
-                details.en.content = `${config.news.en}`
-
                 await _local.utils.sendToChannel(contentParams, details[lang])
 
                 await message.sendCheckIn({

@@ -13,7 +13,7 @@ module.exports = async (message, settings, command, contentParams) => {
         const chType = message.channel.type
         const toPM = chType == 'DM' || chType == 'unknown' || chType == 'GROUP_DM'
 
-        if (contentParams) {
+        if (contentParams && ! isFinite(contentParams)) {
             // проверяем есть ли такая команда
             // если есть параметры то вызываем функцию details указанной команды
             const com = commands.get(contentParams)
@@ -34,6 +34,13 @@ module.exports = async (message, settings, command, contentParams) => {
                 }[lang])
             }
         } else {
+            if (isFinite(contentParams) && !message.hasPermUser('ADMINISTRATOR')) throw {
+                err_msg: {
+                    ru: 'Это действие достопно только администратору сервера.',
+                    en: 'This action is available only to the server administrator.'
+                }
+            }
+
             let guildName = ''
             if (settings.type == 'guilds') guildName = `: ${message.guild.name}` // тут может быть ошибка - исправить
             const details = new Details()
@@ -62,13 +69,21 @@ module.exports = async (message, settings, command, contentParams) => {
             details.ru.content = `${config.news.ru}${contentRep.ru}`
             details.en.content = `${config.news.en}${contentRep.en}`
 
-            await message.author.send(details[lang])
+            if (contentParams && contentParams.length >= 18) {
+                await _local.utils.sendToChannel(contentParams, details[lang])
 
-            if (!toPM) {
                 await message.sendCheckIn({
-                    ru: 'Сообщение было отправлено вам в ЛС.',
-                    en: 'A message has been sent to PM.'
+                    ru: `Сообщение было успешно отправлено на канал.`,
+                    en: `The message was successfully sent to the channel.`
                 }[lang])
+            } else {
+                await message.author.send(details[lang])
+                if (!toPM) {
+                    await message.sendCheckIn({
+                        ru: 'Сообщение было отправлено вам в ЛС.',
+                        en: 'A message has been sent to PM.'
+                    }[lang])
+                }
             }
         }
     } catch(err) {

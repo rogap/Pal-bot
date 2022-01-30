@@ -199,6 +199,17 @@ Discord.Message.prototype.hasPerm = function(perm) {
 
 
 /**
+ * проверяет, достаточно ли прав у бота в этом канале
+ * @param {Array || String} perm - права которые нужны боту
+ * @returns {Boolean}
+ */
+ Discord.Message.prototype.hasPermUser = function(perm) {
+	if ( !this.channel.permissionsFor ) return true // для DM - true
+	return this.channel.permissionsFor(this.member).has(perm)
+}
+
+
+/**
  * выполняет базовый парсинг контента из сообщения возвращая текст
  * @returns {String}
  */

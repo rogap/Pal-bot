@@ -66,10 +66,11 @@ module.exports = async (message, settings, command, contentParams) => {
                 ru: `Есть вопросы?, предложения? или хотите быть в курсе событий? - присоединяйтесь к серверу бота: ${config.discordInvate}`,
                 en: `Any questions ?, suggestions? or want to keep abreast of events? - join the bot server: ${config.discordInvate}`
             }
-            details.ru.content = `${config.news.ru}${contentRep.ru}`
-            details.en.content = `${config.news.en}${contentRep.en}`
 
             if (contentParams && contentParams.length >= 18) {
+                details.ru.content = `${config.news.ru}`
+                details.en.content = `${config.news.en}`
+
                 await _local.utils.sendToChannel(contentParams, details[lang])
 
                 await message.sendCheckIn({
@@ -77,6 +78,9 @@ module.exports = async (message, settings, command, contentParams) => {
                     en: `The message was successfully sent to the channel.`
                 }[lang])
             } else {
+                details.ru.content = `${config.news.ru}${contentRep.ru}`
+                details.en.content = `${config.news.en}${contentRep.en}`
+
                 await message.author.send(details[lang])
                 if (!toPM) {
                     await message.sendCheckIn({

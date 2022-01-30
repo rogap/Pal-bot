@@ -52,6 +52,10 @@ Search for players among all platforms
 
 Account statistics
 
+### progress
+
+Compares the player's current statistics with the saved ones.
+
 ### history
 
 Player's Match History

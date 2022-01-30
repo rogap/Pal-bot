@@ -86,6 +86,12 @@ module.exports = async (userId, settings, contentParams) => {
             .setLabel({en: 'Friends', ru: 'Друзья'}[lang])
             .setStyle('PRIMARY')
         )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('progress')
+            .setLabel({en: 'Progress', ru: 'Прогресс'}[lang])
+            .setStyle('PRIMARY')
+        )
 
         const buttonsLine_3 = new MessageActionRow()
         .addComponents(

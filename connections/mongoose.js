@@ -23,6 +23,16 @@ module.exports = (async () => {
         // const db = mongoose.connection
         // console.log(db)
 
+        // сравнение статистик progress
+        const commandProgress = new Schema({
+            discordId: {type: String, required: true, unique: true},
+            accauntId: {type: Number},
+            stats: {type: Object},
+            champions: {type: Array},
+            date: {type: String} // время добавления
+        })
+        _local.models.commandProgress = model('commandProgress', commandProgress)
+
         // статистика команд
         const commandsStats = new Schema({
             servers: {type: Number},

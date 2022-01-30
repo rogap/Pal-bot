@@ -118,6 +118,23 @@ module.exports = {
         },
         files: ['details', 'draw', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
     },
+    progress: {
+        name: 'progress',
+        slashName: 'progress',
+        possibly: ['progress', 'прогресс', 'pr'],
+        permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
+        owner: false,
+        path: path.join(_local.path, 'commands', 'progress'),
+        params: {
+            ru: ['?"Ник/id"'],
+            en: ['?"Nickname/id"']
+        },
+        info: {
+            ru: `Сравнивает текущую статистику игрока с сохраненной.`,
+            en: `Compares the player's current statistics with the saved ones.`
+        },
+        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
+    },
     history: {
         name: 'history',
         slashName: 'history',

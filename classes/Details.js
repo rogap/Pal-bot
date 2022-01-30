@@ -15,6 +15,7 @@ module.exports = class Details {
                 embeds: [{
                     title: `\`${command.name}\` - ${command.info[lang]}`,
                     fields: [],
+                    color: '2F3136',
                     footer: {
                         icon_url: config.emptyIcon,
                         text: config.copyText

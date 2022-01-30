@@ -108,6 +108,7 @@ class Details { // временный фикс, потом перенесу, н�
             this[lang] = {
                 embeds: [{
                     title: '',
+                    color: '2F3136',
                     fields: [],
                     footer: {
                         icon_url: config.emptyIcon,

@@ -95,22 +95,30 @@ setInterval(async () => { // очистка кэша
 }, 1000 * 60 * 60) // каждый час
 
 
-setInterval(async () => { // данные на сервере (запись в имя голосовых каналов)
-    try {
-        const find = await _local.models.commandsStats.find()
-        const data = find[find.length - 1]
+function nextTimer(randomMinutes=1) {
+    setTimeout(async () => { // данные на сервере (запись в имя голосовых каналов)
+        const randomMinutes = 5 + Math.floor(Math.random() * 5)
+        try {
+            const find = await _local.models.commandsStats.find()
+            const data = find[find.length - 1]
 
-        const chUsers = await client.channels.fetch(config.chShowUsers)
-        const chServers = await client.channels.fetch(config.chShowServers)
-        const chCommands = await client.channels.fetch(config.chShowCommands)
+            const chUsers = await client.channels.fetch(config.chShowUsers)
+            const chServers = await client.channels.fetch(config.chShowServers)
+            const chCommands = await client.channels.fetch(config.chShowCommands)
 
-        await chUsers.setName(`Users: ${data.users}`)
-        await chServers.setName(`Servers: ${data.servers}`)
-        await chCommands.setName(`Used: ${data.usedCommands}`)
-    } catch(err) {
-        console.log(err)
-    }
-}, 1000 * 60) // каждую минуту
+            await chUsers.setName(`Users: ${data.users}`)
+            await chServers.setName(`Servers: ${data.servers}`)
+            await chCommands.setName(`Used: ${data.usedCommands}`)
+
+            nextTimer(randomMinutes)
+        } catch(err) {
+            console.log(err)
+            nextTimer(randomMinutes)
+        }
+    }, 1000 * 60 * randomMinutes)
+}
+
+nextTimer()
 
 
 

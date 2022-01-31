@@ -34,7 +34,7 @@ module.exports = async (message, settings, command, contentParams) => {
                 }[lang])
             }
         } else {
-            if (isFinite(contentParams) && !message.hasPermUser('ADMINISTRATOR')) throw {
+            if (contentParams && isFinite(contentParams) && !message.hasPermUser('ADMINISTRATOR')) throw {
                 err_msg: {
                     ru: 'Это действие достопно только администратору сервера.',
                     en: 'This action is available only to the server administrator.'

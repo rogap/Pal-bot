@@ -5,6 +5,7 @@
 
 const _local = process._local
 const {client, config} = _local
+const path = require('path')
 
 
 client.on('guildCreate', async guild => {
@@ -68,6 +69,17 @@ client.on('guildCreate', async guild => {
                 ]
             }]
         })
+
+        setTimeout(async () => {
+            try {
+                await owner.send({
+                    content:'```md\n# Watch a video with an example of using commands:```',
+                    files: [path.join(_local.path, 'video', 'palbot_intro_functional.mp4')]
+                })
+            } catch(err) {
+                console.log(err)
+            }
+        }, 500)
     } catch(err) {
         console.log(`Ошибка отправки сообщения ОВНЕРУ: ${guild.ownerId}:`)
         console.log(err)

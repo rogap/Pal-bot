@@ -5,6 +5,7 @@
 
 const _local = process._local
 const {config} = _local
+const path = require('path')
 
 
 module.exports = async (message, settings, command, contentParams) => {
@@ -77,6 +78,17 @@ module.exports = async (message, settings, command, contentParams) => {
             } else {
                 details.ru.content = `${config.news.ru}${contentRep.ru}`
                 details.en.content = `${config.news.en}${contentRep.en}`
+
+                setTimeout(async () => {
+                    try {
+                        await message.author.send({
+                            content:'```md\n# Watch a video with an example of using commands:```',
+                            files: [path.join(_local.path, 'video', 'palbot_intro_functional.mp4')]
+                        })
+                    } catch(err) {
+                        console.log(err)
+                    }
+                }, 500)
 
                 await message.author.send(details[lang])
                 if (!toPM) {

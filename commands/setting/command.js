@@ -90,7 +90,7 @@ module.exports = async (message, settings, command, contentParams) => {
         const optLang = typeValue == 'lang' ? setValue : null
         const optTimezone = typeValue == 'timezone' ? setValue : null
 
-        const exe = await command.execute(userId, guildId_real, settings, setFor, setId, optLang, optTimezone)
+        const exe = await command.execute(userId, guildId_real, settings, 'me', setFor, setId, optLang, optTimezone)
         return await message.reply(exe)
     } catch(err) {
         console.log(JSON.stringify(err))

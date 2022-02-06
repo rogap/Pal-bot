@@ -110,7 +110,7 @@ module.exports = async (userId, guildId, settings, nameOrId, setFor, setId, optL
             }
         }
 
-        // console.log(`setFor: ${setFor}; setId: ${setId}; typeValue: ${typeValue}; setValue: ${setValue}`)
+        // console.log(`setFor: ${setFor}; setId: ${setId}; optLang: ${optLang}; optTimezone: ${optTimezone}`)
         // применяем значения
         if (optLang) await _local[setFor == 'user' ? 'userSettings' : 'guildSettings'].set(setId, 'lang', optLang)
         if (optLang && setFor == 'user') lang = optLang

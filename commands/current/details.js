@@ -10,7 +10,7 @@ const {Details} = classes
  
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
-    const comSp = prefix + command.possibly[0]
+    const comSp = command.possibly[0]
     const expleName = config.example.name
     const expleId = config.example.id
 

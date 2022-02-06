@@ -11,7 +11,7 @@ const {Details} = classes
 module.exports = function(settings, command) {
     const {commands, prefix} = settings
     const comMe = command.possibly[0]
-    const comSh = prefix + commands.getByName('history').possibly[0]
+    const comSh = commands.getByName('history').possibly[0]
     const expleName = config.example.name
     const expleId = config.example.id
 

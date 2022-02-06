@@ -49,20 +49,26 @@ module.exports = async (userId, settings, contentParams) => {
         .addComponents(
             new MessageButton()
             .setCustomId('menu')
-            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
+        // .addComponents(
+        //     new MessageButton()
+        //     .setURL(config.siteUrl)
+        //     .setLabel({en: 'Site Stats', ru: 'Сайт статистики'}[lang])
+        //     .setStyle('LINK')
+        //     .setDisabled(true)
+        // )
         .addComponents(
             new MessageButton()
-            .setURL(config.siteUrl)
-            .setLabel({en: 'Site Stats', ru: 'Сайт статистики'}[lang])
-            .setStyle('LINK')
-            .setDisabled(true)
+            .setCustomId('help')
+            .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+            .setStyle('DANGER')
         )
         .addComponents(
             new MessageButton()
             .setURL(config.discordInvate)
-            .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+            .setLabel({en: 'Server link', ru: 'Ссылка на сервер'}[lang])
             .setStyle('LINK')
         )
 
@@ -77,13 +83,54 @@ module.exports = async (userId, settings, contentParams) => {
         .addComponents(
             new MessageButton()
             .setCustomId('current')
-            .setLabel({en: 'Status in game', ru: 'Статус в игре'}[lang])
+            .setLabel({en: 'Current', ru: 'Статус в игре'}[lang])
             .setStyle('PRIMARY')
         )
         .addComponents(
             new MessageButton()
+            .setCustomId('history')
+            .setLabel({en: 'History', ru: 'История'}[lang])
+            .setStyle('PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('last')
+            .setLabel({en: 'Last match', ru: 'Последний матч'}[lang])
+            .setStyle('PRIMARY')
+        )
+
+        const buttonsLine_3 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+            .setCustomId('champions')
+            .setLabel({en: 'Champions', ru: 'Чемпионы'}[lang])
+            .setStyle('PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('champion')
+            .setLabel({en: 'Select champion', ru: 'Выбрать чемпиона'}[lang])
+            .setStyle('PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('random')
+            .setLabel({en: 'Random champion', ru: 'Случайный чемпион'}[lang])
+            .setStyle('PRIMARY')
+            .setDisabled(true)
+        )
+
+        const buttonsLine_4 = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
             .setCustomId('friends')
             .setLabel({en: 'Friends', ru: 'Друзья'}[lang])
+            .setStyle('PRIMARY')
+        )
+        .addComponents(
+            new MessageButton()
+            .setCustomId('deck')
+            .setLabel({en: 'Decks', ru: 'Колоды'}[lang])
             .setStyle('PRIMARY')
         )
         .addComponents(
@@ -93,29 +140,9 @@ module.exports = async (userId, settings, contentParams) => {
             .setStyle('PRIMARY')
         )
 
-        const buttonsLine_3 = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-            .setCustomId('history')
-            .setLabel({en: 'History', ru: 'История'}[lang])
-            .setStyle('PRIMARY')
-        )
-        .addComponents(
-            new MessageButton()
-            .setCustomId('champions')
-            .setLabel({en: 'Champions', ru: 'Чемпионы'}[lang])
-            .setStyle('PRIMARY')
-        )
-        .addComponents(
-            new MessageButton()
-            .setCustomId('deck')
-            .setLabel({en: 'Decks', ru: 'Колоды'}[lang])
-            .setStyle('PRIMARY')
-        )
-
         return {
             content: `${news}\n${steamInfo[lang]}`,
-            components: [buttonsLine_1, buttonsLine_2, buttonsLine_3],
+            components: [buttonsLine_1, buttonsLine_2, buttonsLine_3, buttonsLine_4],
             embeds: [{
                 color: '2F3136',
                 fields: hideInfo

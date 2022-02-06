@@ -14,7 +14,8 @@ client.on('interactionCreate', async interaction => {
     try {
         if (!_local.launched) return; // если бот не запущен до конца
         if (interaction.user.bot) return; // пропускаем ботов
-        if (!interaction.isButton() && !interaction.isSelectMenu()) return;
+        const isButton = interaction.isButton()
+        if (!isButton && !interaction.isSelectMenu()) return;
 
         const authorId = interaction.user.id
         const settings = interaction.message.getSettings(authorId) // получаем обьект настроек для текущего пользователя
@@ -41,22 +42,32 @@ client.on('interactionCreate', async interaction => {
             params: fieldFor
         }
 
-        // тут над будет выслать скрытое сообщение "вызовите свою команду меню"
-        if (hideObjInfo.owner != authorId) {
-            return await interaction.reply({
-                content: {
-                    ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
-                    en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).`
-                }[lang], // можно выдать кнопку с предложением вызвать команду
-                ephemeral: true
-            })
-        }
-
         const [commandName, commandBranch_1, commandBranch_2, commandBranch_3] = interaction.customId.split('_')
         const branches = [commandBranch_1, commandBranch_2, commandBranch_3]
         const values = interaction.values // выбранные эллементы у select menu
         const command = settings.commands.get(commandName)
         if (!command) return; // команда не найдена
+
+        // тут над будет выслать скрытое сообщение "вызовите свою команду меню"
+        if (hideObjInfo.owner != authorId) {
+            if (command.canAll) {
+                if (isButton) return await interaction.reply({
+                    content: {
+                        ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
+                        en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).`
+                    }[lang], // можно выдать кнопку с предложением вызвать команду
+                    ephemeral: true
+                })
+            } else {
+                return await interaction.reply({
+                    content: {
+                        ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
+                        en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).`
+                    }[lang], // можно выдать кнопку с предложением вызвать команду
+                    ephemeral: true
+                })
+            }
+        }
 
         // можно проверить права (а можно и не проверять), но лучше проверить
 
@@ -68,27 +79,53 @@ client.on('interactionCreate', async interaction => {
 
         const hideInfo = [{name: 'owner', value: `<@${fieldOwner}>`, inline: true}, {name: 'for', value: fieldFor, inline: true}]
 
-        // тут нужно добавить в массив ( new Set ) то что это сообщение уже редачится и что бы его нажатия игнорились !!!
-        await interaction.deferUpdate().catch(console.log) // откладываем ответ
+        if (command.canAll) {
+            if (isButton) {
+                // тут нужно добавить в массив ( new Set ) то что это сообщение уже редачится и что бы его нажатия игнорились !!!
+                await interaction.deferUpdate().catch(console.log) // откладываем ответ
 
-        const buttonsLine_1 = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-            .setURL(config.discordInvate)
-            .setLabel({en: 'Help', ru: 'Помощь'}[lang])
-            .setStyle('LINK')
-        )
+                const buttonsLine_1 = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                    .setURL(config.discordInvate)
+                    .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+                    .setStyle('LINK')
+                )
 
-        await interaction.editReply({
-            content: `<@${hideObjInfo.owner}> ` + {
-                ru: 'Идет обработка команды, пожалуйста подождите...',
-                en: 'The command is being processed, please wait...'}[lang],
-            components: [buttonsLine_1],
-            embed: {
-                color: '2F3136',
-                fields: hideInfo
+                await interaction.editReply({
+                    content: `<@${hideObjInfo.owner}> ` + {
+                        ru: 'Идет обработка команды, пожалуйста подождите...',
+                        en: 'The command is being processed, please wait...'}[lang],
+                    components: [buttonsLine_1],
+                    embed: {
+                        color: '2F3136',
+                        fields: hideInfo
+                    }
+                }).catch(console.log)
             }
-        }).catch(console.log)
+        } else {
+            // тут нужно добавить в массив ( new Set ) то что это сообщение уже редачится и что бы его нажатия игнорились !!!
+            await interaction.deferUpdate().catch(console.log) // откладываем ответ
+
+            const buttonsLine_1 = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                .setURL(config.discordInvate)
+                .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+                .setStyle('LINK')
+            )
+
+            await interaction.editReply({
+                content: `<@${hideObjInfo.owner}> ` + {
+                    ru: 'Идет обработка команды, пожалуйста подождите...',
+                    en: 'The command is being processed, please wait...'}[lang],
+                components: [buttonsLine_1],
+                embed: {
+                    color: '2F3136',
+                    fields: hideInfo
+                }
+            }).catch(console.log)
+        }
 
         // тут из 'массива' уже можно удалить эти данные
 

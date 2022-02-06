@@ -67,7 +67,7 @@ module.exports = class CommandsManager {
 
     // перебирает все команды
     each(callback) {
-        this.#commands.forEach(com => callback(com)) 
+        this.#commands.forEach((com, i) => callback(com, i)) 
     }
 
     get list() {

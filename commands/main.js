@@ -19,7 +19,7 @@ module.exports = {
     menu: {
         name: 'menu',
         slashName: 'menu',
-        possibly: ['menu', 'pal'],
+        possibly: ['menu', 'pal', 'меню'],
         permissions: ['SEND_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES'],
         owner: false,
         path: path.join(_local.path, 'commands', 'menu'),
@@ -56,6 +56,7 @@ module.exports = {
         permissions: ['SEND_MESSAGES'],
         owner: false,
         path: path.join(_local.path, 'commands', 'help'),
+        canAll: true, // могут нажимать ан кнопки все (кроме меню)
         params: {
             ru: ['?"команда"'],
             en: ['?"command"']
@@ -64,7 +65,7 @@ module.exports = {
             ru: 'Возвращает информацию о командах.',
             en: 'Returns information about commands.'
         },
-        files: ['details', 'command']
+        files: ['details', 'command', 'execute', 'button']
     },
     me: {
         name: 'me',

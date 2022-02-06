@@ -12,6 +12,7 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
         const {lang} = settings
         const {owner, params} = hideObjInfo
 
+        await interaction.message.removeAttachments() // удаляем файлы
         const exe = await command.execute(owner, settings, params)
         const iter = await interaction.editReply(exe)
         return {

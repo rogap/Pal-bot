@@ -18,6 +18,7 @@ module.exports = class Command {
         this.info = params.info
         this.slashName = params.slashName
         this.path = params.path
+        this.canAll = params.canAll || false
 
         params.files.forEach(filename => {
             const pathToCommand = params.path

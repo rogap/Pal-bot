@@ -22,14 +22,32 @@ client.on('messageCreate', async message => {
         const authorId = message.author.id
         // если включен режим тестирования
         if ( config.testing && !message.isOwner() ) return;
-        const content = message.parseContent()
+        const content = message.getContent()
         const settings = message.getSettings() // получаем обьект настроек для текущего пользователя
         const {lang, prefix} = settings
         // console.log(settings)
         // console.log(settings.commands.list[0])
 
-        if ( !content.startsWith(prefix) ) return; // если нет префикса то выход
-        const cont = content.cut(prefix)
+        if ( !content.startsWith(prefix) && !content.startsWith('<@!535215666739806219>') ) return; // если нет префикса то выход
+        const cont = content.startsWith(prefix) ? content.cut(prefix) : content.cut('<@!535215666739806219>')
+        // console.log(content, content.startsWith(prefix), prefix, cont)
+
+        if (!cont && !content.startsWith(prefix)) { // если просто упоминание, то вызываем меню!!!
+            const command = settings.commands.get('menu')
+            const contentParams = cont.parseContent(command.owner)
+            if (!command.owner) console.log(contentParams)
+
+            // запускаем печатание и сразу же отменяем
+            message.channel.sendTyping().catch(console.log)
+
+            // выполняем команду
+            await command.command(message, settings, command, contentParams)
+
+            // увеличиваем число использований команды, только удачные и не админские
+            await command.used()
+            if (!command.owner) console.log(`Команда успешно выполнена (<@${authorId}>).`)
+            return;
+        }
 
         const command = settings.commands.get(cont)
         if (!command) return; // команда не найдена
@@ -52,9 +70,9 @@ client.on('messageCreate', async message => {
         let guildName = "ls"
         const guild = message.guild
         if (guild) guildName = guild.name
-        if (!command.owner) console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${content}`)
+        if (!command.owner) console.log(`> ${guildName} <#${message.channel.id}> <@${authorId}>\ \n> ${cont}`)
 
-        const contentParams = message.getContent(command.owner)
+        const contentParams = cont.parseContent(command.owner)
         if (!command.owner) console.log(contentParams)
 
         // запускаем печатание и сразу же отменяем

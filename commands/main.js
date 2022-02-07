@@ -19,7 +19,7 @@ module.exports = {
     menu: {
         name: 'menu',
         slashName: 'menu',
-        possibly: ['menu', 'pal', 'меню'],
+        possibly: ['menu', 'pal', 'меню', 'pal-bot', 'palbot'],
         permissions: ['SEND_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES'],
         owner: false,
         path: path.join(_local.path, 'commands', 'menu'),

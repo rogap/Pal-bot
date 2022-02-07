@@ -213,23 +213,8 @@ Discord.Message.prototype.hasPerm = function(perm) {
  * выполняет базовый парсинг контента из сообщения возвращая текст
  * @returns {String}
  */
- Discord.Message.prototype.parseContent = function() {
+ Discord.Message.prototype.getContent = function() {
 	return this.content.replace(/^[\\]+/, '').replace(/[\n\r]+/g, ' ').trim()
-}
-
-
-/**
- * выполняет парсинг контента из сообщения и возвращает параметры команды
- * @param {Boolean} owner - является ли команда админ командой
- * @returns {String}
- */
-Discord.Message.prototype.getContent = function(owner=false) {
-	const text = this.parseContent() // убираем переводы строк
-	.cutPrefAndCom() // выезает префикс и команду
-	.mentionToId() // заменяем упоминания на id упоминающих, если таковы есть
-	.toString().replace(/[ ]+/g, ' ') // убираем двойные пробелы (и более)
-	if (owner) return text // если команда для админа то ей вырезать спец символы не нужно
-	return text.replace(/[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\<]/g, '')
 }
 
 

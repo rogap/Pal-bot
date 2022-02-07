@@ -25,14 +25,14 @@ module.exports = function(settings, command) {
         },
         value: {
             ru: [
-                `Выводит подробное описание команды (в ЛС);`
+                `Предоставляет текстовое и видео описание комад;`
             ],
             en: [
-                `Displays a detailed description of the command (in PM);`
+                `Provides text and video descriptions of commands;`
             ]
         }
     })
-    .setExample(`${prefix + comHh}`, `${prefix + comHh} ${comMe}`)
+    .setExample(`${prefix + comHh}`)
 
     return details
 }

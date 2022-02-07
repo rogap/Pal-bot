@@ -10,6 +10,7 @@ const path = require('path')
 module.exports = {
     console: {
         name: 'console',
+        video: true,
         possibly: ['console', 'con'],
         permissions: [],
         owner: true,
@@ -18,6 +19,7 @@ module.exports = {
     },
     menu: {
         name: 'menu',
+        video: true,
         slashName: 'menu',
         possibly: ['menu', 'pal', 'меню', 'pal-bot', 'palbot'],
         permissions: ['SEND_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES'],
@@ -35,6 +37,7 @@ module.exports = {
     },
     setting: {
         name: 'setting',
+        video: true,
         slashName: 'setting',
         possibly: ['setting', 'set', 'установить'],
         permissions: ['SEND_MESSAGES'],
@@ -52,6 +55,7 @@ module.exports = {
     },
     help: {
         name: 'help',
+        video: true,
         possibly: ['help', 'помощь', 'hh'],
         permissions: ['SEND_MESSAGES'],
         owner: false,
@@ -69,6 +73,7 @@ module.exports = {
     },
     me: {
         name: 'me',
+        video: true,
         slashName: 'me',
         possibly: ['me'],
         permissions: ['SEND_MESSAGES'],
@@ -86,6 +91,7 @@ module.exports = {
     },
     search: {
         name: 'search',
+        video: true,
         slashName: 'search',
         possibly: ['search', 'поиск', 'se'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -103,8 +109,8 @@ module.exports = {
     },
     stats: {
         name: 'stats',
+        video: true,
         slashName: 'stats',
-        // slashSub: new Set(['pc', 'player', 'steam']),
         possibly: ['stats', 'стата', 'ss'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
         owner: false,
@@ -138,6 +144,7 @@ module.exports = {
     },
     history: {
         name: 'history',
+        video: true,
         slashName: 'history',
         possibly: ['history', 'история', 'sh'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -155,6 +162,7 @@ module.exports = {
     },
     last: {
         name: 'last',
+        video: true,
         slashName: 'last',
         possibly: ['last', 'sm', 'матч', 'match'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -172,6 +180,7 @@ module.exports = {
     },
     current: {
         name: 'current',
+        video: true,
         slashName: 'current',
         possibly: ['current', 'sp', 'сталкер', 'live'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -189,6 +198,7 @@ module.exports = {
     },
     champions: {
         name: 'champions',
+        video: true,
         slashName: 'champions',
         possibly: ['champions', 'st', 'топ', 'top'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -206,6 +216,7 @@ module.exports = {
     },
     deck: {
         name: 'deck',
+        video: true,
         slashName: 'lodouts',
         possibly: ['deck', 'колода', 'sl'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -223,6 +234,7 @@ module.exports = {
     },
     champion: {
         name: 'champion',
+        video: true,
         slashName: 'champion',
         possibly: ['champion', 'чемпион', 'sc'],
         permissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
@@ -240,6 +252,7 @@ module.exports = {
     },
     friends: {
         name: 'friends',
+        video: true,
         slashName: 'friends',
         possibly: ['friends', 'друзья', 'friend', 'sf'],
         permissions: ['SEND_MESSAGES'],

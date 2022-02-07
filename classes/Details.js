@@ -32,9 +32,9 @@ module.exports = class Details {
                 params[lang],
                 {ru: 'Опции параметров:', en: 'Parameter Options'}[lang],
                 {ru: '[?] "Не обязательный параметр (но написать следующий параметр пропустив этот нельзя)"',
-                    en: `Optional parameter (but you can't write the next parameter without skipping this one)`}[lang],
+                    en: `[?] "Optional parameter (but you can\'t write the next parameter without skipping this one)"`}[lang],
                 {ru: '[^] "Параметр можно менять местами с другими такими же параметрами"',
-                    en: 'The parameter can be swapped with other similar parameters'}[lang],
+                    en: '[^] "The parameter can be swapped with other similar parameters"'}[lang],
                 // {ru: `[*] "Указывает что этот параметр может принудительно пропустить первый параметр"`,
                     // en: `Specifies that this parameter can force the first parameter to be skipped`}[lang],
                 {ru: 'Описание параметров:', en: 'Description of parameters'}[lang]

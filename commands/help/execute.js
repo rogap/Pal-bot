@@ -67,7 +67,7 @@ module.exports = async (userId, settings, contentParams) => {
                 color: '2F3136',
                 fields: hideInfo
             }],
-            files: [path.join(_local.path, 'video', 'palbot_intro_functional.mp4')]
+            files: [path.join(_local.path, 'video', 'help.mp4')]
         }
     } catch(err) {
         console.log(JSON.stringify(err))

@@ -74,7 +74,7 @@ client.on('guildCreate', async guild => {
             try {
                 await owner.send({
                     content:'```md\n# Watch a video with an example of using commands:```',
-                    files: [path.join(_local.path, 'video', 'palbot_intro_functional.mp4')]
+                    files: [path.join(_local.path, 'video', 'help.mp4')]
                 })
             } catch(err) {
                 console.log(err)

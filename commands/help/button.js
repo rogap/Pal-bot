@@ -36,7 +36,7 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
         const iter = await interaction.reply({
             ...com.details(settings, com)[lang],
             ephemeral: true,
-            files: [path.join(_local.path, 'video', `${com.name}.mp4`)]
+            files: com.vidio ? [path.join(_local.path, 'video', `${com.name}.mp4`)] : []
         })
 
         return {

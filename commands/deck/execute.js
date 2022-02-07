@@ -43,7 +43,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         .addComponents(
             new MessageButton()
             .setCustomId('deck')
-            .setLabel({en: 'To the selection of champions (Update)', ru: 'К выбору чемпионов (Обновить)'}[lang])
+            .setLabel({en: 'To the selection of champions (Refresh)', ru: 'К выбору чемпионов (Обновить)'}[lang])
             .setStyle('SECONDARY')
         )
 

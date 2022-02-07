@@ -75,7 +75,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
         .addComponents(
             new MessageButton()
             .setCustomId('history')
-            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(

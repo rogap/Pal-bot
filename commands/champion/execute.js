@@ -37,7 +37,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion) => {
         .addComponents(
             new MessageButton()
             .setCustomId('champion')
-            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(

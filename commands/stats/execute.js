@@ -62,7 +62,7 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
         .addComponents(
             new MessageButton()
             .setCustomId('stats' + (consoleStats ? '_console' : ''))
-            .setLabel({en: 'Update', ru: 'Обновить'}[lang])
+            .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
         )
         .addComponents(

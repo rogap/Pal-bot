@@ -4,8 +4,7 @@
 
 
 const _local = process._local
-const {Discord, client, config, stegcloak} = _local
-const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
+const path = require('path')
 
 
 module.exports = async (interaction, settings, command, hideObjInfo, branches, values) => {
@@ -36,7 +35,8 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
 
         const iter = await interaction.reply({
             ...com.details(settings, com)[lang],
-            ephemeral: true
+            ephemeral: true,
+            files: [path.join(_local.path, 'video', `${com.name}.mp4`)]
         })
 
         return {

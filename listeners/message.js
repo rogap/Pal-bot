@@ -28,8 +28,8 @@ client.on('messageCreate', async message => {
         // console.log(settings)
         // console.log(settings.commands.list[0])
 
-        if ( !content.startsWith(prefix) && !content.startsWith('<@!535215666739806219>') ) return; // если нет префикса то выход
-        const cont = content.startsWith(prefix) ? content.cut(prefix) : content.cut('<@!535215666739806219>')
+        if ( !content.startsWith(prefix) && !content.startsWith(`<@!${client.user.id}>`) ) return; // если нет префикса то выход
+        const cont = content.startsWith(prefix) ? content.cut(prefix) : content.cut(`<@!${client.user.id}>`)
         // console.log(content, content.startsWith(prefix), prefix, cont)
 
         if (!cont && !content.startsWith(prefix)) { // если просто упоминание, то вызываем меню!!!

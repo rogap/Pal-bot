@@ -15,8 +15,8 @@ module.exports = function(settings, command) {
 
     const details = new Details(command)
     .setDescription({
-        ru: `[${comHh} ?"Команда"]`,
-        en: `[${comHh} ?"Command"]`
+        ru: `[${comHh}]`,
+        en: `[${comHh}]`
     })
     .setFields({
         name: {
@@ -25,12 +25,10 @@ module.exports = function(settings, command) {
         },
         value: {
             ru: [
-                `Выводит подробное описание команды (в ЛС);`,
-                `1. [Название команды]: "${comHh}", "${comMe}"`
+                `Выводит подробное описание команды (в ЛС);`
             ],
             en: [
-                `Displays a detailed description of the command (in PM);`,
-                `1. [Название команды]: "${comHh}", "${comMe}"`
+                `Displays a detailed description of the command (in PM);`
             ]
         }
     })

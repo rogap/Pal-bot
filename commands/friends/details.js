@@ -18,7 +18,7 @@ module.exports = function(settings, command) {
     const details = new Details(command)
     .setDescription({
         ru: `[${comSf} ?"Ник/id", ^?"Поиск", *^?"Страница"]`,
-        en: `[${comSf} ?"Nickname/id", ^?"Search", *^?"Page"]`
+        en: `[${comSf} ?"Nickname/id", ^?"Search", ^?"Page"]`
     })
     .setFields({
         name: {

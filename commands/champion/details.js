@@ -16,7 +16,7 @@ module.exports = function(settings, command) {
 
     const details = new Details(command)
     .setDescription({
-        ru: `[${comSc} "Пользователь", *"Чемпион"]`,
+        ru: `[${comSc} ?"Пользователь", ?"Чемпион"]`,
         en: `[${comSc} "User", *"Champion"]`
     })
     .setFields({

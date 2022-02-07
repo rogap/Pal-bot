@@ -16,8 +16,8 @@ module.exports = function(settings, command) {
 
     const details = new Details(command)
     .setDescription({
-        ru: `[${comSp} ^?"Пользователь", ^?"Тип"]`,
-        en: `[${comSp} ^?"User", ^?"Type"]`
+        ru: `[${comSp} ^?"Пользователь"]`,
+        en: `[${comSp} ^?"User"]`
     })
     .setFields({
         name: {
@@ -40,22 +40,6 @@ module.exports = function(settings, command) {
                 `3. [Player ID]: "${expleId}";`,
                 `4. [Discord ID]: "510112915907543042";`,
                 `5. [Discord mention]: "@DiscordUser";`
-            ]
-        }
-    })
-    .setFields({
-        name: {
-            ru: 'Тип',
-            en: 'Type'
-        },
-        value: {
-            ru: [
-                `Позволяет вывести дополнительную информацию;`,
-                `1. [Тип выдачи]: "-f";`
-            ],
-            en: [
-                `Allows you to display additional information;`,
-                `1. [Issue type]: "-f";`
             ]
         }
     })

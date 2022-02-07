@@ -15,7 +15,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
         const {champions} = _local
         const prop = settings.getProp()
         const {lang, params} = prop
-        const isFull = params?.sh?.full // || modifier == '-f'
+        const isFull = params?.sh?.full || modifier == '-f'
         if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
         if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) {
@@ -82,7 +82,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             new MessageButton()
             .setCustomId('history_full')
             .setLabel({en: 'Show more', ru: 'Показать больше'}[lang])
-            .setStyle(isFull ? 'SUCCESS' : 'PRIMARY')
+            .setStyle(params?.sh?.full ? 'SUCCESS' : 'PRIMARY')
         )
         .addComponents(
             new MessageButton()

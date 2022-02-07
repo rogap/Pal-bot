@@ -95,7 +95,7 @@ module.exports = function(settings, command) {
             ]
         }
     })
-    .setExample(`${prefix + comSh}`, `${prefix + comSh} me siege -f`, `${prefix + comSh} ${expleName} flanker ranked 2`)
+    .setExample(`${prefix + comSh}`, `${prefix + comSh} me siege -f`, `${prefix + comSh} ${expleName} flanker 2`)
 
     return details
 }

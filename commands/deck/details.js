@@ -17,7 +17,7 @@ module.exports = function(settings, command) {
     const details = new Details(command)
     .setDescription({
         ru: `[${comSl} ?"Пользователь", *^"Чемпион", *^?"Номер колоды"]`,
-        en: `[${comSl} ?"User", *^"Champion", *^?"Deck number"]`
+        en: `[${comSl} ?"User", ^?"Champion", ^?"Deck number"]`
     })
     .setFields({
         name: {

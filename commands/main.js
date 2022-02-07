@@ -58,8 +58,8 @@ module.exports = {
         path: path.join(_local.path, 'commands', 'help'),
         canAll: true, // могут нажимать ан кнопки все (кроме меню)
         params: {
-            ru: ['?"команда"'],
-            en: ['?"command"']
+            ru: [''],
+            en: ['']
         },
         info: {
             ru: 'Возвращает информацию о командах.',
@@ -161,8 +161,8 @@ module.exports = {
         owner: false,
         path: path.join(_local.path, 'commands', 'last'),
         params: {
-            ru: ['^?"id матча/Ник/id"', '^?"Матч по счету"', '^?"Тип"'],
-            en: ['^?"match id/Nickname/id"', '^?"Match count"', '^?"Type"']
+            ru: ['^?"id матча/Ник/id"', '^?"Матч по счету"'],
+            en: ['^?"match id/Nickname/id"', '^?"Match count"']
         },
         info: {
             ru: `Выводит детали для указанного матча или последнего матча игрока.`,

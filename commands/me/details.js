@@ -42,7 +42,7 @@ module.exports = function(settings, command) {
             ]
         }
     })
-    .setExample(`${prefix + comMe}`, `${prefix + comMe} ${expleName}`, `${prefix + comMe} ${expleId}`, `=`, `${comSh}`, `${comSh} me siege`)
+    .setExample(`${prefix + comMe}`, `${prefix + comMe} ${expleName}`, `${prefix + comMe} ${expleId}`, `=`, `${prefix + comSh}`, `${prefix + comSh} me siege`)
 
     return details
 }

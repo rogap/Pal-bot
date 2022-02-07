@@ -16,8 +16,8 @@ module.exports = function(settings, command) {
 
     const details = new Details(command)
     .setDescription({
-        ru: `[${comSm} ^?"Пользователь", ^?"Матч по счету", ^?"Тип"]`,
-        en: `[${comSm} ^?"User", ^?"Match by score", ^?"Type"]`
+        ru: `[${comSm} ^?"Пользователь", ^?"Матч по счету"]`,
+        en: `[${comSm} ^?"User", ^?"Match by score"]`
     })
     .setFields({
         name: {
@@ -61,23 +61,7 @@ module.exports = function(settings, command) {
             ]
         }
     })
-    .setFields({
-        name: {
-            ru: 'Тип',
-            en: 'Type'
-        },
-        value: {
-            ru: [
-                `Позволяет вывести дополнительную информацию;`,
-                `1. [Тип выдачи]: "-f";`
-            ],
-            en: [
-                `Allows you to display additional information;`,
-                `1. [Issue type]: "-f";`
-            ]
-        }
-    })
-    .setExample(`${prefix + comSm}`, `${prefix + comSm} 2 -f`, `${prefix + comSm} ${expleName} 15`)
+    .setExample(`${prefix + comSm}`, `${prefix + comSm} 2`, `${prefix + comSm} ${expleName} 15`)
 
     return details
 }

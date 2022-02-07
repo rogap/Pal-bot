@@ -40,11 +40,13 @@ module.exports = async (message, settings, command, contentParams) => {
         const pageShow = prop.page = Math.floor(page) || 1
 
         // получаем модификатор
-        const modifier = modifierList.find(mod => mod === firstParam || mod === secondParam || mod === thirdParam || mod === fourthParam) || false
+        const modifier = modifierList.find(mod => mod == firstParam || mod == secondParam || mod == thirdParam || mod == fourthParam) || false
 
         const errParams = {
-            ru: `Не верно указаны параметры команды. Смотрите ${'!'}${'hh'} ${'sh'} - для получения детальной информации.`,
-            en: `The command parameters are specified incorrectly. See ${'!'}${'hh'} ${'sh'} - for more detailed information.`
+            err_msg: {
+                ru: `Не верно указаны параметры команды. Смотрите !hh - для получения детальной информации.`,
+                en: `The command parameters are specified incorrectly. See !hh - for more detailed information.`
+            }
         }
         let userNameOrId, filterData
 
@@ -52,28 +54,28 @@ module.exports = async (message, settings, command, contentParams) => {
             // если указано 4 параметра то первый параметр это пользователь, а ДРУГОЙ это тип фильтра
 
             userNameOrId = firstParam
-            if (modifier === fourthParam) {
-                if (page === thirdParam) {
+            if (modifier == fourthParam) {
+                if (page == thirdParam) {
                     filterData = secondParam
-                } else if (page === secondParam) {
+                } else if (page == secondParam) {
                     filterData = thirdParam
                 } else {
                     // ERR
                     throw errParams
                 }
-            } else if (modifier === thirdParam) {
-                if (page === fourthParam) {
+            } else if (modifier == thirdParam) {
+                if (page == fourthParam) {
                     filterData = secondParam
-                } else if (page === secondParam) {
+                } else if (page == secondParam) {
                     filterData = fourthParam
                 } else {
                     // ERR
                     throw errParams
                 }
-            } else if (modifier === secondParam) {
-                if (page === fourthParam) {
+            } else if (modifier == secondParam) {
+                if (page == fourthParam) {
                     filterData = thirdParam
-                } else if (page === thirdParam) {
+                } else if (page == thirdParam) {
                     filterData = fourthParam
                 } else {
                     // ERR
@@ -94,7 +96,7 @@ module.exports = async (message, settings, command, contentParams) => {
                 userNameOrId = firstParam
             } else if (page || modifier) {
                 userNameOrId = firstParam
-                if (page === thirdParam || modifier === thirdParam) {
+                if (page == thirdParam || modifier == thirdParam) {
                     filterData = secondParam
                 } else {
                     filterData = thirdParam
@@ -135,7 +137,7 @@ module.exports = async (message, settings, command, contentParams) => {
 
         // тип матча
         const modeType = filterData ? gameModeTypes.find((modeName, mode) => {
-            return mode.find(type => type === filterData.toLowerCase()) ? modeName : false
+            return mode.find(type => type == filterData.toLowerCase()) ? modeName : false
         }) : false
 
         // имя чемпиона
@@ -143,7 +145,7 @@ module.exports = async (message, settings, command, contentParams) => {
 
         // роль чемпиона
         const championRole = championRoles.find((roleName, roles) => {
-            return roles.find(role => role === filterData) ? roleName : false
+            return roles.find(role => role == filterData) ? roleName : false
         })
 
         const exe = await command.execute(userId, settings, command, userNameOrId, pageShow, championType, championRole, modeType, modifier)

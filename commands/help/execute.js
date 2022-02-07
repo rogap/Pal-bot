@@ -56,7 +56,7 @@ module.exports = async (userId, settings, contentParams) => {
         .addComponents(
             new MessageButton()
             .setURL(config.discordInvate)
-            .setLabel({en: 'Server link', ru: 'Ссылка на сервер'}[lang])
+            .setLabel({en: 'Join bot server', ru: 'Посетить сервер бота'}[lang])
             .setStyle('LINK')
         )
 

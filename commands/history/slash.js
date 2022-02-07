@@ -15,8 +15,9 @@ module.exports = async (interaction, settings, command) => {
         const roleOpt = interaction.options.getString('role')
         const queueOpt = interaction.options.getString('queue')
         const fullinfoOpt = interaction.options.getString('fullinfo')
+        const fullinfo = fullinfoOpt == 'yes' ? '-f' : null
 
-        const exe = await command.execute(userId, settings, command, nameOrId, pageOpt, null, roleOpt, queueOpt, fullinfoOpt)
+        const exe = await command.execute(userId, settings, command, nameOrId, pageOpt, null, roleOpt, queueOpt, fullinfo)
         return await interaction.editReply(exe)
     } catch(err) {
         console.log(JSON.stringify(err))

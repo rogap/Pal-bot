@@ -92,16 +92,16 @@ client.on('messageCreate', async message => {
             const {lang} = settings
             // создаем кнопку меню и кнопку помощи
             const buttonsLine_1 = new MessageActionRow()
-            // .addComponents( // без embed не пашет
-            //     new MessageButton()
-            //     .setCustomId('pal')
-            //     .setLabel({en: 'Menu', ru: 'Меню'}[lang])
-            //     .setStyle('PRIMARY')
-            // )
+            .addComponents( // без embed не пашет
+                new MessageButton()
+                .setCustomId('help')
+                .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+                .setStyle('DANGER')
+            )
             .addComponents(
                 new MessageButton()
                 .setURL(config.discordInvate)
-                .setLabel({en: 'Help', ru: 'Помощь'}[lang])
+                .setLabel({en: 'Server link', ru: 'Ссылка на сервер'}[lang])
                 .setStyle('LINK')
             )
             await message.sendWarning(errText[lang], {components: [buttonsLine_1]})

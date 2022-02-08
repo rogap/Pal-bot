@@ -55,7 +55,6 @@ module.exports = {
     },
     help: {
         name: 'help',
-        video: true,
         possibly: ['help', 'помощь', 'hh'],
         permissions: ['SEND_MESSAGES'],
         owner: false,

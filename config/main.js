@@ -31,8 +31,8 @@ module.exports = {
 	copyText: '© 2019 Pal-Bot', // текст копирайта
 	requestLimit: 1000,
 	news: { // то что будет писатсья вместе с каждым сообщением бота (в его начале)
-		ru: '```md\n#Добавлена новая команда progress - позволяет сохранить и сравнить свой прогресс спустя время.```',
-		en: '```md\n#Added a new progress command - allows you to save and compare your progress after a while.```'
+		ru: '```md\n#Используйте !hh для получения помощи.```',
+		en: '```md\n#Use !hh for get help.```'
 	},
 	colors: { // цвета используемые в canvas
 		red: '#CC0000',

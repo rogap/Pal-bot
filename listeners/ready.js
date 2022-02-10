@@ -66,7 +66,7 @@ async function randomAction() {
 
             client.user.setPresence({
                 activities: [{
-                    name: `Steam Players: ${steamCountPlayers}.`,
+                    name: `Steam: ${steamCountPlayers} players.`,
                     type: 'PLAYING'
                 }],
                 status: 'online'

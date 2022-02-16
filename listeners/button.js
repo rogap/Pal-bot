@@ -23,8 +23,8 @@ client.on('interactionCreate', async interaction => {
         const embeds = interaction.message.embeds
         
         const replyNotEmbed = {
-            ru: '"Embed" был удален - вызовите новое сообщение.',
-            en: '"Embed" has been deleted - call a new message.'
+            ru: '"Embed" был удален - вызовите команду заново.',
+            en: '"Embed" has been deleted - call the command again.'
         }[lang]
 
         if (!embeds) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embeds
@@ -53,16 +53,20 @@ client.on('interactionCreate', async interaction => {
             if (command.canAll) {
                 if (isButton) return await interaction.reply({
                     content: {
-                        ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
-                        en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).`
+                        ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).' + 
+                        '\n**Введите в чат `!menu` или `/menu` Либо воспользуйтесь командой помощи `!hh`**',
+                    en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).` +
+                        '\nEnter `!menu` or `/menu` into the chat Or use the help command `!hh`'
                     }[lang], // можно выдать кнопку с предложением вызвать команду
                     ephemeral: true
                 })
             } else {
                 return await interaction.reply({
                     content: {
-                        ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).',
-                        en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).`
+                        ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).' + 
+                            '\n**Введите в чат `!menu` или `/menu` Либо воспользуйтесь командой помощи `!hh`**',
+                        en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).` +
+                            '\nEnter `!menu` or `/menu` into the chat Or use the help command `!hh`'
                     }[lang], // можно выдать кнопку с предложением вызвать команду
                     ephemeral: true
                 })

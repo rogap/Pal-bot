@@ -9,7 +9,7 @@ const {sendToChannel} = utils
 const {MessageActionRow, MessageButton, MessageSelectMenu} = Discord
 
 
-module.exports = async (userId, settings, command, nameOrId, modifier) => {
+module.exports = async (userId, settings, command, nameOrId, modifier, consoleStats=false) => {
     try {
         const prop = settings.getProp()
         const {lang, params} = prop
@@ -29,7 +29,7 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
         const body = await command.getStats(userId, nameOrId, modifier)
         if (!body.status) throw body
 
-        const draw = await command.draw(body, prop) // рисуем
+        const draw = await command.draw(body, prop, consoleStats) // рисуем
         if (!draw.status) throw draw
 
         const canvas = draw.canvas
@@ -51,25 +51,30 @@ module.exports = async (userId, settings, command, nameOrId, modifier) => {
         const hideInfoParams = (draw.id || draw.name || nameOrId || 'me') + ''
         const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: hideInfoParams, inline: true}]
 
-        const consoleStats = params?.ss?.console || false
+        // const consoleStats = params?.ss?.console || false
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('stats' + (consoleStats ? '_console' : ''))
             .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
+            .setEmoji('<:refresh_mix:943814451226873886>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('stats' + (consoleStats ? '' : '_console'))
-            .setLabel({en: 'Console stats', ru: 'Статистика консоли'}[lang])
-            .setStyle(consoleStats ? 'SUCCESS' : 'PRIMARY')
+            .setLabel((consoleStats ? {en: 'Show PC stats', ru: 'Показать статистику PC'} : 
+                {en: 'Show console stats', ru: 'Показать статистику консоли'})[lang])
+            // .setStyle(consoleStats ? 'SUCCESS' : 'PRIMARY')
+            .setStyle('SECONDARY')
+            .setEmoji(consoleStats ? '<:mouse:943825037536952350>' : '<:console:943825037113303071>')
         )
 
         const statsImg = await sendToChannel(config.chImg, {files: [buffer]})

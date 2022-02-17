@@ -39,14 +39,22 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('deck')
             .setLabel({en: 'To the selection of champions (Refresh)', ru: 'К выбору чемпионов (Обновить)'}[lang])
             .setStyle('SECONDARY')
+            .setEmoji('<:refresh_mix:943814451226873886>')
         )
 
+        const roleIcons = {
+            flanker: '<:flank:943440471823360010>',
+            damage: '<:damage:943440471554924554>',
+            support: '<:support:943440471924023328>',
+            frontline: '<:frontline:943440471743672320>'
+        }
         const championsFilterOpts = []
         championList.forEach((champion, i) => {
             const count = Math.floor(i / 25) // массив по счету
@@ -54,7 +62,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
             championsFilterOpts[count].push({
                 label: {en: champion.Name.en, ru: champion.Name.ru}[lang],
                 description: {en: `Show the decks of the selected champion`, ru: `Показать колоды выбранного чемпиона`}[lang],
-                value: champion.name.en
+                value: champion.name.en,
+                emoji: roleIcons[champion.role.en]
             })
         })
         const championsOpt = []
@@ -110,6 +119,10 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         const replayOldText = body.getplayerloadouts.old ?
                 `${showOldStatsText[lang]}\n` : ''
 
+        const emojiNumbers = [
+            '<:1_:943870598541615114>', '<:2_:943870598789079060>', '<:3_:943870598545801218>',
+            '<:4_:943870598667436083>', '<:5_:943870598625497089>', '<:6_:943870598550007829>'
+        ]
         // если пользователь не указал колоду, а выбрать нужно ( их > 1)
         const buttonList = []
         if (loadouts.length > 5) {
@@ -122,7 +135,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                     new MessageButton()
                     .setCustomId(`deck_card_${i+1}_${champion.id}`)
                     .setLabel(loadout.DeckName || 'null')
-                    .setStyle('PRIMARY')
+                    .setStyle('SECONDARY')
+                    .setEmoji(emojiNumbers[i])
                 )
             }
             buttonList.push(buttonsLine_2)
@@ -136,6 +150,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
                     .setCustomId(`deck_card_${i+1}_${champion.id}`)
                     .setLabel(loadout.DeckName || 'null')
                     .setStyle('PRIMARY')
+                    .setEmoji(emojiNumbers[i])
                 )
             }
             buttonList.push(buttonsLine_2)

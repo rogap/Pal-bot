@@ -47,18 +47,21 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
                 .setCustomId('pal')
                 .setLabel({en: 'Menu', ru: 'Меню'}[lang])
                 .setStyle('DANGER')
+                .setEmoji('<:menu:943824092635758632>')
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('sh')
-                .setLabel({en: 'Back', ru: 'Назад'}[lang])
+                .setLabel({en: 'Back to matches', ru: 'Назад к матчам'}[lang])
                 .setStyle('SECONDARY')
+                .setEmoji('<:history:943818397009985597>')
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('sh_filterchampions')
-                .setLabel({en: 'Champions', ru: 'Чемпионы'}[lang])
-                .setStyle('PRIMARY')
+                .setLabel({en: 'Filter by champion', ru: 'Фильтр по чемпиону'}[lang])
+                .setStyle('SECONDARY')
+                .setEmoji('<:filter:943854779648581652>')
             )
 
             const buttonsLine_2 = new MessageActionRow()
@@ -70,27 +73,32 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
                     {
                         label: {en: 'All', ru: 'Все'}[lang],
                         description: {en: 'Show games only in the specified queue', ru: 'Показать игры только указанного режима'}[lang],
-                        value: 'all'
+                        value: 'all',
+                        emoji: '<:champions:943447650647310356>'
                     },
                     {
                         label: {en: 'Support', ru: 'Поддержка'}[lang],
                         description: {en: 'Show games only for the specified role', ru: 'Показать игры только указанной роли'}[lang],
-                        value: 'support'
+                        value: 'support',
+                        emoji: '<:support:943440471924023328>'
                     },
                     {
                         label: {en: 'Frontline', ru: 'Танк'}[lang],
                         description: {en: 'Show games only for the specified role', ru: 'Показать игры только указанной роли'}[lang],
-                        value: 'frontline'
+                        value: 'frontline',
+                        emoji: '<:frontline:943440471743672320>'
                     },
                     {
                         label: {en: 'Flanker', ru: 'Фланг'}[lang],
                         description: {en: 'Show games only for the specified role', ru: 'Показать игры только указанной роли'}[lang],
-                        value: 'flanker'
+                        value: 'flanker',
+                        emoji: '<:flank:943440471823360010>'
                     },
                     {
                         label: {en: 'Damage', ru: 'Урон'}[lang],
                         description: {en: 'Show games only for the specified role', ru: 'Показать игры только указанной роли'}[lang],
-                        value: 'damage'
+                        value: 'damage',
+                        emoji: '<:damage:943440471554924554>'
                     }
                 ])
             )
@@ -147,20 +155,29 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
                 .setCustomId('pal')
                 .setLabel({en: 'Menu', ru: 'Меню'}[lang])
                 .setStyle('DANGER')
+                .setEmoji('<:menu:943824092635758632>')
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('sh_filters')
                 .setLabel({en: 'Back to filters', ru: 'Назад к фильтрам'}[lang])
                 .setStyle('SECONDARY')
+                .setEmoji('<:filter:943854779648581652>')
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('sh')
                 .setLabel({en: 'Back to matches', ru: 'Назад к матчам'}[lang])
                 .setStyle('SECONDARY')
+                .setEmoji('<:history:943818397009985597>')
             )
 
+            const roleIcons = {
+                flanker: '<:flank:943440471823360010>',
+                damage: '<:damage:943440471554924554>',
+                support: '<:support:943440471924023328>',
+                frontline: '<:frontline:943440471743672320>'
+            }
             const championsFilterOpts = []
             champions.champions.forEach((champion, i) => {
                 const count = Math.floor(i / 25) // массив по счету
@@ -168,7 +185,8 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
                 championsFilterOpts[count].push({
                     label: {en: champion.Name.en, ru: champion.Name.ru}[lang],
                     description: {en: `Filter by the selected champion`, ru: `Фильтр по выбранному чемпиону`}[lang],
-                    value: champion.name.en
+                    value: champion.name.en,
+                    emoji: roleIcons[champion.role.en]
                 })
             })
             const championsOpt = []

@@ -20,6 +20,7 @@ module.exports = class Command {
         this.path = params.path
         this.canAll = params.canAll || false
         this.video = params.video || false
+        this.emoji = params.emoji || false
 
         params.files.forEach(filename => {
             const pathToCommand = params.path

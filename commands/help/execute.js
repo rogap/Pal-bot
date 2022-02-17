@@ -29,35 +29,38 @@ module.exports = async (userId, settings, contentParams) => {
 
         const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: nameOrId, inline: true}]
 
-        const pageListOpt = []
-        commands.each((com, i) => {
-            if (com.owner) return;
-            pageListOpt.push({
-                label: com.name,
-                description: com.info[lang],
-                value: com.name
-            })
-        })
         const buttonsLine_1 = new MessageActionRow()
-        .addComponents(
-            new MessageSelectMenu()
-                .setCustomId('help')
-                .setPlaceholder({en: 'Select a command for help', ru: 'Выберите команду для справки'}[lang])
-                .addOptions(pageListOpt)
-        )
-
-        const buttonsLine_2 = new MessageActionRow()
         .addComponents(
             new MessageButton()
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setURL(config.discordInvate)
             .setLabel({en: 'Join bot server', ru: 'Посетить сервер бота'}[lang])
             .setStyle('LINK')
+        )
+
+        const pageListOpt = []
+        commands.each((com, i) => {
+            if (com.owner) return;
+            const cObj = {
+                label: com.name,
+                description: com.info[lang],
+                value: com.name
+            }
+            if (com.emoji) cObj.emoji = com.emoji
+            pageListOpt.push(cObj)
+        })
+        const buttonsLine_2 = new MessageActionRow()
+        .addComponents(
+            new MessageSelectMenu()
+                .setCustomId('help')
+                .setPlaceholder({en: 'Select a command for help', ru: 'Выберите команду для справки'}[lang])
+                .addOptions(pageListOpt)
         )
 
         return {

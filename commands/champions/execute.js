@@ -73,18 +73,21 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('champions')
             .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
+            .setEmoji('<:refresh_mix:943814451226873886>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('champion')
             .setLabel({en: 'Choose a champion', ru: 'Выбрать чемпиона'}[lang])
-            .setStyle('PRIMARY')
+            .setStyle('SECONDARY')
+            .setEmoji('<:champion:943440471601061888>')
         )
 
         const buttonsLine_2 = new MessageActionRow()
@@ -96,22 +99,26 @@ module.exports = async (userId, settings, command, nameOrId, typeSort) => {
                     {
                         label: {en: 'Level', ru: 'Уровню'}[lang],
                         description: {en: 'Sort by level', ru: 'Сортировать по уровню'}[lang],
-                        value: 'lvl'
+                        value: 'lvl',
+                        emoji: '<:lvl:943865190452178984>'
                     },
                     {
                         label: {en: 'Winrate', ru: 'Винрейт'}[lang],
                         description: {en: 'Sort by winrate', ru: 'Сортировать по винрейту'}[lang],
-                        value: 'winrate'
+                        value: 'winrate',
+                        emoji: '<:stats:943819417131839501>'
                     },
                     {
                         label: {en: 'Time', ru: 'Времени'}[lang],
                         description: {en: 'Sort by the time of the game on the champion', ru: 'Сортировать по времени игры на чемпионе'}[lang],
-                        value: 'time'
+                        value: 'time',
+                        emoji: '<:time:943836999771623475>'
                     },
                     {
                         label: {en: 'K/D/A', ru: 'K/D/A'}[lang],
                         description: {en: 'Sort by K/D/A', ru: 'Сортировать по K/D/A'}[lang],
-                        value: 'kda'
+                        value: 'kda',
+                        emoji: '<:rip:943864073248993290>'
                     }
                 ])
         )

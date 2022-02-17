@@ -123,6 +123,13 @@ module.exports = async (userId, settings, command, contentParams, typeValue) => 
         const buttonsLine_1 = new MessageActionRow()
         .addComponents(
             new MessageButton()
+            .setCustomId('menu')
+            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+            .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
+        )
+        .addComponents(
+            new MessageButton()
             .setCustomId('progress_compare')
             .setLabel({en: 'Compare', ru: 'Сравнить'}[lang])
             .setStyle('SUCCESS')
@@ -135,17 +142,9 @@ module.exports = async (userId, settings, command, contentParams, typeValue) => 
             .setStyle('SUCCESS')
         )
 
-        const buttonsLine_2 = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-            .setCustomId('menu')
-            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
-            .setStyle('DANGER')
-        )
-
         return {
             content: `${news}${replayText}`,
-            components: [buttonsLine_1, buttonsLine_2],
+            components: [buttonsLine_1],
             embeds: [{
                 color: '2F3136',
                 fields: hideInfo

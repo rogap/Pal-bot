@@ -33,20 +33,29 @@ module.exports = async (userId, settings, command, userNameOrId, champion) => {
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('champion')
             .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
+            .setEmoji('<:refresh_mix:943814451226873886>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('champions')
             .setLabel({en: 'To the statistics of champions', ru: 'К статистике чемпионов'}[lang])
-            .setStyle('PRIMARY')
+            .setStyle('SECONDARY')
+            .setEmoji('<:champions:943447650647310356>')
         )
 
+        const roleIcons = {
+            flanker: '<:flank:943440471823360010>',
+            damage: '<:damage:943440471554924554>',
+            support: '<:support:943440471924023328>',
+            frontline: '<:frontline:943440471743672320>'
+        }
         const championsFilterOpts = []
         _local.champions.champions.forEach((champion, i) => {
             const count = Math.floor(i / 25) // массив по счету
@@ -54,7 +63,8 @@ module.exports = async (userId, settings, command, userNameOrId, champion) => {
             championsFilterOpts[count].push({
                 label: {en: champion.Name.en, ru: champion.Name.ru}[lang],
                 description: {en: `Filter by the selected champion`, ru: `Фильтр по выбранному чемпиону`}[lang],
-                value: champion.name.en
+                value: champion.name.en,
+                emoji: roleIcons[champion.role.en]
             })
         })
         const championsOpt = []

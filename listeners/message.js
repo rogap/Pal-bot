@@ -97,6 +97,7 @@ client.on('messageCreate', async message => {
                 .setCustomId('help')
                 .setLabel({en: 'Help', ru: 'Помощь'}[lang])
                 .setStyle('DANGER')
+                .setEmoji('<:menu:943824092635758632>')
             )
             .addComponents(
                 new MessageButton()

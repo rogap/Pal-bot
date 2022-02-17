@@ -71,24 +71,28 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('history')
             .setLabel({en: 'Refresh', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
+            .setEmoji('<:refresh_mix:943814451226873886>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('history_full')
-            .setLabel({en: 'Show more', ru: 'Показать больше'}[lang])
-            .setStyle(params?.sh?.full ? 'SUCCESS' : 'PRIMARY')
+            .setLabel((params?.sh?.full ? {en: 'Show less', ru: 'Показать меньше'} : 
+                {en: 'Show more', ru: 'Показать больше'})[lang])
+            .setStyle(params?.sh?.full ? 'SUCCESS' : 'SECONDARY')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('history_filters')
             .setLabel({en: 'Filters', ru: 'Фильтры'}[lang])
-            .setStyle('PRIMARY')
+            .setStyle('SECONDARY')
+            .setEmoji('<:filter:943854779648581652>')
         )
         .addComponents(
             new MessageButton()
@@ -96,6 +100,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             .setLabel({en: 'Reset filters', ru: 'Сбросить фильтры'}[lang])
             .setStyle('DANGER')
             .setDisabled(!(params?.sh?.full || params?.sh?.mode || params?.sh?.champion))
+            .setEmoji('<:reset:943850941940125696>')
         )
 
         if (!matchesPage.length || !matchesPage[0].Queue) {
@@ -143,6 +148,25 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
                 
         }
 
+        const emojiNumbers = [
+            '<:1_:943870598541615114>', '<:2_:943870598789079060>', '<:3_:943870598545801218>',
+            '<:4_:943870598667436083>', '<:5_:943870598625497089>', '<:6_:943870598550007829>',
+            '<:7_:943870598935883776>', '<:8_:943870598470332487>', '<:9_:943870599023960154>',
+            '<:10:943870599040729098>', '<:11:943915152158384128>', '<:12:943915152116433007>',
+            '<:13:943915152573624380>', '<:14:943915152523284531>', '<:15:943915152108044298>',
+            '<:16:943915152183554168>', '<:17:943915152535863326>', '<:18:943915152430989382>',
+            '<:19:943915152489717770>', '<:20:943915152674291722>', '<:21:943915207569342565>',
+            '<:22:943915209024761906>', '<:23:943915209431609394>', '<:24:943915209725210665>',
+            '<:25:943915209658093648>', '<:26:943915209611964446>', '<:27:943915209263808613>',
+            '<:28:943915209704243210>', '<:29:943915209704222740>', '<:30:943915209502900334>',
+            '<:31:943915209255436350>', '<:32:943915209221894177>', '<:33:943915209649709056>',
+            '<:34:943915209343500400>', '<:35:943915209200898091>', '<:36:943915209679077526>',
+            '<:37:943915209888763914>', '<:38:943915209964261426>', '<:39:943915209851027466>',
+            '<:40:943915209511305287>', '<:41:943915209603567628>', '<:42:943915209859411999>',
+            '<:43:943915209691643965>', '<:44:943915209733578812>', '<:45:943915209809100890>',
+            '<:46:943915209486118944>', '<:47:943915209741959188>', '<:48:943915209792319498>',
+            '<:49:943915209821675591>', '<:50:943915209788100708>'
+        ]
         const matchesInfo = isFull ? 
             ({
                 ru: matchesInfoDefault.ru + `\n\n# Статистика по ролям:\n` +
@@ -159,9 +183,10 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
         for (let i = 0; i < matches.length; i+=10) {
             const page = (i / 10 + 1) + ''
             pageListOpt.push({
-                label: {en: `Page ${page}`, ru: `Страница ${page}`}[lang],
-                description: {en: `Shows the history of matches from the specified page`, ru: `Покажет историю матчей с указанной страницы`}[lang],
-                value: page
+                label: {en: `History page`, ru: `Страница истории`}[lang],
+                // description: {en: `Shows the history of matches from the specified page`, ru: `Покажет историю матчей с указанной страницы`}[lang],
+                value: page,
+                emoji: emojiNumbers[page -1]
             })
         }
 
@@ -178,9 +203,10 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             const match = matchesPage[i]
             const num = (i+1) + (pageShow-1) * 10
             matchListOpt.push({
-                label: {en: `Match number ${num}`, ru: `Матч номер ${num}`}[lang],
-                description: {en: 'Shows the statistics of the specified match', ru: 'Покажет статистику указанного матча'}[lang],
-                value: match.Match + '_' + num
+                label: {en: `Match statistics`, ru: `Статистика матча`}[lang],
+                // description: {en: 'Shows the statistics of the specified match', ru: 'Покажет статистику указанного матча'}[lang],
+                value: match.Match + '_' + num,
+                emoji: emojiNumbers[num - 1]
             })
         }
 

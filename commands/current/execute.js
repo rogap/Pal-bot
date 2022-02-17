@@ -37,12 +37,14 @@ module.exports = async (userId, settings, command, userNameOrId) => {
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('current')
             .setLabel({en: 'Update', ru: 'Обновить'}[lang])
             .setStyle('SUCCESS')
+            .setEmoji('<:refresh_mix:943814451226873886>')
         )
 
         const hideInfoParams = (body.playerId || body.playerName || userNameOrId || 'me') + ''

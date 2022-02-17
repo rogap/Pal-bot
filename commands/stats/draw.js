@@ -16,7 +16,7 @@ const {red, white, blue, black, purple, orange, green, yellow} = config.colors
  * @param {*} body - 
  * @param {Object} prop - 
  */
-module.exports = async function(body, prop) {
+module.exports = async function(body, prop, consoleStats) {
     // console.log(body, prop)
     try {
         const {getplayer, getchampionranks} = body
@@ -45,7 +45,7 @@ module.exports = async function(body, prop) {
         if (!resDefault.status) throw resDefault
 
         // рисуем данные игрока
-        const resPlayer = await drawPlayer(ctx, player, champions, prop)
+        const resPlayer = await drawPlayer(ctx, player, champions, prop, consoleStats)
         if (!resPlayer.status) throw resPlayer
 
         // рисуем чемпионов
@@ -134,10 +134,9 @@ async function drawDefault(ctx, playerLastUpdate, championsLastUpdate, prop) {
 }
 
 
-async function drawPlayer(ctx, player, champions, prop) {
+async function drawPlayer(ctx, player, champions, prop, consoleStats) {
     try {
-        const {lang, timezone, params} = prop
-        const consoleStats = params?.ss?.console || false
+        const {lang, timezone} = prop
 
         const ranked = (consoleStats ? player.RankedController : player.RankedKBM) || {}
         const tier = consoleStats ? player.Tier_RankedController : player.Tier_RankedKBM

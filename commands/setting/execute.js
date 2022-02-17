@@ -27,15 +27,17 @@ module.exports = async (userId, guildId, settings, nameOrId, setFor, setId, optL
 
         const optionsTimezone = [{
             label: 'auto',
-            description: 'auto',
-            value: 'auto'
+            // description: 'auto',
+            value: 'auto',
+            emoji: '<:time:943836999771623475>'
         }]
         for (let i = 0; i < 24; i++) {
             const num = i + ''
             optionsTimezone.push({
                 label: num,
-                description: num,
-                value: num
+                // description: num,
+                value: num,
+                emoji: '<:time:943836999771623475>'
             })
         }
 
@@ -56,14 +58,6 @@ module.exports = async (userId, guildId, settings, nameOrId, setFor, setId, optL
                 .addOptions(optionsTimezone)
         )
 
-        const buttonsLine_4 = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-            .setCustomId('menu')
-            .setLabel({en: 'Menu', ru: 'Меню'}[lang])
-            .setStyle('DANGER')
-        )
-
         // если для сервера то проверяем является ли пользователь владельцем указанного сервера
         if (setFor == 'server' && !isAdministrator) {
             const serverSetting = _local.guildSettings.get(guildId) || {}
@@ -72,29 +66,36 @@ module.exports = async (userId, guildId, settings, nameOrId, setFor, setId, optL
             const buttonsLine_1 = new MessageActionRow()
             .addComponents(
                 new MessageButton()
+                .setCustomId('menu')
+                .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+                .setStyle('DANGER')
+                .setEmoji('<:menu:943824092635758632>')
+            )
+            .addComponents(
+                new MessageButton()
                 .setCustomId('setting_lang_server_en')
                 .setLabel({en: 'Server lang to EN', ru: 'Язык сервера на EN'}[lang])
-                .setStyle(serverSetting.lang == 'en' ? 'SUCCESS' : 'PRIMARY')
+                .setStyle(serverSetting.lang == 'en' ? 'SUCCESS' : 'SECONDARY')
                 .setDisabled(!isAdministrator)
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('setting_lang_server_ru')
                 .setLabel({en: 'Server lang to RU', ru: 'Язык сервера на RU'}[lang])
-                .setStyle(serverSetting.lang == 'ru' ? 'SUCCESS' : 'PRIMARY')
+                .setStyle(serverSetting.lang == 'ru' ? 'SUCCESS' : 'SECONDARY')
                 .setDisabled(!isAdministrator)
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('setting_lang_user_en')
                 .setLabel({en: 'My lang EN', ru: 'Мой язык EN'}[lang])
-                .setStyle(userSetting.lang == 'en' ? 'SUCCESS' : 'PRIMARY')
+                .setStyle(userSetting.lang == 'en' ? 'SUCCESS' : 'SECONDARY')
             )
             .addComponents(
                 new MessageButton()
                 .setCustomId('setting_lang_user_ru')
                 .setLabel({en: 'My lang RU', ru: 'Мой язык RU'}[lang])
-                .setStyle(userSetting.lang == 'ru' ? 'SUCCESS' : 'PRIMARY')
+                .setStyle(userSetting.lang == 'ru' ? 'SUCCESS' : 'SECONDARY')
             )
 
             return {
@@ -126,36 +127,43 @@ module.exports = async (userId, guildId, settings, nameOrId, setFor, setId, optL
         }[lang]}\`\`\`` : ''
 
         const buttonsLine_1 = new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-            .setCustomId('setting_lang_server_en')
-            .setLabel({en: 'Server lang to EN', ru: 'Язык сервера на EN'}[lang])
-            .setStyle(serverSetting.lang == 'en' ? 'SUCCESS' : 'PRIMARY')
-            .setDisabled(!isAdministrator)
-        )
-        .addComponents(
-            new MessageButton()
-            .setCustomId('setting_lang_server_ru')
-            .setLabel({en: 'Server lang to RU', ru: 'Язык сервера на RU'}[lang])
-            .setStyle(serverSetting.lang == 'ru' ? 'SUCCESS' : 'PRIMARY')
-            .setDisabled(!isAdministrator)
-        )
-        .addComponents(
-            new MessageButton()
-            .setCustomId('setting_lang_user_en')
-            .setLabel({en: 'My lang EN', ru: 'Мой язык EN'}[lang])
-            .setStyle(userSetting.lang == 'en' ? 'SUCCESS' : 'PRIMARY')
-        )
-        .addComponents(
-            new MessageButton()
-            .setCustomId('setting_lang_user_ru')
-            .setLabel({en: 'My lang RU', ru: 'Мой язык RU'}[lang])
-            .setStyle(userSetting.lang == 'ru' ? 'SUCCESS' : 'PRIMARY')
-        )
+            .addComponents(
+                new MessageButton()
+                .setCustomId('menu')
+                .setLabel({en: 'Menu', ru: 'Меню'}[lang])
+                .setStyle('DANGER')
+                .setEmoji('<:menu:943824092635758632>')
+            )
+            .addComponents(
+                new MessageButton()
+                .setCustomId('setting_lang_server_en')
+                .setLabel({en: 'Server lang to EN', ru: 'Язык сервера на EN'}[lang])
+                .setStyle(serverSetting.lang == 'en' ? 'SUCCESS' : 'SECONDARY')
+                .setDisabled(!isAdministrator)
+            )
+            .addComponents(
+                new MessageButton()
+                .setCustomId('setting_lang_server_ru')
+                .setLabel({en: 'Server lang to RU', ru: 'Язык сервера на RU'}[lang])
+                .setStyle(serverSetting.lang == 'ru' ? 'SUCCESS' : 'SECONDARY')
+                .setDisabled(!isAdministrator)
+            )
+            .addComponents(
+                new MessageButton()
+                .setCustomId('setting_lang_user_en')
+                .setLabel({en: 'My lang EN', ru: 'Мой язык EN'}[lang])
+                .setStyle(userSetting.lang == 'en' ? 'SUCCESS' : 'SECONDARY')
+            )
+            .addComponents(
+                new MessageButton()
+                .setCustomId('setting_lang_user_ru')
+                .setLabel({en: 'My lang RU', ru: 'Мой язык RU'}[lang])
+                .setStyle(userSetting.lang == 'ru' ? 'SUCCESS' : 'SECONDARY')
+            )
 
         return {
             content: `${news}\n${statusMess}`,
-            components: [buttonsLine_1, buttonsLine_2, buttonsLine_3, buttonsLine_4],
+            components: [buttonsLine_1, buttonsLine_2, buttonsLine_3],
             embeds: [{
                 color: '2F3136',
                 fields: hideInfo

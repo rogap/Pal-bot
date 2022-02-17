@@ -32,24 +32,28 @@ module.exports = async (userId, settings, command, userNameOrId, matchId, matchN
             .setCustomId('menu')
             .setLabel({en: 'Menu', ru: 'Меню'}[lang])
             .setStyle('DANGER')
+            .setEmoji('<:menu:943824092635758632>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId('history')
             .setLabel({en: 'Back to history', ru: 'Назад к истории'}[lang])
             .setStyle('SECONDARY')
+            .setEmoji('<:history:943818397009985597>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId(`last_prev_${matchNumber}`)
             .setLabel({en: 'Previous match', ru: 'Предыдущий матч'}[lang])
             .setStyle('PRIMARY')
+            .setEmoji('<:left:943831632312401991>')
         )
         .addComponents(
             new MessageButton()
             .setCustomId(`last_next_${matchNumber}`)
             .setLabel({en: 'Next match', ru: 'Следующий матч'}[lang])
             .setStyle('PRIMARY')
+            .setEmoji('<:right:943831760372895754>')
         )
 
         if ( (matchId && !isFinite(matchId)) || 

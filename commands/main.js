@@ -33,7 +33,8 @@ module.exports = {
             ru: 'Меню команд',
             en: 'Command menu'
         },
-        files: ['execute', 'details', 'command', 'button', 'slash', 'getSlash']
+        files: ['execute', 'details', 'command', 'button', 'slash', 'getSlash'],
+        emoji: '<:menu:943824092635758632>'
     },
     setting: {
         name: 'setting',
@@ -51,7 +52,8 @@ module.exports = {
             ru: 'Меняет настройки языка и часового пояса.',
             en: 'Changes the settings of the language and the time zone.'
         },
-        files: ['execute', 'details', 'setData', 'button', 'slash', 'getSlash', 'command']
+        files: ['execute', 'details', 'setData', 'button', 'slash', 'getSlash', 'command'],
+        emoji: '🛠️'
     },
     help: {
         name: 'help',
@@ -68,7 +70,8 @@ module.exports = {
             ru: 'Возвращает информацию о командах.',
             en: 'Returns information about commands.'
         },
-        files: ['details', 'command', 'execute', 'button']
+        files: ['details', 'command', 'execute', 'button'],
+        emoji: '❔'
     },
     me: {
         name: 'me',
@@ -104,7 +107,8 @@ module.exports = {
             ru: `Поиск аккаунтов консолей и других платформ.`,
             en: `Search for accounts of consoles and other platforms.`
         },
-        files: ['details', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
+        files: ['details', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash'],
+        emoji: '<:search:943934321968951397>'
     },
     stats: {
         name: 'stats',
@@ -122,7 +126,8 @@ module.exports = {
             ru: `Выводит общую статистику аккаунта.`,
             en: `Displays general account statistics.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash']
+        files: ['details', 'draw', 'getStats', 'execute', 'button', 'slash', 'command', 'getSlash'],
+        emoji: '<:stats:943819417131839501>'
     },
     progress: {
         name: 'progress',
@@ -157,7 +162,8 @@ module.exports = {
             ru: `Выводит историю матчей указанного игрока.`,
             en: `Displays the match history of the specified player.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
+        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash'],
+        emoji: '<:history:943818397009985597>'
     },
     last: {
         name: 'last',
@@ -175,7 +181,8 @@ module.exports = {
             ru: `Выводит детали для указанного матча или последнего матча игрока.`,
             en: `Displays details for the specified match or the last match of a player.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
+        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash'],
+        emoji: '<:match:943925118286069781>'
     },
     current: {
         name: 'current',
@@ -193,7 +200,8 @@ module.exports = {
             ru: `Возвращает статус игрока в реальном времени.`,
             en: `Returns the player status in real time.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
+        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash'],
+        emoji: '<:current:943440471680753694>'
     },
     champions: {
         name: 'champions',
@@ -211,7 +219,8 @@ module.exports = {
             ru: `Выводит топ чемпионов с возможностью сортировки.`,
             en: `Displays top champions with sorting options.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'command', 'slash', 'getSlash', 'button']
+        files: ['details', 'draw', 'getStats', 'execute', 'command', 'slash', 'getSlash', 'button'],
+        emoji: '<:champions:943447650647310356>'
     },
     deck: {
         name: 'deck',
@@ -229,7 +238,8 @@ module.exports = {
             ru: `Выводит колоды игрока указанного чемпиона.`,
             en: `Displays the player decks of the specified champion.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash']
+        files: ['details', 'draw', 'getStats', 'execute', 'button', 'command', 'slash', 'getSlash'],
+        emoji: '<:cards:943453491907661845>'
     },
     champion: {
         name: 'champion',
@@ -247,7 +257,8 @@ module.exports = {
             ru: `Выводит подробную статистику указанного чемпиона.`,
             en: `Displays detailed statistics for the specified champion.`
         },
-        files: ['details', 'draw', 'getStats', 'execute', 'command', 'slash', 'getSlash', 'button']
+        files: ['details', 'draw', 'getStats', 'execute', 'command', 'slash', 'getSlash', 'button'],
+        emoji: '<:champion:943440471601061888>'
     },
     friends: {
         name: 'friends',
@@ -265,6 +276,7 @@ module.exports = {
             ru: `Выводит список друзей в игре.`,
             en: `Displays a list of friends in the game.`
         },
-        files: ['details', 'getStats', 'execute', 'command', 'button', 'slash', 'getSlash']
+        files: ['details', 'getStats', 'execute', 'command', 'button', 'slash', 'getSlash'],
+        emoji: '<:friends:943449946428960798>'
     }
 }

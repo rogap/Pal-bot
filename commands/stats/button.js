@@ -15,21 +15,21 @@ module.exports = async (interaction, settings, command, hideObjInfo, branches, v
         const prop = settings.getProp()
         const {lang, params} = prop
 
-        const prefConsole = params?.ss?.console || false
+        // const prefConsole = params?.ss?.console || false
         const nowConsole = new Set(branches).has('console')
-        const changeConsole = prefConsole !== nowConsole // есть ли изменения в консоле
+        // const changeConsole = prefConsole !== nowConsole // есть ли изменения в консоле
 
-        if (changeConsole) { // если есть изменения
-            // тут нужно изменить кнопки и обновить данные в БД
-            // а потом все равно запросить новую стату!
+        // if (changeConsole) { // если есть изменения
+        //     // тут нужно изменить кнопки и обновить данные в БД
+        //     // а потом все равно запросить новую стату!
 
-            await settings.setParams('ss', 'console', nowConsole, userId) // обновляем данные локально и в БД
-            // if (!settings.params.ss) settings.params.ss = {}
-            // settings.params.ss.console = nowConsole // меняем данные в текущей переменной
-        }
+        //     // await settings.setParams('ss', 'console', nowConsole, userId) // обновляем данные локально и в БД
+        //     // if (!settings.params.ss) settings.params.ss = {}
+        //     // settings.params.ss.console = nowConsole // меняем данные в текущей переменной
+        // }
 
         const nameOrId = hideObjInfo.params
-        const exe = await command.execute(userId, settings, command, nameOrId, null)
+        const exe = await command.execute(userId, settings, command, nameOrId, null, nowConsole)
         const iter = await interaction.editReply(exe)
 
         return {

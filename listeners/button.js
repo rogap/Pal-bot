@@ -23,8 +23,8 @@ client.on('interactionCreate', async interaction => {
         const embeds = interaction.message.embeds
         
         const replyNotEmbed = {
-            ru: '"Embed" был удален - вызовите команду заново.',
-            en: '"Embed" has been deleted - call the command again.'
+            ru: `<@${authorId}>\n"Embed" был удален - вызовите команду заново.`,
+            en: `<@${authorId}>\n"Embed" has been deleted - call the command again.`
         }[lang]
 
         if (!embeds) return await interaction.reply({content: replyNotEmbed, ephemeral: true}) // нет embeds
@@ -52,7 +52,7 @@ client.on('interactionCreate', async interaction => {
         if (hideObjInfo.owner != authorId) {
             if (command.canAll) {
                 if (isButton) return await interaction.reply({
-                    content: {
+                    content: `<@${authorId}>\n` + {
                         ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).' + 
                         '\n**Введите в чат `!menu` или `/menu` Либо воспользуйтесь командой помощи `!hh`**',
                     en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).` +
@@ -62,7 +62,7 @@ client.on('interactionCreate', async interaction => {
                 })
             } else {
                 return await interaction.reply({
-                    content: {
+                    content: `<@${authorId}>\n` + {
                         ru: 'Для того чтобы пользоваться кнопками вам нужно вызвать свою команду (нельзя нажимать на чужие кнопки).' + 
                             '\n**Введите в чат `!menu` или `/menu` Либо воспользуйтесь командой помощи `!hh`**',
                         en: `In order to use the buttons, you need to call your command (you can not click on other people's buttons).` +
@@ -155,6 +155,7 @@ client.on('interactionCreate', async interaction => {
                 .setCustomId('pal')
                 .setLabel({en: 'Menu', ru: 'Меню'}[lang])
                 .setStyle('DANGER')
+                .setEmoji('<:menu:943824092635758632>')
             )
             .addComponents(
                 new MessageButton()

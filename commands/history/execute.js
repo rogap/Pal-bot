@@ -18,7 +18,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
         const isFull = params?.sh?.full || modifier == '-f'
         if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
-        if ( /[\-\_]/.test(nameOrId) ) throw {
+        if ( /[\-\_]/.test(userNameOrId) ) throw {
             err: 'Попытка смотреть консольный ак',
             status: false,
             err_msg: {
@@ -27,7 +27,7 @@ module.exports = async (userId, settings, command, userNameOrId, pageShow, champ
             }
         }
 
-        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) throw {
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) throw {
             err: 'Введен не корректный ник',
             status: false,
             err_msg: {

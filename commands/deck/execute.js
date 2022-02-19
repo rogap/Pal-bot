@@ -16,7 +16,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
         const {lang, timezone} = prop
         if (userNameOrId && userNameOrId.mentionToId) userNameOrId = userNameOrId.mentionToId()
 
-        if ( /[\-\_]/.test(nameOrId) ) throw {
+        if ( /[\-\_]/.test(userNameOrId) ) throw {
             err: 'Попытка смотреть консольный ак',
             status: false,
             err_msg: {
@@ -25,7 +25,7 @@ module.exports = async (userId, settings, command, userNameOrId, champion, numbe
             }
         }
 
-        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) throw {
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(userNameOrId) ) throw {
             err: 'Введен не корректный ник',
             status: false,
             err_msg: {

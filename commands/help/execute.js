@@ -16,14 +16,6 @@ module.exports = async (userId, settings, contentParams) => {
         const news = config.news[lang]
         if (nameOrId && nameOrId.mentionToId) nameOrId = nameOrId.mentionToId()
 
-        // if ( /[\-\_]/.test(nameOrId) ) {
-        //     nameOrId = 'me'
-        // }
-
-        // if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) {
-        //     nameOrId = 'me'
-        // }
-
         const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: nameOrId, inline: true}]
 
         const buttonsLine_1 = new MessageActionRow()

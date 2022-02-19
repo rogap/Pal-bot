@@ -20,14 +20,21 @@ module.exports = async (userId, settings, contentParams) => {
         const news = config.news[lang]
         if (nameOrId && nameOrId.mentionToId) nameOrId = nameOrId.mentionToId()
 
-        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) {
-            throw {
-                err: 'Введен не корректный ник',
-                status: false,
-                err_msg: {
-                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
-                    en: `Enter the correct Nickname or Paladins account id.`
-                }
+        if ( /[\-\_]/.test(nameOrId) ) throw {
+            err: 'Попытка смотреть консольный ак',
+            status: false,
+            err_msg: {
+                ru: `Консольные аккаунты доступны только по ID.\n=\nИспользуйте команду !search для поиска нужного аккаунта.`,
+                en: `Console accounts are available only by ID.\n=\nUse the command !search to find the desired account.`
+            }
+        }
+
+        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) throw {
+            err: 'Введен не корректный ник',
+            status: false,
+            err_msg: {
+                ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                en: `Enter the correct Nickname or Paladins account id.`
             }
         }
 

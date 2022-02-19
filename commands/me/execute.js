@@ -8,16 +8,23 @@ const _local = process._local
 
 module.exports = async (userId, settings, command, contentParams='') => {
     try {
-        const {lang, prefix} = settings
-        const comHH = settings.commands.getByName('help').possibly[0]
-        const comME = command.possibly[0]
+        const {lang} = settings
+
+        if ( /[\-\_]/.test(contentParams) ) throw {
+            err: 'Попытка смотреть консольный ак',
+            status: false,
+            err_msg: {
+                ru: `Консольные аккаунты доступны только по ID.\n=\nИспользуйте команду !search для поиска нужного аккаунта.`,
+                en: `Console accounts are available only by ID.\n=\nUse the command !search to find the desired account.`
+            }
+        }
 
         if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(contentParams) ) throw {
+            err: 'Введен не корректный ник',
+            status: false,
             err_msg: {
-                ru: `Введите корректный Ник или id аккаунта Paladins.\n` +
-                    `=Вы можете получить помощь на сервере бота, командой ${prefix}${comHH} или ${prefix}${comHH} ${comME}`,
-                en: `Enter the correct Nickname or Paladins account id.\n` +
-                    `=You can get help on the bot's server, by command ${prefix}${comHH} or ${prefix}${comHH} ${comME}`
+                ru: `Введите корректный Ник или id аккаунта Paladins.`,
+                en: `Enter the correct Nickname or Paladins account id.`
             }
         }
 
@@ -39,10 +46,10 @@ module.exports = async (userId, settings, command, contentParams='') => {
             const data = response[0]
             if (!data) throw { // если данных нет
                 err_msg: {
-                    ru: 'Ошибка получения - вы еще не сохранили свой никнейм.\n' +
-                        `=Вы можете получить помощь на сервере бота, командой ${prefix}${comHH} или ${prefix}${comHH} ${comME}`,
-                    en: `Receiving error - you haven't saved your nickname yet.\n` +
-                        `=You can get help on the bot's server, by command ${prefix}${comHH} or ${prefix}${comHH} ${comME}`
+                    ru: 'У вас еще нет сохраненного ID.\n=\n' +
+                        `Для сохранения ID воспользуйтесь командой !me 000000\nДля поиска ID воспользуйтесь командой !ss СвойНикВИгре`,
+                    en: `You don't have a saved ID yet.\n=\n` +
+                        `To save the ID, use the command !me 123456\nTo search for an ID, use the command !ss YourNicknameInGame`
                 }
             }
 

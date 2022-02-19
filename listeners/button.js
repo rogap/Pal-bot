@@ -21,7 +21,7 @@ client.on('interactionCreate', async interaction => {
         const settings = interaction.message.getSettings(authorId) // получаем обьект настроек для текущего пользователя
         const {lang} = settings
         const embeds = interaction.message.embeds
-        
+
         const replyNotEmbed = {
             ru: `<@${authorId}>\n"Embed" был удален - вызовите команду заново.`,
             en: `<@${authorId}>\n"Embed" has been deleted - call the command again.`

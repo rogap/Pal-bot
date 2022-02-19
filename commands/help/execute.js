@@ -16,16 +16,13 @@ module.exports = async (userId, settings, contentParams) => {
         const news = config.news[lang]
         if (nameOrId && nameOrId.mentionToId) nameOrId = nameOrId.mentionToId()
 
-        if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) {
-            throw {
-                err: 'Введен не корректный ник',
-                status: false,
-                err_msg: {
-                    ru: `Введите корректный Ник или id аккаунта Paladins.`,
-                    en: `Enter the correct Nickname or Paladins account id.`
-                }
-            }
-        }
+        // if ( /[\-\_]/.test(nameOrId) ) {
+        //     nameOrId = 'me'
+        // }
+
+        // if ( /[\`\~\!\@\#\$\%\^\&\*\(\)\=\+\[\]\{\}\;\:\'\"\\\|\?\/\.\>\,\< ]/.test(nameOrId) ) {
+        //     nameOrId = 'me'
+        // }
 
         const hideInfo = [{name: 'owner', value: `<@${userId}>`, inline: true}, {name: 'for', value: nameOrId, inline: true}]
 

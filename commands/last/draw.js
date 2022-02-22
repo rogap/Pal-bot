@@ -283,26 +283,38 @@ async function drawTable(ctx, match, prop) {
             // рисуем закуп
             const item1 = players.Item_Active_1
             if (item1) {
-                const img = await loadImage( config.img.items[item1.toLowerCase()] ).catch(console.log)
-                ctx.drawImage(img, 1025, 55 * i + nextTeam, 40, 40)
+                const imgSrc = config.img.items[item1.toLowerCase()]
+                if (imgSrc) {
+                    const img = await loadImage( imgSrc ).catch(console.log)
+                    ctx.drawImage(img, 1025, 55 * i + nextTeam, 40, 40)
+                }
                 drawLevelItem(ctx, players.ActiveLevel1, 1025, 55 * i + nextTeam + 43, 10, 3)
             }
             const item2 = players.Item_Active_2
             if (item2) {
-                const img = await loadImage( config.img.items[item2.toLowerCase()] ).catch(console.log)
-                ctx.drawImage(img, 1075, 55 * i + nextTeam, 40, 40)
+                const imgSrc = config.img.items[item2.toLowerCase()]
+                if (imgSrc) {
+                    const img = await loadImage( imgSrc ).catch(console.log)
+                    ctx.drawImage(img, 1075, 55 * i + nextTeam, 40, 40)
+                }
                 drawLevelItem(ctx, players.ActiveLevel2, 1075, 55 * i + nextTeam + 43, 10, 3)
             }
             const item3 = players.Item_Active_3
             if (item3) {
-                const img = await loadImage( config.img.items[item3.toLowerCase()] ).catch(console.log)
-                ctx.drawImage(img, 1125, 55 * i + nextTeam, 40, 40)
+                const imgSrc = config.img.items[item3.toLowerCase()]
+                if (imgSrc) {
+                    const img = await loadImage( imgSrc ).catch(console.log)
+                    ctx.drawImage(img, 1125, 55 * i + nextTeam, 40, 40)
+                }
                 drawLevelItem(ctx, players.ActiveLevel3, 1125, 55 * i + nextTeam + 43, 10, 3)
             }
             const item4 = players.Item_Active_4
             if (item4) {
-                const img = await loadImage( config.img.items[item4.toLowerCase()] ).catch(console.log)
-                ctx.drawImage(img, 1175, 55 * i + nextTeam, 40, 40)
+                const imgSrc = config.img.items[item4.toLowerCase()]
+                if (imgSrc) {
+                    const img = await loadImage( imgSrc ).catch(console.log)
+                    ctx.drawImage(img, 1175, 55 * i + nextTeam, 40, 40)
+                }
                 drawLevelItem(ctx, players.ActiveLevel4, 1175, 55 * i + nextTeam + 43, 10, 3)
             }
 

@@ -76,8 +76,8 @@ module.exports = async function(userId, nameOrId, matchId, matchNumber=1) {
         if (!playerId && !playerName) throw {
             status: false,
             err_msg: {
-                ru: `У пользователя нет сохраненного никнейма.\n=\nИспользуйте команду "!me mutu" (без кавычек) что бы сохранить свой никнейм.`,
-                en: `The user does not have a saved nickname.\n=\nUse the command "!me mutu" (without quotes) to save your nickname.`
+                ru: `У пользователя нет сохраненного никнейма.\n=\nИспользуйте команду "!me ТвойНик" (без кавычек) что бы сохранить свой никнейм.`,
+                en: `The user does not have a saved nickname.\n=\nUse the command "!me YourNickname" (without quotes) to save your nickname.`
             }
         }
 

@@ -102,7 +102,7 @@ module.exports = {
 	},
 	owners: ['510112915907543042'],
 	example: { // id и ник который будет использован в примерах
-		name: 'mutu',
+		name: 'YourNickname',
 		id: 3368378
 	},
 	timeLimit: {

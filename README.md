@@ -93,6 +93,7 @@ You can use an existing bot without installing it.
 * For correct operation, you will need to additionally install `pm2` - `sudo npm install pm2@latest -g`
 * And also MongoDB - `sudo apt update` and then `sudo apt install -y mongodb`
 * Create an empty `logs` folder in the root folder, if it is not there
+* Change the creator id https://github.com/rogap/Pal-bot/blob/master/config/main.js#L103
 * Create a file `.env` and write the following settings there, substituting their values together with zeros:
 ```
 DISCORDTOKEN=00000000000000000000000000000000000000000000000000000000000

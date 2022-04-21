@@ -1,5 +1,7 @@
 # Pal-bot
 
+[NEW GIT](https://codeberg.org/myname/Pal-Bot)
+
 [RU README](https://github.com/rogap/Pal-bot/blob/master/README_RU.md)
 
 Discord bot for issuing statistics on the Paladins game.

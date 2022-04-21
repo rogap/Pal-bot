@@ -1,5 +1,7 @@
 # Pal-bot
 
+[NEW GIT](https://codeberg.org/myname/Pal-Bot)
+
 Дискорд бот выдачи статистики по игре Paladins.
 
 [Добавить](https://discordapp.com/oauth2/authorize?client_id=626327927050600448&permissions=2147534912&scope=bot%20applications.commands) бота на сервер.
